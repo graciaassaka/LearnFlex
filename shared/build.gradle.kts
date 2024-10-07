@@ -9,9 +9,14 @@ repositories {
 }
 
 kotlin {
-    androidTarget()
+    androidTarget {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "11"
+            }
+        }
+    }
 
-    // Add JVM (desktop) target
     jvm("desktop") {
         compilations.all {
             kotlinOptions {

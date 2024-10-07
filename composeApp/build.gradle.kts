@@ -7,9 +7,28 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
+repositories {
+    google()
+    mavenCentral()
+    maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
+}
+
 kotlin {
-    androidTarget()
-    jvm("desktop")
+    androidTarget {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "11"
+            }
+        }
+    }
+
+    jvm("desktop") {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "11"
+            }
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
@@ -33,8 +52,10 @@ kotlin {
                 implementation(libs.androidx.appcompat)
                 implementation(libs.androidx.material)
                 implementation(libs.androidx.constraintlayout)
+                implementation(libs.koin.android)
                 implementation(libs.koin.compose.viewmodel)
                 implementation(libs.koin.compose.viewmodel.navigation)
+                implementation(libs.androidx.ui.tooling.preview.android)
             }
         }
 
@@ -70,6 +91,22 @@ android {
     buildFeatures {
         compose = true
     }
+
+    packaging {
+        resources {
+            excludes += "META-INF/INDEX.LIST"
+            excludes += "META-INF/DEPENDENCIES"
+            excludes += "META-INF/LICENSE"
+            excludes += "META-INF/LICENSE.txt"
+            excludes += "META-INF/license.txt"
+            excludes += "META-INF/NOTICE"
+            excludes += "META-INF/NOTICE.txt"
+            excludes += "META-INF/notice.txt"
+            excludes += "META-INF/ASL2.0"
+            excludes += "META-INF/*.kotlin_module"
+            pickFirsts += "META-INF/*"
+        }
+    }
 }
 
 compose.desktop {
@@ -84,8 +121,3 @@ compose.desktop {
     }
 }
 
-repositories {
-    google()
-    mavenCentral()
-    maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
-}
