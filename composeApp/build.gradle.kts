@@ -1,3 +1,4 @@
+import com.android.build.gradle.internal.ide.kmp.KotlinAndroidSourceSetMarker.Companion.android
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -10,7 +11,7 @@ plugins {
 repositories {
     google()
     mavenCentral()
-    maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
+    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 }
 
 kotlin {
@@ -35,7 +36,8 @@ kotlin {
             dependencies {
                 implementation(compose.runtime)
                 implementation(compose.foundation)
-                implementation(compose.material)
+                implementation(compose.material3)
+                implementation(compose.materialIconsExtended)
                 implementation(compose.ui)
                 implementation(compose.components.resources)
                 implementation(compose.components.uiToolingPreview)
@@ -48,20 +50,31 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation(libs.androidx.activity.compose)
+                implementation(libs.androidx.compose.ui.tooling.preview)
                 implementation(libs.androidx.core.ktx)
                 implementation(libs.androidx.appcompat)
-                implementation(libs.androidx.material)
+                implementation(libs.androidx.compose.material3)
                 implementation(libs.androidx.constraintlayout)
                 implementation(libs.koin.android)
+                implementation(libs.koin.androidx.compose)
                 implementation(libs.koin.compose.viewmodel)
                 implementation(libs.koin.compose.viewmodel.navigation)
-                implementation(libs.androidx.ui.tooling.preview.android)
+                implementation(libs.androidx.ui.text.google.fonts)
+                implementation(libs.androidx.material3.android)
             }
         }
 
         val desktopMain by getting {
             dependencies {
                 implementation(compose.desktop.currentOs)
+            }
+        }
+
+        val commonTest by getting {
+            dependencies {
+                implementation(libs.kotlin.test)
+                implementation(libs.androidx.compose.ui.test)
+                implementation(libs.androidx.compose.ui.test.manifest)
             }
         }
     }
@@ -92,9 +105,15 @@ android {
         compose = true
     }
 
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
+    }
+
     packaging {
         resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "META-INF/INDEX.LIST"
+            pickFirsts += "META-INF/io.netty.versions.properties"
             excludes += "META-INF/DEPENDENCIES"
             excludes += "META-INF/LICENSE"
             excludes += "META-INF/LICENSE.txt"
@@ -104,7 +123,6 @@ android {
             excludes += "META-INF/notice.txt"
             excludes += "META-INF/ASL2.0"
             excludes += "META-INF/*.kotlin_module"
-            pickFirsts += "META-INF/*"
         }
     }
 }
@@ -121,3 +139,6 @@ compose.desktop {
     }
 }
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions.jvmTarget = "11"
+}

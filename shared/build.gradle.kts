@@ -44,6 +44,7 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation(libs.logback)
+                // Remove or adjust dependencies if necessary
             }
         }
 
@@ -78,5 +79,13 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    packaging {
+        resources {
+            excludes += "META-INF/INDEX.LIST"
+            pickFirsts += "META-INF/io.netty.versions.properties"
+            // Additional exclusions or pickFirsts if needed
+        }
     }
 }

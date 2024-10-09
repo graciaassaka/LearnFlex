@@ -2,21 +2,30 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
-            android:allowBackup="true"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/app_name"
-            android:supportsRtl="true"
-            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+            android:supportsRtl="true">
         <activity
+                android:name="org.example.learnflex.MainActivity"
                 android:exported="true"
-                android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|mnc|colorMode|density|fontScale|fontWeightAdjustment|keyboard|layoutDirection|locale|mcc|navigation|smallestScreenSize|touchscreen|uiMode"
-                android:name="org.example.learnflex.MainActivity">
+                android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|mnc|colorMode|density|fontScale|fontWeightAdjustment|keyboard|layoutDirection|locale|mcc|navigation|smallestScreenSize|touchscreen|uiMode">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <!-- Activity alias for adaptive icon -->
+        <activity-alias
+                android:name=".AdaptiveIconAlias"
+                android:exported="true"
+                android:icon="@mipmap/ic_launcher"
+                android:targetActivity="org.example.learnflex.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
     </application>
 
 </manifest>
