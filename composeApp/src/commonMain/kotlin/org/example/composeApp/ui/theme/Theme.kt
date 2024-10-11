@@ -248,9 +248,24 @@ val unspecified_scheme = ColorFamily(
     Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified
 )
 
+/**
+ * Retrieves the platform-specific color scheme based on the provided theme settings.
+ *
+ * @param darkTheme A boolean indicating whether the dark theme should be used.
+ * @param dynamicColor A boolean indicating whether dynamic color should be applied.
+ * @return A ColorScheme instance appropriate for the given theme settings.
+ */
 @Composable
 expect fun getPlatformColorScheme(darkTheme: Boolean, dynamicColor: Boolean): ColorScheme
 
+/**
+ * A composable function that provides a material design theme to its content.
+ * The theme can adapt to dark mode and dynamic color based on platform settings.
+ *
+ * @param darkTheme A boolean that determines if the dark theme should be used. By default, it checks the system setting.
+ * @param dynamicColor A boolean that determines if dynamic color should be used.
+ * @param content A composable lambda that represents the content to which the theme will be applied.
+ */
 @Composable
 fun LearnFlexTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -264,4 +279,3 @@ fun LearnFlexTheme(
     content = content
   )
 }
-

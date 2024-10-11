@@ -1,11 +1,7 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
-}
-
-repositories {
-    google()
-    mavenCentral()
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -26,25 +22,38 @@ kotlin {
     }
 
     sourceSets {
+        all {
+            applyOptIns()
+        }
         val commonMain by getting {
             dependencies {
+                implementation(libs.kotlin.serialization)
                 implementation(libs.koin.core)
-                implementation(libs.ktor.server.core)
-                implementation(libs.ktor.server.netty)
+                implementation(libs.ktor.client.core)
+                implementation(libs.ktor.client.okhttp)
+                implementation(libs.ktor.content.negotiation)
+                implementation(libs.ktor.serialization.json)
+                implementation(project.dependencies.platform(libs.firebase.bom))
+                implementation(libs.firebase.auth)
+                implementation(libs.firebase.common)
+                implementation(libs.firebase.storage)
+                implementation(libs.firebase.database)
+                implementation(libs.firebase.analytics)
+                implementation(libs.firebase.firestore)
+                implementation(libs.firebase.functions)
             }
         }
 
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlin.test)
-                implementation(libs.ktor.server.tests)
             }
         }
 
         val androidMain by getting {
             dependencies {
                 implementation(libs.logback)
-                // Remove or adjust dependencies if necessary
+                implementation(libs.koin.android)
             }
         }
 
@@ -58,7 +67,8 @@ kotlin {
 
         val desktopMain by getting {
             dependencies {
-                // Add desktop-specific dependencies here if any
+                implementation(libs.firebase.admin)
+                implementation(libs.ktor.client.okhttp.jvm)
             }
         }
 
@@ -80,7 +90,15 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-
+    buildTypes {
+        android.buildFeatures.buildConfig = true
+        getByName("debug") {
+            buildConfigField("Boolean", "USE_FIREBASE_EMULATOR", "true")
+        }
+        getByName("release") {
+            buildConfigField("Boolean", "USE_FIREBASE_EMULATOR", "false")
+        }
+    }
     packaging {
         resources {
             excludes += "META-INF/INDEX.LIST"
@@ -89,3 +107,15 @@ android {
         }
     }
 }
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions {
+        freeCompilerArgs += listOf("-Xexpect-actual-classes")
+    }
+}
+
+fun org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet.applyOptIns()
+{
+    languageSettings.optIn("kotlin.RequiresOptIn")
+}
+

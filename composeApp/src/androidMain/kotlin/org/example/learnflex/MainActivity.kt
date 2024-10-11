@@ -7,6 +7,10 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 
+/**
+ * MainActivity is the entry point of the Android application.
+ * It extends ComponentActivity and sets the content view to the App composable.
+ */
 class MainActivity : ComponentActivity()
 {
     override fun onCreate(savedInstanceState: Bundle?)
