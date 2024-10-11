@@ -1,4 +1,3 @@
-import com.android.build.gradle.internal.ide.kmp.KotlinAndroidSourceSetMarker.Companion.android
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -6,12 +5,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
-}
-
-repositories {
-    google()
-    mavenCentral()
-    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+    alias(libs.plugins.googleServices)
 }
 
 kotlin {
@@ -32,6 +26,9 @@ kotlin {
     }
 
     sourceSets {
+        all {
+            applyOptIns()
+        }
         val commonMain by getting {
             dependencies {
                 implementation(compose.runtime)
@@ -61,6 +58,14 @@ kotlin {
                 implementation(libs.koin.compose.viewmodel.navigation)
                 implementation(libs.androidx.ui.text.google.fonts)
                 implementation(libs.androidx.material3.android)
+                implementation(libs.androidx.material)
+                implementation(libs.androidx.ui.tooling.preview)
+                implementation(libs.androidx.compose.runtime)
+                implementation(libs.androidx.compose.ui)
+                implementation(libs.androidx.compose.ui.tooling)
+                implementation(libs.androidx.compose.foundation)
+                implementation(libs.androidx.compose.materialIconsExtended)
+                implementation(libs.androidx.compose.animation)
             }
         }
 
@@ -73,6 +78,7 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlin.test)
+                implementation(libs.kotlin.test.junit)
                 implementation(libs.androidx.compose.ui.test)
                 implementation(libs.androidx.compose.ui.test.manifest)
             }
@@ -81,11 +87,11 @@ kotlin {
 }
 
 android {
-    namespace = "org.example"
+    namespace = "org.example.learnflex"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "org.example"
+        applicationId = "org.example.learnflex"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
@@ -133,7 +139,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "org.example"
+            packageName = "org.example.learnflex"
             packageVersion = "1.0.0"
         }
     }
@@ -141,4 +147,14 @@ compose.desktop {
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.jvmTarget = "11"
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions {
+        freeCompilerArgs += listOf("-Xexpect-actual-classes")
+    }
+}
+
+fun org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet.applyOptIns() {
+    languageSettings.optIn("kotlin.RequiresOptIn")
 }

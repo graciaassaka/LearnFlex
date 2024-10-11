@@ -1,3 +1,5 @@
+@file:Suppress("DuplicatedCode", "unused")
+
 package org.example.composeApp.ui.theme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
@@ -269,8 +271,8 @@ expect fun getPlatformColorScheme(darkTheme: Boolean, dynamicColor: Boolean): Co
 @Composable
 fun LearnFlexTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = false,
-    content: @Composable() () -> Unit
+    dynamicColor: Boolean = true,
+    content: @Composable () -> Unit
 ) {
   val colorScheme = getPlatformColorScheme(darkTheme, dynamicColor)
 
