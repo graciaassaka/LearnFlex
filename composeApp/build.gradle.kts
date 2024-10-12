@@ -66,6 +66,7 @@ kotlin {
                 implementation(libs.androidx.compose.foundation)
                 implementation(libs.androidx.compose.materialIconsExtended)
                 implementation(libs.androidx.compose.animation)
+                implementation(libs.androidx.splash.screen)
             }
         }
 
