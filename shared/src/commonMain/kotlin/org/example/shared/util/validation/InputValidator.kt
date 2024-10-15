@@ -1,7 +1,21 @@
 package org.example.shared.util.validation
 
+/**
+ * Regular expression for validating email addresses.
+ */
+private val EMAIL_REGEX = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\$")
+
+/**
+ * Object responsible for validating user input.
+ */
 object InputValidator
 {
+    /**
+     * Validates the given email.
+     *
+     * @param email The email to validate.
+     * @return The result of the validation.
+     */
     fun validateEmail(email: String) = when
     {
         email.isBlank() -> ValidationResult.Invalid(InvalidInputMessage.EMPTY_FIELD.message)
@@ -9,6 +23,12 @@ object InputValidator
         else -> ValidationResult.Valid(email)
     }
 
+    /**
+     * Validates the given password.
+     *
+     * @param password The password to validate.
+     * @return The result of the validation.
+     */
     fun validatePassword(password: String) = when
     {
         password.isBlank() -> ValidationResult.Invalid(InvalidInputMessage.EMPTY_FIELD.message)
@@ -22,6 +42,13 @@ object InputValidator
         else -> ValidationResult.Valid(password)
     }
 
+    /**
+     * Validates the given password confirmation.
+     *
+     * @param password The original password.
+     * @param passwordConfirmation The password confirmation to validate.
+     * @return The result of the validation.
+     */
     fun validatePasswordConfirmation(password: String, passwordConfirmation: String) = when
     {
         passwordConfirmation.isBlank() -> ValidationResult.Invalid(InvalidInputMessage.EMPTY_FIELD.message)
@@ -29,5 +56,3 @@ object InputValidator
         else -> ValidationResult.Valid(passwordConfirmation)
     }
 }
-
-private val EMAIL_REGEX = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\$")

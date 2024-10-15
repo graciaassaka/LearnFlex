@@ -30,7 +30,6 @@ import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.util.AuthForm
 import org.example.shared.presentation.util.SnackbarType
 import org.example.shared.presentation.viewModel.AuthViewModel
-import org.koin.androidx.compose.koinViewModel
 
 /**
  * Composable function for the Authentication screen.
@@ -69,7 +68,8 @@ actual fun AuthScreen(
             onSignInClicked = viewModel::signIn,
             enabled = !uiState.isLoading,
             displayAuthForm = viewModel::displayAuthForm,
-            onAnimationFinished = viewModel::onExitAnimationFinished
+            onAnimationFinished = viewModel::onExitAnimationFinished,
+            modifier = Modifier.testTag("sign_in_form")
         )
 
         AuthForm.SignUp -> SignUpForm(
@@ -89,12 +89,13 @@ actual fun AuthScreen(
             onSignUpClicked = viewModel::signUp,
             enabled = !uiState.isLoading,
             displayAuthForm = viewModel::displayAuthForm,
-            onAnimationFinished = viewModel::onExitAnimationFinished
+            onAnimationFinished = viewModel::onExitAnimationFinished,
+            modifier = Modifier.testTag("sign_up_form")
         )
 
         AuthForm.ForgotPassword ->
         {
-            TODO()
+
         }
     }
 }
@@ -114,7 +115,8 @@ private fun SignInForm(
     onSignInClicked: () -> Unit,
     enabled: Boolean,
     displayAuthForm: (AuthForm) -> Unit,
-    onAnimationFinished: () -> Unit
+    onAnimationFinished: () -> Unit,
+    modifier: Modifier = Modifier
 )
 {
     var isVisible by remember { mutableStateOf(true) }
@@ -130,7 +132,7 @@ private fun SignInForm(
         }
     ) {
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .padding(dimensionResource(R.dimen.padding_medium), dimensionResource(R.dimen.padding_large)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium)),
@@ -214,7 +216,8 @@ private fun SignUpForm(
     onSignUpClicked: () -> Unit,
     enabled: Boolean,
     displayAuthForm: (AuthForm) -> Unit,
-    onAnimationFinished: () -> Unit
+    onAnimationFinished: () -> Unit,
+    modifier: Modifier = Modifier
 )
 {
     var isVisible by remember { mutableStateOf(true) }
@@ -230,7 +233,7 @@ private fun SignUpForm(
         }
     ) {
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .padding(dimensionResource(R.dimen.padding_medium), dimensionResource(R.dimen.padding_large)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium)),
@@ -274,7 +277,7 @@ private fun SignUpForm(
                     isVisible = false
                     onSignUpClicked()
                 },
-                enabled = enabled && emailError.isNullOrBlank() && passwordError.isNullOrBlank(),
+                enabled = enabled && emailError.isNullOrBlank() && passwordError.isNullOrBlank() && confirmedPasswordError.isNullOrBlank(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(dimensionResource(R.dimen.auth_button_height))
@@ -337,7 +340,10 @@ private fun PasswordInputField(
     visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
     leadingIcon = { Icon(Icons.Default.Lock, null) },
     trailingIcon = {
-        IconButton(onClick = onPasswordVisibilityToggled) {
+        IconButton(
+            onClick = onPasswordVisibilityToggled,
+            modifier = Modifier.testTag("toggle_password_visibility")
+        ) {
             Icon(
                 imageVector = if (passwordVisibility) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                 contentDescription = stringResource(R.string.toggle_password_visibility)

@@ -1,4 +1,6 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -11,6 +13,8 @@ plugins {
 
 kotlin {
     androidTarget {
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
         compilations.all {
             kotlinOptions {
                 jvmTarget = "11"
@@ -81,58 +85,53 @@ kotlin {
 
         val commonTest by getting {
             dependencies {
-                implementation(libs.junit)
-                implementation(libs.kotlin.test)
-                implementation(libs.kotlin.test.junit)
-                implementation(libs.mockk)
-                implementation(libs.mockito.core)
-                implementation(libs.mockito.kotlin)
-                implementation(libs.mockito.inline)
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.koin.test)
-                implementation(libs.slf4j)
-            }
-        }
-
-        val androidInstrumentedTest by getting {
-            dependencies {
-                implementation(libs.junit)
-                implementation(libs.kotlin.test)
-                implementation(libs.kotlin.test.junit)
-                implementation(libs.mockk)
-                implementation(libs.mockito.core)
-                implementation(libs.mockito.kotlin)
-                implementation(libs.mockito.inline)
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.koin.test)
-                implementation(libs.slf4j)
-                implementation(libs.androidx.test.junit)
-                implementation(libs.androidx.espresso.core)
-                implementation(libs.androidx.test.core)
-                implementation(libs.androidx.test.runner)
-                implementation(libs.androidx.test.rules)
-                implementation(libs.androidx.compose.ui.test)
-                implementation(libs.androidx.compose.ui.test.manifest)
-                implementation(libs.mockk.android)
-            }
-        }
-
-        val desktopTest by getting {
-            dependencies {
-                implementation(libs.junit)
-                implementation(libs.kotlin.test)
-                implementation(libs.kotlin.test.junit)
-                implementation(libs.mockk)
-                implementation(libs.mockito.core)
-                implementation(libs.mockito.kotlin)
-                implementation(libs.mockito.inline)
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.koin.test)
-                implementation(libs.slf4j)
+                implementation(kotlin("test"))
+                @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+                implementation(compose.uiTest)
             }
         }
     }
 }
+
+dependencies {
+    // Unit test dependencies
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.mockito.inline)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.koin.test)
+    testImplementation(libs.slf4j)
+
+    // Instrumented test dependencies
+    androidTestImplementation(libs.kotlin.test)
+    androidTestImplementation(libs.kotlin.test.junit)
+    androidTestImplementation(libs.mockk)
+    androidTestImplementation(libs.mockk.android)
+    androidTestImplementation(libs.mockito.core)
+    androidTestImplementation(libs.mockito.kotlin)
+    androidTestImplementation(libs.mockito.inline)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.koin.test)
+    androidTestImplementation(libs.slf4j)
+    androidTestImplementation(libs.androidx.test.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.navigation)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.rules)
+    androidTestImplementation(libs.androidx.compose.ui.test)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4.android)
+    androidTestImplementation(project(":composeApp"))
+
+    // Add the orchestrator using androidTestUtil
+    androidTestUtil(libs.androidx.test.orchestrator)
+}
+
 
 android {
     namespace = "org.example.learnflex"
@@ -144,6 +143,10 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments["clearPackageData"] = "true"
+        testInstrumentationRunnerArguments["coverage"] = "true"
+        testNamespace = "org.example.learnflex.test"
     }
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
@@ -157,10 +160,19 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
+    }
+
+    testOptions {
+        execution = "ANDROIDX_TEST_ORCHESTRATOR"
+        animationsDisabled = true
+        unitTests {
+            isIncludeAndroidResources = true
+        }
     }
 
     packaging {
@@ -177,12 +189,11 @@ android {
             excludes += "META-INF/notice.txt"
             excludes += "META-INF/ASL2.0"
             excludes += "META-INF/*.kotlin_module"
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/LICENSE.md"
+            excludes += "META-INF/LICENSE-notice.md"
         }
     }
-}
-dependencies {
-    implementation(project(":shared"))
-    implementation(libs.androidx.room.compiler)
 }
 
 compose.desktop {
@@ -198,15 +209,13 @@ compose.desktop {
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = "11"
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
+        jvmTarget = "11"
         freeCompilerArgs += listOf("-Xexpect-actual-classes")
     }
 }
 
-fun org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet.applyOptIns() {
+fun org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet.applyOptIns()
+{
     languageSettings.optIn("kotlin.RequiresOptIn")
 }

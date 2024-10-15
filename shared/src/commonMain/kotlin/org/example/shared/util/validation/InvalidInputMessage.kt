@@ -1,5 +1,8 @@
 package org.example.shared.util.validation
 
+/**
+ * Enum class containing all the possible error messages that can be displayed to the user when the input is invalid
+ */
 enum class InvalidInputMessage(val message: String)
 {
     EMPTY_FIELD("Field cannot be empty"),

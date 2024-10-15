@@ -2,6 +2,9 @@ package org.example.composeApp.component
 
 import org.intellij.lang.annotations.Language
 
+/**
+ * Background shader that creates a gradient effect based on the distance from the top of the screen.
+ */
 @Language("AGSL")
 val BACKGROUND_SHADER = """
     uniform float time;
