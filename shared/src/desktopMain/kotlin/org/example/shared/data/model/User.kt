@@ -40,7 +40,7 @@ actual data class User(
     val lastLoginAt: String,
     val localId: String,
     val passwordHash: String,
-    val passwordUpdatedAt: Double,
+    val passwordUpdatedAt: Long,
     val photoUrl: String,
     val providerUserInfo: List<ProviderUserInfo>,
     val validSince: String

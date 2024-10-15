@@ -8,4 +8,5 @@ plugins {
     alias(libs.plugins.kotlinSerialization) apply false
     alias(libs.plugins.googleServices) apply false
     alias(libs.plugins.dotenv)
+    alias(libs.plugins.kotlin.android) apply false
 }

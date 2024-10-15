@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">LearnFlex</string>
+
+    <string name="sign_in_screen_title">Sign In</string>
+    <string name="sign_up_screen_title">Sign Up</string>
+    <string name="sign_in_button_label">Sign In</string>
+    <string name="sign_up_button_label">Sign Up</string>
+    <string name="already_have_account_button_label">Already have an account? Sign In</string>
+    <string name="forgot_password_button_label">Forgot Password?</string>
+    <string name="email_label">Email</string>
+    <string name="password_label">Password</string>
+    <string name="confirm_password_label">Confirm Password</string>
+    <string name="toggle_password_visibility">Toggle password visibility</string>
+    <string name="or_label">or</string>
+    <string name="create_account_button_label">Don\'t have an account? Sign Up</string>
 </resources>

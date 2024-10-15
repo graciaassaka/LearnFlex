@@ -27,7 +27,7 @@ kotlin {
         }
         val commonMain by getting {
             dependencies {
-                implementation(libs.kotlin.serialization)
+                implementation(libs.kotlinx.serialization)
                 implementation(libs.koin.core)
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.okhttp)
@@ -46,22 +46,44 @@ kotlin {
 
         val commonTest by getting {
             dependencies {
+                implementation(libs.junit)
                 implementation(libs.kotlin.test)
+                implementation(libs.kotlin.test.junit)
+                implementation(libs.mockk)
+                implementation(libs.mockito.core)
+                implementation(libs.mockito.kotlin)
+                implementation(libs.mockito.inline)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.koin.test)
+                implementation(libs.slf4j)
             }
         }
 
         val androidMain by getting {
             dependencies {
-                implementation(libs.logback)
                 implementation(libs.koin.android)
+                implementation(libs.koin.android.compat)
             }
         }
 
         val androidUnitTest by getting {
             dependencies {
                 implementation(libs.junit)
+                implementation(libs.kotlin.test)
+                implementation(libs.kotlin.test.junit)
+                implementation(libs.mockk)
+                implementation(libs.mockito.core)
+                implementation(libs.mockito.kotlin)
+                implementation(libs.mockito.inline)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.koin.test)
+                implementation(libs.slf4j)
                 implementation(libs.androidx.test.junit)
                 implementation(libs.androidx.espresso.core)
+                implementation(libs.androidx.test.core)
+                implementation(libs.androidx.test.runner)
+                implementation(libs.androidx.test.rules)
+                implementation(libs.mockk.android)
             }
         }
 
@@ -74,7 +96,16 @@ kotlin {
 
         val desktopTest by getting {
             dependencies {
-                // Add desktop-specific test dependencies here if any
+                implementation(libs.junit)
+                implementation(libs.kotlin.test)
+                implementation(libs.kotlin.test.junit)
+                implementation(libs.mockk)
+                implementation(libs.mockito.core)
+                implementation(libs.mockito.kotlin)
+                implementation(libs.mockito.inline)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.koin.test)
+                implementation(libs.slf4j)
             }
         }
     }

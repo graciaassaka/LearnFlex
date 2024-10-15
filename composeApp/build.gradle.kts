@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.googleServices)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -40,6 +41,9 @@ kotlin {
                 implementation(compose.components.uiToolingPreview)
                 implementation(libs.koin.core)
                 implementation(libs.koin.compose)
+                implementation(libs.koin.compose.viewmodel)
+                implementation(libs.koin.compose.viewmodel.navigation)
+                implementation(libs.kotlinx.serialization)
                 implementation(project(":shared"))
             }
         }
@@ -54,8 +58,7 @@ kotlin {
                 implementation(libs.androidx.constraintlayout)
                 implementation(libs.koin.android)
                 implementation(libs.koin.androidx.compose)
-                implementation(libs.koin.compose.viewmodel)
-                implementation(libs.koin.compose.viewmodel.navigation)
+                implementation(libs.koin.androidx.compose.navigation)
                 implementation(libs.androidx.ui.text.google.fonts)
                 implementation(libs.androidx.material3.android)
                 implementation(libs.androidx.material)
@@ -78,10 +81,54 @@ kotlin {
 
         val commonTest by getting {
             dependencies {
+                implementation(libs.junit)
                 implementation(libs.kotlin.test)
                 implementation(libs.kotlin.test.junit)
+                implementation(libs.mockk)
+                implementation(libs.mockito.core)
+                implementation(libs.mockito.kotlin)
+                implementation(libs.mockito.inline)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.koin.test)
+                implementation(libs.slf4j)
+            }
+        }
+
+        val androidInstrumentedTest by getting {
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.kotlin.test)
+                implementation(libs.kotlin.test.junit)
+                implementation(libs.mockk)
+                implementation(libs.mockito.core)
+                implementation(libs.mockito.kotlin)
+                implementation(libs.mockito.inline)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.koin.test)
+                implementation(libs.slf4j)
+                implementation(libs.androidx.test.junit)
+                implementation(libs.androidx.espresso.core)
+                implementation(libs.androidx.test.core)
+                implementation(libs.androidx.test.runner)
+                implementation(libs.androidx.test.rules)
                 implementation(libs.androidx.compose.ui.test)
                 implementation(libs.androidx.compose.ui.test.manifest)
+                implementation(libs.mockk.android)
+            }
+        }
+
+        val desktopTest by getting {
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.kotlin.test)
+                implementation(libs.kotlin.test.junit)
+                implementation(libs.mockk)
+                implementation(libs.mockito.core)
+                implementation(libs.mockito.kotlin)
+                implementation(libs.mockito.inline)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.koin.test)
+                implementation(libs.slf4j)
             }
         }
     }
@@ -132,6 +179,10 @@ android {
             excludes += "META-INF/*.kotlin_module"
         }
     }
+}
+dependencies {
+    implementation(project(":shared"))
+    implementation(libs.androidx.room.compiler)
 }
 
 compose.desktop {
