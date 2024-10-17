@@ -92,24 +92,28 @@ kotlin {
                 implementation(kotlin("test"))
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.uiTest)
+                implementation(libs.junit)
+                implementation(libs.kotlin.test)
+                implementation(libs.kotlin.test.junit)
+                implementation(libs.mockk)
+                implementation(libs.mockito.core)
+                implementation(libs.mockito.kotlin)
+                implementation(libs.mockito.inline)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.koin.test)
+                implementation(libs.slf4j)
+            }
+        }
+
+        val desktopTest by getting {
+            dependencies {
+               implementation(compose.desktop.currentOs)
             }
         }
     }
 }
 
 dependencies {
-    // Unit test dependencies
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlin.test)
-    testImplementation(libs.kotlin.test.junit)
-    testImplementation(libs.mockk)
-    testImplementation(libs.mockito.core)
-    testImplementation(libs.mockito.kotlin)
-    testImplementation(libs.mockito.inline)
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.koin.test)
-    testImplementation(libs.slf4j)
-
     // Instrumented test dependencies
     androidTestImplementation(libs.kotlin.test)
     androidTestImplementation(libs.kotlin.test.junit)

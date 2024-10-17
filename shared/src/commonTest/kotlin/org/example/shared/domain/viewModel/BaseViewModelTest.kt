@@ -28,7 +28,7 @@ class BaseViewModelTest
     fun setup()
     {
         Dispatchers.setMain(testDispatcher)
-        viewModel = BaseViewModel()
+        viewModel = BaseViewModel(testDispatcher)
     }
 
     @After

@@ -13,6 +13,7 @@ import org.example.shared.domain.use_case.SignInUseCase
 import org.example.shared.domain.use_case.SignUpUseCase
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.viewModel.AuthViewModel
+import org.example.shared.util.AuthForm
 import org.example.shared.util.UIEvent
 import org.example.shared.util.validation.InputValidator
 import org.example.shared.util.validation.ValidationResult
@@ -575,5 +576,29 @@ class AuthViewModelTest
         assertEquals(exception.message, event.message)
 
         job.cancel()
+    }
+
+    @Test
+    fun `displayAuthForm should update currentForm state when form is SignIn`() = runTest {
+        // Given
+        val form = AuthForm.SignIn
+
+        // When
+        viewModel.displayAuthForm(form)
+
+        // Then
+        assertEquals(AuthForm.SignIn, viewModel.state.value.currentForm)
+    }
+
+    @Test
+    fun `displayAuthForm should update currentForm state when form is SignUp`() = runTest {
+        // Given
+        val form = AuthForm.SignUp
+
+        // When
+        viewModel.displayAuthForm(form)
+
+        // Then
+        assertEquals(AuthForm.SignUp, viewModel.state.value.currentForm)
     }
 }
