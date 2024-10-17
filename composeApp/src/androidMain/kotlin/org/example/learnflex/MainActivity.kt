@@ -1,20 +1,14 @@
 package org.example.learnflex
 
-import org.example.composeApp.App
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
-import androidx.navigation.compose.rememberNavController
-import org.example.composeApp.navigation.Navigator
-import org.example.composeApp.theme.LearnFlexTheme
+import org.example.composeApp.App
 
 /**
  * MainActivity is the entry point of the Android application.

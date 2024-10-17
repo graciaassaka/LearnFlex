@@ -37,7 +37,7 @@ object InputValidator
         !password.contains("""[0-9]""".toRegex()) -> ValidationResult.Invalid(InvalidInputMessage.PASSWORD_NO_NUMBER.message)
         !password.contains("""[A-Z]""".toRegex()) -> ValidationResult.Invalid(InvalidInputMessage.PASSWORD_NO_UPPERCASE_LETTER.message)
         !password.contains("""[a-z]""".toRegex()) -> ValidationResult.Invalid(InvalidInputMessage.PASSWORD_NO_LOWER_CASE_LETTER.message)
-        !password.contains("""[!@#\$%^&*()_+\-=\[\]{};':\\|,.<>\/?]+""".toRegex()) -> ValidationResult.Invalid(InvalidInputMessage.PASSWORD_NO_SPECIAL_CHARACTER.message)
+        !password.contains("""[!@#$%^&*()_+\-=\[\]{};':\\|,.<>/?]+""".toRegex()) -> ValidationResult.Invalid(InvalidInputMessage.PASSWORD_NO_SPECIAL_CHARACTER.message)
         password.length !in 8..20 -> ValidationResult.Invalid(InvalidInputMessage.PASSWORD_LENGTH.message)
         else -> ValidationResult.Valid(password)
     }
