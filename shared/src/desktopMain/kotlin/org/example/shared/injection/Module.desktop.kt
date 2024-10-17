@@ -7,21 +7,16 @@ import org.example.shared.data.firebase.FirebaseAuthService
 import org.example.shared.data.firebase.TokenStorageImpl
 import org.example.shared.domain.TokenStorage
 import org.example.shared.domain.service.AuthService
-import org.example.shared.domain.use_case.GetUserDataUseCase
-import org.example.shared.domain.use_case.SignInUseCase
-import org.example.shared.domain.use_case.SignUpUseCase
-import org.example.shared.presentation.viewModel.SharedViewModel
-import org.koin.core.context.GlobalContext.startKoin
+import org.koin.core.context.startKoin
 import org.koin.dsl.module
 
-actual fun initKoin(context: Any?)
-{
+actual fun initKoin(context: Any?) {
     startKoin {
         modules(
-            firebaseModule,
-            tokenStorageModule,
             dispatcherModule,
             sharingStartedModule,
+            firebaseModule,
+            tokenStorageModule,
             authModule,
             authServiceModule,
             useCaseModule,
@@ -39,11 +34,11 @@ val tokenStorageModule = module {
 }
 
 val dispatcherModule = module {
-    single { Dispatchers.IO }
+    single { Dispatchers.Default }
 }
 
 val sharingStartedModule = module {
-    single { SharingStarted.WhileSubscribed() }
+    single { SharingStarted.WhileSubscribed(5000) }
 }
 
 val authServiceModule = module {
@@ -53,14 +48,4 @@ val authServiceModule = module {
 val authModule = module {
     single { FirebaseInitializer() }
     single { FirebaseAuthService(get()) }
-}
-
-val useCaseModule = module {
-    single { SignUpUseCase(get()) }
-    single { SignInUseCase(get()) }
-    single { GetUserDataUseCase(get()) }
-}
-
-val viewModelModule = module {
-    factory { SharedViewModel(get(), get(), get()) }
 }

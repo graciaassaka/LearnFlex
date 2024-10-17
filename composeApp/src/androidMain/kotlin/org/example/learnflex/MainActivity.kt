@@ -5,6 +5,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -19,6 +22,7 @@ import org.example.composeApp.theme.LearnFlexTheme
  */
 class MainActivity : ComponentActivity()
 {
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
@@ -26,17 +30,7 @@ class MainActivity : ComponentActivity()
         installSplashScreen()
         enableEdgeToEdge()
         setContent {
-            val navHostController = rememberNavController()
-            LearnFlexTheme {
-                Navigator(navHostController)
-            }
+            App(windowSizeClass = calculateWindowSizeClass(this))
         }
     }
-}
-
-@Preview
-@Composable
-fun AppAndroidPreview()
-{
-    App()
 }

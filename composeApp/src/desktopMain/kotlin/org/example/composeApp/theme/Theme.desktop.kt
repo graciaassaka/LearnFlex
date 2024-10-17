@@ -1,6 +1,9 @@
 package org.example.composeApp.theme
 
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Shapes
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
 import org.example.composeApp.theme.darkScheme
 import org.example.composeApp.theme.lightScheme
 
@@ -13,3 +16,10 @@ import org.example.composeApp.theme.lightScheme
  */
 @Composable
 actual fun getPlatformColorScheme(darkTheme: Boolean, dynamicColor: Boolean) = if (darkTheme) darkScheme else lightScheme
+
+@Composable
+actual fun getPlatformShape(): Shapes = Shapes(
+    small = RoundedCornerShape(8.dp),
+    medium = RoundedCornerShape(16.dp),
+    large = RoundedCornerShape(32.dp)
+)

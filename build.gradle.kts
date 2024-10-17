@@ -9,4 +9,5 @@ plugins {
     alias(libs.plugins.googleServices) apply false
     alias(libs.plugins.dotenv)
     alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlinx.parcelize) apply false
 }

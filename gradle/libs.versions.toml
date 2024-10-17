@@ -3,7 +3,7 @@ agp = "8.5.2"
 android-compileSdk = "34"
 android-minSdk = "33"
 android-targetSdk = "34"
-androidx-activityCompose = "1.9.2"
+androidx-activityCompose = "1.9.3"
 androidx-appcompat = "1.7.0"
 androidx-constraintlayout = "2.1.4"
 androidx-core-ktx = "1.13.1"
@@ -15,10 +15,12 @@ androidx-test-orchestrator = "1.5.0"
 androidx-test-rules = "1.6.1"
 androidx-test-runner = "1.6.2"
 androidx-test-junit = "1.2.1"
-compose = "1.7.3"
+compose = "1.7.4"
+compose-plugin = "1.7.0"
 compose-compiler = "1.5.3"
 compose-material3 = "1.3.0"
-compose-plugin = "1.6.11"
+compose-navigation = " 2.8.0-alpha10"
+compose-window-size = "1.7.0"
 core-splash_screen = "1.0.1"
 dotenv = "2.0.0"
 firebase_admin = "9.2.0"
@@ -29,17 +31,17 @@ koin = "4.0.0"
 kotlin = "2.0.20"
 kotlin-serialization = "1.6.2"
 kotlin-serialization-plugin = "1.9.10"
-kotlinx_coroutines_test = "1.8.0"
+kotlinx-coroutines-test = "1.8.0"
+kotlinx-parcelize = "2.1.0-Beta2"
 ktor = "2.3.12"
+lifecycle-viewmodel = "2.8.3-rc01"
 mockito = "5.12.0"
 mockito-inline = "5.2.0"
 mockito-kotlin = "5.4.0"
 mockk = "1.13.10"
-uiToolingPreviewAndroid = "1.7.3"
-uiTextGoogleFonts = "1.7.3"
+uiToolingPreviewAndroid = "1.7.4"
 material3Android = "1.3.0"
 slf4j = "2.0.7"
-roomCompiler = "2.6.1"
 
 [libraries]
 # Testing libraries
@@ -57,7 +59,7 @@ mockk_android = { group = "io.mockk", name = "mockk-android", version.ref = "moc
 mockito_core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
 mockito_inline = { group = "org.mockito", name = "mockito-inline", version.ref = "mockito-inline" }
 mockito_kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
-kotlinx_coroutines_test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx_coroutines_test" }
+kotlinx_coroutines_test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-test" }
 slf4j = { group = "org.slf4j", name = "slf4j-simple", version.ref = "slf4j" }
 koin_test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
 androidx-compose-ui-test = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "compose" }
@@ -71,19 +73,19 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 androidx-material = { group = "com.google.android.material", name = "material", version.ref = "androidx-material" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidx-constraintlayout" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview-android", version.ref = "uiToolingPreviewAndroid" }
-androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 androidx-material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
 
 # Compose libraries
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 androidx-compose-runtime = { module = "androidx.compose.runtime:runtime", version.ref = "compose" }
 androidx-compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
-androidx-compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
 androidx-compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
 androidx-compose-materialIconsExtended = { module = "androidx.compose.material:material-icons-extended", version.ref = "compose" }
 androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 androidx-compose-animation = { module = "androidx.compose.animation:animation", version.ref = "compose" }
+compose-navigation = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "compose-navigation" }
+compose-window-size = { module = "org.jetbrains.compose.material3:material3-window-size-class", version.ref = "compose-window-size" }
 
 # Firebase libraries
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
@@ -98,6 +100,7 @@ firebase_functions = { group = "com.google.firebase", name = "firebase-functions
 
 # Kotlin libraries
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlin-serialization" }
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlin-serialization" }
 
 # Ktor libraries
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
@@ -118,6 +121,7 @@ koin-compose-viewmodel-navigation = { module = "io.insert-koin:koin-compose-view
 
 # Other libraries
 androidx-splash-screen = { module = "androidx.core:core-splashscreen", version.ref = "core-splash_screen" }
+androidx-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle-viewmodel" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -130,3 +134,4 @@ kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", versio
 dotenv = { id = "co.uzzu.dotenv.gradle", version.ref = "dotenv" }
 googleServices = { id = "com.google.gms.google-services", version.ref = "google-services" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlinx-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlinx-parcelize" }

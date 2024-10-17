@@ -1,3 +1,4 @@
+import com.android.build.gradle.internal.ide.kmp.KotlinAndroidSourceSetMarker.Companion.android
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
@@ -9,6 +10,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.googleServices)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.kotlinx.parcelize)
 }
 
 kotlin {
@@ -43,11 +45,15 @@ kotlin {
                 implementation(compose.ui)
                 implementation(compose.components.resources)
                 implementation(compose.components.uiToolingPreview)
+                implementation(libs.compose.navigation)
                 implementation(libs.koin.core)
                 implementation(libs.koin.compose)
                 implementation(libs.koin.compose.viewmodel)
                 implementation(libs.koin.compose.viewmodel.navigation)
                 implementation(libs.kotlinx.serialization)
+                implementation(libs.kotlinx.serialization.core)
+                implementation(libs.androidx.lifecycle.viewmodel)
+                implementation(libs.compose.window.size)
                 implementation(project(":shared"))
             }
         }
@@ -63,12 +69,10 @@ kotlin {
                 implementation(libs.koin.android)
                 implementation(libs.koin.androidx.compose)
                 implementation(libs.koin.androidx.compose.navigation)
-                implementation(libs.androidx.ui.text.google.fonts)
                 implementation(libs.androidx.material3.android)
                 implementation(libs.androidx.material)
                 implementation(libs.androidx.ui.tooling.preview)
                 implementation(libs.androidx.compose.runtime)
-                implementation(libs.androidx.compose.ui)
                 implementation(libs.androidx.compose.ui.tooling)
                 implementation(libs.androidx.compose.foundation)
                 implementation(libs.androidx.compose.materialIconsExtended)

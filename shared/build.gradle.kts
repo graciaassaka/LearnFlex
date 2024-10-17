@@ -29,6 +29,9 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinx.serialization)
                 implementation(libs.koin.core)
+                implementation(libs.koin.compose)
+                implementation(libs.koin.compose.viewmodel)
+                implementation(libs.koin.compose.viewmodel.navigation)
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.okhttp)
                 implementation(libs.ktor.content.negotiation)
@@ -41,6 +44,7 @@ kotlin {
                 implementation(libs.firebase.analytics)
                 implementation(libs.firebase.firestore)
                 implementation(libs.firebase.functions)
+                implementation(libs.androidx.lifecycle.viewmodel)
             }
         }
 

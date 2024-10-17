@@ -1,11 +1,9 @@
 @file:Suppress("DuplicatedCode", "unused")
 
 package org.example.composeApp.theme
+
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
@@ -260,6 +258,9 @@ val unspecified_scheme = ColorFamily(
 @Composable
 expect fun getPlatformColorScheme(darkTheme: Boolean, dynamicColor: Boolean): ColorScheme
 
+@Composable
+expect fun getPlatformShape(): Shapes
+
 /**
  * A composable function that provides a material design theme to its content.
  * The theme can adapt to dark mode and dynamic color based on platform settings.
@@ -273,11 +274,8 @@ fun LearnFlexTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
-) {
-  val colorScheme = getPlatformColorScheme(darkTheme, dynamicColor)
-
-  MaterialTheme(
-    colorScheme = colorScheme,
+) = MaterialTheme(
+    colorScheme = getPlatformColorScheme(false, dynamicColor),
+    shapes = getPlatformShape(),
     content = content
-  )
-}
+)
