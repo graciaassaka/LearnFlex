@@ -31,8 +31,33 @@ actual class FirebaseAuthService(
             contentType(ContentType.Application.Json)
             setBody(Credentials(email = email, password = password, returnSecureToken = true))
         }.apply {
-            if (status.isSuccess()) handleSuccess<FirebaseSignUpResponse>()
-            else throw Exception("Sign-up failed: $status")
+            if (status.isSuccess())
+            {
+                handleSuccess<FirebaseSignUpResponse>()
+                sendVerificationEmail()
+            } else
+            {
+                throw Exception("Sign-up failed: $status")
+            }
+        }
+    }
+
+    /**
+     * Sends an email verification request to the Firebase authentication service.
+     *
+     * This method posts a request to Firebase to send a verification email to the currently authenticated user.
+     * The request is configured with the necessary authentication parameters and headers.
+     * If the request fails, an exception is thrown indicating the failure reason.
+     *
+     * @throws Exception if the HTTP request is unsuccessful.
+     */
+    override suspend fun sendVerificationEmail(): Result<Unit> = runCatching {
+        firebaseInitializer.httpClient.post {
+            setupAuthRequest("/v1/accounts:sendOobCode")
+            contentType(ContentType.Application.Json)
+            setBody(mapOf("requestType" to "VERIFY_EMAIL", "idToken" to firebaseInitializer.idToken))
+        }.apply {
+            if (status.isSuccess().not()) throw Exception("Send email verification failed: $status")
         }
     }
 
@@ -97,6 +122,21 @@ actual class FirebaseAuthService(
             setBody(mapOf("requestType" to "PASSWORD_RESET", "email" to email))
         }.apply {
             if (status.isSuccess().not()) throw Exception("Send password reset email failed: $status")
+        }
+    }
+
+    /**
+     * Deletes the current user's account from the Firebase authentication service.
+     *
+     * @return A [Result] containing [Unit] if successful, or an exception if an error occurs.
+     */
+    override suspend fun deleteUser(): Result<Unit> = runCatching {
+        firebaseInitializer.httpClient.post {
+            setupAuthRequest("/v1/accounts:delete")
+            contentType(ContentType.Application.Json)
+            setBody(mapOf("idToken" to firebaseInitializer.idToken))
+        }.apply {
+            if (status.isSuccess().not()) throw Exception("Delete user failed: $status")
         }
     }
 

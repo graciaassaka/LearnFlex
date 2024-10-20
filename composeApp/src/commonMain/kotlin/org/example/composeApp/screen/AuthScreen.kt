@@ -7,23 +7,24 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import learnflex.composeapp.generated.resources.*
 import org.example.composeApp.component.AnimatedOutlinedTextField
 import org.example.composeApp.component.HandleUIEvents
+import org.example.composeApp.component.PulsingImage
 import org.example.composeApp.dimension.Dimension
 import org.example.composeApp.dimension.Padding
 import org.example.composeApp.dimension.Spacing
@@ -36,10 +37,12 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
- * Displays the authentication screen for the application.
+ * Represents the authentication screen which handles different authentication forms
+ * such as SignIn, SignUp, VerifyEmail, and ForgotPassword based on the current UI state.
  *
- * @param navController The navigation controller used for navigating between screens.
- * @param viewModel The view model used for handling the authentication logic.
+ * @param windowSizeClass The size class of the window, used to adjust UI components accordingly.
+ * @param navController The navigation controller to handle navigation actions between screens.
+ * @param viewModel The authentication view model, providing the state and actions for the screen.
  */
 @Composable
 fun AuthScreen(
@@ -93,11 +96,30 @@ fun AuthScreen(
             confirmedPasswordError = uiState.signUpPasswordConfirmationError,
             onConfirmedPasswordChanged = viewModel::onSignUpPasswordConfirmationChanged,
             onSignUpClicked = viewModel::signUp,
+            isUserSignedUp = uiState.isUserSignedUp,
             enabled = !uiState.isLoading,
             displayAuthForm = viewModel::displayAuthForm,
             onAnimationFinished = viewModel::onExitAnimationFinished,
             modifier = Modifier.testTag("sign_up_form")
         )
+
+        AuthForm.VerifyEmail ->
+        {
+            VerificationForm(
+                isScreenVisible = isScreenVisible,
+                windowSizeClass = windowSizeClass,
+                snackbarHostState = snackbarHostState,
+                snackbarType = currentSnackbarType,
+                email = uiState.signUpEmail,
+                onResendVerificationEmailClicked = viewModel::resendVerificationEmail,
+                onVerifyEmailClicked = viewModel::verifyEmail,
+                deleteUser = viewModel::deleteUser,
+                displayAuthForm = viewModel::displayAuthForm,
+                enabled = !uiState.isLoading,
+                onAnimationFinished = viewModel::onExitAnimationFinished,
+                modifier = Modifier.testTag("verify_email_form")
+            )
+        }
 
         AuthForm.ForgotPassword ->
         {
@@ -139,7 +161,7 @@ private fun SignInForm(
         isVisible = isFormVisible,
         onAnimationFinished = {
             if (currentDestination == null) onAnimationFinished()
-            else displayAuthForm(currentDestination!!)
+            else currentDestination?.let(displayAuthForm)
         }
     ) {
         Column(
@@ -225,6 +247,7 @@ private fun SignUpForm(
     confirmedPasswordError: String?,
     onConfirmedPasswordChanged: (String) -> Unit,
     onSignUpClicked: () -> Unit,
+    isUserSignedUp: Boolean,
     enabled: Boolean,
     displayAuthForm: (AuthForm) -> Unit,
     onAnimationFinished: () -> Unit,
@@ -236,6 +259,14 @@ private fun SignUpForm(
 
     LaunchedEffect(isScreenVisible) { isFormVisible = isScreenVisible }
 
+    LaunchedEffect(isUserSignedUp) {
+        if (isUserSignedUp)
+        {
+            isFormVisible = false
+            currentDestination = AuthForm.VerifyEmail
+        }
+    }
+
     AuthLayout(
         windowSizeClass = windowSizeClass,
         snackbarHostState = snackbarHostState,
@@ -243,7 +274,7 @@ private fun SignUpForm(
         isVisible = isFormVisible,
         onAnimationFinished = {
             if (currentDestination == null) onAnimationFinished()
-            else displayAuthForm(currentDestination!!)
+            else currentDestination?.let(displayAuthForm)
         }
     ) {
         Column(
@@ -306,6 +337,113 @@ private fun SignUpForm(
                 enabled = enabled,
                 modifier = Modifier.testTag("sign_up_sign_in_button"),
                 content = { Text(stringResource(Res.string.already_have_account_button_label)) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun VerificationForm(
+    isScreenVisible: Boolean,
+    windowSizeClass: WindowSizeClass,
+    snackbarHostState: SnackbarHostState,
+    snackbarType: SnackbarType,
+    email: String,
+    onResendVerificationEmailClicked: () -> Unit,
+    onVerifyEmailClicked: () -> Unit,
+    deleteUser: () -> Unit,
+    displayAuthForm: (AuthForm) -> Unit,
+    enabled: Boolean,
+    onAnimationFinished: () -> Unit,
+    modifier: Modifier = Modifier
+)
+{
+    var isFormVisible by remember { mutableStateOf(true) }
+    var currentDestination by remember { mutableStateOf<AuthForm?>(null) }
+
+    LaunchedEffect(isScreenVisible) { isFormVisible = isScreenVisible }
+
+    AuthLayout(
+        windowSizeClass = windowSizeClass,
+        snackbarHostState = snackbarHostState,
+        snackbarType = snackbarType,
+        isVisible = isFormVisible,
+        onAnimationFinished = {
+            if (currentDestination == null) onAnimationFinished()
+            else currentDestination?.let(displayAuthForm)
+        }
+    ) {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(Padding.MEDIUM.dp, Padding.LARGE.dp),
+            verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = stringResource(Res.string.verify_email_screen_title),
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.testTag("verify_email_screen_title")
+            )
+            Text(
+                text = stringResource(Res.string.verify_email_screen_description),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.testTag("verify_email_screen_description")
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = email,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.testTag("verify_email_screen_email")
+                )
+                IconButton(
+                    onClick = {
+                        isFormVisible = false
+                        deleteUser()
+                        currentDestination = AuthForm.SignUp
+                    },
+                    modifier = Modifier.testTag("verify_email_screen_edit_email_button"),
+                    enabled = enabled
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = stringResource(Res.string.email_label),
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                }
+            }
+            PulsingImage(image = Res.drawable.ic_envelop, size = 150.dp)
+            Button(
+                onClick = onVerifyEmailClicked,
+                enabled = enabled,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
+                    .testTag("verify_email_screen_verify_email_button"),
+                shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
+                content = { Text(stringResource(Res.string.verify_email_button_label)) }
+            )
+            OutlinedButton(
+                onClick = onResendVerificationEmailClicked,
+                enabled = enabled,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
+                    .testTag("verify_email_resend_email_button"),
+                shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
+                content = { Text(stringResource(Res.string.resend_email_button_label)) }
             )
         }
     }

@@ -12,4 +12,8 @@
     <string name="toggle_password_visibility">Toggle password visibility</string>
     <string name="or_label">or</string>
     <string name="create_account_button_label">Don't have an account? Sign Up</string>
+    <string name="verify_email_screen_title">Verify Email</string>
+    <string name="verify_email_screen_description">A verification email has been sent to the email address below. Please verify your email address to continue.</string>
+    <string name="verify_email_button_label">Verify Email</string>
+    <string name="resend_email_button_label">Resend Email</string>
 </resources>

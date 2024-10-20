@@ -6,11 +6,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.example.shared.domain.use_case.SignInUseCase
-import org.example.shared.domain.use_case.SignUpUseCase
+import org.example.shared.domain.use_case.*
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.state.AuthUIState
 import org.example.shared.util.AuthForm
+import org.example.shared.util.SnackbarType
 import org.example.shared.util.validation.InputValidator
 import org.example.shared.util.validation.ValidationResult
 
@@ -24,6 +24,9 @@ import org.example.shared.util.validation.ValidationResult
 class AuthViewModel(
     private val signUpUseCase: SignUpUseCase,
     private val signInUseCase: SignInUseCase,
+    private val sendVerificationEmailUseCase: SendVerificationEmailUseCase,
+    private val verifyEmailUseCase: VerifyEmailUseCase,
+    private val deleteUserUseCase: DeleteUserUseCase,
     private val dispatcher: CoroutineDispatcher,
 ) : BaseViewModel(dispatcher)
 {
@@ -31,6 +34,12 @@ class AuthViewModel(
     // StateFlow to hold the current UI state.
     private val _state = MutableStateFlow(AuthUIState())
     val state = _state.asStateFlow()
+
+    companion object {
+        const val EMAIL_VERIFICATION_SUCCESS = "Verification email sent"
+        const val SIGN_UP_SUCCESS = "User signed up"
+        const val DEL_USER_SUCCESS = "Email deleted"
+    }
 
     /**
      * Updates the sign-in email and its validation error state.
@@ -144,8 +153,71 @@ class AuthViewModel(
             value.signUpPasswordError.isNullOrBlank() &&
             value.signUpPasswordConfirmationError.isNullOrBlank()
         ) viewModelScope.launch(dispatcher) {
-            signUpUseCase(value.signUpEmail, value.signUpPassword)
-                .onSuccess { navigate(Route.EmailVerification, true) }
+            signUpUseCase(
+                email = value.signUpEmail,
+                password = value.signUpPassword
+            ).onSuccess {
+                update { it.copy(isUserSignedUp = true) }
+                showSnackbar(SIGN_UP_SUCCESS, SnackbarType.Success)
+            }.onFailure { error ->
+                handleError(error)
+            }
+        }
+
+        update { it.copy(isLoading = false) }
+    }
+
+    /**
+     * Resends the verification email to the user.
+     *
+     * This function sets the loading state to true, calls the `sendVerificationEmailUseCase`,
+     * and handles the success and failure cases by showing a snackbar with appropriate messages.
+     * Finally, it sets the loading state back to false.
+     */
+    fun resendVerificationEmail() = with(_state) {
+        update { it.copy(isLoading = true) }
+
+        viewModelScope.launch(dispatcher) {
+            sendVerificationEmailUseCase()
+                .onSuccess { showSnackbar(EMAIL_VERIFICATION_SUCCESS, SnackbarType.Success) }
+                .onFailure { error -> handleError(error) }
+        }
+
+        update { it.copy(isLoading = false) }
+    }
+
+    /**
+     * Initiates the email verification process and updates UI state accordingly.
+     *
+     * Sets the loading state to true, then calls the `verifyEmailUseCase` to verify the user's email.
+     * On success, navigates to the Dashboard route. On failure, handles the error by showing
+     * an appropriate message.
+     */
+    fun verifyEmail() = with(_state) {
+        update { it.copy(isLoading = true) }
+
+        viewModelScope.launch(dispatcher) {
+            verifyEmailUseCase()
+                .onSuccess { navigate(Route.Dashboard, true) }
+                .onFailure { error -> handleError(error) }
+        }
+
+        update { it.copy(isLoading = false) }
+    }
+
+    /**
+     * Initiates the user deletion process and updates UI state accordingly.
+     *
+     * Sets the loading state to true, then calls the `deleteUserUseCase` to delete the user's account.
+     * On success, navigates to the Auth route. On failure, handles the error by showing
+     * an appropriate message.
+     */
+    fun deleteUser() = with(_state) {
+        update { it.copy(isLoading = true) }
+
+        viewModelScope.launch(dispatcher) {
+            deleteUserUseCase()
+                .onSuccess { showSnackbar(DEL_USER_SUCCESS, SnackbarType.Success) }
                 .onFailure { error -> handleError(error) }
         }
 
@@ -160,27 +232,19 @@ class AuthViewModel(
     fun displayAuthForm(form: AuthForm) = when (form)
     {
         AuthForm.SignIn -> _state.update {
-            it.copy(
-                currentForm = AuthForm.SignIn,
-                signInEmail = "",
-                signInPassword = "",
-                signInEmailError = null,
-                signInPasswordError = null
-            )
+            AuthUIState().copy(currentForm = AuthForm.SignIn)
         }
 
         AuthForm.SignUp -> _state.update {
-            it.copy(
-                currentForm = AuthForm.SignUp,
-                signUpEmail = "",
-                signUpPassword = "",
-                signUpPasswordConfirmation = "",
-                signUpEmailError = null,
-                signUpPasswordError = null,
-                signUpPasswordConfirmationError = null
-            )
+            AuthUIState().copy(currentForm = AuthForm.SignUp)
         }
 
-        AuthForm.ForgotPassword -> _state.update { it.copy(currentForm = AuthForm.ForgotPassword) }
+        AuthForm.VerifyEmail -> _state.update {
+           it.copy(currentForm = AuthForm.VerifyEmail)
+        }
+
+        AuthForm.ForgotPassword -> _state.update {
+            AuthUIState().copy(currentForm = AuthForm.ForgotPassword)
+        }
     }
 }

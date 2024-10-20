@@ -5,11 +5,13 @@ import kotlinx.serialization.Serializable
 /**
  * Data class representing a collection of users.
  *
- * @property users A list of [User] objects that this collection contains.
+ * @property kind The type or category of users.
+ * @property users The list of user objects.
  */
 @Serializable
 data class Users(
-    val users: List<User>
+    val kind: String? = null,
+    val users: List<User> = emptyList()
 )
 
 /**
@@ -28,22 +30,25 @@ data class Users(
  * @property photoUrl The URL of the user's profile photo.
  * @property providerUserInfo A list of user information from identity providers.
  * @property validSince The timestamp since when the ID token is valid.
+ * @property lastRefreshAt The timestamp of the last refresh of the user's information.
  */
 @Serializable
 actual data class User(
-    val createdAt: String,
-    val customAuth: Boolean,
-    val disabled: Boolean,
-    val displayName: String,
-    val email: String,
-    val emailVerified: Boolean,
-    val lastLoginAt: String,
-    val localId: String,
-    val passwordHash: String,
-    val passwordUpdatedAt: Long,
-    val photoUrl: String,
-    val providerUserInfo: List<ProviderUserInfo>,
-    val validSince: String
+    val createdAt: String? = null,
+    val customAuth: Boolean? = null,
+    val disabled: Boolean? = null,
+    actual val displayName: String? = null,
+    actual val email: String? = null,
+    val salt: String? = null,
+    actual val emailVerified: Boolean? = null,
+    val lastLoginAt: String? = null,
+    val localId: String? = null,
+    val passwordHash: String? = null,
+    val passwordUpdatedAt: Long? = null,
+    actual val photoUrl: String? = null,
+    val providerUserInfo: List<ProviderUserInfo>? = null,
+    val validSince: String? = null,
+    val lastRefreshAt: String? = null
 )
 
 /**
@@ -56,14 +61,16 @@ actual data class User(
  * @property providerId The identifier of the authentication provider (e.g., "google.com", "facebook.com").
  * @property rawId The raw user identifier as provided by the authentication provider.
  * @property screenName The screen name or username of the user as provided by the authentication provider.
+ * @property lastRefreshAt The timestamp of the last refresh of the user's information.
  */
 @Serializable
 data class ProviderUserInfo(
-    val displayName: String,
-    val email: String,
-    val federatedId: String,
-    val photoUrl: String,
-    val providerId: String,
-    val rawId: String,
-    val screenName: String
+    val displayName: String? = null,
+    val email: String? = null,
+    val federatedId: String? = null,
+    val photoUrl: String? = null,
+    val providerId: String? = null,
+    val rawId: String? = null,
+    val screenName: String? = null,
+    val lastRefreshAt: String? = null
 )

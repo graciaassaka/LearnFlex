@@ -7,5 +7,6 @@ enum class AuthForm
 {
     SignIn,
     SignUp,
-    ForgotPassword
+    ForgotPassword,
+    VerifyEmail
 }

@@ -7,9 +7,9 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 actual data class User(
-    val displayName : String,
-    val email : String,
-    val photoUrl : String,
-    val emailVerified: Boolean,
-    val uid: String
+    actual val displayName: String? = null,
+    actual val email: String? = null,
+    actual val photoUrl: String? = null,
+    actual val emailVerified: Boolean? = null,
+    val uid: String? = null
 )

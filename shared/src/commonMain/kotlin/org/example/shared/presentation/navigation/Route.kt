@@ -15,8 +15,5 @@ sealed class Route
     data object Auth : Route()
 
     @Serializable
-    data object EmailVerification : Route()
-
-    @Serializable
     data object Dashboard : Route()
 }

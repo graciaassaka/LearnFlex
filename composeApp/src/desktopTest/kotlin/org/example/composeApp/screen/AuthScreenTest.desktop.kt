@@ -319,6 +319,25 @@ class AuthScreenTest
 
     @OptIn(ExperimentalTestApi::class)
     @Test
+    fun signInForm_disableButtonsWhenUIStateIsLoading() = runComposeUiTest {
+        // Given
+        uiState.update { it.copy(isLoading = true) }
+
+        // When
+        setContent {
+            AuthScreen(
+                windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
+            )
+        }
+
+        // Then
+        onNodeWithTag("sign_in_button").assertIsNotEnabled()
+        onNodeWithTag("sign_in_forgot_password_button").assertIsNotEnabled()
+        onNodeWithTag("sign_in_create_account_button").assertIsNotEnabled()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
     fun signInForm_navigatesToForgotPasswordForm() = runComposeUiTest {
         // Given
         every { viewModel.displayAuthForm(AuthForm.ForgotPassword) } answers {
@@ -562,7 +581,7 @@ class AuthScreenTest
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun signUpForm_signUpWhenEmailAndPasswordAreValid() = runComposeUiTest {
+    fun signUpForm_displayVerifyEmailFormWhenEmailAndPasswordAreValid() = runComposeUiTest {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
         val email = "test@example.com"
@@ -606,6 +625,7 @@ class AuthScreenTest
 
         every { viewModel.signUp() } answers {
             uiState.update { it.copy(isLoading = true) }
+            uiState.update { it.copy(currentForm = AuthForm.VerifyEmail) }
             uiState.update { it.copy(isLoading = false) }
         }
 
@@ -743,6 +763,24 @@ class AuthScreenTest
 
     @OptIn(ExperimentalTestApi::class)
     @Test
+    fun signUpForm_disableButtonsWhenUIStateIsLoading() = runComposeUiTest {
+        // Given
+        uiState.update { it.copy(currentForm = AuthForm.SignUp, isLoading = true) }
+
+        // When
+        setContent {
+            AuthScreen(
+                windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
+            )
+        }
+
+        // Then
+        onNodeWithTag("sign_up_button").assertIsNotEnabled()
+        onNodeWithTag("sign_up_sign_in_button").assertIsNotEnabled()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
     fun signUpForm_navigatesToSignInForm() = runComposeUiTest {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
@@ -762,5 +800,63 @@ class AuthScreenTest
         // Then
         verify { viewModel.displayAuthForm(AuthForm.SignIn) }
         onNodeWithTag("sign_in_form").assertIsDisplayed()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun verifyEmailForm_displaysCorrectly() = runComposeUiTest {
+        setContent {
+            AuthScreen(
+                windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
+            )
+        }
+        uiState.update { it.copy(currentForm = AuthForm.VerifyEmail, signUpEmail = "test@example.com") }
+        onNodeWithTag("verify_email_screen_title").assertIsDisplayed()
+        onNodeWithTag("verify_email_screen_description").assertIsDisplayed()
+        onNodeWithTag("verify_email_screen_email").assertIsDisplayed()
+        onNodeWithTag("verify_email_screen_edit_email_button").assertIsDisplayed()
+        onNodeWithTag("verify_email_screen_verify_email_button").assertIsDisplayed()
+        onNodeWithTag("verify_email_resend_email_button").assertIsDisplayed()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun verifyEmailForm_navigatesToSignUpForm() = runComposeUiTest {
+        // Given
+        uiState.update { it.copy(currentForm = AuthForm.VerifyEmail) }
+        every { viewModel.displayAuthForm(AuthForm.SignUp) } answers {
+            uiState.update { it.copy(currentForm = AuthForm.SignUp) }
+        }
+
+        // When
+        setContent {
+            AuthScreen(
+                windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
+            )
+        }
+        onNodeWithTag("verify_email_screen_edit_email_button").performClick()
+        waitForIdle()
+
+        // Then
+        verify { viewModel.displayAuthForm(AuthForm.SignUp) }
+        onNodeWithTag("sign_up_form").assertIsDisplayed()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun verifyEmailForm_disableButtonsWhenUIStateIsLoading() = runComposeUiTest {
+        // Given
+        uiState.update { it.copy(currentForm = AuthForm.VerifyEmail, isLoading = true) }
+
+        // When
+        setContent {
+            AuthScreen(
+                windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
+            )
+        }
+
+        // Then
+        onNodeWithTag("verify_email_screen_verify_email_button").assertIsNotEnabled()
+        onNodeWithTag("verify_email_resend_email_button").assertIsNotEnabled()
     }
 }

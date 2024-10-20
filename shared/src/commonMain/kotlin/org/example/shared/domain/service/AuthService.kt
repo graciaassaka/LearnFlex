@@ -38,10 +38,24 @@ interface AuthService {
     suspend fun getUserData(): Result<User>
 
     /**
+     * Sends a verification email to the current user.
+     *
+     * @return A [Result] containing [Unit] if successful, or an exception if an error occurs.
+     */
+    suspend fun sendVerificationEmail(): Result<Unit>
+
+    /**
      * Sends a password reset email to the provided email address.
      *
      * @param email The email address to send the password reset email to.
      * @return A [Result] containing [Unit] if successful, or an exception if an error occurs.
      */
     suspend fun sendPasswordResetEmail(email: String): Result<Unit>
+
+    /**
+     * Deletes the current user's account.
+     *
+     * @return A [Result] containing [Unit] if successful, or an exception if an error occurs.
+     */
+    suspend fun deleteUser(): Result<Unit>
 }

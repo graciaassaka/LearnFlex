@@ -9,8 +9,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
-import org.example.shared.domain.use_case.SignInUseCase
-import org.example.shared.domain.use_case.SignUpUseCase
+import org.example.shared.domain.use_case.*
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.viewModel.AuthViewModel
 import org.example.shared.util.AuthForm
@@ -30,6 +29,9 @@ class AuthViewModelTest
     private lateinit var viewModel: AuthViewModel
     private lateinit var signUpUseCase: SignUpUseCase
     private lateinit var signInUseCase: SignInUseCase
+    private lateinit var sendVerificationEmailUseCase: SendVerificationEmailUseCase
+    private lateinit var verifyEmailUseCase: VerifyEmailUseCase
+    private lateinit var deleteUserUseCase: DeleteUserUseCase
     private val testDispatcher = StandardTestDispatcher()
 
     @Before
@@ -38,7 +40,18 @@ class AuthViewModelTest
         Dispatchers.setMain(testDispatcher)
         signUpUseCase = mockk(relaxed = true)
         signInUseCase = mockk(relaxed = true)
-        viewModel = AuthViewModel(signUpUseCase, signInUseCase, testDispatcher)
+        sendVerificationEmailUseCase = mockk(relaxed = true)
+        verifyEmailUseCase = mockk(relaxed = true)
+        deleteUserUseCase = mockk(relaxed = true)
+
+        viewModel = AuthViewModel(
+            signUpUseCase = signUpUseCase,
+            signInUseCase = signInUseCase,
+            sendVerificationEmailUseCase = sendVerificationEmailUseCase,
+            verifyEmailUseCase = verifyEmailUseCase,
+            deleteUserUseCase = deleteUserUseCase,
+            dispatcher = testDispatcher
+        )
     }
 
     @After
@@ -497,7 +510,7 @@ class AuthViewModelTest
     }
 
     @Test
-    fun `signUp navigate to EmailVerification when signUpUseCase returns success`() = runTest {
+    fun `signUp update state and show success message when signUpUseCase returns success`() = runTest {
         // Given
         val email = "test@example.com"
         val password = "P@ssw0rd"
@@ -517,23 +530,14 @@ class AuthViewModelTest
         viewModel.signUp()
         advanceUntilIdle()
 
-        // Simulate the exit animation finishing
-        viewModel.onExitAnimationFinished()
-        advanceUntilIdle()
-
         // Then
-        assertEquals(email, viewModel.state.value.signUpEmail)
-        assertNull(viewModel.state.value.signUpEmailError)
-        assertEquals(password, viewModel.state.value.signUpPassword)
-        assertNull(viewModel.state.value.signUpPasswordError)
-        assertEquals(passwordConfirmation, viewModel.state.value.signUpPasswordConfirmation)
-        assertNull(viewModel.state.value.signUpPasswordConfirmationError)
+        assertTrue(viewModel.state.value.isUserSignedUp)
         assertEquals(1, uiEvents.size)
 
         val event = uiEvents.first()
 
-        assertTrue(event is UIEvent.Navigate)
-        assertEquals(Route.EmailVerification, event.destination)
+        assertTrue(event is UIEvent.ShowSnackbar)
+        assertEquals(AuthViewModel.Companion.SIGN_UP_SUCCESS, event.message)
 
         job.cancel()
     }
@@ -579,6 +583,202 @@ class AuthViewModelTest
     }
 
     @Test
+    fun `resendVerificationEmail should call sendVerificationEmailUseCase`() = runTest {
+        // Given
+        coEvery { sendVerificationEmailUseCase() } returns Result.success(Unit)
+
+        // When
+        viewModel.resendVerificationEmail()
+        advanceUntilIdle()
+
+        // Then
+        coVerify { sendVerificationEmailUseCase() }
+    }
+
+    @Test
+    fun `resendVerificationEmail displays success message when sendVerificationEmailUseCase returns success`() = runTest {
+        // Given
+        coEvery { sendVerificationEmailUseCase() } returns Result.success(Unit)
+
+        val uiEvents = mutableListOf<UIEvent>()
+        val job = launch {
+            viewModel.uiEvent.toList(uiEvents)
+        }
+
+        // When
+        viewModel.resendVerificationEmail()
+        advanceUntilIdle()
+
+        // Then
+        assertEquals(1, uiEvents.size)
+
+        val event = uiEvents.first()
+
+        assertTrue(event is UIEvent.ShowSnackbar)
+        assertEquals(AuthViewModel.Companion.EMAIL_VERIFICATION_SUCCESS, event.message)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `resendVerificationEmail displays error message when sendVerificationEmailUseCase returns failure`() = runTest {
+        // Given
+        val exception = Exception("An error occurred")
+        coEvery { sendVerificationEmailUseCase() } returns Result.failure(exception)
+
+        val uiEvents = mutableListOf<UIEvent>()
+        val job = launch {
+            viewModel.uiEvent.toList(uiEvents)
+        }
+
+        // When
+        viewModel.resendVerificationEmail()
+        advanceUntilIdle()
+
+        // Then
+        assertEquals(1, uiEvents.size)
+
+        val event = uiEvents.first()
+
+        assertTrue(event is UIEvent.ShowSnackbar)
+        assertEquals(exception.message, event.message)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `verifyEmail should call verifyEmailUseCase`() = runTest {
+        // Given
+        coEvery { verifyEmailUseCase() } returns Result.success(Unit)
+
+        // When
+        viewModel.verifyEmail()
+        advanceUntilIdle()
+
+        // Then
+        coVerify { verifyEmailUseCase() }
+    }
+
+    @Test
+    fun `verifyEmail navigate to Dashboard when verifyEmailUseCase returns success`() = runTest {
+        // Given
+        coEvery { verifyEmailUseCase() } returns Result.success(Unit)
+
+        val uiEvents = mutableListOf<UIEvent>()
+        val job = launch {
+            viewModel.uiEvent.toList(uiEvents)
+        }
+
+        // When
+        viewModel.verifyEmail()
+        advanceUntilIdle()
+
+        // Simulate the exit animation finishing
+        viewModel.onExitAnimationFinished()
+        advanceUntilIdle()
+
+        // Then
+        assertEquals(1, uiEvents.size)
+
+        val event = uiEvents.first()
+
+        assertTrue(event is UIEvent.Navigate)
+        assertEquals(Route.Dashboard, event.destination)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `verifyEmail show error message when verifyEmailUseCase returns failure`() = runTest {
+        // Given
+        val exception = Exception("An error occurred")
+        coEvery { verifyEmailUseCase() } returns Result.failure(exception)
+
+        val uiEvents = mutableListOf<UIEvent>()
+        val job = launch {
+            viewModel.uiEvent.toList(uiEvents)
+        }
+
+        // When
+        viewModel.verifyEmail()
+        advanceUntilIdle()
+
+        // Then
+        assertEquals(1, uiEvents.size)
+
+        val event = uiEvents.first()
+
+        assertTrue(event is UIEvent.ShowSnackbar)
+        assertEquals(exception.message, event.message)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `deleteUser should call deleteUserUseCase`() = runTest {
+        // Given
+        coEvery { deleteUserUseCase() } returns Result.success(Unit)
+
+        // When
+        viewModel.deleteUser()
+        advanceUntilIdle()
+
+        // Then
+        coVerify { deleteUserUseCase() }
+    }
+
+    @Test
+    fun `deleteUser displays success message when deleteUserUseCase returns success`() = runTest {
+        // Given
+        coEvery { deleteUserUseCase() } returns Result.success(Unit)
+
+        val uiEvents = mutableListOf<UIEvent>()
+        val job = launch {
+            viewModel.uiEvent.toList(uiEvents)
+        }
+
+        // When
+        viewModel.deleteUser()
+        advanceUntilIdle()
+
+        // Then
+        assertEquals(1, uiEvents.size)
+
+        val event = uiEvents.first()
+
+        assertTrue(event is UIEvent.ShowSnackbar)
+        assertEquals(AuthViewModel.Companion.DEL_USER_SUCCESS, event.message)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `deleteUser displays error message when deleteUserUseCase returns failure`() = runTest {
+        // Given
+        val exception = Exception("An error occurred")
+        coEvery { deleteUserUseCase() } returns Result.failure(exception)
+
+        val uiEvents = mutableListOf<UIEvent>()
+        val job = launch {
+            viewModel.uiEvent.toList(uiEvents)
+        }
+
+        // When
+        viewModel.deleteUser()
+        advanceUntilIdle()
+
+        // Then
+        assertEquals(1, uiEvents.size)
+
+        val event = uiEvents.first()
+
+        assertTrue(event is UIEvent.ShowSnackbar)
+        assertEquals(exception.message, event.message)
+
+        job.cancel()
+    }
+
+    @Test
     fun `displayAuthForm should update currentForm state when form is SignIn`() = runTest {
         // Given
         val form = AuthForm.SignIn
@@ -600,5 +800,17 @@ class AuthViewModelTest
 
         // Then
         assertEquals(AuthForm.SignUp, viewModel.state.value.currentForm)
+    }
+
+    @Test
+    fun `displayAuthForm should update currentForm state when form is VerifyEmail`() = runTest {
+        // Given
+        val form = AuthForm.VerifyEmail
+
+        // When
+        viewModel.displayAuthForm(form)
+
+        // Then
+        assertEquals(AuthForm.VerifyEmail, viewModel.state.value.currentForm)
     }
 }

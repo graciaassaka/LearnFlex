@@ -5,6 +5,12 @@
       <SelectionState runConfigName="composeApp">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="verifyEmailForm_navigatesToSignUpForm()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="signUpForm_displayVerifyEmailFormWhenEmailAndPasswordAreValid()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>

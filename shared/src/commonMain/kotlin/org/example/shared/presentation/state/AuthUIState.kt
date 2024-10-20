@@ -18,6 +18,7 @@ import org.example.shared.util.AuthForm
  * @property signUpPasswordVisibility Whether the sign-up password is visible or not.
  * @property signUpPasswordConfirmationError The error message for the sign-up password confirmation, if any.
  * @property signUpPasswordConfirmation The password confirmation entered in the sign-up form.
+ * @property isUserSignedUp Whether the user has successfully signed up or not.
  * @property isLoading Whether a loading indicator should be displayed or not.
  */
 data class AuthUIState(
@@ -34,5 +35,6 @@ data class AuthUIState(
     val signUpPasswordVisibility: Boolean = false,
     val signUpPasswordConfirmationError: String? = null,
     val signUpPasswordConfirmation: String = "",
+    val isUserSignedUp: Boolean = false,
     val isLoading: Boolean = false
 )

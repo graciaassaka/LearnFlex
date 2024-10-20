@@ -299,6 +299,19 @@ class AuthScreenTest
     }
 
     @Test
+    fun signInForm_disableButtonsWhenUIStateIsLoading()
+    {
+        // Given
+        uiState.update { it.copy(isLoading = true) }
+
+
+        // Then
+        composeTestRule.onNodeWithTag("sign_in_button").assertIsNotEnabled()
+        composeTestRule.onNodeWithTag("sign_in_forgot_password_button").assertIsNotEnabled()
+        composeTestRule.onNodeWithTag("sign_in_create_account_button").assertIsNotEnabled()
+    }
+
+    @Test
     fun signInForm_navigatesToForgotPasswordForm()
     {
         // Given
@@ -499,7 +512,7 @@ class AuthScreenTest
     }
 
     @Test
-    fun signUpForm_signUpWhenEmailAndPasswordAreValid()
+    fun signUpForm_displayVerifyEmailFormWhenEmailAndPasswordAreValid()
     {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
@@ -545,6 +558,7 @@ class AuthScreenTest
 
         every { viewModel.signUp() } answers {
             uiState.update { it.copy(isLoading = true) }
+            uiState.update { it.copy(currentForm = AuthForm.VerifyEmail) }
             uiState.update { it.copy(isLoading = false) }
         }
 
@@ -667,6 +681,17 @@ class AuthScreenTest
     }
 
     @Test
+    fun signUpForm_disableButtonsWhenUIStateIsLoading()
+    {
+        // Given
+        uiState.update { it.copy(currentForm = AuthForm.SignUp, isLoading = true) }
+
+        // Then
+        composeTestRule.onNodeWithTag("sign_up_button").assertIsNotEnabled()
+        composeTestRule.onNodeWithTag("sign_up_sign_in_button").assertIsNotEnabled()
+    }
+
+    @Test
     fun signUpForm_navigatesToSignInForm()
     {
         // Given
@@ -682,5 +707,47 @@ class AuthScreenTest
         // Then
         verify { viewModel.displayAuthForm(AuthForm.SignIn) }
         composeTestRule.onNodeWithTag("sign_in_form").assertIsDisplayed()
+    }
+
+    @Test
+    fun verifyEmailForm_displaysCorrectly()
+    {
+        uiState.update { it.copy(currentForm = AuthForm.VerifyEmail, signUpEmail = "test@example.com") }
+        composeTestRule.onNodeWithTag("verify_email_screen_title").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("verify_email_screen_description").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("verify_email_screen_email").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("verify_email_screen_edit_email_button").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("verify_email_screen_verify_email_button").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("verify_email_resend_email_button").assertIsDisplayed()
+    }
+
+    @Test
+    fun verifyEmailForm_navigatesToSignUpForm()
+    {
+        // Given
+        uiState.update { it.copy(currentForm = AuthForm.VerifyEmail) }
+        every { viewModel.displayAuthForm(AuthForm.SignUp) } answers {
+            uiState.update { it.copy(currentForm = AuthForm.SignUp) }
+        }
+
+        // When
+        composeTestRule.onNodeWithTag("verify_email_screen_edit_email_button").performClick()
+        composeTestRule.waitForIdle()
+
+        // Then
+        verify { viewModel.displayAuthForm(AuthForm.SignUp) }
+        verify { viewModel.deleteUser() }
+        composeTestRule.onNodeWithTag("sign_up_form").assertIsDisplayed()
+    }
+
+    @Test
+    fun verifyEmailForm_disableButtonsWhenUIStateIsLoading()
+    {
+        // Given
+        uiState.update { it.copy(currentForm = AuthForm.VerifyEmail, isLoading = true) }
+
+        // Then
+        composeTestRule.onNodeWithTag("verify_email_screen_verify_email_button").assertIsNotEnabled()
+        composeTestRule.onNodeWithTag("verify_email_resend_email_button").assertIsNotEnabled()
     }
 }

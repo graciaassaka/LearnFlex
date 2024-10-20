@@ -47,15 +47,25 @@ actual class FirebaseAuthService(private val auth: FirebaseAuth) : AuthService {
      * @return A [Result] containing a [User] object if successful, or an exception if an error occurs.
      */
     override suspend fun getUserData(): Result<User> = runCatching {
-        auth.currentUser?.let { firebaseUser ->
+        auth.currentUser?.run {
+            reload().await()
             User(
-                displayName = firebaseUser.displayName ?: "",
-                email = firebaseUser.email ?: "",
-                photoUrl = (firebaseUser.photoUrl ?: "").toString(),
-                emailVerified = firebaseUser.isEmailVerified,
-                uid = firebaseUser.uid
+                displayName = displayName ?: "",
+                email = email ?: "",
+                photoUrl = (photoUrl ?: "").toString(),
+                emailVerified = isEmailVerified,
+                uid = uid
             )
         } ?: throw Exception("No signed in user")
+    }
+
+    /**
+     * Sends a verification email to the current user.
+     *
+     * @return A [Result] containing [Unit] if successful, or an exception if an error occurs.
+     */
+    override suspend fun sendVerificationEmail(): Result<Unit> = runCatching {
+        auth.currentUser?.sendEmailVerification()?.await()
     }
 
     /**
@@ -66,5 +76,14 @@ actual class FirebaseAuthService(private val auth: FirebaseAuth) : AuthService {
      */
     override suspend fun sendPasswordResetEmail(email: String): Result<Unit> = runCatching {
         auth.sendPasswordResetEmail(email).await()
+    }
+
+    /**
+     * Deletes the current user's account.
+     *
+     * @return A [Result] containing [Unit] if successful, or an exception if an error occurs.
+     */
+    override suspend fun deleteUser(): Result<Unit> = runCatching {
+        auth.currentUser?.delete()?.await()
     }
 }
