@@ -30,9 +30,9 @@ import org.example.composeApp.dimension.Padding
 import org.example.composeApp.dimension.Spacing
 import org.example.composeApp.layout.AuthLayout
 import org.example.shared.presentation.navigation.Route
-import org.example.shared.presentation.viewModel.AuthViewModel
 import org.example.shared.presentation.util.AuthForm
 import org.example.shared.presentation.util.SnackbarType
+import org.example.shared.presentation.viewModel.AuthViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -121,9 +121,22 @@ fun AuthScreen(
             )
         }
 
-        AuthForm.ForgotPassword ->
+        AuthForm.ResetPassword ->
         {
-
+            PasswordResetForm(
+                isScreenVisible = isScreenVisible,
+                windowSizeClass = windowSizeClass,
+                snackbarHostState = snackbarHostState,
+                snackbarType = currentSnackbarType,
+                email = uiState.resetPasswordEmail,
+                onEmailChanged = viewModel::onPasswordResetEmailChanged,
+                emailError = uiState.resetPasswordEmailError,
+                onResetPasswordClicked = viewModel::sendPasswordResetEmail,
+                enabled = !uiState.isLoading,
+                displayAuthForm = viewModel::displayAuthForm,
+                onAnimationFinished = viewModel::onExitAnimationFinished,
+                modifier = Modifier.testTag("forgot_password_form")
+            )
         }
     }
 }
@@ -142,13 +155,14 @@ private fun SignInForm(
     onPasswordChanged: (String) -> Unit,
     passwordVisibility: Boolean,
     onPasswordVisibilityToggled: () -> Unit,
-    onSignInClicked: () -> Unit,
+    onSignInClicked: (String) -> Unit,
     enabled: Boolean,
     displayAuthForm: (AuthForm) -> Unit,
     onAnimationFinished: () -> Unit,
     modifier: Modifier = Modifier
 )
 {
+    val signInSuccessMessage = stringResource(Res.string.sign_in_success)
     var isFormVisible by remember { mutableStateOf(true) }
     var currentDestination by remember { mutableStateOf<AuthForm?>(null) }
 
@@ -192,12 +206,12 @@ private fun SignInForm(
                 enabled = enabled,
                 onPasswordVisibilityToggled = onPasswordVisibilityToggled,
                 passwordVisibility = passwordVisibility,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions { onSignInClicked() },
-                modifier = Modifier.testTag("sign_in_password_field")
+                modifier = Modifier.testTag("sign_in_password_field"),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                keyboardActions = KeyboardActions { onSignInClicked(signInSuccessMessage) },
             )
             Button(
-                onClick = onSignInClicked,
+                onClick = { onSignInClicked(signInSuccessMessage) },
                 enabled = enabled && emailError.isNullOrBlank() && passwordError.isNullOrBlank(),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -209,7 +223,7 @@ private fun SignInForm(
             TextButton(
                 onClick = {
                     isFormVisible = false
-                    currentDestination = AuthForm.ForgotPassword
+                    currentDestination = AuthForm.ResetPassword
                 },
                 enabled = enabled,
                 modifier = Modifier.testTag("sign_in_forgot_password_button"),
@@ -246,7 +260,7 @@ private fun SignUpForm(
     confirmedPassword: String,
     confirmedPasswordError: String?,
     onConfirmedPasswordChanged: (String) -> Unit,
-    onSignUpClicked: () -> Unit,
+    onSignUpClicked: (String) -> Unit,
     isUserSignedUp: Boolean,
     enabled: Boolean,
     displayAuthForm: (AuthForm) -> Unit,
@@ -254,6 +268,7 @@ private fun SignUpForm(
     modifier: Modifier = Modifier
 )
 {
+    val signUpSuccessMessage = stringResource(Res.string.sign_up_success)
     var isFormVisible by remember { mutableStateOf(true) }
     var currentDestination by remember { mutableStateOf<AuthForm?>(null) }
 
@@ -305,8 +320,6 @@ private fun SignUpForm(
                 enabled = enabled,
                 passwordVisibility = passwordVisibility,
                 onPasswordVisibilityToggled = onPasswordVisibilityToggled,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions { onSignUpClicked() },
                 modifier = Modifier.testTag("sign_up_password_field")
             )
             ConfirmPasswordInputField(
@@ -314,12 +327,12 @@ private fun SignUpForm(
                 onPasswordChanged = onConfirmedPasswordChanged,
                 passwordError = confirmedPasswordError,
                 enabled = enabled,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions { onSignUpClicked() },
-                modifier = Modifier.testTag("sign_up_confirm_password_field")
+                modifier = Modifier.testTag("sign_up_confirm_password_field"),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                keyboardActions = KeyboardActions { onSignUpClicked(signUpSuccessMessage) },
             )
             Button(
-                onClick = onSignUpClicked,
+                onClick = { onSignUpClicked(signUpSuccessMessage) },
                 enabled = enabled && emailError.isNullOrBlank() && passwordError.isNullOrBlank() && confirmedPasswordError.isNullOrBlank(),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -349,15 +362,17 @@ private fun VerificationForm(
     snackbarHostState: SnackbarHostState,
     snackbarType: SnackbarType,
     email: String,
-    onResendVerificationEmailClicked: () -> Unit,
+    onResendVerificationEmailClicked: (String) -> Unit,
     onVerifyEmailClicked: () -> Unit,
-    deleteUser: () -> Unit,
+    deleteUser: (String) -> Unit,
     displayAuthForm: (AuthForm) -> Unit,
     enabled: Boolean,
     onAnimationFinished: () -> Unit,
     modifier: Modifier = Modifier
 )
 {
+    val resendEmailSuccessMessage = stringResource(Res.string.resend_email_success)
+    val deleteUserSuccessMessage = stringResource(Res.string.del_user_success)
     var isFormVisible by remember { mutableStateOf(true) }
     var currentDestination by remember { mutableStateOf<AuthForm?>(null) }
 
@@ -411,7 +426,7 @@ private fun VerificationForm(
                 IconButton(
                     onClick = {
                         isFormVisible = false
-                        deleteUser()
+                        deleteUser(deleteUserSuccessMessage)
                         currentDestination = AuthForm.SignUp
                     },
                     modifier = Modifier.testTag("verify_email_screen_edit_email_button"),
@@ -436,7 +451,7 @@ private fun VerificationForm(
                 content = { Text(stringResource(Res.string.verify_email_button_label)) }
             )
             OutlinedButton(
-                onClick = onResendVerificationEmailClicked,
+                onClick = { onResendVerificationEmailClicked(resendEmailSuccessMessage) },
                 enabled = enabled,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -450,12 +465,93 @@ private fun VerificationForm(
 }
 
 @Composable
+private fun PasswordResetForm(
+    isScreenVisible: Boolean,
+    windowSizeClass: WindowSizeClass,
+    snackbarHostState: SnackbarHostState,
+    snackbarType: SnackbarType,
+    email: String,
+    onEmailChanged: (String) -> Unit,
+    emailError: String?,
+    onResetPasswordClicked: (String) -> Unit,
+    enabled: Boolean,
+    displayAuthForm: (AuthForm) -> Unit,
+    onAnimationFinished: () -> Unit,
+    modifier: Modifier = Modifier
+)
+{
+    val resetSuccessMessage = stringResource(Res.string.password_reset_success)
+    var isFormVisible by remember { mutableStateOf(true) }
+    var currentDestination by remember { mutableStateOf<AuthForm?>(null) }
+
+    LaunchedEffect(isScreenVisible) { isFormVisible = isScreenVisible }
+
+    AuthLayout(
+        windowSizeClass = windowSizeClass,
+        snackbarHostState = snackbarHostState,
+        snackbarType = snackbarType,
+        isVisible = isFormVisible,
+        onAnimationFinished = {
+            if (currentDestination == null) onAnimationFinished()
+            else currentDestination?.let(displayAuthForm)
+        }
+    ) {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(Padding.MEDIUM.dp, Padding.LARGE.dp),
+            verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = stringResource(Res.string.password_reset_screen_title),
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.testTag("reset_password_screen_title")
+            )
+            EmailInputField(
+                email = email,
+                onEmailChanged = onEmailChanged,
+                emailError = emailError,
+                enabled = enabled,
+                modifier = Modifier.testTag("reset_password_email_field"),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                keyboardActions = KeyboardActions { onResetPasswordClicked(resetSuccessMessage) }
+            )
+            Button(
+                onClick = { onResetPasswordClicked(resetSuccessMessage) },
+                enabled = enabled && emailError.isNullOrBlank(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
+                    .testTag("reset_password_button"),
+                shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
+                content = { Text(stringResource(Res.string.send_reset_password_email_button_label)) }
+            )
+            AuthDivider()
+            TextButton(
+                onClick = {
+                    isFormVisible = false
+                    currentDestination = AuthForm.SignIn
+                },
+                enabled = enabled,
+                modifier = Modifier.testTag("reset_password_sign_in_button"),
+                content = { Text(stringResource(Res.string.back_to_sign_in_button_label)) }
+            )
+        }
+    }
+}
+
+@Composable
 private fun EmailInputField(
     email: String,
     onEmailChanged: (String) -> Unit,
     emailError: String?,
     enabled: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+    keyboardActions: KeyboardActions = KeyboardActions.Default
 ) = AnimatedOutlinedTextField(
     value = email,
     onValueChange = onEmailChanged,
@@ -465,7 +561,8 @@ private fun EmailInputField(
     leadingIcon = { Icon(Icons.Default.Email, null) },
     supportingText = { Text(emailError ?: "", color = MaterialTheme.colorScheme.error) },
     isError = emailError.isNullOrBlank().not(),
-    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+    keyboardOptions = keyboardOptions,
+    keyboardActions = keyboardActions
 )
 
 @Composable
@@ -476,9 +573,9 @@ private fun PasswordInputField(
     enabled: Boolean,
     passwordVisibility: Boolean,
     onPasswordVisibilityToggled: () -> Unit,
-    keyboardOptions: KeyboardOptions,
-    keyboardActions: KeyboardActions,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+    keyboardActions: KeyboardActions = KeyboardActions.Default
 ) = AnimatedOutlinedTextField(
     value = password,
     onValueChange = onPasswordChanged,

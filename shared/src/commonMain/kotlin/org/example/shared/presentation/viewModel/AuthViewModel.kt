@@ -27,6 +27,7 @@ class AuthViewModel(
     private val sendVerificationEmailUseCase: SendVerificationEmailUseCase,
     private val verifyEmailUseCase: VerifyEmailUseCase,
     private val deleteUserUseCase: DeleteUserUseCase,
+    private val sendPasswordResetEmailUseCase: SendPasswordResetEmailUseCase,
     private val dispatcher: CoroutineDispatcher,
 ) : BaseViewModel(dispatcher)
 {
@@ -34,12 +35,6 @@ class AuthViewModel(
     // StateFlow to hold the current UI state.
     private val _state = MutableStateFlow(AuthUIState())
     val state = _state.asStateFlow()
-
-    companion object {
-        const val EMAIL_VERIFICATION_SUCCESS = "Verification email sent"
-        const val SIGN_UP_SUCCESS = "User signed up"
-        const val DEL_USER_SUCCESS = "Email deleted"
-    }
 
     /**
      * Updates the sign-in email and its validation error state.
@@ -75,16 +70,22 @@ class AuthViewModel(
     /**
      * Initiates the sign-in process.
      */
-    fun signIn() = with(_state) {
+    fun signIn(successMessage: String) = with(_state) {
         update { it.copy(isLoading = true) }
 
         onSignInEmailChanged(value.signInEmail)
         onSignInPasswordChanged(value.signInPassword)
 
         if (value.signInEmailError.isNullOrBlank() && value.signInPasswordError.isNullOrBlank()) viewModelScope.launch(dispatcher) {
-            signInUseCase(value.signInEmail, value.signInPassword)
-                .onSuccess { navigate(Route.Dashboard, true) }
-                .onFailure { error -> handleError(error) }
+            signInUseCase(
+                email = value.signInEmail,
+                password = value.signInPassword
+            ).onSuccess {
+                navigate(Route.Dashboard, true)
+                showSnackbar(successMessage, SnackbarType.Success)
+            }.onFailure { error ->
+                handleError(error)
+            }
         }
 
         update { it.copy(isLoading = false) }
@@ -141,7 +142,7 @@ class AuthViewModel(
     /**
      * Initiates the sign-up process.
      */
-    fun signUp() = with(_state) {
+    fun signUp(successMessage: String) = with(_state) {
         update { it.copy(isLoading = true) }
 
         onSignUpEmailChanged(value.signUpEmail)
@@ -158,7 +159,7 @@ class AuthViewModel(
                 password = value.signUpPassword
             ).onSuccess {
                 update { it.copy(isUserSignedUp = true) }
-                showSnackbar(SIGN_UP_SUCCESS, SnackbarType.Success)
+                showSnackbar(successMessage, SnackbarType.Success)
             }.onFailure { error ->
                 handleError(error)
             }
@@ -174,12 +175,12 @@ class AuthViewModel(
      * and handles the success and failure cases by showing a snackbar with appropriate messages.
      * Finally, it sets the loading state back to false.
      */
-    fun resendVerificationEmail() = with(_state) {
+    fun resendVerificationEmail(successMessage: String) = with(_state) {
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
             sendVerificationEmailUseCase()
-                .onSuccess { showSnackbar(EMAIL_VERIFICATION_SUCCESS, SnackbarType.Success) }
+                .onSuccess { showSnackbar(successMessage, SnackbarType.Success) }
                 .onFailure { error -> handleError(error) }
         }
 
@@ -212,12 +213,49 @@ class AuthViewModel(
      * On success, navigates to the Auth route. On failure, handles the error by showing
      * an appropriate message.
      */
-    fun deleteUser() = with(_state) {
+    fun deleteUser(successMessage: String) = with(_state) {
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
             deleteUserUseCase()
-                .onSuccess { showSnackbar(DEL_USER_SUCCESS, SnackbarType.Success) }
+                .onSuccess { showSnackbar(successMessage, SnackbarType.Success) }
+                .onFailure { error -> handleError(error) }
+        }
+
+        update { it.copy(isLoading = false) }
+    }
+
+    /**
+     * Updates the reset password email and its validation error state.
+     *
+     * @param email The new email to validate and update.
+     */
+    fun onPasswordResetEmailChanged(email: String) = with(InputValidator.validateEmail(email)) {
+        when (this@with)
+        {
+            is ValidationResult.Valid -> _state.update { it.copy(resetPasswordEmail = email, resetPasswordEmailError = null) }
+            is ValidationResult.Invalid -> _state.update { it.copy(resetPasswordEmail = email, resetPasswordEmailError = message) }
+        }
+    }
+
+    /**
+     * Sends a password reset email to the user.
+     *
+     * This function sets the loading state to true, validates the reset password email,
+     * and if valid, calls the `sendPasswordResetEmailUseCase` to send the email.
+     * On success, shows a success snackbar. On failure, handles the error.
+     * Finally, it sets the loading state back to false.
+     *
+     * @param successMessage The message to show on successful email sending.
+     */
+    fun sendPasswordResetEmail(successMessage: String) = with(_state) {
+        update { it.copy(isLoading = true) }
+
+        onPasswordResetEmailChanged(value.resetPasswordEmail)
+
+        if (value.resetPasswordEmailError.isNullOrBlank()) viewModelScope.launch(dispatcher) {
+            sendPasswordResetEmailUseCase(value.resetPasswordEmail)
+                .onSuccess { showSnackbar(successMessage, SnackbarType.Success) }
                 .onFailure { error -> handleError(error) }
         }
 
@@ -240,11 +278,11 @@ class AuthViewModel(
         }
 
         AuthForm.VerifyEmail -> _state.update {
-           it.copy(currentForm = AuthForm.VerifyEmail)
+            it.copy(currentForm = AuthForm.VerifyEmail)
         }
 
-        AuthForm.ForgotPassword -> _state.update {
-            AuthUIState().copy(currentForm = AuthForm.ForgotPassword)
+        AuthForm.ResetPassword -> _state.update {
+            AuthUIState().copy(currentForm = AuthForm.ResetPassword)
         }
     }
 }

@@ -1,19 +1,38 @@
 <resources>
+    <!-- App Name -->
     <string name="app_name">LearnFlex</string>
+
+    <!-- Screen Titles -->
     <string name="sign_in_screen_title">Sign In</string>
     <string name="sign_up_screen_title">Sign Up</string>
+    <string name="verify_email_screen_title">Verify Email</string>
+    <string name="password_reset_screen_title">Password Reset</string>
+
+    <!-- Button Labels -->
     <string name="sign_in_button_label">Sign In</string>
     <string name="sign_up_button_label">Sign Up</string>
     <string name="already_have_account_button_label">Already have an account? Sign In</string>
     <string name="forgot_password_button_label">Forgot Password?</string>
+    <string name="send_reset_password_email_button_label">Send Reset Password Email</string>
+    <string name="create_account_button_label">Don't have an account? Sign Up</string>
+    <string name="verify_email_button_label">Verify Email</string>
+    <string name="resend_email_button_label">Resend Email</string>
+    <string name="back_to_sign_in_button_label">Back to Sign In</string>
+
+    <!-- Form Labels -->
     <string name="email_label">Email</string>
     <string name="password_label">Password</string>
     <string name="confirm_password_label">Confirm Password</string>
     <string name="toggle_password_visibility">Toggle password visibility</string>
     <string name="or_label">or</string>
-    <string name="create_account_button_label">Don't have an account? Sign Up</string>
-    <string name="verify_email_screen_title">Verify Email</string>
+
+    <!-- Screen Descriptions -->
     <string name="verify_email_screen_description">A verification email has been sent to the email address below. Please verify your email address to continue.</string>
-    <string name="verify_email_button_label">Verify Email</string>
-    <string name="resend_email_button_label">Resend Email</string>
+
+    <!-- Success Messages -->
+    <string name="sign_in_success">User signed in</string>
+    <string name="sign_up_success">User signed up</string>
+    <string name="del_user_success">Email deleted</string>
+    <string name="password_reset_success">Password reset email sent</string>
+    <string name="resend_email_success">Verification email sent</string>
 </resources>

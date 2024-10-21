@@ -17,10 +17,11 @@ val useCaseModule = module {
     single { SendVerificationEmailUseCase(get()) }
     single { VerifyEmailUseCase(get()) }
     single { DeleteUserUseCase(get()) }
+    single { SendPasswordResetEmailUseCase(get()) }
 }
 
 val viewModelModule = module {
     viewModel { BaseViewModel(get()) }
     viewModel { SharedViewModel(get(), get(), get()) }
-    viewModel { AuthViewModel(get(), get(), get(), get(), get(), get()) }
+    viewModel { AuthViewModel(get(), get(), get(), get(), get(), get(), get()) }
 }

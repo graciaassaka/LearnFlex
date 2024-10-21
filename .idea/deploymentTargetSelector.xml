@@ -5,10 +5,16 @@
       <SelectionState runConfigName="composeApp">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="verifyEmailForm_navigatesToSignUpForm()">
+      <SelectionState runConfigName="passwordResetForm_displaysErrorWhenEmailIsInvalid()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="signUpForm_displayVerifyEmailFormWhenEmailAndPasswordAreValid()">
+      <SelectionState runConfigName="passwordResetForm_navigatesToSignInForm()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="passwordResetForm_callsSendPasswordResetEmailWhenEmailIsValid()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="passwordResetForm_disablesResetButtonWhenEmailIsInvalid()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

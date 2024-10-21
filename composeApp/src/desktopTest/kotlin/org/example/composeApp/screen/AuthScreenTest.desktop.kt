@@ -233,7 +233,7 @@ class AuthScreenTest
             }
         }
 
-        every { viewModel.signIn() } answers {
+        every { viewModel.signIn(any()) } answers {
             uiState.update { it.copy(isLoading = true) }
             uiState.update { it.copy(isLoading = false) }
         }
@@ -250,7 +250,7 @@ class AuthScreenTest
         waitForIdle()
 
         // Then
-        verify { viewModel.signIn() }
+        verify { viewModel.signIn(any()) }
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -340,8 +340,8 @@ class AuthScreenTest
     @Test
     fun signInForm_navigatesToForgotPasswordForm() = runComposeUiTest {
         // Given
-        every { viewModel.displayAuthForm(AuthForm.ForgotPassword) } answers {
-            uiState.update { it.copy(currentForm = AuthForm.ForgotPassword) }
+        every { viewModel.displayAuthForm(AuthForm.ResetPassword) } answers {
+            uiState.update { it.copy(currentForm = AuthForm.ResetPassword) }
         }
 
         // When
@@ -354,7 +354,7 @@ class AuthScreenTest
         waitForIdle()
 
         // Then
-        verify { viewModel.displayAuthForm(AuthForm.ForgotPassword) }
+        verify { viewModel.displayAuthForm(AuthForm.ResetPassword) }
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -623,7 +623,7 @@ class AuthScreenTest
             }
         }
 
-        every { viewModel.signUp() } answers {
+        every { viewModel.signUp(any()) } answers {
             uiState.update { it.copy(isLoading = true) }
             uiState.update { it.copy(currentForm = AuthForm.VerifyEmail) }
             uiState.update { it.copy(isLoading = false) }
@@ -642,7 +642,7 @@ class AuthScreenTest
         waitForIdle()
 
         // Then
-        verify { viewModel.signUp() }
+        verify { viewModel.signUp(any()) }
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -839,6 +839,7 @@ class AuthScreenTest
 
         // Then
         verify { viewModel.displayAuthForm(AuthForm.SignUp) }
+        verify { viewModel.deleteUser(any()) }
         onNodeWithTag("sign_up_form").assertIsDisplayed()
     }
 
@@ -858,5 +859,191 @@ class AuthScreenTest
         // Then
         onNodeWithTag("verify_email_screen_verify_email_button").assertIsNotEnabled()
         onNodeWithTag("verify_email_resend_email_button").assertIsNotEnabled()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun passwordResetForm_displaysCorrectly() = runComposeUiTest {
+        // Given
+        uiState.update { it.copy(currentForm = AuthForm.ResetPassword) }
+
+        // When
+        setContent {
+            AuthScreen(
+                windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
+            )
+        }
+
+        // Then
+        onNodeWithTag("reset_password_screen_title").assertIsDisplayed()
+        onNodeWithTag("reset_password_email_field").assertIsDisplayed()
+        onNodeWithTag("reset_password_button").assertIsDisplayed()
+        onNodeWithTag("reset_password_sign_in_button").assertIsDisplayed()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun passwordResetForm_updateEmailField() = runComposeUiTest {
+        // Given
+        uiState.update { it.copy(currentForm = AuthForm.ResetPassword) }
+        val email = "test@example.com"
+        val validationResult = InputValidator.validateEmail(email)
+
+        every { viewModel.onPasswordResetEmailChanged(email) } answers {
+            uiState.update {
+                when (validationResult) {
+                    is ValidationResult.Valid -> it.copy(resetPasswordEmail = email, resetPasswordEmailError = null)
+                    is ValidationResult.Invalid -> it.copy(resetPasswordEmail = email, resetPasswordEmailError = validationResult.message)
+                }
+            }
+        }
+
+        // When
+        setContent {
+            AuthScreen(
+                windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
+            )
+        }
+        onNodeWithTag("reset_password_email_field").performTextInput(email)
+
+        // Then
+        verify { viewModel.onPasswordResetEmailChanged(email) }
+        onNodeWithText(email).assertIsDisplayed()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun passwordResetForm_displaysErrorWhenEmailIsInvalid() = runComposeUiTest {
+        // Given
+        uiState.update { it.copy(currentForm = AuthForm.ResetPassword) }
+        val email = "test@example"
+        val validationResult = InputValidator.validateEmail(email)
+
+        every { viewModel.onPasswordResetEmailChanged(email) } answers {
+            uiState.update {
+                when (validationResult) {
+                    is ValidationResult.Valid -> it.copy(resetPasswordEmail = email, resetPasswordEmailError = null)
+                    is ValidationResult.Invalid -> it.copy(resetPasswordEmail = email, resetPasswordEmailError = validationResult.message)
+                }
+            }
+        }
+
+        // When
+        setContent {
+            AuthScreen(
+                windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
+            )
+        }
+        onNodeWithTag("reset_password_email_field").performTextInput(email)
+
+        // Then
+        verify { viewModel.onPasswordResetEmailChanged(email) }
+        onNodeWithText((validationResult as ValidationResult.Invalid).message).assertIsDisplayed()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun passwordResetForm_disableButtonsWhenUIStateIsLoading() = runComposeUiTest {
+        // Given
+        uiState.update { it.copy(currentForm = AuthForm.ResetPassword, isLoading = true) }
+
+        // When
+        setContent {
+            AuthScreen(
+                windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
+            )
+        }
+
+        // Then
+        onNodeWithTag("reset_password_button").assertIsNotEnabled()
+        onNodeWithTag("reset_password_sign_in_button").assertIsNotEnabled()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun passwordResetForm_navigatesToSignInForm() = runComposeUiTest {
+        // Given
+        uiState.update { it.copy(currentForm = AuthForm.ResetPassword) }
+        every { viewModel.displayAuthForm(AuthForm.SignIn) } answers {
+            uiState.update { it.copy(currentForm = AuthForm.SignIn) }
+        }
+
+        // When
+        setContent {
+            AuthScreen(
+                windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
+            )
+        }
+        onNodeWithTag("reset_password_sign_in_button").performClick()
+        waitForIdle()
+
+        // Then
+        verify { viewModel.displayAuthForm(AuthForm.SignIn) }
+        onNodeWithTag("sign_in_form").assertIsDisplayed()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun passwordResetForm_callsSendPasswordResetEmailWhenEmailIsValid() = runComposeUiTest {
+        // Given
+        uiState.update { it.copy(currentForm = AuthForm.ResetPassword) }
+        val email = "test@example.com"
+        val emailValidationResult = InputValidator.validateEmail(email)
+
+        every { viewModel.onPasswordResetEmailChanged(email) } answers {
+            uiState.update {
+                when (emailValidationResult) {
+                    is ValidationResult.Valid -> it.copy(resetPasswordEmail = email, resetPasswordEmailError = null)
+                    is ValidationResult.Invalid -> it.copy(resetPasswordEmail = email, resetPasswordEmailError = emailValidationResult.message)
+                }
+            }
+        }
+
+        every { viewModel.sendPasswordResetEmail(any()) } answers {
+            uiState.update { it.copy(isLoading = true) }
+            uiState.update { it.copy(isLoading = false) }
+        }
+
+        // When
+        setContent {
+            AuthScreen(
+                windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
+            )
+        }
+        onNodeWithTag("reset_password_email_field").performTextInput(email)
+        onNodeWithTag("reset_password_button").performClick()
+        waitForIdle()
+
+        // Then
+        verify { viewModel.sendPasswordResetEmail(any()) }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun passwordResetForm_disablesResetButtonWhenEmailIsInvalid() = runComposeUiTest {
+        // Given
+        uiState.update { it.copy(currentForm = AuthForm.ResetPassword) }
+        val email = "test@example"
+        val emailValidationResult = InputValidator.validateEmail(email)
+
+        every { viewModel.onPasswordResetEmailChanged(email) } answers {
+            uiState.update {
+                when (emailValidationResult) {
+                    is ValidationResult.Valid -> it.copy(resetPasswordEmail = email, resetPasswordEmailError = null)
+                    is ValidationResult.Invalid -> it.copy(resetPasswordEmail = email, resetPasswordEmailError = emailValidationResult.message)
+                }
+            }
+        }
+
+        // When
+        setContent {
+            AuthScreen(
+                windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
+            )
+        }
+        onNodeWithTag("reset_password_email_field").performTextInput(email)
+
+        // Then
+        onNodeWithTag("reset_password_button").assertIsNotEnabled()
     }
 }
