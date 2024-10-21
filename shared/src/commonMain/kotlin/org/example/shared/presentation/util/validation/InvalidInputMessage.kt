@@ -1,4 +1,4 @@
-package org.example.shared.util.validation
+package org.example.shared.presentation.util.validation
 
 /**
  * Enum class containing all the possible error messages that can be displayed to the user when the input is invalid

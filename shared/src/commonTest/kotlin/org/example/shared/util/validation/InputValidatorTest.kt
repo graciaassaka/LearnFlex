@@ -1,5 +1,8 @@
 package org.example.shared.util.validation
 
+import org.example.shared.presentation.util.validation.InputValidator
+import org.example.shared.presentation.util.validation.InvalidInputMessage
+import org.example.shared.presentation.util.validation.ValidationResult
 import org.junit.Test
 import kotlin.test.assertEquals
 

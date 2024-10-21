@@ -1,4 +1,4 @@
-package org.example.shared.util.validation
+package org.example.shared.presentation.util.validation
 
 /**
  * Regular expression for validating email addresses.

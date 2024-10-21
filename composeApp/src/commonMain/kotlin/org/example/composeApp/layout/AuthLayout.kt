@@ -15,7 +15,7 @@ import org.example.composeApp.component.CustomSnackbar
 import org.example.composeApp.component.auth.AnimatedAuthCard
 import org.example.composeApp.component.auth.AnimatedBottomSheet
 import org.example.composeApp.util.Orientation
-import org.example.shared.util.SnackbarType
+import org.example.shared.presentation.util.SnackbarType
 
 /**
  * A composable function that creates an authentication layout with a responsive design,

@@ -12,10 +12,10 @@ import kotlinx.coroutines.test.*
 import org.example.shared.domain.use_case.*
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.viewModel.AuthViewModel
-import org.example.shared.util.AuthForm
-import org.example.shared.util.UIEvent
-import org.example.shared.util.validation.InputValidator
-import org.example.shared.util.validation.ValidationResult
+import org.example.shared.presentation.util.AuthForm
+import org.example.shared.presentation.util.UIEvent
+import org.example.shared.presentation.util.validation.InputValidator
+import org.example.shared.presentation.util.validation.ValidationResult
 import org.junit.After
 import org.junit.Assert.assertNotEquals
 import org.junit.Before

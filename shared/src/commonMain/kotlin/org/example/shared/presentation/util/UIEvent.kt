@@ -1,4 +1,4 @@
-package org.example.shared.util
+package org.example.shared.presentation.util
 
 import org.example.shared.presentation.navigation.Route
 

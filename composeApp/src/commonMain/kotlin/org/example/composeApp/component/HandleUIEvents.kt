@@ -7,8 +7,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import org.example.shared.presentation.navigation.Route
-import org.example.shared.util.SnackbarType
-import org.example.shared.util.UIEvent
+import org.example.shared.presentation.util.SnackbarType
+import org.example.shared.presentation.util.UIEvent
 import org.example.shared.presentation.viewModel.BaseViewModel
 
 /**
@@ -31,7 +31,7 @@ fun HandleUIEvents(
 {
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(true) {
-        viewModel.uiEvent.collect { event: UIEvent  ->
+        viewModel.uiEvent.collect { event: UIEvent ->
             when (event)
             {
                 is UIEvent.Navigate ->

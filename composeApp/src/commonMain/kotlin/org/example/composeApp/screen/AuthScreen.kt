@@ -31,8 +31,8 @@ import org.example.composeApp.dimension.Spacing
 import org.example.composeApp.layout.AuthLayout
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.viewModel.AuthViewModel
-import org.example.shared.util.AuthForm
-import org.example.shared.util.SnackbarType
+import org.example.shared.presentation.util.AuthForm
+import org.example.shared.presentation.util.SnackbarType
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 

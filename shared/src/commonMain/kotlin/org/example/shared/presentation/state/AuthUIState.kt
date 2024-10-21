@@ -1,6 +1,6 @@
 package org.example.shared.presentation.state
 
-import org.example.shared.util.AuthForm
+import org.example.shared.presentation.util.AuthForm
 
 /**
  * Data class representing the UI state for authentication.

@@ -11,8 +11,8 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.example.shared.presentation.navigation.Route
-import org.example.shared.util.SnackbarType
-import org.example.shared.util.UIEvent
+import org.example.shared.presentation.util.SnackbarType
+import org.example.shared.presentation.util.UIEvent
 import org.example.shared.presentation.viewModel.BaseViewModel
 import org.junit.After
 import org.junit.Before

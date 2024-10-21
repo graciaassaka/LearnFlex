@@ -1,4 +1,4 @@
-package org.example.shared.util
+package org.example.shared.presentation.util
 
 /**
  * Enum class representing the authentication form.

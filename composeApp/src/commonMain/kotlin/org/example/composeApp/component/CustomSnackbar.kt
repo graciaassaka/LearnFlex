@@ -5,7 +5,7 @@ import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarData
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import org.example.shared.util.SnackbarType
+import org.example.shared.presentation.util.SnackbarType
 
 /**
  * Displays a custom snackbar with different color schemes based on its type.

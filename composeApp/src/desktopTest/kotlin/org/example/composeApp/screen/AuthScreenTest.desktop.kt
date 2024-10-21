@@ -17,10 +17,10 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.update
 import org.example.shared.presentation.state.AuthUIState
 import org.example.shared.presentation.viewModel.AuthViewModel
-import org.example.shared.util.AuthForm
-import org.example.shared.util.UIEvent
-import org.example.shared.util.validation.InputValidator
-import org.example.shared.util.validation.ValidationResult
+import org.example.shared.presentation.util.AuthForm
+import org.example.shared.presentation.util.UIEvent
+import org.example.shared.presentation.util.validation.InputValidator
+import org.example.shared.presentation.util.validation.ValidationResult
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 

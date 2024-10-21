@@ -1,4 +1,4 @@
-package org.example.shared.util
+package org.example.shared.presentation.util
 
 /**
  * Sealed class representing the type of a Snackbar.

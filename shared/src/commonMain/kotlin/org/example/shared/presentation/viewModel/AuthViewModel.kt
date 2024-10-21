@@ -9,10 +9,10 @@ import kotlinx.coroutines.launch
 import org.example.shared.domain.use_case.*
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.state.AuthUIState
-import org.example.shared.util.AuthForm
-import org.example.shared.util.SnackbarType
-import org.example.shared.util.validation.InputValidator
-import org.example.shared.util.validation.ValidationResult
+import org.example.shared.presentation.util.AuthForm
+import org.example.shared.presentation.util.SnackbarType
+import org.example.shared.presentation.util.validation.InputValidator
+import org.example.shared.presentation.util.validation.ValidationResult
 
 /**
  * ViewModel class for handling authentication-related operations.

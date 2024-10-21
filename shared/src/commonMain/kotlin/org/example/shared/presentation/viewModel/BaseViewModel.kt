@@ -7,8 +7,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.example.shared.presentation.navigation.Route
-import org.example.shared.util.SnackbarType
-import org.example.shared.util.UIEvent
+import org.example.shared.presentation.util.SnackbarType
+import org.example.shared.presentation.util.UIEvent
 
 /**
  * Base ViewModel class providing common functionality for all ViewModels.
