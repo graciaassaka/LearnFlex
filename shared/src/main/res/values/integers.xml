@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <integer name="firebase_auth_emulator_port">9099</integer>
-    <integer name="firebase_firestore_emulator_port">8080</integer>
-    <integer name="firebase_storage_emulator_port">9199</integer>
-    <integer name="firebase_functions_emulator_port">5001</integer>
-</resources>
