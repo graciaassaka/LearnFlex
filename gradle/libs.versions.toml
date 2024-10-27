@@ -23,13 +23,13 @@ compose-navigation = " 2.8.0-alpha10"
 compose-window-size = "1.7.0"
 core-splash_screen = "1.0.1"
 dotenv = "2.0.0"
-firebase_admin = "9.2.0"
-firebase-bom = "33.5.0"
+gitlive = "2.1.0"
+gitlive-java = "0.4.6"
 google-services = "4.4.2"
 junit = "4.13.2"
 koin = "4.0.0"
 kotlin = "2.0.20"
-kotlin-serialization = "1.6.2"
+kotlin-serialization = "1.7.1"
 kotlin-serialization-plugin = "1.9.10"
 kotlinx-coroutines-test = "1.8.0"
 kotlinx-parcelize = "2.1.0-Beta2"
@@ -42,6 +42,7 @@ mockk = "1.13.10"
 uiToolingPreviewAndroid = "1.7.4"
 material3Android = "1.3.0"
 slf4j = "2.0.7"
+wiremock = "2.35.0"
 
 [libraries]
 # Testing libraries
@@ -66,6 +67,7 @@ androidx-compose-ui-test = { module = "androidx.compose.ui:ui-test-junit4", vers
 androidx-compose-ui-test-junit4-android = { module = "androidx.compose.ui:ui-test-junit4-android", version.ref = "compose" }
 androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "compose" }
 androidx-test-orchestrator = { group = "androidx.test", name = "orchestrator", version.ref = "androidx-test-orchestrator" }
+wiremock = { group = "com.github.tomakehurst", name = "wiremock-jre8-standalone", version.ref = "wiremock" }
 
 # Android libraries
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core-ktx" }
@@ -74,6 +76,8 @@ androidx-material = { group = "com.google.android.material", name = "material", 
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidx-constraintlayout" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview-android", version.ref = "uiToolingPreviewAndroid" }
 androidx-material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
+androidx-splash-screen = { module = "androidx.core:core-splashscreen", version.ref = "core-splash_screen" }
+androidx-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle-viewmodel" }
 
 # Compose libraries
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
@@ -87,16 +91,9 @@ androidx-compose-animation = { module = "androidx.compose.animation:animation", 
 compose-navigation = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "compose-navigation" }
 compose-window-size = { module = "org.jetbrains.compose.material3:material3-window-size-class", version.ref = "compose-window-size" }
 
-# Firebase libraries
-firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
-firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = "firebase_admin" }
-firebase-common = { group = "com.google.firebase", name = "firebase-common-ktx" }
-firebase_analytics = { group = "com.google.firebase", name = "firebase-analytics-ktx" }
-firebase_auth = { group = "com.google.firebase", name = "firebase-auth-ktx" }
-firebase_firestore = { group = "com.google.firebase", name = "firebase-firestore-ktx" }
-firebase_database = { group = "com.google.firebase", name = "firebase-database-ktx" }
-firebase_storage = { group = "com.google.firebase", name = "firebase-storage-ktx" }
-firebase_functions = { group = "com.google.firebase", name = "firebase-functions-ktx" }
+# Gitlive libraries
+gitlive-java = { module = "dev.gitlive:firebase-java-sdk", version.ref = "gitlive-java" }
+gitlive-auth = { module = "dev.gitlive:firebase-auth", version.ref = "gitlive" }
 
 # Kotlin libraries
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlin-serialization" }
@@ -104,8 +101,9 @@ kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 
 # Ktor libraries
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-log = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
-ktor-content-negotiation =  { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-client-okhttp-jvm = { module = "io.ktor:ktor-client-okhttp-jvm", version.ref = "ktor" }
 
@@ -120,8 +118,7 @@ koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", ver
 koin-compose-viewmodel-navigation = { module = "io.insert-koin:koin-compose-viewmodel-navigation", version.ref = "koin" }
 
 # Other libraries
-androidx-splash-screen = { module = "androidx.core:core-splashscreen", version.ref = "core-splash_screen" }
-androidx-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle-viewmodel" }
+
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

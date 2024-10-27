@@ -28,7 +28,7 @@ interface AuthService {
     /**
      * Signs out the currently signed-in user.
      */
-    fun signOut()
+    suspend fun signOut()
 
     /**
      * Retrieves the current user's data.
@@ -42,7 +42,7 @@ interface AuthService {
      *
      * @return A [Result] containing [Unit] if successful, or an exception if an error occurs.
      */
-    suspend fun sendVerificationEmail(): Result<Unit>
+    suspend fun sendEmailVerification(): Result<Unit>
 
     /**
      * Sends a password reset email to the provided email address.

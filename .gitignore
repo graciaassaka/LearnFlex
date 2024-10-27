@@ -1,3 +1,5 @@
+composeApp/src/commonMain/composeResources/files/firebase.properties
+local.properties
 .env
 .gradle
 gradle.properties

@@ -1,51 +1,33 @@
 package org.example.shared.injection
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharingStarted
-import org.example.shared.FirebaseInitializer
+import org.example.shared.FirebaseInit
 import org.example.shared.data.firebase.FirebaseAuthService
-import org.example.shared.data.firebase.TokenStorageImpl
-import org.example.shared.domain.TokenStorage
+import org.example.shared.data.firebase.FirebaseConfig
 import org.example.shared.domain.service.AuthService
 import org.koin.core.context.startKoin
+import org.koin.core.module.Module
 import org.koin.dsl.module
 
-actual fun initKoin(context: Any?) {
+actual fun initKoin(context: Any?)
+{
     startKoin {
         modules(
-            dispatcherModule,
-            sharingStartedModule,
-            firebaseModule,
-            tokenStorageModule,
-            authModule,
-            authServiceModule,
-            useCaseModule,
-            viewModelModule
+            firebaseInitModule,
+            commonModule
         )
     }
 }
 
-val firebaseModule = module {
-    single { FirebaseInitializer() }
+val firebaseInitModule = module {
+    single { FirebaseInit() }
 }
 
-val tokenStorageModule = module {
-    single<TokenStorage> { TokenStorageImpl() }
-}
-
-val dispatcherModule = module {
+actual fun getDispatcherModule() = module {
     single { Dispatchers.Default }
 }
 
-val sharingStartedModule = module {
-    single { SharingStarted.WhileSubscribed(5000) }
-}
-
-val authServiceModule = module {
+actual fun getFirebaseAuthServiceModule()= module {
+    single { FirebaseAuthService(get(), get(), FirebaseConfig.useEmulator()) }
     single<AuthService> { get<FirebaseAuthService>() }
-}
-
-val authModule = module {
-    single { FirebaseInitializer() }
-    single { FirebaseAuthService(get()) }
 }

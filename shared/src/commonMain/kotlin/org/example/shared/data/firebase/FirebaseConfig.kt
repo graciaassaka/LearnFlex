@@ -6,13 +6,6 @@ package org.example.shared.data.firebase
 expect object FirebaseConfig {
 
     /**
-     * Checks if the Firebase emulator should be used.
-     *
-     * @return `true` if the Firebase emulator should be used, `false` otherwise.
-     */
-    fun useEmulator(): Boolean
-
-    /**
      * Retrieves the host address for the Firebase emulator.
      *
      * @return The host address as a string.

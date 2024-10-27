@@ -25,19 +25,19 @@ class SendVerificationEmailUseCaseTest
     @Test
     fun `SendVerificationEmailUseCase should call AuthService#sendVerificationEmail`() = runTest {
         // Given
-        coEvery { authService.sendVerificationEmail() } returns Result.success(Unit)
+        coEvery { authService.sendEmailVerification() } returns Result.success(Unit)
 
         // When
         sendVerificationEmailUseCase()
 
         // Then
-        coVerify(exactly = 1) { authService.sendVerificationEmail() }
+        coVerify(exactly = 1) { authService.sendEmailVerification() }
     }
 
     @Test
     fun `SendVerificationEmailUseCase should return success when AuthService#sendVerificationEmail returns success`() = runTest {
         // Given
-        coEvery { authService.sendVerificationEmail() } returns Result.success(Unit)
+        coEvery { authService.sendEmailVerification() } returns Result.success(Unit)
 
         // When
         val result = sendVerificationEmailUseCase()
@@ -50,7 +50,7 @@ class SendVerificationEmailUseCaseTest
     fun `SendVerificationEmailUseCase should return failure with the exception when AuthService#sendVerificationEmail returns failure`() = runTest {
         // Given
         val exception = Exception("An error occurred")
-        coEvery { authService.sendVerificationEmail() } returns Result.failure(exception)
+        coEvery { authService.sendEmailVerification() } returns Result.failure(exception)
 
         // When
         val result = sendVerificationEmailUseCase()

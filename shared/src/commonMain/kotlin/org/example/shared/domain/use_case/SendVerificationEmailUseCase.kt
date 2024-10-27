@@ -12,5 +12,5 @@ class SendVerificationEmailUseCase(private val authService: AuthService) {
     /**
      * Invokes the use case to send a verification email.
      */
-    suspend operator fun invoke() = authService.sendVerificationEmail()
+    suspend operator fun invoke() = authService.sendEmailVerification()
 }

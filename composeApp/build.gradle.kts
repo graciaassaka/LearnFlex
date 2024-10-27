@@ -1,6 +1,8 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
+import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -36,6 +38,7 @@ kotlin {
             applyOptIns()
         }
         val commonMain by getting {
+            resources.srcDirs("src/commonMain/resources")
             dependencies {
                 implementation(compose.runtime)
                 implementation(compose.foundation)
@@ -58,6 +61,7 @@ kotlin {
         }
 
         val androidMain by getting {
+            resources.srcDirs(commonMain.resources.srcDirs)
             dependencies {
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.androidx.compose.ui.tooling.preview)
@@ -81,6 +85,7 @@ kotlin {
         }
 
         val desktopMain by getting {
+            resources.srcDirs(commonMain.resources.srcDirs)
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
@@ -158,7 +163,6 @@ android {
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     sourceSets["main"].res.srcDirs("src/androidMain/res")
-    sourceSets["main"].resources.srcDirs("src/commonMain/resources")
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

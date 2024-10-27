@@ -1,7 +1,45 @@
+import java.io.FileInputStream
+import java.util.*
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinSerialization)
+}
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    FileInputStream(localPropertiesFile).use { stream ->
+        localProperties.load(stream)
+    }
+}
+
+fun getLocalProperty(key: String, defaultValue: String = ""): String = localProperties.getProperty(key, defaultValue)
+
+tasks.register("generateConstants") {
+    doLast {
+        val generated = """
+            package org.example.shared.data.util
+            
+            object FirebaseConstants {
+                const val APP_ID = "${getLocalProperty("FIREBASE_APP_ID")}"
+                const val API_KEY = "${getLocalProperty("FIREBASE_API_KEY")}"
+                const val PROJECT_ID = "${getLocalProperty("FIREBASE_PROJECT_ID")}"
+            }
+        """.trimIndent()
+
+        val outputDir = project.layout.buildDirectory.get().asFile
+            .resolve("generated/kotlin/org/example/shared/data/util")
+        outputDir.mkdirs()
+
+        val outputFile = outputDir.resolve("FirebaseConstants.kt")
+        outputFile.writeText(generated)
+    }
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    dependsOn("generateConstants")
 }
 
 kotlin {
@@ -18,6 +56,10 @@ kotlin {
             kotlinOptions {
                 jvmTarget = "11"
             }
+        }
+
+        compilations["main"].compileTaskProvider.configure {
+            dependsOn("generateConstants")
         }
     }
 
@@ -36,15 +78,9 @@ kotlin {
                 implementation(libs.ktor.client.okhttp)
                 implementation(libs.ktor.content.negotiation)
                 implementation(libs.ktor.serialization.json)
-                implementation(project.dependencies.platform(libs.firebase.bom))
-                implementation(libs.firebase.auth)
-                implementation(libs.firebase.common)
-                implementation(libs.firebase.storage)
-                implementation(libs.firebase.database)
-                implementation(libs.firebase.analytics)
-                implementation(libs.firebase.firestore)
-                implementation(libs.firebase.functions)
+                implementation(libs.ktor.client.log)
                 implementation(libs.androidx.lifecycle.viewmodel)
+                implementation(libs.gitlive.auth)
             }
         }
 
@@ -60,6 +96,7 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.koin.test)
                 implementation(libs.slf4j)
+                implementation(libs.wiremock)
             }
         }
 
@@ -92,9 +129,10 @@ kotlin {
         }
 
         val desktopMain by getting {
+            kotlin.srcDir(layout.buildDirectory.dir("generated/kotlin"))
             dependencies {
-                implementation(libs.firebase.admin)
                 implementation(libs.ktor.client.okhttp.jvm)
+                implementation(libs.gitlive.java)
             }
         }
 
@@ -141,6 +179,9 @@ android {
             // Additional exclusions or pickFirsts if needed
         }
     }
+}
+dependencies {
+    implementation(libs.ktor.client.okhttp.jvm)
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
