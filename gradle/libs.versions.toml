@@ -94,6 +94,7 @@ compose-window-size = { module = "org.jetbrains.compose.material3:material3-wind
 # Gitlive libraries
 gitlive-java = { module = "dev.gitlive:firebase-java-sdk", version.ref = "gitlive-java" }
 gitlive-auth = { module = "dev.gitlive:firebase-auth", version.ref = "gitlive" }
+gitlive-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = "gitlive" }
 
 # Kotlin libraries
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlin-serialization" }

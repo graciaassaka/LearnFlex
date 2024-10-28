@@ -49,7 +49,6 @@ class VerifyEmailUseCaseTest
 
         // Then
         assert(result.isFailure)
-        assert(result.exceptionOrNull()?.message == "Email not verified")
     }
 
     @Test

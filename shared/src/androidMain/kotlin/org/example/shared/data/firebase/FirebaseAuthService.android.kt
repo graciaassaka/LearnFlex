@@ -65,7 +65,7 @@ actual class FirebaseAuthService(private val auth: FirebaseAuth) : AuthService {
      * @return A Result containing Unit if successful, or an exception if failed.
      */
     override suspend fun sendEmailVerification(): Result<Unit> = runCatching {
-        auth.currentUser?.sendEmailVerification()
+        auth.currentUser?.sendEmailVerification() ?: throw Exception("No signed in user")
     }
 
     /**
@@ -84,6 +84,6 @@ actual class FirebaseAuthService(private val auth: FirebaseAuth) : AuthService {
      * @return A Result containing Unit if successful, or an exception if failed.
      */
     override suspend fun deleteUser(): Result<Unit> = runCatching {
-        auth.currentUser?.delete()
+        auth.currentUser?.delete() ?: throw Exception("No signed in user")
     }
 }

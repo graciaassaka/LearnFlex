@@ -46,7 +46,7 @@ kotlin {
     androidTarget {
         compilations.all {
             kotlinOptions {
-                jvmTarget = "11"
+                jvmTarget = "17"
             }
         }
     }
@@ -54,7 +54,7 @@ kotlin {
     jvm("desktop") {
         compilations.all {
             kotlinOptions {
-                jvmTarget = "11"
+                jvmTarget = "17"
             }
         }
 
@@ -81,6 +81,7 @@ kotlin {
                 implementation(libs.ktor.client.log)
                 implementation(libs.androidx.lifecycle.viewmodel)
                 implementation(libs.gitlive.auth)
+                implementation(libs.gitlive.firestore)
             }
         }
 
@@ -160,8 +161,8 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildTypes {
         android.buildFeatures.buildConfig = true

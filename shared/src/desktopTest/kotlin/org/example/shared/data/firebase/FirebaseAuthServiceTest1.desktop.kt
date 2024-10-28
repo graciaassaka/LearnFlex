@@ -1,3 +1,5 @@
+package org.example.shared.data.firebase
+
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
@@ -11,7 +13,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.example.shared.FirebaseInit
-import org.example.shared.data.firebase.FirebaseAuthService
 import org.example.shared.data.util.ApiError
 import org.example.shared.data.util.FirebaseConstants
 import org.junit.After
@@ -20,7 +21,7 @@ import kotlin.test.Test
 
 @WireMockTest
 @ExperimentalCoroutinesApi
-class FirebaseAuthServiceTest
+actual class FirebaseAuthServiceTest
 {
     private lateinit var firebaseAuthService: FirebaseAuthService
     private lateinit var httpClient: HttpClient

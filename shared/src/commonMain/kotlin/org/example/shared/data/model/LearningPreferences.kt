@@ -2,15 +2,24 @@ package org.example.shared.data.model
 
 import kotlinx.serialization.Serializable
 
+/**
+ * A data class representing learning preferences.
+ *
+ * @property field The field of study.
+ * @property level The level of expertise.
+ * @property goal The learning goal.
+ */
 @Serializable
 data class LearningPreferences(
-    val field: LearningField,
-    val level: LearningLevel,
+    val field: String,
+    val level: String,
     val goal: String
 )
 
+/**
+ * Enum class representing different fields of learning.
+ */
 @Suppress("unused")
-@Serializable
 enum class LearningField {
     Arts,
     Business,
@@ -25,10 +34,11 @@ enum class LearningField {
     SocialScience
 }
 
+/**
+ * Enum class representing different levels of learning.
+ */
 @Suppress("unused")
-@Serializable
-enum class LearningLevel
-{
+enum class LearningLevel {
     Beginner,
     Intermediate,
     Advanced

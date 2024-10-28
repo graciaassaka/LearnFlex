@@ -1,5 +1,6 @@
 package org.example.shared.injection
 
+import com.google.firebase.firestore.FirebaseFirestore
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import io.ktor.client.*
@@ -10,6 +11,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.serialization.json.Json
 import org.example.shared.data.assistant.OpenAIAssistantClient
 import org.example.shared.data.firebase.FirebaseAuthService
+import org.example.shared.data.repository.UserProfileReposImpl
+import org.example.shared.domain.repository.UserProfileRepos
 import org.example.shared.domain.service.AIAssistantClient
 import org.example.shared.domain.service.AuthService
 import org.example.shared.domain.use_case.*
@@ -47,6 +50,8 @@ val commonModule = module {
 
     single { Firebase.auth }
 
+    single { FirebaseFirestore.getInstance() }
+
     includes(getFirebaseAuthServiceModule())
 
     single<AuthService> { get<FirebaseAuthService>() }
@@ -60,6 +65,8 @@ val commonModule = module {
     single { VerifyEmailUseCase(get()) }
     single { DeleteUserUseCase(get()) }
     single { SendPasswordResetEmailUseCase(get()) }
+
+    single<UserProfileRepos> { UserProfileReposImpl(get()) }
 
     viewModel { BaseViewModel(get()) }
     viewModel { SharedViewModel(get(), get(), get()) }
