@@ -199,7 +199,7 @@ class AuthViewModel(
 
         viewModelScope.launch(dispatcher) {
             verifyEmailUseCase()
-                .onSuccess { navigate(Route.Dashboard, true) }
+                .onSuccess { navigate(Route.CreateProfile, true) }
                 .onFailure { error -> handleError(error) }
         }
 

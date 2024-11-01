@@ -7,10 +7,10 @@ import org.example.shared.data.model.User
  *
  * @property userData The user data, if available.
  * @property isLoading Whether a loading indicator should be displayed or not.
- * @property errorMessage The error message, if any.
+ * @property error The error that occurred, if any.
  */
 data class SharedState(
     val userData: User? = null,
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val error: Throwable? = null
 )

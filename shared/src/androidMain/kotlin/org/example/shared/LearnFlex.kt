@@ -3,8 +3,8 @@ package org.example.shared
 import android.app.Application
 import android.util.Log
 import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
 import com.google.firebase.initialize
+import com.google.firebase.auth.auth
 import org.example.shared.data.firebase.FirebaseConfig
 import org.example.shared.injection.initKoin
 

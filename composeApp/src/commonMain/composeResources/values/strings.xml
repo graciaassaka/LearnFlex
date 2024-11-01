@@ -7,6 +7,7 @@
     <string name="sign_up_screen_title">Sign Up</string>
     <string name="verify_email_screen_title">Verify Email</string>
     <string name="password_reset_screen_title">Password Reset</string>
+    <string name="create_profile_screen_title">Tell us about yourself</string>
 
     <!-- Button Labels -->
     <string name="sign_in_button_label">Sign In</string>
@@ -18,6 +19,7 @@
     <string name="verify_email_button_label">Verify Email</string>
     <string name="resend_email_button_label">Resend Email</string>
     <string name="back_to_sign_in_button_label">Back to Sign In</string>
+    <string name="create_profile_button_label">Submit</string>
 
     <!-- Form Labels -->
     <string name="email_label">Email</string>
@@ -25,6 +27,9 @@
     <string name="confirm_password_label">Confirm Password</string>
     <string name="toggle_password_visibility">Toggle password visibility</string>
     <string name="or_label">or</string>
+    <string name="username_label">Username</string>
+    <string name="field_label">What's your field of study?</string>
+    <string name="level_label">What's your level of study?</string>
 
     <!-- Screen Descriptions -->
     <string name="verify_email_screen_description">A verification email has been sent to the email address below. Please verify your email address to continue.</string>
@@ -35,4 +40,5 @@
     <string name="del_user_success">Email deleted</string>
     <string name="password_reset_success">Password reset email sent</string>
     <string name="resend_email_success">Verification email sent</string>
+    <string name="create_profile_success">Profile created</string>
 </resources>

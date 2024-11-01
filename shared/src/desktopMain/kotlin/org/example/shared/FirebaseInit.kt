@@ -4,9 +4,7 @@ import android.app.Application
 import com.google.firebase.FirebasePlatform
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.FirebaseOptions
-import dev.gitlive.firebase.auth.auth
 import dev.gitlive.firebase.initialize
-import io.ktor.client.*
 import org.example.shared.data.firebase.FirebaseConfig
 import org.example.shared.data.util.FirebaseConstants
 

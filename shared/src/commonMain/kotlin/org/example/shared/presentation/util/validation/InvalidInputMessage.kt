@@ -14,5 +14,7 @@ enum class InvalidInputMessage(val message: String)
     PASSWORD_NO_LOWER_CASE_LETTER("Password must contain at least one lowercase letter"),
     PASSWORD_NO_SPECIAL_CHARACTER("Password must contain at least one special character"),
     PASSWORD_LENGTH("Password must be between 8 and 20 characters"),
-    PASSWORD_CONFIRMATION_DOES_NOT_MATCH("Password confirmation does not match")
+    PASSWORD_CONFIRMATION_DOES_NOT_MATCH("Password confirmation does not match"),
+    USERNAME_LENGTH("Username must be between 3 and 20 characters"),
+    USERNAME_FORMAT("Username can only contain letters, numbers, and underscores")
 }

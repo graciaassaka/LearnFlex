@@ -14,9 +14,16 @@ import androidx.compose.ui.unit.dp
 enum class Dimension(val dp: Dp) {
     LOGO_SIZE_MEDIUM(80.dp),
     LOGO_SIZE_LARGE(160.dp),
+    BIRD_SIZE(200.dp),
+    SPEAKING_BIRD_HEIGHT(300.dp),
+    SPEECH_BUBBLE_MAX_WIDTH(200.dp),
+    SPEECH_BUBBLE_MAX_HEIGHT(200.dp),
+    SPEECH_BUBBLE_MIN_WIDTH(100.dp),
+    SPEECH_BUBBLE_MIN_HEIGHT(50.dp),
     CORNER_RADIUS_SMALL(8.dp),
     CORNER_RADIUS_MEDIUM(16.dp),
     CORNER_RADIUS_LARGE(32.dp),
+    CORNER_RADIUS_XLARGE(64.dp),
     AUTH_BUTTON_HEIGHT(54.dp)
 }
 
@@ -38,6 +45,7 @@ enum class Padding(val dp: Dp) {
  * @property dp The spacing size in dp.
  */
 enum class Spacing(val dp: Dp) {
+    X_SMALL(4.dp),
     SMALL(8.dp),
     MEDIUM(16.dp),
     LARGE(32.dp),

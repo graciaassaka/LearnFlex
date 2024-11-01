@@ -55,4 +55,18 @@ object InputValidator
         password != passwordConfirmation -> ValidationResult.Invalid(InvalidInputMessage.PASSWORD_CONFIRMATION_DOES_NOT_MATCH.message)
         else -> ValidationResult.Valid(passwordConfirmation)
     }
+
+    /**
+     * Validates the given username.
+     *
+     * @param username The username to validate.
+     * @return The result of the validation.
+     */
+    fun validateUsername(username: String) = when
+    {
+        username.isBlank() -> ValidationResult.Invalid(InvalidInputMessage.EMPTY_FIELD.message)
+        username.length !in 3..20 -> ValidationResult.Invalid(InvalidInputMessage.USERNAME_LENGTH.message)
+        !username.matches("""^[a-zA-Z0-9_]*$""".toRegex()) -> ValidationResult.Invalid(InvalidInputMessage.USERNAME_FORMAT.message)
+        else -> ValidationResult.Valid(username)
+    }
 }

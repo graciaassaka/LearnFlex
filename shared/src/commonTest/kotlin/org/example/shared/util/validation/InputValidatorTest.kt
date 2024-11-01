@@ -103,4 +103,40 @@ class InputValidatorTest {
         val result = InputValidator.validatePasswordConfirmation("password", "password")
         assertEquals(ValidationResult.Valid("password"), result)
     }
+
+    @Test
+    fun `validateUsername should return Invalid when username is blank`() {
+        val result = InputValidator.validateUsername("")
+        assertEquals(ValidationResult.Invalid(InvalidInputMessage.EMPTY_FIELD.message), result)
+    }
+
+    @Test
+    fun `validateUsername should return Invalid when username contains special characters`() {
+        val result = InputValidator.validateUsername("user@name")
+        assertEquals(ValidationResult.Invalid(InvalidInputMessage.USERNAME_FORMAT.message), result)
+    }
+
+    @Test
+    fun `validateUsername should return Invalid when username contains spaces`() {
+        val result = InputValidator.validateUsername("user name")
+        assertEquals(ValidationResult.Invalid(InvalidInputMessage.USERNAME_FORMAT.message), result)
+    }
+
+    @Test
+    fun `validateUsername should return Invalid when username length is less than 3`() {
+        val result = InputValidator.validateUsername("us")
+        assertEquals(ValidationResult.Invalid(InvalidInputMessage.USERNAME_LENGTH.message), result)
+    }
+
+    @Test
+    fun `validateUsername should return Invalid when username length is more than 20`() {
+        val result = InputValidator.validateUsername("usernameusernameusername")
+        assertEquals(ValidationResult.Invalid(InvalidInputMessage.USERNAME_LENGTH.message), result)
+    }
+
+    @Test
+    fun `validateUsername should return Valid when username meets all criteria`() {
+        val result = InputValidator.validateUsername("username")
+        assertEquals(ValidationResult.Valid("username"), result)
+    }
 }

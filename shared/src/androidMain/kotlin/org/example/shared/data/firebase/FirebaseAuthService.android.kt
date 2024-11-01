@@ -1,6 +1,9 @@
 package org.example.shared.data.firebase
 
-import dev.gitlive.firebase.auth.FirebaseAuth
+import android.net.Uri
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
+import kotlinx.coroutines.tasks.await
 import org.example.shared.data.model.User
 import org.example.shared.domain.service.AuthService
 
@@ -9,8 +12,10 @@ import org.example.shared.domain.service.AuthService
  *
  * @property auth The FirebaseAuth instance used for authentication operations.
  */
-actual class FirebaseAuthService(private val auth: FirebaseAuth) : AuthService {
-
+actual class FirebaseAuthService(
+    private val auth: FirebaseAuth
+) : AuthService
+{
     /**
      * Signs up a new user with the provided email and password.
      *
@@ -19,8 +24,8 @@ actual class FirebaseAuthService(private val auth: FirebaseAuth) : AuthService {
      * @return A Result containing Unit if successful, or an exception if failed.
      */
     override suspend fun signUp(email: String, password: String): Result<Unit> = runCatching {
-        val result = auth.createUserWithEmailAndPassword(email, password)
-        result.user?.sendEmailVerification()
+        val result = auth.createUserWithEmailAndPassword(email, password).await()
+        result.user?.sendEmailVerification()?.await()
     }
 
     /**
@@ -31,13 +36,14 @@ actual class FirebaseAuthService(private val auth: FirebaseAuth) : AuthService {
      * @return A Result containing Unit if successful, or an exception if failed.
      */
     override suspend fun signIn(email: String, password: String): Result<Unit> = runCatching {
-        auth.signInWithEmailAndPassword(email, password)
+        auth.signInWithEmailAndPassword(email, password).await()
     }
 
     /**
      * Signs out the currently signed-in user.
      */
-    override suspend fun signOut() {
+    override suspend fun signOut()
+    {
         auth.signOut()
     }
 
@@ -48,15 +54,30 @@ actual class FirebaseAuthService(private val auth: FirebaseAuth) : AuthService {
      */
     override suspend fun getUserData(): Result<User> = runCatching {
         auth.currentUser?.run {
-            reload()
+            reload().await()
             User(
                 displayName = displayName ?: "",
                 email = email ?: "",
-                photoUrl = (photoURL ?: "").toString(),
+                photoUrl = photoUrl?.toString() ?: "",
                 emailVerified = isEmailVerified,
                 uid = uid
             )
         } ?: throw Exception("No signed in user")
+    }
+
+    /**
+     * Updates the current user's display name and photo URL.
+     *
+     * @param user The updated user data.
+     * @return A Result containing Unit if successful, or an exception if failed.
+     */
+    override suspend fun updateUserData(user: User): Result<Unit> = runCatching {
+        auth.currentUser?.updateProfile(
+            UserProfileChangeRequest.Builder()
+                .setDisplayName(user.displayName)
+                .setPhotoUri(user.photoUrl?.let { Uri.parse(it) })
+                .build()
+        )?.await()
     }
 
     /**
@@ -65,7 +86,7 @@ actual class FirebaseAuthService(private val auth: FirebaseAuth) : AuthService {
      * @return A Result containing Unit if successful, or an exception if failed.
      */
     override suspend fun sendEmailVerification(): Result<Unit> = runCatching {
-        auth.currentUser?.sendEmailVerification() ?: throw Exception("No signed in user")
+        auth.currentUser?.sendEmailVerification()?.await()
     }
 
     /**
@@ -75,7 +96,7 @@ actual class FirebaseAuthService(private val auth: FirebaseAuth) : AuthService {
      * @return A Result containing Unit if successful, or an exception if failed.
      */
     override suspend fun sendPasswordResetEmail(email: String): Result<Unit> = runCatching {
-        auth.sendPasswordResetEmail(email)
+        auth.sendPasswordResetEmail(email).await()
     }
 
     /**
@@ -84,6 +105,6 @@ actual class FirebaseAuthService(private val auth: FirebaseAuth) : AuthService {
      * @return A Result containing Unit if successful, or an exception if failed.
      */
     override suspend fun deleteUser(): Result<Unit> = runCatching {
-        auth.currentUser?.delete() ?: throw Exception("No signed in user")
+        auth.currentUser?.delete()?.await()
     }
 }

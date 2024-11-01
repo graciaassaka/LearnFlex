@@ -13,6 +13,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.example.shared.FirebaseInit
+import org.example.shared.data.model.User
 import org.example.shared.data.util.ApiError
 import org.example.shared.data.util.FirebaseConstants
 import org.junit.After
@@ -301,6 +302,68 @@ actual class FirebaseAuthServiceTest
         val error = result.exceptionOrNull()
         assert(error is ApiError.NotFound) { "Expected ApiError.NotFound but got ${error?.javaClass?.simpleName}" }
         wireMockServer.verify(postRequestedFor(urlEqualTo("/identitytoolkit.googleapis.com/v1/accounts:lookup?key=${FirebaseConstants.API_KEY}")))
+    }
+
+    @Test
+    fun `updateProfile should return success when status code is 200 and response is valid`() = runTest {
+        // Arrange
+        val displayName = "Test User"
+        val photoUrl = "https://example.com/photo.jpg"
+
+        wireMockServer.stubFor(
+            post(urlEqualTo("/identitytoolkit.googleapis.com/v1/accounts:update?key=${FirebaseConstants.API_KEY}"))
+                .willReturn(
+                    aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                )
+        )
+
+        // Act
+        val result = firebaseAuthService.updateUserData(User(displayName = "test", photoUrl = "https://example.com/photo.jpg"))
+
+        // Assert
+        assert(result.isSuccess) { "Expected successful update profile" }
+        wireMockServer.verify(postRequestedFor(urlEqualTo("/identitytoolkit.googleapis.com/v1/accounts:update?key=${FirebaseConstants.API_KEY}")))
+    }
+
+    @Test
+    fun `updateProfile should fail when server returns error`() = runTest {
+        // Arrange
+        wireMockServer.stubFor(
+            post(urlEqualTo("/identitytoolkit.googleapis.com/v1/accounts:update?key=${FirebaseConstants.API_KEY}"))
+                .willReturn(
+                    aResponse()
+                        .withStatus(403)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(
+                            """
+                            {
+                                "error": {
+                                    "code": 403,
+                                    "message": "Forbidden",
+                                    "errors": [
+                                        {
+                                            "message": "Forbidden",
+                                            "domain": "global",
+                                            "reason": "forbidden"
+                                        }
+                                    ]
+                                }
+                            }
+                        """.trimIndent()
+                        )
+                )
+        )
+
+        // Act
+        val result = firebaseAuthService.updateUserData(User(displayName = "test", photoUrl = "https://example.com/photo.jpg"))
+
+        // Assert
+        assert(result.isFailure) { "Expected failed update profile" }
+        val error = result.exceptionOrNull()
+        assert(error is ApiError.Forbidden) { "Expected ApiError.Forbidden but got ${error?.javaClass?.simpleName}" }
+        wireMockServer.verify(postRequestedFor(urlEqualTo("/identitytoolkit.googleapis.com/v1/accounts:update?key=${FirebaseConstants.API_KEY}")))
     }
 
     @Test

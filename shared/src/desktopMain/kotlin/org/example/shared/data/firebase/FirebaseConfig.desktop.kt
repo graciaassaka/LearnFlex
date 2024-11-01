@@ -4,7 +4,8 @@ package org.example.shared.data.firebase
  * Configuration object for Firebase settings.
  * This object provides methods to retrieve emulator settings for various Firebase services.
  */
-actual object FirebaseConfig {
+actual object FirebaseConfig
+{
 
     /**
      * Indicates whether to use the Firebase emulator.
@@ -41,4 +42,10 @@ actual object FirebaseConfig {
      * @return The port number as an `Int`.
      */
     actual fun getFunctionsEmulatorPort(): Int = 5001
+
+    /**
+     * Retrieves the Firebase project ID.
+     * @return The project ID as a `String`.
+     */
+    fun getStorageBucket(): String = "learnflexkmp.appspot.com"
 }

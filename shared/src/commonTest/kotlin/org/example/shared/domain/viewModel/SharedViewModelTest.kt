@@ -76,7 +76,7 @@ class SharedViewModelTest
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
-        assertEquals(exception.message, sharedViewModel.state.value.errorMessage)
+        assertEquals(exception, sharedViewModel.state.value.error)
     }
 
     @Test
@@ -88,13 +88,13 @@ class SharedViewModelTest
         sharedViewModel.getUserData()
         testDispatcher.scheduler.advanceUntilIdle()
 
-        assertNotNull(sharedViewModel.state.value.errorMessage)
+        assertNotNull(sharedViewModel.state.value.error)
 
         // When
         sharedViewModel.clearError()
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
-        assertEquals(null, sharedViewModel.state.value.errorMessage)
+        assertEquals(null, sharedViewModel.state.value.error)
     }
 }

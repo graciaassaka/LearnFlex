@@ -80,7 +80,6 @@ kotlin {
                 implementation(libs.ktor.serialization.json)
                 implementation(libs.ktor.client.log)
                 implementation(libs.androidx.lifecycle.viewmodel)
-                implementation(libs.gitlive.auth)
                 implementation(libs.gitlive.firestore)
             }
         }
@@ -98,6 +97,7 @@ kotlin {
                 implementation(libs.koin.test)
                 implementation(libs.slf4j)
                 implementation(libs.wiremock)
+                implementation(libs.mockk.agent.jvm)
             }
         }
 
@@ -105,6 +105,9 @@ kotlin {
             dependencies {
                 implementation(libs.koin.android)
                 implementation(libs.koin.android.compat)
+                implementation(project.dependencies.platform(libs.firebase.boom))
+                implementation(libs.firebase.auth)
+                implementation(libs.firebase.storage)
             }
         }
 
@@ -126,6 +129,7 @@ kotlin {
                 implementation(libs.androidx.test.runner)
                 implementation(libs.androidx.test.rules)
                 implementation(libs.mockk.android)
+                implementation(libs.robolectric)
             }
         }
 

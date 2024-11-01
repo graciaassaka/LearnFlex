@@ -52,6 +52,20 @@ data class PasswordResetPayload(
 )
 
 /**
+ * Data class representing the payload for updating a user's profile.
+ *
+ * @property idToken The ID token of the user making the request.
+ * @property displayName The new display name for the user.
+ * @property photoUrl The new photo URL for the user.
+ */
+@Serializable
+data class ProfileUpdatePayload(
+    val idToken: String,
+    val displayName: String,
+    val photoUrl: String,
+)
+
+/**
  * Enum class representing request types.
  */
 @Serializable

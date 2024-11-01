@@ -23,7 +23,7 @@ import org.example.composeApp.component.GradientBackground
  * @param content Composable content to be displayed within the card.
  */
 @Composable
-fun AnimatedAuthCard(
+fun AnimatedCard(
     isVisible: Boolean,
     onAnimationFinished: () -> Unit,
     modifier: Modifier = Modifier,

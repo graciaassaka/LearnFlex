@@ -681,7 +681,7 @@ class AuthViewModelTest
     }
 
     @Test
-    fun `verifyEmail navigate to Dashboard when verifyEmailUseCase returns success`() = runTest {
+    fun `verifyEmail navigate to CreateProfile when verifyEmailUseCase returns success`() = runTest {
         // Given
         coEvery { verifyEmailUseCase() } returns Result.success(Unit)
 
@@ -704,7 +704,7 @@ class AuthViewModelTest
         val event = uiEvents.first()
 
         assertTrue(event is UIEvent.Navigate)
-        assertEquals(Route.Dashboard, event.destination)
+        assertEquals(Route.CreateProfile, event.destination)
 
         job.cancel()
     }

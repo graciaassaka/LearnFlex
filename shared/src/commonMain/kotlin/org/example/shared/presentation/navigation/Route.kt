@@ -15,5 +15,8 @@ sealed class Route
     data object Auth : Route()
 
     @Serializable
+    data object CreateProfile : Route()
+
+    @Serializable
     data object Dashboard : Route()
 }

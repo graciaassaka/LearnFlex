@@ -20,7 +20,7 @@ data class LearningPreferences(
  * Enum class representing different fields of learning.
  */
 @Suppress("unused")
-enum class LearningField {
+enum class Field {
     Arts,
     Business,
     ComputerScience,
@@ -38,7 +38,7 @@ enum class LearningField {
  * Enum class representing different levels of learning.
  */
 @Suppress("unused")
-enum class LearningLevel {
+enum class Level {
     Beginner,
     Intermediate,
     Advanced

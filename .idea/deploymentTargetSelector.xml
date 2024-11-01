@@ -17,6 +17,9 @@
       <SelectionState runConfigName="passwordResetForm_disablesResetButtonWhenEmailIsInvalid()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="EnumScrollablePickerDemo">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>

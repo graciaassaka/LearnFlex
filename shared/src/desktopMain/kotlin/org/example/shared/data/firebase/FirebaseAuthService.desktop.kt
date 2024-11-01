@@ -6,6 +6,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import org.example.shared.FirebaseInit
+import org.example.shared.data.model.User
 import org.example.shared.data.util.ApiError
 import org.example.shared.data.util.FirebaseConstants
 import org.example.shared.domain.service.AuthService
@@ -13,12 +14,12 @@ import org.example.shared.domain.service.AuthService
 /**
  * Service for handling Firebase authentication.
  *
- * @property httpClient The HTTP client used for making requests.
+ * @property client The HTTP client used for making requests.
  * @property firebaseInit The Firebase initialization object.
  * @property useEmulator Flag indicating whether to use the Firebase emulator.
  */
 actual class FirebaseAuthService(
-    private val httpClient: HttpClient,
+    private val client: HttpClient,
     private val firebaseInit: FirebaseInit,
     private val useEmulator: Boolean
 ) : AuthService
@@ -32,7 +33,7 @@ actual class FirebaseAuthService(
      * @return Result of the sign-up operation.
      */
     override suspend fun signUp(email: String, password: String) = runCatching {
-        httpClient.post {
+        client.post {
             setUpAuthRequest("signUp")
             setBody(Credentials(email, password))
         }.run {
@@ -54,7 +55,7 @@ actual class FirebaseAuthService(
      * @return Result of the sign-in operation.
      */
     override suspend fun signIn(email: String, password: String) = runCatching {
-        httpClient.post {
+        client.post {
             setUpAuthRequest("signInWithPassword")
             setBody(Credentials(email, password))
         }.run {
@@ -82,7 +83,7 @@ actual class FirebaseAuthService(
      * @return Result of the user data retrieval operation.
      */
     override suspend fun getUserData() = runCatching {
-        httpClient.post {
+        client.post {
             setUpAuthRequest("lookup")
             setBody(AuthToken(firebaseInit.idToken))
         }.run {
@@ -92,12 +93,27 @@ actual class FirebaseAuthService(
     }
 
     /**
+     * Updates the current user's data.
+     *
+     * @param user The updated user data.
+     * @return Result of the user data update operation.
+     */
+    override suspend fun updateUserData(user: User) = runCatching {
+        client.post {
+            setUpAuthRequest("update")
+            setBody(ProfileUpdatePayload(firebaseInit.idToken, user.displayName ?: "", user.photoUrl ?: ""))
+        }.run {
+            handleAuthResponse()
+        }
+    }
+
+    /**
      * Sends an email verification to the current user.
      *
      * @return Result of the email verification operation.
      */
     override suspend fun sendEmailVerification() = runCatching {
-        httpClient.post {
+        client.post {
             setUpAuthRequest("sendOobCode")
             setBody(VerificationPayload(RequestType.VERIFY_EMAIL.name, firebaseInit.idToken))
         }.run {
@@ -112,7 +128,7 @@ actual class FirebaseAuthService(
      * @return Result of the password reset email operation.
      */
     override suspend fun sendPasswordResetEmail(email: String) = runCatching {
-        httpClient.post {
+        client.post {
             setUpAuthRequest("sendOobCode")
             setBody(PasswordResetPayload(RequestType.PASSWORD_RESET.name, email))
         }.run {
@@ -126,7 +142,7 @@ actual class FirebaseAuthService(
      * @return Result of the user deletion operation.
      */
     override suspend fun deleteUser() = runCatching {
-        httpClient.post {
+        client.post {
             setUpAuthRequest("delete")
             setBody(AuthToken(firebaseInit.idToken))
         }.run {

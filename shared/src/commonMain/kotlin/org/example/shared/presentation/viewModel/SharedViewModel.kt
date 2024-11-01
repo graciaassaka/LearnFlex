@@ -38,7 +38,7 @@ class SharedViewModel(
         viewModelScope.launch(dispatcher) {
             getUserDataUseCase()
                 .onSuccess { userData -> update { it.copy(userData = userData) } }
-                .onFailure { error -> update { it.copy(errorMessage = error.message) } }
+                .onFailure { error -> update { it.copy(error = error) } }
         }
 
         update { it.copy(isLoading = false) }
@@ -47,5 +47,5 @@ class SharedViewModel(
     /**
      * Clears any error message in the state.
      */
-    fun clearError() = _state.update { it.copy(errorMessage = null) }
+    fun clearError() = _state.update { it.copy(error = null) }
 }

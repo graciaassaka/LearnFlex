@@ -12,8 +12,8 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.example.shared.data.model.LearningField
-import org.example.shared.data.model.LearningLevel
+import org.example.shared.data.model.Field
+import org.example.shared.data.model.Level
 import org.example.shared.data.model.LearningPreferences
 import org.example.shared.data.model.UserProfile
 import org.example.shared.domain.repository.UserProfileRepos
@@ -35,8 +35,8 @@ class UserProfileReposImplTest
         email = "test@example.com",
         photoUrl = "https://example.com/photo.jpg",
         preferences = LearningPreferences(
-            field = LearningField.ComputerScience.name,
-            level = LearningLevel.Intermediate.name,
+            field = Field.ComputerScience.name,
+            level = Level.Intermediate.name,
             goal = "Learn new things"
         )
     )

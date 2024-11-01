@@ -38,6 +38,13 @@ interface AuthService {
     suspend fun getUserData(): Result<User>
 
     /**
+     * Updates the current user's display name and photo URL.
+     *
+     * @return A [Result] containing [Unit] if successful, or an exception if an error occurs.
+     */
+    suspend fun updateUserData(user: User): Result<Unit>
+
+    /**
      * Sends a verification email to the current user.
      *
      * @return A [Result] containing [Unit] if successful, or an exception if an error occurs.
