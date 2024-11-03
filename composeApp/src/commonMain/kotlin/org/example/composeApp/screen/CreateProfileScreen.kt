@@ -1,18 +1,14 @@
 package org.example.composeApp.screen
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.SportsFootball
+import androidx.compose.material3.*
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,10 +17,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.navigation.NavController
 import learnflex.composeapp.generated.resources.*
-import org.example.composeApp.component.AnimatedOutlinedTextField
 import org.example.composeApp.component.EnumDropdown
 import org.example.composeApp.component.EnumScrollablePicker
 import org.example.composeApp.component.HandleUIEvents
+import org.example.composeApp.component.ImageUpload
+import org.example.composeApp.dimension.Dimension
 import org.example.composeApp.dimension.Padding
 import org.example.composeApp.layout.CreateProfileLayout
 import org.example.shared.data.model.Field
@@ -33,7 +30,6 @@ import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.util.SnackbarType
 import org.example.shared.presentation.viewModel.CreateUserProfileViewModel
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * A composable function that displays the create profile screen with a form for user input.
@@ -46,15 +42,21 @@ import org.koin.compose.viewmodel.koinViewModel
 fun CreateProfileScreen(
     windowSizeClass: WindowSizeClass,
     navController: NavController,
-    viewModel: CreateUserProfileViewModel = koinViewModel()
+    viewModel: CreateUserProfileViewModel
 )
 {
     val snackbarHostState = remember { SnackbarHostState() }
     var currentSnackbarType by remember { mutableStateOf<SnackbarType>(SnackbarType.Info) }
-    HandleUIEvents(Route.CreateProfile, navController, viewModel, snackbarHostState) { currentSnackbarType = it }
+    var goalCharCount by remember { mutableIntStateOf(0) }
+
     val uiState by viewModel.state.collectAsState()
     val isScreenVisible by viewModel.isScreenVisible.collectAsState()
-    val successMessage = stringResource(Res.string.create_profile_success)
+
+    val createProfileSuccessMsg = stringResource(Res.string.create_profile_success)
+    val uploadPhotoSuccessMsg = stringResource(Res.string.update_photo_success)
+    val deletePhotoSuccessMsg = stringResource(Res.string.delete_photo_success)
+
+    HandleUIEvents(Route.CreateProfile, navController, viewModel, snackbarHostState) { currentSnackbarType = it }
 
     CreateProfileLayout(
         windowSizeClass = windowSizeClass,
@@ -69,27 +71,47 @@ fun CreateProfileScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = Padding.LARGE.dp)
+                .padding(vertical = Padding.LARGE.dp, horizontal = Padding.MEDIUM.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(Padding.MEDIUM.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            AnimatedOutlinedTextField(
+            ImageUpload(
+                isLoading = uiState.isLoading,
+                onImageSelected = {viewModel.onUploadProfilePicture(it, uploadPhotoSuccessMsg)},
+                onImageDeleted = { viewModel.onProfilePictureDeleted(deletePhotoSuccessMsg) },
+                handleError = { viewModel.showSnackbar(it, SnackbarType.Error) },
+                modifier = Modifier.testTag("imageUpload"),
+                isUploaded = uiState.photoUrl.isBlank().not()
+            )
+            TextField(
                 value = uiState.username,
                 onValueChange = viewModel::onUsernameChanged,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("usernameTextField"),
                 enabled = !uiState.isLoading,
-                modifier = Modifier.testTag("usernameTextField"),
                 label = { Text(stringResource(Res.string.username_label)) },
                 leadingIcon = { Icon(Icons.Default.AccountCircle, null) },
                 supportingText = { uiState.usernameError?.let { Text(it) } },
                 isError = uiState.usernameError != null,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             )
-            EnumScrollablePicker<Field>(
-                label = stringResource(Res.string.field_label),
-                onChange = viewModel::onFieldChanged,
+            TextField(
+                value = uiState.goal,
+                onValueChange = {
+                    if (it.length < 80) viewModel.onGoalChanged(it)
+                    goalCharCount = it.length
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("goalTextField"),
                 enabled = !uiState.isLoading,
-                modifier = Modifier.testTag("fieldPicker")
+                label = { Text(stringResource(Res.string.goals_label)) },
+                leadingIcon = { Icon(Icons.Default.SportsFootball, null) },
+                supportingText = { Text("$goalCharCount/80") },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                singleLine = false
             )
             EnumDropdown<Level>(
                 label = stringResource(Res.string.level_label),
@@ -100,10 +122,20 @@ fun CreateProfileScreen(
                 enabled = !uiState.isLoading,
                 modifier = Modifier.testTag("levelDropdown")
             )
-            Button(
-                onClick = { viewModel.onCreateProfile(successMessage) },
+            EnumScrollablePicker<Field>(
+                label = stringResource(Res.string.field_label),
+                onChange = viewModel::onFieldChanged,
                 enabled = !uiState.isLoading,
-                modifier = Modifier.testTag("submitButton"),
+                modifier = Modifier.testTag("fieldPicker")
+            )
+            Button(
+                onClick = { viewModel.onCreateProfile(createProfileSuccessMsg) },
+                enabled = !uiState.isLoading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
+                    .testTag("createProfileButton"),
+                shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
                 content = { Text(stringResource(Res.string.create_profile_button_label)) }
             )
         }

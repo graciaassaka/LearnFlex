@@ -65,6 +65,13 @@ data class ProfileUpdatePayload(
     val photoUrl: String,
 )
 
+@Serializable
+data class StorageMetadata(
+    val contentType: String,
+    val name: String
+)
+
+
 /**
  * Enum class representing request types.
  */

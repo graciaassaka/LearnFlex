@@ -11,7 +11,8 @@ import org.example.shared.domain.service.StorageService
  *
  * @property storage The FirebaseStorage instance used for storage operations.
  */
-actual class FirebaseStorageService(private val storage: FirebaseStorage) : StorageService {
+actual class FirebaseStorageService(private val storage: FirebaseStorage) : StorageService
+{
 
     /**
      * Uploads a file to Firebase Storage.
@@ -22,14 +23,9 @@ actual class FirebaseStorageService(private val storage: FirebaseStorage) : Stor
      * @return A Result containing the path of the uploaded file on success, or a StorageException on failure.
      */
     override suspend fun uploadFile(fileData: ByteArray, path: String, fileType: FileType) = runCatching {
-        when (fileType) {
-            FileType.IMAGE -> "$path.jpg"
-            FileType.DOCUMENT -> "$path.pdf"
-        }.also {
-            storage.reference.child(it).putBytes(fileData).await()
-        }
+        storage.reference.child(path).putBytes(fileData).await()
     }.fold(
-        onSuccess = { Result.success(it) },
+        onSuccess = { Result.success(path) },
         onFailure = { Result.failure(StorageException.UploadFailure("Failed to upload file", it)) }
     )
 
@@ -39,7 +35,7 @@ actual class FirebaseStorageService(private val storage: FirebaseStorage) : Stor
      * @param path The path of the file to be deleted.
      * @return A Result containing Unit on success, or a StorageException on failure.
      */
-    override suspend fun deleteFile(path: String)= runCatching {
+    override suspend fun deleteFile(path: String) = runCatching {
         storage.reference.child(path).delete().await()
     }.fold(
         onSuccess = { Result.success(Unit) },
@@ -72,7 +68,8 @@ actual class FirebaseStorageService(private val storage: FirebaseStorage) : Stor
         onFailure = { Result.failure(StorageException.DownloadFailure("Failed to get file URL", it)) }
     )
 
-    companion object {
+    companion object
+    {
         const val MAX_DOWNLOAD_SIZE = 10L * 1024 * 1024
     }
 }

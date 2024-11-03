@@ -161,8 +161,8 @@ actual class FirebaseAuthService(
             if (useEmulator)
             {
                 protocol = URLProtocol.HTTP
-                host = FirebaseConfig.getEmulatorHost()
-                port = FirebaseConfig.getAuthEmulatorPort()
+                host = FirebaseConfig.emulatorHost
+                port = FirebaseConfig.authEmulatorPort
                 encodedPath = "/identitytoolkit.googleapis.com/v1/accounts:$path"
             } else
             {

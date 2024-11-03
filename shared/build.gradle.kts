@@ -136,6 +136,7 @@ kotlin {
         val desktopMain by getting {
             kotlin.srcDir(layout.buildDirectory.dir("generated/kotlin"))
             dependencies {
+                implementation(libs.kotlinx.coroutines.swing)
                 implementation(libs.ktor.client.okhttp.jvm)
                 implementation(libs.gitlive.java)
             }

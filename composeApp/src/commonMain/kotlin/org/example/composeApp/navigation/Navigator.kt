@@ -6,8 +6,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import org.example.composeApp.screen.AuthScreen
+import org.example.composeApp.screen.CreateProfileScreen
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.viewModel.AuthViewModel
+import org.example.shared.presentation.viewModel.CreateUserProfileViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
@@ -28,6 +30,15 @@ fun Navigator(
         composable<Route.Auth> {
             val viewModel: AuthViewModel = koinViewModel()
             AuthScreen(
+                windowSizeClass = windowSizeClass,
+                navController = navController,
+                viewModel = viewModel
+            )
+        }
+
+        composable<Route.CreateProfile> {
+            val viewModel: CreateUserProfileViewModel = koinViewModel()
+            CreateProfileScreen(
                 windowSizeClass = windowSizeClass,
                 navController = navController,
                 viewModel = viewModel

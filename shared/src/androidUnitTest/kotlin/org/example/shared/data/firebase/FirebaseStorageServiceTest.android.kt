@@ -14,8 +14,6 @@ import org.example.shared.data.util.FileType
 import org.example.shared.data.util.StorageException
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -154,14 +152,13 @@ actual class FirebaseStorageServiceTest {
         val fileData = byteArrayOf(7, 8, 9)
         val path = "uploads/failureTest"
         val fileType = FileType.IMAGE
-        val expectedPath = "$path.jpg"
         val exception = Exception("Upload failed")
 
         // Create a failed UploadTask
         val failedUploadTask = createFailedUploadTask(exception)
 
         // Mock StorageReference.child() to return mockChildReference when called with expectedPath
-        every { mockStorageReference.child(expectedPath) } returns mockChildReference
+        every { mockStorageReference.child(path) } returns mockChildReference
 
         // Mock putBytes() to return the failed UploadTask
         every { mockChildReference.putBytes(fileData) } returns failedUploadTask
@@ -170,7 +167,7 @@ actual class FirebaseStorageServiceTest {
         val result = firebaseStorageService.uploadFile(fileData, path, fileType)
 
         // Then
-        verify(exactly = 1) { mockStorageReference.child(expectedPath) }
+        verify(exactly = 1) { mockStorageReference.child(path) }
         verify(exactly = 1) { mockChildReference.putBytes(fileData) }
         coVerify(exactly = 1) { failedUploadTask.await() }
 

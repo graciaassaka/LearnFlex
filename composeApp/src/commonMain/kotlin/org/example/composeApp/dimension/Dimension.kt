@@ -24,7 +24,8 @@ enum class Dimension(val dp: Dp) {
     CORNER_RADIUS_MEDIUM(16.dp),
     CORNER_RADIUS_LARGE(32.dp),
     CORNER_RADIUS_XLARGE(64.dp),
-    AUTH_BUTTON_HEIGHT(54.dp)
+    AUTH_BUTTON_HEIGHT(54.dp),
+    PROGRESS_BAR_HEIGHT(8.dp),
 }
 
 /**

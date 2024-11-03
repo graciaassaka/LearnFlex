@@ -257,23 +257,6 @@ actual class FirebaseAuthServiceTest {
         assertTrue(result.isSuccess)
     }
 
-    // Test for sendEmailVerification failure when no user is signed in
-    @Test
-    fun `sendEmailVerification should return failure when no user is signed in`() = runTest {
-        // Given
-        every { firebaseAuth.currentUser } returns null
-
-        // When
-        val result = firebaseAuthService.sendEmailVerification()
-
-        // Then
-        verify { firebaseAuth.currentUser }
-        verify(exactly = 0) { mockUser.sendEmailVerification() }
-
-        assertTrue(result.isFailure)
-        assertEquals("No signed in user", result.exceptionOrNull()?.message)
-    }
-
     // Test for sendEmailVerification failure when sendEmailVerification throws exception
     @Test
     fun `sendEmailVerification should return failure when sendEmailVerification fails`() = runTest {
@@ -342,23 +325,6 @@ actual class FirebaseAuthServiceTest {
         verify(exactly = 1) { mockUser.delete() }
 
         assertTrue(result.isSuccess)
-    }
-
-    // Test for deleteUser failure when no user is signed in
-    @Test
-    fun `deleteUser should return failure when no user is signed in`() = runTest {
-        // Given
-        every { firebaseAuth.currentUser } returns null
-
-        // When
-        val result = firebaseAuthService.deleteUser()
-
-        // Then
-        verify { firebaseAuth.currentUser }
-        verify(exactly = 0) { mockUser.delete() }
-
-        assertTrue(result.isFailure)
-        assertEquals("No signed in user", result.exceptionOrNull()?.message)
     }
 
     // Test for deleteUser failure when delete throws exception

@@ -5,10 +5,11 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.example.shared.data.model.Field
-import org.example.shared.data.model.Level
 import org.example.shared.data.model.LearningPreferences
+import org.example.shared.data.model.Level
 import org.example.shared.data.model.UserProfile
 import org.example.shared.domain.use_case.CreateUserProfileUseCase
+import org.example.shared.domain.use_case.DeleteProfilePictureUseCase
 import org.example.shared.domain.use_case.UploadProfilePictureUseCase
 import org.example.shared.presentation.state.CreateProfileUIState
 import org.example.shared.presentation.util.SnackbarType
@@ -28,6 +29,7 @@ class CreateUserProfileViewModel(
     private val sharedViewModel: SharedViewModel,
     private val createUserProfileUseCase: CreateUserProfileUseCase,
     private val uploadProfilePictureUseCase: UploadProfilePictureUseCase,
+    private val deleteProfilePictureUseCase: DeleteProfilePictureUseCase,
     private val dispatcher: CoroutineDispatcher,
     sharingStarted: SharingStarted
 ) : BaseViewModel(dispatcher)
@@ -38,10 +40,12 @@ class CreateUserProfileViewModel(
         .onStart { sharedViewModel.getUserData() }
         .stateIn(viewModelScope, sharingStarted, _state.value)
 
-    init {
+    init
+    {
         viewModelScope.launch {
             sharedViewModel.state.collect { sharedState ->
-                if (sharedState.error != null) {
+                if (sharedState.error != null)
+                {
                     handleError(sharedState.error)
                     sharedViewModel.clearError()
                 }
@@ -61,7 +65,8 @@ class CreateUserProfileViewModel(
      * @param username The new username input.
      */
     fun onUsernameChanged(username: String) = with(InputValidator.validateUsername(username)) {
-        when (this@with) {
+        when (this@with)
+        {
             is ValidationResult.Valid -> _state.update { it.copy(username = value, usernameError = null) }
             is ValidationResult.Invalid -> _state.update { it.copy(username = username, usernameError = message) }
         }
@@ -116,6 +121,27 @@ class CreateUserProfileViewModel(
     }
 
     /**
+     * Handles the deletion of a profile picture.
+     *
+     * @param successMessage The message to show on successful deletion.
+     */
+    fun onProfilePictureDeleted(successMessage: String) = with(_state) {
+        update { it.copy(isLoading = true) }
+
+        viewModelScope.launch(dispatcher) {
+            deleteProfilePictureUseCase()
+                .onSuccess {
+                    update { it.copy(photoUrl = "") }
+                    showSnackbar(successMessage, SnackbarType.Success)
+                }.onFailure { error ->
+                    handleError(error)
+                }
+        }
+
+        update { it.copy(isLoading = false) }
+    }
+
+    /**
      * Handles the creation of a user profile.
      *
      * @param successMessage The message to show on successful profile creation.
@@ -123,7 +149,9 @@ class CreateUserProfileViewModel(
     fun onCreateProfile(successMessage: String) = with(_state) {
         update { it.copy(isLoading = true) }
 
-        viewModelScope.launch(dispatcher) {
+        onUsernameChanged(value.username)
+
+        if (value.usernameError.isNullOrBlank()) viewModelScope.launch(dispatcher) {
             createUserProfileUseCase(
                 UserProfile(
                     id = sharedViewModel.state.value.userData?.uid ?: "",

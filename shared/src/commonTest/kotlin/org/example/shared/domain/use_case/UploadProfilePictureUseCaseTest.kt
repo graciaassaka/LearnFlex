@@ -44,7 +44,7 @@ class UploadProfilePictureUseCaseTest {
         coEvery { authService.getUserData() } returns Result.success(user)
         coEvery { storageService.uploadFile(
             fileData = imageData,
-            path = "profile_pictures/${user.uid}",
+            path = "profile_pictures/${user.uid}.jpg",
             fileType = FileType.IMAGE
         ) } returns Result.success(uploadedUrl)
         coEvery { authService.updateUserData(user.copy(photoUrl = uploadedUrl)) } returns Result.success(Unit)
@@ -57,7 +57,7 @@ class UploadProfilePictureUseCaseTest {
         coVerify(exactly = 1) { authService.getUserData() }
         coVerify(exactly = 1) { storageService.uploadFile(
             fileData = imageData,
-            path = "profile_pictures/${user.uid}",
+            path = "profile_pictures/${user.uid}.jpg",
             fileType = FileType.IMAGE
         ) }
         coVerify(exactly = 1) { authService.updateUserData(user.copy(photoUrl = uploadedUrl)) }
@@ -98,7 +98,7 @@ class UploadProfilePictureUseCaseTest {
         coEvery { authService.getUserData() } returns Result.success(user)
         coEvery { storageService.uploadFile(
             fileData = imageData,
-            path = "profile_pictures/${user.uid}",
+            path = "profile_pictures/${user.uid}.jpg",
             fileType = FileType.IMAGE
         ) } returns Result.failure(uploadException)
 
@@ -111,7 +111,7 @@ class UploadProfilePictureUseCaseTest {
         coVerify(exactly = 1) { authService.getUserData() }
         coVerify(exactly = 1) { storageService.uploadFile(
             fileData = imageData,
-            path = "profile_pictures/${user.uid}",
+            path = "profile_pictures/${user.uid}.jpg",
             fileType = FileType.IMAGE
         ) }
         coVerify(exactly = 0) { authService.updateUserData(any()) }
@@ -134,7 +134,7 @@ class UploadProfilePictureUseCaseTest {
         coEvery { authService.getUserData() } returns Result.success(user)
         coEvery { storageService.uploadFile(
             fileData = imageData,
-            path = "profile_pictures/${user.uid}",
+            path = "profile_pictures/${user.uid}.jpg",
             fileType = FileType.IMAGE
         ) } returns Result.success(uploadedUrl)
         coEvery { authService.updateUserData(user.copy(photoUrl = uploadedUrl)) } returns Result.failure(updateException)
@@ -148,7 +148,7 @@ class UploadProfilePictureUseCaseTest {
         coVerify(exactly = 1) { authService.getUserData() }
         coVerify(exactly = 1) { storageService.uploadFile(
             fileData = imageData,
-            path = "profile_pictures/${user.uid}",
+            path = "profile_pictures/${user.uid}.jpg",
             fileType = FileType.IMAGE
         ) }
         coVerify(exactly = 1) { authService.updateUserData(user.copy(photoUrl = uploadedUrl)) }
@@ -179,7 +179,7 @@ class UploadProfilePictureUseCaseTest {
         coVerify {
             storageService.uploadFile(
                 fileData = imageData,
-                path = "profile_pictures/${user.uid}",
+                path = "profile_pictures/${user.uid}.jpg",
                 fileType = FileType.IMAGE
             )
         }

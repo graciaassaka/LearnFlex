@@ -43,7 +43,10 @@ fun AuthLayout(
 {
     val orientation = if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) Orientation.Vertical else Orientation.Horizontal
 
-    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) { CustomSnackbar(it, snackbarType) } }) {
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) { CustomSnackbar(it, snackbarType) } },
+        contentWindowInsets = WindowInsets(0, 0 , 0 , 0)
+    ) {
         Box(modifier = modifier.fillMaxSize()) {
             SubcomposeLayout(
                 modifier = Modifier.fillMaxSize()

@@ -13,6 +13,7 @@ import org.example.shared.data.model.Field
 import org.example.shared.data.model.Level
 import org.example.shared.data.model.User
 import org.example.shared.domain.use_case.CreateUserProfileUseCase
+import org.example.shared.domain.use_case.DeleteProfilePictureUseCase
 import org.example.shared.domain.use_case.UploadProfilePictureUseCase
 import org.example.shared.presentation.state.SharedState
 import org.example.shared.presentation.util.UIEvent
@@ -33,6 +34,7 @@ class CreateUserProfileViewModelTest
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var createProfileUseCase: CreateUserProfileUseCase
     private lateinit var uploadProfilePictureUseCase: UploadProfilePictureUseCase
+    private lateinit var deleteProfilePictureUseCase: DeleteProfilePictureUseCase
     private lateinit var testDispatcher: TestDispatcher
     private val sharedFlow = MutableStateFlow(SharedState())
     private val user = User(
@@ -50,10 +52,12 @@ class CreateUserProfileViewModelTest
         sharedViewModel = mockk(relaxed = true)
         createProfileUseCase = mockk(relaxed = true)
         uploadProfilePictureUseCase = mockk(relaxed = true)
+        deleteProfilePictureUseCase = mockk(relaxed = true)
         viewModel = CreateUserProfileViewModel(
             sharedViewModel,
             createProfileUseCase,
             uploadProfilePictureUseCase,
+            deleteProfilePictureUseCase,
             testDispatcher,
             SharingStarted.Eagerly
         )
@@ -183,31 +187,32 @@ class CreateUserProfileViewModelTest
     }
 
     @Test
-    fun `onUploadProfilePicture should update state with photoUrl and show successMessage when uploadProfilePictureUseCase returns success`() = runTest {
-        // Given
-        val imageData = byteArrayOf(0x00, 0x01, 0x02, 0x03)
-        val successMessage = "Profile picture uploaded successfully"
-        val photoUrl = "https://example.com/profile.jpg"
+    fun `onUploadProfilePicture should update state with photoUrl and show successMessage when uploadProfilePictureUseCase returns success`() =
+        runTest {
+            // Given
+            val imageData = byteArrayOf(0x00, 0x01, 0x02, 0x03)
+            val successMessage = "Profile picture uploaded successfully"
+            val photoUrl = "https://example.com/profile.jpg"
 
-        val uiEvents = mutableListOf<UIEvent>()
-        val job = launch {
-            viewModel.uiEvent.toList(uiEvents)
+            val uiEvents = mutableListOf<UIEvent>()
+            val job = launch {
+                viewModel.uiEvent.toList(uiEvents)
+            }
+
+            coEvery { uploadProfilePictureUseCase(imageData) } returns Result.success(photoUrl)
+
+            // When
+            viewModel.onUploadProfilePicture(imageData, successMessage)
+            advanceUntilIdle()
+
+            // Then
+            coVerify { uploadProfilePictureUseCase(imageData) }
+            assertEquals(photoUrl, viewModel.state.value.photoUrl)
+            assertEquals(1, uiEvents.size)
+            assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
+
+            job.cancel()
         }
-
-        coEvery { uploadProfilePictureUseCase(imageData) } returns Result.success(photoUrl)
-
-        // When
-        viewModel.onUploadProfilePicture(imageData, successMessage)
-        advanceUntilIdle()
-
-        // Then
-        coVerify { uploadProfilePictureUseCase(imageData) }
-        assertEquals(photoUrl, viewModel.state.value.photoUrl)
-        assertEquals(1, uiEvents.size)
-        assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
-
-        job.cancel()
-    }
 
     @Test
     fun `onUploadProfilePicture should show error message when uploadProfilePictureUseCase returns failure`() = runTest {
@@ -228,6 +233,54 @@ class CreateUserProfileViewModelTest
 
         // Then
         coVerify { uploadProfilePictureUseCase(imageData) }
+        assertEquals(1, uiEvents.size)
+        assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `onProfilePictureDeleted should update state with empty photoUrl and show successMessage when deleteProfilePictureUseCase returns success`() =
+        runTest {
+            // Given
+            val successMessage = "Profile picture deleted successfully"
+            val uiEvents = mutableListOf<UIEvent>()
+            val job = launch {
+                viewModel.uiEvent.toList(uiEvents)
+            }
+
+            coEvery { deleteProfilePictureUseCase() } returns Result.success(Unit)
+
+            // When
+            viewModel.onProfilePictureDeleted(successMessage)
+            advanceUntilIdle()
+
+            // Then
+            coVerify { deleteProfilePictureUseCase() }
+            assertEquals("", viewModel.state.value.photoUrl)
+            assertEquals(1, uiEvents.size)
+            assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
+
+            job.cancel()
+        }
+
+    @Test
+    fun `onProfilePictureDeleted should show error message when deleteProfilePictureUseCase returns failure`() = runTest {
+        // Given
+        val errorMessage = "Failed to delete profile picture"
+        val uiEvents = mutableListOf<UIEvent>()
+        val job = launch {
+            viewModel.uiEvent.toList(uiEvents)
+        }
+
+        coEvery { deleteProfilePictureUseCase() } returns Result.failure(Exception(errorMessage))
+
+        // When
+        viewModel.onProfilePictureDeleted("Success message")
+        advanceUntilIdle()
+
+        // Then
+        coVerify { deleteProfilePictureUseCase() }
         assertEquals(1, uiEvents.size)
         assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
 

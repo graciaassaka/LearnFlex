@@ -3,10 +3,10 @@ package org.example.shared.data.firebase
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
-import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.util.*
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.example.shared.FirebaseInit
 import org.example.shared.data.util.FileType
 import org.example.shared.data.util.StorageException
@@ -14,64 +14,104 @@ import org.example.shared.domain.service.StorageService
 import java.net.URLEncoder
 
 /**
- * Service for interacting with Firebase Storage.
+ * Service for handling Firebase Storage operations.
  *
  * @property client The HTTP client used for making requests.
- * @property firebaseInit The Firebase initialization object containing authentication tokens.
- * @property baseUrl The base URL for Firebase Storage API.
+ * @property firebaseInit The Firebase initialization object containing configuration and tokens.
  */
 actual class FirebaseStorageService(
     private val client: HttpClient,
-    private val firebaseInit: FirebaseInit,
-    private val baseUrl: String = "https://firebasestorage.googleapis.com/v0/b/${FirebaseConfig.getStorageBucket()}/o"
-) : StorageService {
-
+    private val firebaseInit: FirebaseInit
+) : StorageService
+{
     /**
      * Uploads a file to Firebase Storage.
      *
      * @param fileData The byte array of the file to be uploaded.
      * @param path The path where the file will be stored.
-     * @param fileType The type of the file (IMAGE or DOCUMENT).
-     * @return The full path of the uploaded file.
-     * @throws StorageException.UploadFailure if the upload fails.
+     * @param fileType The type of the file (e.g., IMAGE, DOCUMENT).
+     * @return The result of the upload operation, containing the path if successful.
      */
-    @OptIn(InternalAPI::class)
-    override suspend fun uploadFile(fileData: ByteArray, path: String, fileType: FileType) = runCatching {
-        val (fullPath, contentType) = when (fileType) {
-            FileType.IMAGE -> "$path.jpg" to ContentType.Image.JPEG
-            FileType.DOCUMENT -> "$path.pdf" to ContentType.Application.Pdf
+    override suspend fun uploadFile(
+        fileData: ByteArray,
+        path: String,
+        fileType: FileType
+    ) = runCatching {
+        val mimeType = when (fileType)
+        {
+            FileType.IMAGE -> "image/jpeg"
+            FileType.DOCUMENT -> "application/pdf"
         }
 
-        client.post("$baseUrl/${encodeStoragePath(fullPath)}") {
-            header("Authorization", "Bearer ${firebaseInit.idToken}")
-            timeout { requestTimeoutMillis = TIMEOUT }
-            body = MultiPartFormDataContent(formData {
-                append("file", fileData, Headers.build {
-                    append(HttpHeaders.ContentType, contentType.toString())
-                    append(HttpHeaders.ContentDisposition, "filename=\"$fullPath\"")
-                })
-            })
-        }.run {
-            if (status.isSuccess()) fullPath
-            else throw StorageException.UploadFailure("Failed to upload file")
+        val boundary = "Firebase-Storage-Boundary-${System.currentTimeMillis()}"
+        val multipartBody = createMultipartBody(path, mimeType, fileData, boundary)
+
+        val response = client.post {
+            setUpStorageRequest()
+            url {
+                path("upload", "storage", "v1", "b", FirebaseConfig.storageBucket, "o")
+                parameters.append("uploadType", "multipart")
+                parameters.append("name", path)
+            }
+            headers {
+                if (!FirebaseConfig.useEmulator)
+                    append(HttpHeaders.Authorization, "Bearer ${firebaseInit.idToken}")
+                append(HttpHeaders.ContentType, "multipart/related; boundary=$boundary")
+                append(HttpHeaders.ContentLength, multipartBody.size.toString())
+            }
+            setBody(multipartBody)
         }
+
+        if (response.status.isSuccess().not()) throw StorageException.UploadFailure(response.bodyAsText())
     }.fold(
-        onSuccess = { Result.success(it) },
+        onSuccess = { Result.success(path) },
         onFailure = { Result.failure(it) }
     )
+
+    /**
+     * Creates a multipart body for the file upload request.
+     *
+     * @param fullPath The full path of the file in Firebase Storage.
+     * @param mimeType The MIME type of the file.
+     * @param fileData The byte array of the file to be uploaded.
+     * @param boundary The boundary string for the multipart request.
+     * @return The byte array representing the multipart body.
+     */
+    private fun createMultipartBody(
+        fullPath: String,
+        mimeType: String,
+        fileData: ByteArray,
+        boundary: String
+    ): ByteArray
+    {
+        val metadataJson = Json.encodeToString(StorageMetadata(mimeType, fullPath))
+        return buildString {
+            append("--$boundary\r\n")
+            append("Content-Type: application/json\r\n\r\n")
+            append(metadataJson)
+            append("\r\n")
+            append("--$boundary\r\n")
+            append("Content-Type: $mimeType\r\n\r\n")
+        }.toByteArray() + fileData + "\r\n--$boundary--\r\n".toByteArray()
+    }
 
     /**
      * Deletes a file from Firebase Storage.
      *
      * @param path The path of the file to be deleted.
-     * @throws StorageException.DeleteFailure if the deletion fails.
+     * @return The result of the delete operation.
      */
     override suspend fun deleteFile(path: String) = runCatching {
-        client.delete("$baseUrl/${encodeStoragePath(path)}") {
-            header("Authorization", "Bearer ${firebaseInit.idToken}")
-        }.run {
-            if (!status.isSuccess()) throw StorageException.DeleteFailure("Failed to delete file")
+        val response = client.delete {
+            setUpStorageRequest()
+            url {
+                path("storage", "v1", "b", FirebaseConfig.storageBucket, "o", URLEncoder.encode(path, "UTF-8"))
+            }
+            headers {
+                if (!FirebaseConfig.useEmulator) append(HttpHeaders.Authorization, "Bearer ${firebaseInit.idToken}")
+            }
         }
+        if (!response.status.isSuccess()) throw StorageException.DeleteFailure(response.bodyAsText())
     }.fold(
         onSuccess = { Result.success(Unit) },
         onFailure = { Result.failure(it) }
@@ -81,51 +121,79 @@ actual class FirebaseStorageService(
      * Downloads a file from Firebase Storage.
      *
      * @param path The path of the file to be downloaded.
-     * @return The byte array of the downloaded file.
-     * @throws StorageException.DownloadFailure if the download fails.
+     * @return The result of the download operation, containing the file data if successful.
      */
     override suspend fun downloadFile(path: String) = runCatching {
-        client.get("$baseUrl/${encodeStoragePath(path)}") {
-            header("Authorization", "Bearer ${firebaseInit.idToken}")
-            parameter("alt", "media")
-        }.run {
-            if (status.isSuccess()) readBytes()
-            else throw StorageException.DownloadFailure("Failed to download file")
+        val response = client.get {
+            setUpStorageRequest()
+            url {
+                path("storage", "v1", "b", FirebaseConfig.storageBucket, "o", URLEncoder.encode(path, "UTF-8"))
+                parameters.append("alt", "media")
+            }
+            headers {
+                if (!FirebaseConfig.useEmulator) append(HttpHeaders.Authorization, "Bearer ${firebaseInit.idToken}")
+            }
         }
+
+        if (response.status.isSuccess()) response.readBytes()
+        else throw StorageException.DownloadFailure(response.bodyAsText())
     }.fold(
         onSuccess = { Result.success(it) },
         onFailure = { Result.failure(it) }
     )
 
     /**
-     * Gets the URL of a file in Firebase Storage.
+     * Retrieves the URL of a file in Firebase Storage.
      *
      * @param path The path of the file.
-     * @return The URL of the file.
-     * @throws StorageException.DownloadFailure if the URL retrieval fails.
+     * @return The result of the operation, containing the file URL if successful.
      */
     override suspend fun getFileUrl(path: String) = runCatching {
-        client.get("$baseUrl/${encodeStoragePath(path)}") {
-            header("Authorization", "Bearer ${firebaseInit.idToken}")
-            parameter("alt", "media")
-        }.run {
-            if (status.isSuccess()) "$baseUrl/${encodeStoragePath(path)}?alt=media"
-            else throw StorageException.DownloadFailure("Failed to get file URL")
+        if (path.isBlank()) throw IllegalArgumentException()
+
+        val bucket = FirebaseConfig.storageBucket
+
+        val (protocol, host, port) = with(FirebaseConfig) {
+            if (useEmulator) Triple(URLProtocol.HTTP, emulatorHost, storageEmulatorPort)
+            else Triple(URLProtocol.HTTPS, "storage.googleapis.com", 443)
         }
+
+        URLBuilder(protocol, host, port).apply {
+            path("storage", "v1", "b", bucket, "o", URLEncoder.encode(path, "UTF-8"))
+            parameters.append("alt", "media")
+        }.buildString()
     }.fold(
         onSuccess = { Result.success(it) },
         onFailure = { Result.failure(it) }
     )
 
-    /**
-     * Encodes the storage path to be URL-safe.
-     *
-     * @param path The path to be encoded.
-     * @return The encoded path.
-     */
-    private fun encodeStoragePath(path: String) = path.split("/").joinToString("/") { URLEncoder.encode(it, "UTF-8") }
 
-    companion object {
+    /**
+     * Sets up the HTTP request for Firebase Storage operations.
+     */
+    private fun HttpRequestBuilder.setUpStorageRequest()
+    {
+        url {
+            if (FirebaseConfig.useEmulator)
+            {
+                protocol = URLProtocol.HTTP
+                host = FirebaseConfig.emulatorHost
+                port = FirebaseConfig.storageEmulatorPort
+            } else
+            {
+                protocol = URLProtocol.HTTPS
+                host = "storage.googleapis.com"
+            }
+        }
+        timeout {
+            requestTimeoutMillis = TIMEOUT
+            connectTimeoutMillis = TIMEOUT
+            socketTimeoutMillis = TIMEOUT
+        }
+    }
+
+    companion object
+    {
         private const val TIMEOUT = 60000L
     }
 }

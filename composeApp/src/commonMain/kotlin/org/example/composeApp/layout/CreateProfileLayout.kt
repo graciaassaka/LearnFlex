@@ -1,9 +1,6 @@
 package org.example.composeApp.layout
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -13,6 +10,7 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.unit.dp
 import org.example.composeApp.component.AdaptiveAnimatedContainer
 import org.example.composeApp.component.CustomSnackbar
 import org.example.composeApp.component.SpeakingBird
@@ -48,7 +46,10 @@ fun CreateProfileLayout(
 {
     val orientation = if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) Orientation.Vertical else Orientation.Horizontal
 
-    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) { CustomSnackbar(it, snackbarType) } }) {
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) { CustomSnackbar(it, snackbarType) } },
+        contentWindowInsets = WindowInsets(0, 0 , 0 , 0)
+    ) {
         Box(modifier = modifier.fillMaxSize()) {
             SubcomposeLayout(modifier = Modifier.fillMaxSize()) { constraints ->
                 val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
@@ -60,8 +61,9 @@ fun CreateProfileLayout(
 
                 val birdPlaceable = subcompose("bird") {
                     SpeakingBird(
+                        orientation = orientation,
                         isLoading = isLoading,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.width(birdAreaWidth.dp),
                         content = { Text(title) }
                     )
                 }.map { it.measure(looseConstraints) }
@@ -87,7 +89,7 @@ fun CreateProfileLayout(
                     {
                         Orientation.Horizontal ->
                         {
-                            val birdX = (birdAreaWidth - ( birdPlaceable.firstOrNull()?.width ?: 0)) / 2
+                            val birdX = (birdAreaWidth - (birdPlaceable.firstOrNull()?.width ?: 0)) / 2
                             birdPlaceable.forEach { it.place(x = birdX, y = (height - it.height) / 2) }
                             contentPlaceable.forEach { it.place(x = birdAreaWidth, y = 0) }
                         }
@@ -95,7 +97,7 @@ fun CreateProfileLayout(
                         Orientation.Vertical ->
                         {
                             val birdHeight = birdPlaceable.firstOrNull()?.height ?: 0
-                            birdPlaceable.forEach { it.place(x = 0, y = 0) }
+                            birdPlaceable.forEach { it.place(x = 0, y = 100) }
                             contentPlaceable.forEach { it.place(x = 0, y = birdHeight) }
                         }
                     }

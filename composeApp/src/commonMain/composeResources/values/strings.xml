@@ -27,12 +27,15 @@
     <string name="confirm_password_label">Confirm Password</string>
     <string name="toggle_password_visibility">Toggle password visibility</string>
     <string name="or_label">or</string>
-    <string name="username_label">Username</string>
+    <string name="username_label">What should we call you?</string>
     <string name="field_label">What's your field of study?</string>
     <string name="level_label">What's your level of study?</string>
+    <string name="goals_label">What are your learning goals?</string>
 
     <!-- Screen Descriptions -->
-    <string name="verify_email_screen_description">A verification email has been sent to the email address below. Please verify your email address to continue.</string>
+    <string name="verify_email_screen_description">A verification email has been sent to the email address below. Please verify your email address to
+        continue.
+    </string>
 
     <!-- Success Messages -->
     <string name="sign_in_success">User signed in</string>
@@ -41,4 +44,14 @@
     <string name="password_reset_success">Password reset email sent</string>
     <string name="resend_email_success">Verification email sent</string>
     <string name="create_profile_success">Profile created</string>
+    <string name="update_photo_success">Photo updated</string>
+    <string name="delete_photo_success">Photo deleted</string>
+
+    <!-- Error Messages -->
+    <string name="file_too_large_error">File too large</string>
+    <string name="file_not_found_error">File not found</string>
+    <string name="file_unknown_error">Unknown error</string>
+
+    <!-- Other -->
+    <string name="upload_photo_text">Upload Profile Photo</string>
 </resources>

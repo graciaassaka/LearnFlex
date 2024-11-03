@@ -11,6 +11,7 @@ import learnflex.composeapp.generated.resources.Res
 import learnflex.composeapp.generated.resources.learnflexbird
 import org.example.composeApp.dimension.Dimension
 import org.example.composeApp.dimension.Padding
+import org.example.composeApp.util.Orientation
 import org.jetbrains.compose.resources.painterResource
 
 /**
@@ -22,11 +23,16 @@ import org.jetbrains.compose.resources.painterResource
  */
 @Composable
 fun SpeakingBird(
+    orientation: Orientation,
     isLoading: Boolean,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 )
 {
+    val (bubbleAlignment, birdAlignment) = when (orientation) {
+        Orientation.Vertical -> Alignment.TopEnd to Alignment.BottomStart
+        Orientation.Horizontal -> Alignment.TopCenter to Alignment.BottomCenter
+    }
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -35,7 +41,7 @@ fun SpeakingBird(
     ) {
         SpeechBubble(
             modifier = Modifier
-                .align(Alignment.TopEnd)
+                .align(bubbleAlignment)
                 .padding(end = Padding.SMALL.dp)
                 .zIndex(1f)
                 .sizeIn(
@@ -56,7 +62,7 @@ fun SpeakingBird(
             painter = painterResource(Res.drawable.learnflexbird),
             contentDescription = null,
             modifier = Modifier
-                .align(Alignment.BottomStart)
+                .align(birdAlignment)
                 .size(Dimension.BIRD_SIZE.dp),
             alignment = Alignment.BottomStart,
             contentScale = ContentScale.Crop,

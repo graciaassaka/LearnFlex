@@ -5,6 +5,8 @@ import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.initialize
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
+import com.google.firebase.storage.storage
 import org.example.shared.data.firebase.FirebaseConfig
 import org.example.shared.injection.initKoin
 
@@ -26,11 +28,13 @@ class LearnFlex: Application() {
     {
         if (BuildConfig.DEBUG)
         {
-            val emulatorHost = FirebaseConfig.getEmulatorHost()
+            val emulatorHost = FirebaseConfig.emulatorHost
             try
             {
                 Log.d("LearnFlex", "Using Firebase Emulators")
-                Firebase.auth.useEmulator(emulatorHost, FirebaseConfig.getAuthEmulatorPort())
+                Firebase.auth.useEmulator(emulatorHost, FirebaseConfig.authEmulatorPort)
+                Firebase.firestore.useEmulator(emulatorHost, FirebaseConfig.firestoreEmulatorPort)
+                Firebase.storage.useEmulator(emulatorHost, FirebaseConfig.storageEmulatorPort)
             } catch (e: Exception)
             {
                 Log.e("LearnFlex", "Error setting up Firebase emulators", e)

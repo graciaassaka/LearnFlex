@@ -25,7 +25,7 @@ class UploadProfilePictureUseCase(
 
         val url = storageService.uploadFile(
             fileData = image,
-            path = "profile_pictures/${user.uid}",
+            path = "profile_pictures/${user.uid}.jpg",
             fileType = FileType.IMAGE
         ).getOrThrow()
 

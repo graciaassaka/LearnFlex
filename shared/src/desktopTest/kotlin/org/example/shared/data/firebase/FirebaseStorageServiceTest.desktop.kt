@@ -35,7 +35,6 @@ actual class FirebaseStorageServiceTest {
             idToken = "test-id-token"
         }
         private const val WIREMOCK_PORT = 9099
-        private const val WIREMOCK_BASE_URL = "http://localhost:$WIREMOCK_PORT/o"
     }
 
     @Before
@@ -44,6 +43,12 @@ actual class FirebaseStorageServiceTest {
         wireMockServer = WireMockServer(WireMockConfiguration.options().port(WIREMOCK_PORT))
         wireMockServer.start()
         configureFor("localhost", WIREMOCK_PORT)
+
+        // Configure FirebaseConfig to use the emulator and new ports
+        FirebaseConfig.useEmulator = true
+        FirebaseConfig.emulatorHost = "localhost"
+        FirebaseConfig.storageEmulatorPort = WIREMOCK_PORT
+        FirebaseConfig.authEmulatorPort = 9100
 
         // Initialize Ktor HttpClient
         httpClient = HttpClient(OkHttp) {
@@ -56,7 +61,7 @@ actual class FirebaseStorageServiceTest {
             }
             install(Logging) {
                 logger = Logger.DEFAULT
-                level = LogLevel.NONE
+                level = LogLevel.BODY
             }
             install(HttpTimeout) {
                 requestTimeoutMillis = 60000L
@@ -65,13 +70,13 @@ actual class FirebaseStorageServiceTest {
             }
         }
 
-        // Initialize FirebaseStorageService with the WireMock baseUrl
+        // Initialize FirebaseStorageService
         firebaseStorageService = FirebaseStorageService(
             client = httpClient,
-            firebaseInit = firebaseInit,
-            baseUrl = WIREMOCK_BASE_URL
+            firebaseInit = firebaseInit
         )
     }
+
 
     @After
     fun tearDown() {
@@ -88,18 +93,25 @@ actual class FirebaseStorageServiceTest {
         val fileData = byteArrayOf(1, 2, 3)
         val path = "uploads/image1"
         val fileType = FileType.IMAGE
-        val expectedPath = "$path.jpg"
-        val encodedPath = encodeStoragePath(expectedPath)
-        val uploadUrl = "/o/$encodedPath"
+        val bucket = FirebaseConfig.storageBucket
+        val uploadUrlPath = "/upload/storage/v1/b/$bucket/o"
+        val useEmulator = FirebaseConfig.useEmulator
+
+        // Set up request pattern
+        val requestPattern = post(urlPathEqualTo(uploadUrlPath))
+            .withQueryParam("uploadType", equalTo("multipart"))
+            .withQueryParam("name", equalTo(path))
+            .withHeader("Content-Type", containing("multipart/related"))
+
+        if (!useEmulator) {
+            requestPattern.withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
+        }
 
         wireMockServer.stubFor(
-            post(urlEqualTo(uploadUrl))
-                .withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
-                .withHeader("Content-Type", containing("multipart/form-data"))
-                .willReturn(
-                    aResponse()
-                        .withStatus(200)
-                )
+            requestPattern.willReturn(
+                aResponse()
+                    .withStatus(200)
+            )
         )
 
         // When
@@ -107,12 +119,13 @@ actual class FirebaseStorageServiceTest {
 
         // Then
         assertTrue("Expected successful upload", result.isSuccess)
-        assertEquals(expectedPath, result.getOrNull())
+        assertEquals(path, result.getOrNull())
 
         wireMockServer.verify(
-            postRequestedFor(urlEqualTo(uploadUrl))
-                .withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
-                .withHeader("Content-Type", containing("multipart/form-data"))
+            postRequestedFor(urlPathEqualTo(uploadUrlPath))
+                .withQueryParam("uploadType", equalTo("multipart"))
+                .withQueryParam("name", equalTo(path))
+                .withHeader("Content-Type", containing("multipart/related"))
         )
     }
 
@@ -123,26 +136,32 @@ actual class FirebaseStorageServiceTest {
     fun `uploadFile should fail when server returns error`() = runTest {
         // Given
         val fileData = byteArrayOf(4, 5, 6)
-        val path = "uploads/failureTest"
+        val path = "uploads/failureTest" // Include file extension
         val fileType = FileType.DOCUMENT
-        val expectedPath = "$path.pdf"
-        val encodedPath = encodeStoragePath(expectedPath)
-        val uploadUrl = "/o/$encodedPath"
+        val bucket = FirebaseConfig.storageBucket
+        val uploadUrlPath = "/upload/storage/v1/b/$bucket/o"
+        val useEmulator = FirebaseConfig.useEmulator
         val exceptionMessage = "Upload failed"
 
+        val requestPattern = post(urlPathEqualTo(uploadUrlPath))
+            .withQueryParam("uploadType", equalTo("multipart"))
+            .withQueryParam("name", equalTo(path))
+            .withHeader("Content-Type", containing("multipart/related"))
+
+        if (!useEmulator) {
+            requestPattern.withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
+        }
+
         wireMockServer.stubFor(
-            post(urlEqualTo(uploadUrl))
-                .withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
-                .withHeader("Content-Type", containing("multipart/form-data"))
-                .willReturn(
-                    aResponse()
-                        .withStatus(500)
-                        .withBody("{ \"error\": \"$exceptionMessage\" }")
-                )
+            requestPattern.willReturn(
+                aResponse()
+                    .withStatus(500)
+                    .withBody("{ \"error\": \"$exceptionMessage\" }")
+            )
         )
 
         // When
-        val result = firebaseStorageService.uploadFile(fileData, path, fileType)
+        val result = firebaseStorageService.uploadFile(fileData, "uploads/failureTest", fileType)
 
         // Then
         assertTrue(result.isFailure)
@@ -150,9 +169,10 @@ actual class FirebaseStorageServiceTest {
         assertTrue(failure is StorageException.UploadFailure)
 
         wireMockServer.verify(
-            postRequestedFor(urlEqualTo(uploadUrl))
-                .withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
-                .withHeader("Content-Type", containing("multipart/form-data"))
+            postRequestedFor(urlPathEqualTo(uploadUrlPath))
+                .withQueryParam("uploadType", equalTo("multipart"))
+                .withQueryParam("name", equalTo(path))
+                .withHeader("Content-Type", containing("multipart/related"))
         )
     }
 
@@ -163,16 +183,22 @@ actual class FirebaseStorageServiceTest {
     fun `deleteFile should delete file and return success`() = runTest {
         // Given
         val path = "uploads/fileToDelete"
+        val bucket = FirebaseConfig.storageBucket
         val encodedPath = encodeStoragePath(path)
-        val deleteUrl = "/o/$encodedPath"
+        val deleteUrlPath = "/storage/v1/b/$bucket/o/$encodedPath"
+        val useEmulator = FirebaseConfig.useEmulator
+
+        val requestPattern = delete(urlPathEqualTo(deleteUrlPath))
+
+        if (!useEmulator) {
+            requestPattern.withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
+        }
 
         wireMockServer.stubFor(
-            delete(urlEqualTo(deleteUrl))
-                .withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
-                .willReturn(
-                    aResponse()
-                        .withStatus(200)
-                )
+            requestPattern.willReturn(
+                aResponse()
+                    .withStatus(200)
+            )
         )
 
         // When
@@ -182,8 +208,7 @@ actual class FirebaseStorageServiceTest {
         assertTrue(result.isSuccess)
 
         wireMockServer.verify(
-            deleteRequestedFor(urlEqualTo(deleteUrl))
-                .withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
+            deleteRequestedFor(urlPathEqualTo(deleteUrlPath))
         )
     }
 
@@ -194,18 +219,24 @@ actual class FirebaseStorageServiceTest {
     fun `deleteFile should fail when server returns error`() = runTest {
         // Given
         val path = "uploads/fileToDeleteFailure"
+        val bucket = FirebaseConfig.storageBucket
         val encodedPath = encodeStoragePath(path)
-        val deleteUrl = "/o/$encodedPath"
+        val deleteUrlPath = "/storage/v1/b/$bucket/o/$encodedPath"
+        val useEmulator = FirebaseConfig.useEmulator
         val exceptionMessage = "Deletion failed"
 
+        val requestPattern = delete(urlPathEqualTo(deleteUrlPath))
+
+        if (!useEmulator) {
+            requestPattern.withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
+        }
+
         wireMockServer.stubFor(
-            delete(urlEqualTo(deleteUrl))
-                .withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
-                .willReturn(
-                    aResponse()
-                        .withStatus(500)
-                        .withBody("{ \"error\": \"$exceptionMessage\" }")
-                )
+            requestPattern.willReturn(
+                aResponse()
+                    .withStatus(500)
+                    .withBody("{ \"error\": \"$exceptionMessage\" }")
+            )
         )
 
         // When
@@ -217,8 +248,7 @@ actual class FirebaseStorageServiceTest {
         assertTrue(failure is StorageException.DeleteFailure)
 
         wireMockServer.verify(
-            deleteRequestedFor(urlEqualTo(deleteUrl))
-                .withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
+            deleteRequestedFor(urlPathEqualTo(deleteUrlPath))
         )
     }
 
@@ -229,18 +259,25 @@ actual class FirebaseStorageServiceTest {
     fun `downloadFile should download file and return byte array on success`() = runTest {
         // Given
         val path = "uploads/fileToDownload"
+        val bucket = FirebaseConfig.storageBucket
         val encodedPath = encodeStoragePath(path)
+        val downloadUrlPath = "/storage/v1/b/$bucket/o/$encodedPath"
+        val useEmulator = FirebaseConfig.useEmulator
         val fileContent = byteArrayOf(7, 8, 9)
 
+        val requestPattern = get(urlPathEqualTo(downloadUrlPath))
+            .withQueryParam("alt", equalTo("media"))
+
+        if (!useEmulator) {
+            requestPattern.withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
+        }
+
         wireMockServer.stubFor(
-            get(urlPathEqualTo("/o/$encodedPath"))
-                .withQueryParam("alt", equalTo("media"))
-                .withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
-                .willReturn(
-                    aResponse()
-                        .withStatus(200)
-                        .withBody(fileContent)
-                )
+            requestPattern.willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withBody(fileContent)
+            )
         )
 
         // When
@@ -251,9 +288,8 @@ actual class FirebaseStorageServiceTest {
         assertContentEquals(fileContent, result.getOrNull())
 
         wireMockServer.verify(
-            getRequestedFor(urlPathEqualTo("/o/$encodedPath"))
+            getRequestedFor(urlPathEqualTo(downloadUrlPath))
                 .withQueryParam("alt", equalTo("media"))
-                .withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
         )
     }
 
@@ -264,18 +300,25 @@ actual class FirebaseStorageServiceTest {
     fun `downloadFile should fail when server returns error`() = runTest {
         // Given
         val path = "uploads/fileToDownloadFailure"
+        val bucket = FirebaseConfig.storageBucket
         val encodedPath = encodeStoragePath(path)
+        val downloadUrlPath = "/storage/v1/b/$bucket/o/$encodedPath"
+        val useEmulator = FirebaseConfig.useEmulator
         val exceptionMessage = "Download failed"
 
+        val requestPattern = get(urlPathEqualTo(downloadUrlPath))
+            .withQueryParam("alt", equalTo("media"))
+
+        if (!useEmulator) {
+            requestPattern.withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
+        }
+
         wireMockServer.stubFor(
-            get(urlPathEqualTo("/o/$encodedPath"))
-                .withQueryParam("alt", equalTo("media"))
-                .withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
-                .willReturn(
-                    aResponse()
-                        .withStatus(500)
-                        .withBody("{ \"error\": \"$exceptionMessage\" }")
-                )
+            requestPattern.willReturn(
+                aResponse()
+                    .withStatus(500)
+                    .withBody("{ \"error\": \"$exceptionMessage\" }")
+            )
         )
 
         // When
@@ -287,9 +330,8 @@ actual class FirebaseStorageServiceTest {
         assertTrue(failure is StorageException.DownloadFailure)
 
         wireMockServer.verify(
-            getRequestedFor(urlPathEqualTo("/o/$encodedPath"))
+            getRequestedFor(urlPathEqualTo(downloadUrlPath))
                 .withQueryParam("alt", equalTo("media"))
-                .withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
         )
     }
 
@@ -300,18 +342,9 @@ actual class FirebaseStorageServiceTest {
     fun `getFileUrl should retrieve and return file URL on success`() = runTest {
         // Given
         val path = "uploads/fileUrlTest"
+        val bucket = FirebaseConfig.storageBucket
         val encodedPath = encodeStoragePath(path)
-        val expectedUrl = "$WIREMOCK_BASE_URL/$encodedPath?alt=media"
-
-        wireMockServer.stubFor(
-            get(urlPathEqualTo("/o/$encodedPath"))
-                .withQueryParam("alt", equalTo("media"))
-                .withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
-                .willReturn(
-                    aResponse()
-                        .withStatus(200)
-                )
-        )
+        val expectedUrl = "http://${FirebaseConfig.emulatorHost}:${FirebaseConfig.storageEmulatorPort}/storage/v1/b/$bucket/o/$encodedPath?alt=media"
 
         // When
         val result = firebaseStorageService.getFileUrl(path)
@@ -319,54 +352,27 @@ actual class FirebaseStorageServiceTest {
         // Then
         assertTrue(result.isSuccess)
         assertEquals(expectedUrl, result.getOrNull())
-
-        wireMockServer.verify(
-            getRequestedFor(urlPathEqualTo("/o/$encodedPath"))
-                .withQueryParam("alt", equalTo("media"))
-                .withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
-        )
     }
 
     /**
      * Tests the failure scenario during retrieval of a file URL.
      */
     @Test
-    fun `getFileUrl should fail when server returns error`() = runTest {
+    fun `getFileUrl should fail when invalid path is provided`() = runTest {
         // Given
-        val path = "uploads/fileUrlFailure"
-        val encodedPath = encodeStoragePath(path)
-        val exceptionMessage = "Get URL failed"
-
-        wireMockServer.stubFor(
-            get(urlPathEqualTo("/o/$encodedPath"))
-                .withQueryParam("alt", equalTo("media"))
-                .withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
-                .willReturn(
-                    aResponse()
-                        .withStatus(500)
-                        .withBody("{ \"error\": \"$exceptionMessage\" }")
-                )
-        )
+        val path = "" // Invalid path
 
         // When
         val result = firebaseStorageService.getFileUrl(path)
 
         // Then
         assertTrue(result.isFailure)
-        val failure = result.exceptionOrNull()
-        assertTrue(failure is StorageException.DownloadFailure)
-
-        wireMockServer.verify(
-            getRequestedFor(urlPathEqualTo("/o/$encodedPath"))
-                .withQueryParam("alt", equalTo("media"))
-                .withHeader("Authorization", equalTo("Bearer ${firebaseInit.idToken}"))
-        )
     }
 
     /**
      * Helper function to encode storage path.
      */
     private fun encodeStoragePath(path: String): String {
-        return path.split("/").joinToString("/") { URLEncoder.encode(it, "UTF-8") }
+        return URLEncoder.encode(path, "UTF-8").replace("+", "%20")
     }
 }

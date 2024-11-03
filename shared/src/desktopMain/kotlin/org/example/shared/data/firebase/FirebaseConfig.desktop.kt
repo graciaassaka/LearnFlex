@@ -2,50 +2,42 @@ package org.example.shared.data.firebase
 
 /**
  * Configuration object for Firebase settings.
- * This object provides methods to retrieve emulator settings for various Firebase services.
+ * This object provides properties to retrieve and set emulator settings for various Firebase services.
  */
-actual object FirebaseConfig
-{
+actual object FirebaseConfig {
 
     /**
      * Indicates whether to use the Firebase emulator.
-     * @return `true` if the emulator should be used, `false` otherwise.
      */
-    fun useEmulator(): Boolean = true
+    var useEmulator: Boolean = true
 
     /**
-     * Retrieves the host address for the Firebase emulator.
-     * @return The host address as a `String`.
+     * The host address for the Firebase emulator.
      */
-    actual fun getEmulatorHost(): String = "127.0.0.1"
+    actual var emulatorHost: String = "127.0.0.1"
 
     /**
-     * Retrieves the port number for the Firebase Authentication emulator.
-     * @return The port number as an `Int`.
+     * The port number for the Firebase Authentication emulator.
      */
-    actual fun getAuthEmulatorPort(): Int = 9099
+    actual var authEmulatorPort: Int = 9099
 
     /**
-     * Retrieves the port number for the Firebase Firestore emulator.
-     * @return The port number as an `Int`.
+     * The port number for the Firebase Firestore emulator.
      */
-    actual fun getFirestoreEmulatorPort(): Int = 8080
+    actual var firestoreEmulatorPort: Int = 8080
 
     /**
-     * Retrieves the port number for the Firebase Storage emulator.
-     * @return The port number as an `Int`.
+     * The port number for the Firebase Storage emulator.
      */
-    actual fun getStorageEmulatorPort(): Int = 9199
+    actual var storageEmulatorPort: Int = 9199
 
     /**
-     * Retrieves the port number for the Firebase Functions emulator.
-     * @return The port number as an `Int`.
+     * The port number for the Firebase Functions emulator.
      */
-    actual fun getFunctionsEmulatorPort(): Int = 5001
+    actual var functionsEmulatorPort: Int = 5001
 
     /**
-     * Retrieves the Firebase project ID.
-     * @return The project ID as a `String`.
+     * The Firebase storage bucket name.
      */
-    fun getStorageBucket(): String = "learnflexkmp.appspot.com"
+    var storageBucket: String = "learnflexkmp.appspot.com"
 }
