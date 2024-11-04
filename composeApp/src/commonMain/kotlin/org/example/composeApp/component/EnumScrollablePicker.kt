@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.sp
@@ -53,12 +54,12 @@ inline fun <reified T> EnumScrollablePicker(
             text = label,
             textAlign = TextAlign.Center,
             fontSize = 16.sp,
-            modifier = Modifier
-                .offset(y = itemHeight / 2)
+            modifier = Modifier.offset(y = itemHeight / 2)
         )
         Spacer(Modifier.weight(1f))
         Box(
-            modifier = modifier
+            modifier = Modifier
+                .testTag("Picker")
                 .height(itemHeight * 3)
                 .draggable(
                     orientation = Orientation.Vertical,
@@ -81,7 +82,7 @@ inline fun <reified T> EnumScrollablePicker(
                     repeat(enumEntries<T>().size) { index ->
                         Box(
                             contentAlignment = Alignment.Center,
-                            modifier = Modifier.height(itemHeight),
+                            modifier = Modifier.height(itemHeight).testTag(entries[index].name),
                             content = { Text(text = entries[index].name, fontSize = 16.sp) }
                         )
                     }

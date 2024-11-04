@@ -55,7 +55,7 @@ class AuthScreenTest
         uiState = MutableStateFlow(AuthUIState())
         uiEventFlow = MutableSharedFlow()
         windowSizeClass = WindowSizeClass.calculateFromSize(
-            DpSize(width = 800.dp, height = 800.dp),
+            DpSize(width = 400.dp, height = 800.dp),
             setOf(WindowWidthSizeClass.Compact),
             setOf(WindowHeightSizeClass.Compact)
         )

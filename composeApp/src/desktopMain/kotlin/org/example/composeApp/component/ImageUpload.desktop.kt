@@ -37,7 +37,6 @@ actual fun ImageUpload(
             onClick = { showFileDialog = true },
             isLoading = isLoading,
             onFileDeleted = onImageDeleted,
-            modifier = modifier,
             isUploaded = isUploaded
         )
 
