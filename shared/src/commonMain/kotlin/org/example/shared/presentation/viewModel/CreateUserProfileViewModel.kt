@@ -17,13 +17,14 @@ import org.example.shared.presentation.util.validation.InputValidator
 import org.example.shared.presentation.util.validation.ValidationResult
 
 /**
- * ViewModel for creating a user profile.
+ * ViewModel class for creating a user profile.
  *
- * @property sharedViewModel The shared ViewModel instance.
- * @property createUserProfileUseCase Use case for creating a user profile.
- * @property uploadProfilePictureUseCase Use case for uploading a profile picture.
- * @property dispatcher Coroutine dispatcher for managing background tasks.
- * @property sharingStarted Defines when the sharing of the state starts.
+ * @property sharedViewModel A shared view model instance for accessing user data.
+ * @property createUserProfileUseCase A use case for creating a new user profile.
+ * @property uploadProfilePictureUseCase A use case for uploading a profile picture.
+ * @property deleteProfilePictureUseCase A use case for deleting a profile picture.
+ * @property dispatcher Coroutine dispatcher for managing coroutine contexts.
+ * @param sharingStarted Determines when sharing of the state flow starts.
  */
 class CreateUserProfileViewModel(
     private val sharedViewModel: SharedViewModel,

@@ -1,6 +1,5 @@
 package org.example.shared.data.model
 
-import dev.gitlive.firebase.firestore.DocumentSnapshot
 import kotlinx.serialization.Serializable
 
 /**
