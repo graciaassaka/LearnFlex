@@ -13,8 +13,6 @@ import androidx.compose.ui.unit.dp
 import org.example.composeApp.component.AdaptiveAnimatedContainer
 import org.example.composeApp.component.AppBanner
 import org.example.composeApp.component.CustomSnackbar
-import org.example.composeApp.component.auth.AnimatedCard
-import org.example.composeApp.component.auth.AnimatedBottomSheet
 import org.example.composeApp.util.Orientation
 import org.example.shared.presentation.util.SnackbarType
 

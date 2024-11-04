@@ -9,7 +9,6 @@ import org.example.shared.data.firebase.FirebaseStorageService
 import org.example.shared.domain.service.AuthService
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
-import org.koin.core.module.Module
 import org.koin.dsl.module
 
 actual fun initKoin(context: Any?)

@@ -1,13 +1,11 @@
 package org.example.shared.data.firebase
 
 import android.net.Uri
-import android.text.TextUtils
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.UserProfileChangeRequest
 import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -24,8 +22,6 @@ actual class FirebaseAuthServiceTest {
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var mockAuthResult: AuthResult
     private lateinit var mockUser: FirebaseUser
-    private lateinit var mockBuilder: UserProfileChangeRequest.Builder
-    private lateinit var mockRequest: UserProfileChangeRequest
 
     @Before
     fun setUp() {

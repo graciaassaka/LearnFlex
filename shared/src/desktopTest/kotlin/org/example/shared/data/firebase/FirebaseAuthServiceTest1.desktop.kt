@@ -307,9 +307,6 @@ actual class FirebaseAuthServiceTest
     @Test
     fun `updateProfile should return success when status code is 200 and response is valid`() = runTest {
         // Arrange
-        val displayName = "Test User"
-        val photoUrl = "https://example.com/photo.jpg"
-
         wireMockServer.stubFor(
             post(urlEqualTo("/identitytoolkit.googleapis.com/v1/accounts:update?key=${FirebaseConstants.API_KEY}"))
                 .willReturn(

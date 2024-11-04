@@ -1,6 +1,5 @@
 package org.example.shared.data.firebase
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**

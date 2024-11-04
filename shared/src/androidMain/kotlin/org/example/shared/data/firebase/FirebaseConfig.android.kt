@@ -1,8 +1,5 @@
 package org.example.shared.data.firebase
 
-import android.content.Context
-import org.example.shared.R
-
 /**
  * Object for Firebase configuration specific to the Android platform.
  */
