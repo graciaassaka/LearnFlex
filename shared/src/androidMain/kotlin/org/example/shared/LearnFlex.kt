@@ -18,7 +18,6 @@ class LearnFlex: Application() {
         super.onCreate()
 
         Firebase.initialize(this)
-        FirebaseConfig.initialize(this)
         setupFirebaseEmulators()
 
         initKoin(this)

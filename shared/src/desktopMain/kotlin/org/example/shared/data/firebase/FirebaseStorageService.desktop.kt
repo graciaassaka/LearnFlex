@@ -32,11 +32,7 @@ actual class FirebaseStorageService(
      * @param fileType The type of the file (e.g., IMAGE, DOCUMENT).
      * @return The result of the upload operation, containing the path if successful.
      */
-    override suspend fun uploadFile(
-        fileData: ByteArray,
-        path: String,
-        fileType: FileType
-    ) = runCatching {
+    override suspend fun uploadFile(fileData: ByteArray, path: String, fileType: FileType) = runCatching {
         val mimeType = when (fileType)
         {
             FileType.IMAGE -> "image/jpeg"

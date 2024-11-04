@@ -8,44 +8,28 @@ import org.example.shared.R
  */
 actual object FirebaseConfig
 {
-
-    /**
-     * Application context used for accessing resources.
-     */
-    private lateinit var appContext: Context
-
-    /**
-     * Initializes the Firebase configuration with the provided context.
-     *
-     * @param context The application context.
-     */
-    fun initialize(context: Context)
-    {
-        appContext = context.applicationContext
-    }
-
     /**
      * The host address for the Firebase emulator.
      */
-    actual var emulatorHost: String = appContext.getString(R.string.firebase_emulator_host)
+    actual var emulatorHost: String = "10.0.2.2"
 
     /**
      * The port number for the Firebase Authentication emulator.
      */
-    actual var authEmulatorPort: Int = appContext.resources.getInteger(R.integer.firebase_auth_emulator_port)
+    actual var authEmulatorPort: Int = 9099
 
     /**
      * The port number for the Firebase Firestore emulator.
      */
-    actual var firestoreEmulatorPort: Int = appContext.resources.getInteger(R.integer.firebase_firestore_emulator_port)
+    actual var firestoreEmulatorPort: Int = 8080
 
     /**
      * The port number for the Firebase Storage emulator.
      */
-    actual var storageEmulatorPort: Int = appContext.resources.getInteger(R.integer.firebase_storage_emulator_port)
+    actual var storageEmulatorPort: Int = 9199
 
     /**
      * The port number for the Firebase Functions emulator.
      */
-    actual var functionsEmulatorPort: Int = appContext.resources.getInteger(R.integer.firebase_functions_emulator_port)
+    actual var functionsEmulatorPort: Int = 5001
 }
