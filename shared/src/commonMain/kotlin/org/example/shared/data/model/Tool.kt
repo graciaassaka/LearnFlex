@@ -2,7 +2,8 @@ package org.example.shared.data.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonElement
+
+import kotlinx.serialization.json.JsonObject
 
 /**
  * Represents a tool that can be used by the assistant.
@@ -82,5 +83,7 @@ data class Function(
  */
 @Serializable
 data class Parameters(
-    val schema: JsonElement
+    @SerialName("type") val type: String,
+    @SerialName("properties") val properties: JsonObject,
+    @SerialName("required") val required: List<String>? = null
 )

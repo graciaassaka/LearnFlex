@@ -3,8 +3,10 @@ package org.example.shared.data.assistant
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import org.example.shared.data.model.*
+import org.example.shared.data.util.ApiError
 import org.example.shared.domain.service.AIAssistantClient
 
 /**
@@ -14,21 +16,21 @@ import org.example.shared.domain.service.AIAssistantClient
  * @property httpClient The HTTP client used for making requests.
  */
 class OpenAIAssistantClient(
-    private val httpClient: HttpClient
-) : AIAssistantClient {
-
-    private var apiKey: String = System.getenv("OPENAI_API_KEY") ?: throw Exception("OpenAI API key not found")
-
+    private val httpClient: HttpClient,
+    private val baseUrl: Url,
+    private val apiKey: String
+) : AIAssistantClient
+{
     /**
      * Creates a new thread.
      *
      * @return A [Result] containing the created [Thread].
      */
-    override suspend fun createThread(): Result<Thread> = runCatching {
+    override suspend fun createThread() = runCatching {
         httpClient.post {
             setUpAssistantRequest("/v1/threads")
         }.run {
-            if (status.isSuccess()) body<Thread>() else throw Exception()
+            handleAssistantResponse { body<Thread>() }
         }
     }
 
@@ -38,11 +40,11 @@ class OpenAIAssistantClient(
      * @param threadId The ID of the thread to retrieve.
      * @return A [Result] containing the retrieved [Thread].
      */
-    override suspend fun retrieveThread(threadId: String): Result<Thread> = runCatching {
+    override suspend fun retrieveThread(threadId: String) = runCatching {
         httpClient.get {
             setUpAssistantRequest("/v1/threads/$threadId")
         }.run {
-            if(status.isSuccess()) body<Thread>() else throw Exception("Failed to retrieve thread: $status")
+            handleAssistantResponse { body<Thread>() }
         }
     }
 
@@ -52,11 +54,11 @@ class OpenAIAssistantClient(
      * @param threadId The ID of the thread to delete.
      * @return A [Result] indicating the success or failure of the operation.
      */
-    override suspend fun deleteThread(threadId: String): Result<Unit> = runCatching {
+    override suspend fun deleteThread(threadId: String) = runCatching {
         httpClient.delete {
             setUpAssistantRequest("/v1/threads/$threadId")
         }.run {
-            if(status.isSuccess().not()) throw Exception("Failed to delete thread: $status")
+            handleAssistantResponse { }
         }
     }
 
@@ -67,12 +69,12 @@ class OpenAIAssistantClient(
      * @param requestBody The request body containing the message details.
      * @return A [Result] containing the created [Message].
      */
-    override suspend fun createMessage(threadId: String, requestBody: MessageRequestBody): Result<Message> = runCatching {
+    override suspend fun createMessage(threadId: String, requestBody: MessageRequestBody) = runCatching {
         httpClient.post {
             setUpAssistantRequest("/v1/threads/$threadId/messages")
             setBody(requestBody)
         }.run {
-            if (status.isSuccess()) body<Message>() else throw Exception("Failed to create message: $status")
+            handleAssistantResponse { body<Message>() }
         }
     }
 
@@ -84,13 +86,13 @@ class OpenAIAssistantClient(
      * @param order The order in which to retrieve the messages.
      * @return A [Result] containing the list of messages.
      */
-    override suspend fun listMessages(threadId: String, limit: Int, order: MessagesOrder): Result<ListMessagesResponse> = runCatching {
+    override suspend fun listMessages(threadId: String, limit: Int, order: MessagesOrder) = runCatching {
         httpClient.get {
             setUpAssistantRequest("/v1/threads/$threadId/messages")
             parameter("limit", limit)
-            parameter("order", order.name)
+            parameter("order", order.value)
         }.run {
-            if (status.isSuccess()) body<ListMessagesResponse>() else throw Exception("Failed to list messages: $status")
+            handleAssistantResponse { body<ListMessagesResponse>() }
         }
     }
 
@@ -101,12 +103,12 @@ class OpenAIAssistantClient(
      * @param requestBody The request body containing the run details.
      * @return A [Result] containing the created [Run].
      */
-    override suspend fun createRun(threadId: String, requestBody: RunRequestBody): Result<Run> = runCatching {
+    override suspend fun createRun(threadId: String, requestBody: RunRequestBody) = runCatching {
         httpClient.post {
             setUpAssistantRequest("/v1/threads/$threadId/runs")
             setBody(requestBody)
         }.run {
-            if (status.isSuccess()) body<Run>() else throw Exception("Failed to create run: $status")
+            handleAssistantResponse { body<Run>() }
         }
     }
 
@@ -117,11 +119,11 @@ class OpenAIAssistantClient(
      * @param runId The ID of the run to retrieve.
      * @return A [Result] containing the retrieved [Run].
      */
-    override suspend fun retrieveRun(threadId: String, runId: String): Result<Run> = runCatching {
+    override suspend fun retrieveRun(threadId: String, runId: String) = runCatching {
         httpClient.get {
             setUpAssistantRequest("/v1/threads/$threadId/runs/$runId")
         }.run {
-            if (status.isSuccess()) body<Run>() else throw Exception("Failed to retrieve run: $status")
+            handleAssistantResponse { body<Run>() }
         }
     }
 
@@ -133,12 +135,12 @@ class OpenAIAssistantClient(
      * @param requestBody The request body containing the tool output details.
      * @return A [Result] containing the updated [Run].
      */
-    override suspend fun submitToolOutput(threadId: String, runId: String,requestBody: SubmitToolOutputsRequestBody): Result<Run> = runCatching {
+    override suspend fun submitToolOutput(threadId: String, runId: String, requestBody: SubmitToolOutputsRequestBody) = runCatching {
         httpClient.post {
             setUpAssistantRequest("/v1/threads/$threadId/runs/$runId/tool_outputs")
             setBody(requestBody)
         }.run {
-            if (status.isSuccess()) body<Run>() else throw Exception("Failed to submit tool output: $status")
+            handleAssistantResponse { body<Run>() }
         }
     }
 
@@ -147,10 +149,12 @@ class OpenAIAssistantClient(
      *
      * @param path The API endpoint path.
      */
-    private fun HttpRequestBuilder.setUpAssistantRequest(path: String) {
+    private fun HttpRequestBuilder.setUpAssistantRequest(path: String)
+    {
         url {
-            protocol = URLProtocol.HTTPS
-            host = "api.openai.com"
+            host = baseUrl.host
+            protocol = baseUrl.protocol
+            port = baseUrl.port
             encodedPath = path
         }
         headers {
@@ -158,5 +162,21 @@ class OpenAIAssistantClient(
             append("OpenAI-Beta", "assistants=v2")
         }
         contentType(ContentType.Application.Json)
+    }
+
+    /**
+     * Handles the response from the OpenAI Assistant API.
+     *
+     * @param handleSuccess The lambda to execute if the request is successful.
+     */
+    private suspend fun <T> HttpResponse.handleAssistantResponse(handleSuccess: (suspend () -> T)): T = when (status.value)
+    {
+        200 -> handleSuccess()
+        401 -> throw (ApiError.Unauthorized(request.url.encodedPath))
+        403 -> throw (ApiError.Forbidden(request.url.encodedPath))
+        404 -> throw (ApiError.NotFound(request.url.encodedPath))
+        429 -> throw (ApiError.RateLimitExceeded(request.url.encodedPath))
+        503 -> throw (ApiError.NetworkError(request.url.encodedPath))
+        else -> throw (ApiError.ServerError(request.url.encodedPath, status.value))
     }
 }

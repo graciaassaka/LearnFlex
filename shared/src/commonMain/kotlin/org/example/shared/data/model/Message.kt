@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class MessageRequestBody(
-    @SerialName("role") val role: MessageRole,
+    @SerialName("role") val role: String,
     @SerialName("content") val content: String
 )
 
@@ -34,11 +34,11 @@ data class Message(
     @SerialName("object") val objectType: String,
     @SerialName("created_at") val createdAt: Int,
     @SerialName("thread_id") val threadId: String,
-    @SerialName("status") val status: MessageStatus,
+    @SerialName("status") val status: MessageStatus? = null,
     @SerialName("incomplete_details") val incompleteDetails: IncompleteDetails? = null,
     @SerialName("completed_at") val completedAt: Int? = null,
     @SerialName("incomplete_at") val incompleteAt: Int? = null,
-    @SerialName("role") val role: MessageRole,
+    @SerialName("role") val role: String,
     @SerialName("content") val content: List<Content>,
     @SerialName("assistant_id") val assistantId: String? = null,
     @SerialName("run_id") val runId: String? = null,
@@ -64,14 +64,11 @@ enum class MessageStatus
 /**
  * Represents the role of a message.
  */
-@Serializable
 @Suppress("unused")
-enum class MessageRole
+enum class MessageRole(val value: String)
 {
-    @SerialName("user")
-    USER,
-    @SerialName("assistant")
-    ASSISTANT
+    USER("user"),
+    ASSISTANT("assistant")
 }
 
 /**
@@ -93,6 +90,7 @@ sealed class Content
      * Represents text content.
      */
     @Serializable
+    @SerialName("text")
     data class TextContent(
         @SerialName("type") val type: String = TYPE_TEXT,
         @SerialName("text") val text: Text,
@@ -102,6 +100,7 @@ sealed class Content
      * Represents image file content.
      */
     @Serializable
+    @SerialName("image_file")
     data class ImageFileContent(
         @SerialName("type") val type: String = TYPE_IMAGE_FILE,
         @SerialName("image_file") val imageFile: ImageFile,
@@ -111,6 +110,7 @@ sealed class Content
      * Represents image URL content.
      */
     @Serializable
+    @SerialName("image_url")
     data class ImageUrlContent(
         @SerialName("type") val type: String = TYPE_IMAGE_URL,
         @SerialName("image_url") val imageUrl: ImageUrl,
@@ -120,6 +120,7 @@ sealed class Content
      * Represents refusal content.
      */
     @Serializable
+    @SerialName("refusal")
     data class RefusalContent(
         @SerialName("type") val type: String = TYPE_REFUSAL,
         @SerialName("refusal") val refusal: String
@@ -218,13 +219,9 @@ data class Attachment(
 /**
  * Represents a tool.
  */
-@Serializable
 @Suppress("unused")
-enum class MessagesOrder
+enum class MessagesOrder(val value: String)
 {
-    @SerialName("asc")
-    ASC,
-    @SerialName("desc")
-    DESC
+    ASC("asc"),
+    DESC("desc")
 }
-

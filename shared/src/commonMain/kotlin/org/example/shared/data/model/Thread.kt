@@ -13,13 +13,20 @@ data class Thread(
     @SerialName("object") val objectType: String,
     @SerialName("created_at") val createdAt: Int,
     @SerialName("metadata") val metadata: Map<String, String> = emptyMap(),
-    @SerialName("tool_resources") val toolResources: ToolResources? = null
+    @SerialName("tool_resources") val toolResources: ToolResourceWrapper? = null
+)
+
+@Serializable
+data class ToolResourceWrapper(
+    @SerialName("code_interpreter") val codeInterpreter: ToolResources.CodeInterpreter? = null,
+    @SerialName("file_search") val fileSearch: ToolResources.FileSearch? = null
 )
 
 /**
  * Sealed class representing tool resources available to the assistant.
  */
 @Serializable
+@SerialName("tool_resources")
 @Suppress("unused")
 sealed class ToolResources
 {

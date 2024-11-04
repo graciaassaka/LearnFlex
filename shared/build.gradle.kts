@@ -27,13 +27,17 @@ tasks.register("generateConstants") {
                 const val API_KEY = "${getLocalProperty("FIREBASE_API_KEY")}"
                 const val PROJECT_ID = "${getLocalProperty("FIREBASE_PROJECT_ID")}"
             }
+            
+            object OpenAIConstants {
+                const val API_KEY = "${getLocalProperty("OPENAI_API_KEY")}"
+            }
         """.trimIndent()
 
         val outputDir = project.layout.buildDirectory.get().asFile
             .resolve("generated/kotlin/org/example/shared/data/util")
         outputDir.mkdirs()
 
-        val outputFile = outputDir.resolve("FirebaseConstants.kt")
+        val outputFile = outputDir.resolve("Constants.kt")
         outputFile.writeText(generated)
     }
 }
@@ -68,6 +72,7 @@ kotlin {
             applyOptIns()
         }
         val commonMain by getting {
+            kotlin.srcDir(layout.buildDirectory.dir("generated/kotlin"))
             dependencies {
                 implementation(libs.kotlinx.serialization)
                 implementation(libs.koin.core)
@@ -134,7 +139,6 @@ kotlin {
         }
 
         val desktopMain by getting {
-            kotlin.srcDir(layout.buildDirectory.dir("generated/kotlin"))
             dependencies {
                 implementation(libs.kotlinx.coroutines.swing)
                 implementation(libs.ktor.client.okhttp.jvm)
