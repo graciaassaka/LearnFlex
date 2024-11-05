@@ -10,14 +10,12 @@ import org.junit.Before
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
-class DeleteUserUseCaseTest
-{
+class DeleteUserUseCaseTest {
     private lateinit var deleteUserUseCase: DeleteUserUseCase
     private lateinit var authService: AuthService
 
     @Before
-    fun setUp()
-    {
+    fun setUp() {
         authService = mockk(relaxed = true)
         deleteUserUseCase = DeleteUserUseCase(authService)
     }

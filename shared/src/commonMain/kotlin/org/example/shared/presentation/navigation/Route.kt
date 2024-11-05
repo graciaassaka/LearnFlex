@@ -9,8 +9,7 @@ import kotlinx.serialization.Serializable
  * that can be taken within the app. The routes are serialized using
  * the @Serializable annotation.
  */
-sealed class Route
-{
+sealed class Route {
     @Serializable
     data object Auth : Route()
 

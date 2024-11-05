@@ -27,8 +27,7 @@ fun SpeakingBird(
     isLoading: Boolean,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
-)
-{
+) {
     val (bubbleAlignment, birdAlignment) = when (orientation) {
         Orientation.Vertical -> Alignment.TopEnd to Alignment.BottomStart
         Orientation.Horizontal -> Alignment.TopCenter to Alignment.BottomCenter

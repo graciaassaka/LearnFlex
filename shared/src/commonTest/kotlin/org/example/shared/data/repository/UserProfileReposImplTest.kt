@@ -13,8 +13,8 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.example.shared.data.model.Field
-import org.example.shared.data.model.Level
 import org.example.shared.data.model.LearningPreferences
+import org.example.shared.data.model.Level
 import org.example.shared.data.model.UserProfile
 import org.example.shared.domain.repository.UserProfileRepos
 import org.junit.Assert.assertTrue
@@ -22,8 +22,7 @@ import org.junit.Before
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
-class UserProfileReposImplTest
-{
+class UserProfileReposImplTest {
 
     private lateinit var firestore: FirebaseFirestore
     private lateinit var collectionRef: CollectionReference
@@ -42,8 +41,7 @@ class UserProfileReposImplTest
     )
 
     @Before
-    fun setUp()
-    {
+    fun setUp() {
         firestore = mockk(relaxed = true)
         collectionRef = mockk<CollectionReference>()
         documentRef = mockk<DocumentReference>()

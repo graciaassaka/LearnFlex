@@ -28,8 +28,7 @@ data class ToolResourceWrapper(
 @Serializable
 @SerialName("tool_resources")
 @Suppress("unused")
-sealed class ToolResources
-{
+sealed class ToolResources {
     /**
      * Code interpreter tool resources.
      */

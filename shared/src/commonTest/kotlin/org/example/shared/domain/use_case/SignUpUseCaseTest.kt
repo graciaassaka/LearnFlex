@@ -10,29 +10,25 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.koin.core.context.stopKoin
-import org.koin.test.KoinTest
 
 @ExperimentalCoroutinesApi
-class SignUpUseCaseTest
-{
+class SignUpUseCaseTest {
     private lateinit var signUpUseCase: SignUpUseCase
     private lateinit var authService: AuthService
 
     @Before
-    fun setUp()
-    {
+    fun setUp() {
         authService = mockk<AuthService>()
         signUpUseCase = SignUpUseCase(authService)
     }
 
     @After
-    fun tearDown()
-    {
+    fun tearDown() {
         stopKoin()
     }
 
     @Test
-    fun `SignUpUseCase should call AuthService#signUp with the provided email and password`() = runTest{
+    fun `SignUpUseCase should call AuthService#signUp with the provided email and password`() = runTest {
         // Given
         val email = "test@example.com"
         val password = "password"

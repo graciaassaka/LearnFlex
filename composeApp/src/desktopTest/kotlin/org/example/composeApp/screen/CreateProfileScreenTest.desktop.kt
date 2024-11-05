@@ -28,8 +28,7 @@ import org.example.shared.presentation.viewModel.CreateUserProfileViewModel
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class CreateProfileScreenTest
-{
+class CreateProfileScreenTest {
     private lateinit var navController: NavController
     private lateinit var viewModel: CreateUserProfileViewModel
     private lateinit var uiState: MutableStateFlow<CreateProfileUIState>
@@ -38,8 +37,7 @@ class CreateProfileScreenTest
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     @BeforeTest
-    fun setUp()
-    {
+    fun setUp() {
         navController = mockk(relaxed = true)
         viewModel = mockk(relaxed = true)
         uiState = MutableStateFlow(CreateProfileUIState())
@@ -86,10 +84,14 @@ class CreateProfileScreenTest
         val username = "TestUser"
         every { viewModel.onUsernameChanged(username) } answers {
             with(InputValidator.validateUsername(username)) {
-                when (this@with)
-                {
+                when (this@with) {
                     is ValidationResult.Valid -> uiState.update { it.copy(username = value, usernameError = null) }
-                    is ValidationResult.Invalid -> uiState.update { it.copy(username = username, usernameError = message) }
+                    is ValidationResult.Invalid -> uiState.update {
+                        it.copy(
+                            username = username,
+                            usernameError = message
+                        )
+                    }
                 }
             }
         }
@@ -114,10 +116,14 @@ class CreateProfileScreenTest
         val errorMessage = (InputValidator.validateUsername(username) as ValidationResult.Invalid).message
         every { viewModel.onUsernameChanged(username) } answers {
             with(InputValidator.validateUsername(username)) {
-                when (this@with)
-                {
+                when (this@with) {
                     is ValidationResult.Valid -> uiState.update { it.copy(username = value, usernameError = null) }
-                    is ValidationResult.Invalid -> uiState.update { it.copy(username = username, usernameError = message) }
+                    is ValidationResult.Invalid -> uiState.update {
+                        it.copy(
+                            username = username,
+                            usernameError = message
+                        )
+                    }
                 }
             }
         }

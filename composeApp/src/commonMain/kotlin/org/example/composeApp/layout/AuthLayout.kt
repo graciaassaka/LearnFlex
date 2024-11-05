@@ -37,13 +37,13 @@ fun AuthLayout(
     onAnimationFinished: () -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable (ColumnScope.() -> Unit)
-)
-{
-    val orientation = if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) Orientation.Vertical else Orientation.Horizontal
+) {
+    val orientation =
+        if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) Orientation.Vertical else Orientation.Horizontal
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) { CustomSnackbar(it, snackbarType) } },
-        contentWindowInsets = WindowInsets(0, 0 , 0 , 0)
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) {
         Box(modifier = modifier.fillMaxSize()) {
             SubcomposeLayout(
@@ -73,25 +73,27 @@ fun AuthLayout(
                         content = content
                     )
                 }.map {
-                    when (orientation)
-                    {
-                        Orientation.Horizontal -> it.measure(constraints.copy(minWidth = cardWidth, maxWidth = cardWidth))
+                    when (orientation) {
+                        Orientation.Horizontal -> it.measure(
+                            constraints.copy(
+                                minWidth = cardWidth,
+                                maxWidth = cardWidth
+                            )
+                        )
+
                         Orientation.Vertical -> it.measure(constraints)
                     }
                 }
 
                 layout(width, height) {
-                    when (orientation)
-                    {
-                        Orientation.Horizontal ->
-                        {
+                    when (orientation) {
+                        Orientation.Horizontal -> {
                             val logoX = (logoAreaWidth - (appBannerPlaceable.firstOrNull()?.width ?: 0)) / 2
                             appBannerPlaceable.forEach { it.place(x = logoX, y = (height - it.height) / 2) }
                             contentPlaceable.forEach { it.place(x = logoAreaWidth, y = 0) }
                         }
 
-                        Orientation.Vertical ->
-                        {
+                        Orientation.Vertical -> {
                             val appBannerY = 200
                             appBannerPlaceable.forEach { it.place(x = (width - it.width) / 2, y = appBannerY) }
                             val contentY = 500

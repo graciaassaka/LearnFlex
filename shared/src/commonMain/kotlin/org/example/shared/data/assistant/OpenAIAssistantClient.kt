@@ -19,8 +19,7 @@ class OpenAIAssistantClient(
     private val httpClient: HttpClient,
     private val baseUrl: Url,
     private val apiKey: String
-) : AIAssistantClient
-{
+) : AIAssistantClient {
     /**
      * Creates a new thread.
      *
@@ -135,22 +134,22 @@ class OpenAIAssistantClient(
      * @param requestBody The request body containing the tool output details.
      * @return A [Result] containing the updated [Run].
      */
-    override suspend fun submitToolOutput(threadId: String, runId: String, requestBody: SubmitToolOutputsRequestBody) = runCatching {
-        httpClient.post {
-            setUpAssistantRequest("/v1/threads/$threadId/runs/$runId/tool_outputs")
-            setBody(requestBody)
-        }.run {
-            handleAssistantResponse { body<Run>() }
+    override suspend fun submitToolOutput(threadId: String, runId: String, requestBody: SubmitToolOutputsRequestBody) =
+        runCatching {
+            httpClient.post {
+                setUpAssistantRequest("/v1/threads/$threadId/runs/$runId/tool_outputs")
+                setBody(requestBody)
+            }.run {
+                handleAssistantResponse { body<Run>() }
+            }
         }
-    }
 
     /**
      * Sets up the HTTP request for the OpenAI Assistant API.
      *
      * @param path The API endpoint path.
      */
-    private fun HttpRequestBuilder.setUpAssistantRequest(path: String)
-    {
+    private fun HttpRequestBuilder.setUpAssistantRequest(path: String) {
         url {
             host = baseUrl.host
             protocol = baseUrl.protocol
@@ -169,14 +168,14 @@ class OpenAIAssistantClient(
      *
      * @param handleSuccess The lambda to execute if the request is successful.
      */
-    private suspend fun <T> HttpResponse.handleAssistantResponse(handleSuccess: (suspend () -> T)): T = when (status.value)
-    {
-        200 -> handleSuccess()
-        401 -> throw (ApiError.Unauthorized(request.url.encodedPath))
-        403 -> throw (ApiError.Forbidden(request.url.encodedPath))
-        404 -> throw (ApiError.NotFound(request.url.encodedPath))
-        429 -> throw (ApiError.RateLimitExceeded(request.url.encodedPath))
-        503 -> throw (ApiError.NetworkError(request.url.encodedPath))
-        else -> throw (ApiError.ServerError(request.url.encodedPath, status.value))
-    }
+    private suspend fun <T> HttpResponse.handleAssistantResponse(handleSuccess: (suspend () -> T)): T =
+        when (status.value) {
+            200 -> handleSuccess()
+            401 -> throw (ApiError.Unauthorized(request.url.encodedPath))
+            403 -> throw (ApiError.Forbidden(request.url.encodedPath))
+            404 -> throw (ApiError.NotFound(request.url.encodedPath))
+            429 -> throw (ApiError.RateLimitExceeded(request.url.encodedPath))
+            503 -> throw (ApiError.NetworkError(request.url.encodedPath))
+            else -> throw (ApiError.ServerError(request.url.encodedPath, status.value))
+        }
 }

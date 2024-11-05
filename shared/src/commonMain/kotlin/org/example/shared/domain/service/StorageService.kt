@@ -5,8 +5,7 @@ import org.example.shared.data.util.FileType
 /**
  * Interface for storage service operations.
  */
-interface StorageService
-{
+interface StorageService {
     /**
      * Uploads a file to the specified path.
      *

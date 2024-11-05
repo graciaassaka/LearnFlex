@@ -3,8 +3,7 @@ package org.example.shared.data.firebase
 /**
  * Object for Firebase configuration specific to the Android platform.
  */
-actual object FirebaseConfig
-{
+actual object FirebaseConfig {
     /**
      * The host address for the Firebase emulator.
      */

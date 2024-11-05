@@ -109,7 +109,7 @@ kotlin {
 
         val desktopTest by getting {
             dependencies {
-               implementation(compose.desktop.currentOs)
+                implementation(compose.desktop.currentOs)
             }
         }
     }
@@ -224,7 +224,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     }
 }
 
-fun org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet.applyOptIns()
-{
+fun org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet.applyOptIns() {
     languageSettings.optIn("kotlin.RequiresOptIn")
 }

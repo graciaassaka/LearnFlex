@@ -5,8 +5,7 @@ import org.example.shared.data.model.UserProfile
 /**
  * Interface for user profile repository operations.
  */
-interface UserProfileRepos
-{
+interface UserProfileRepos {
     /**
      * Creates a new user profile.
      * @param userProfile The user profile to create.

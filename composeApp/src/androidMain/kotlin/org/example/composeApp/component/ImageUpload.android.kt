@@ -3,7 +3,7 @@ package org.example.composeApp.component
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import learnflex.composeapp.generated.resources.Res
@@ -21,8 +21,7 @@ actual fun ImageUpload(
     handleError: (String) -> Unit,
     modifier: Modifier,
     isUploaded: Boolean,
-)
-{
+) {
     val context = LocalContext.current
     val maxFileSize = LocalComposition.MaxFileSize.current
 

@@ -34,8 +34,7 @@ inline fun <reified T> EnumScrollablePicker(
     crossinline onChange: (T) -> Unit,
     enabled: Boolean,
     modifier: Modifier = Modifier,
-) where T : Enum<T>
-{
+) where T : Enum<T> {
     val itemHeight = Padding.LARGE.dp
     var offset by remember { mutableStateOf(0f) }
     val coroutineScope = rememberCoroutineScope()
@@ -99,11 +98,9 @@ inline fun <reified T> EnumScrollablePicker(
                 layout(constraints.maxWidth, constraints.maxHeight) {
                     val firstVisibleIndex = (offset / itemHeight.value).roundToInt()
 
-                    for (i in 0 until 3)
-                    {
+                    for (i in 0 until 3) {
                         val index = firstVisibleIndex + i - 1
-                        if (index in entries.indices)
-                        {
+                        if (index in entries.indices) {
                             val placeable = placeables[index]
                             val y = midPoint + (i - 1) * itemHeightPx + (offset % itemHeight.value).roundToInt()
                             val alpha = 1f - abs(y - midPoint) / (itemHeightPx * 1.5f)
@@ -118,8 +115,7 @@ inline fun <reified T> EnumScrollablePicker(
     }
 }
 
-inline fun <T> updateSelection(offset: Float, itemHeight: Float, entries: List<T>, onValueChange: (T) -> Unit)
-{
+inline fun <T> updateSelection(offset: Float, itemHeight: Float, entries: List<T>, onValueChange: (T) -> Unit) {
     val centerIndex = (offset / itemHeight).roundToInt().coerceIn(0, entries.lastIndex)
     onValueChange(entries[centerIndex])
 }

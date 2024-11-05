@@ -14,8 +14,7 @@ import org.example.shared.domain.service.AuthService
  */
 actual class FirebaseAuthService(
     private val auth: FirebaseAuth
-) : AuthService
-{
+) : AuthService {
     /**
      * Signs up a new user with the provided email and password.
      *
@@ -42,8 +41,7 @@ actual class FirebaseAuthService(
     /**
      * Signs out the currently signed-in user.
      */
-    override suspend fun signOut()
-    {
+    override suspend fun signOut() {
         auth.signOut()
     }
 

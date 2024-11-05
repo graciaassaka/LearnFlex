@@ -51,12 +51,13 @@ data class Message(
  */
 @Serializable
 @Suppress("unused")
-enum class MessageStatus
-{
+enum class MessageStatus {
     @SerialName("in_progress")
     IN_PROGRESS,
+
     @SerialName("incomplete")
     INCOMPLETE,
+
     @SerialName("completed")
     COMPLETED
 }
@@ -65,8 +66,7 @@ enum class MessageStatus
  * Represents the role of a message.
  */
 @Suppress("unused")
-enum class MessageRole(val value: String)
-{
+enum class MessageRole(val value: String) {
     USER("user"),
     ASSISTANT("assistant")
 }
@@ -76,10 +76,8 @@ enum class MessageRole(val value: String)
  */
 @Serializable
 @Suppress("unused")
-sealed class Content
-{
-    companion object
-    {
+sealed class Content {
+    companion object {
         const val TYPE_TEXT = "text"
         const val TYPE_IMAGE_FILE = "image_file"
         const val TYPE_IMAGE_URL = "image_url"
@@ -142,8 +140,7 @@ data class Text(
  */
 @Serializable
 @Suppress("unused")
-sealed class TextAnnotation
-{
+sealed class TextAnnotation {
     /**
      * Represents a text file citation annotation.
      */
@@ -220,8 +217,7 @@ data class Attachment(
  * Represents a tool.
  */
 @Suppress("unused")
-enum class MessagesOrder(val value: String)
-{
+enum class MessagesOrder(val value: String) {
     ASC("asc"),
     DESC("desc")
 }

@@ -49,16 +49,14 @@ fun AuthScreen(
     windowSizeClass: WindowSizeClass,
     navController: NavController,
     viewModel: AuthViewModel = koinViewModel()
-)
-{
+) {
     val snackbarHostState = remember { SnackbarHostState() }
     var currentSnackbarType by remember { mutableStateOf<SnackbarType>(SnackbarType.Info) }
     HandleUIEvents(Route.Auth, navController, viewModel, snackbarHostState) { currentSnackbarType = it }
     val uiState by viewModel.state.collectAsState()
     val isScreenVisible by viewModel.isScreenVisible.collectAsState()
 
-    when (uiState.currentForm)
-    {
+    when (uiState.currentForm) {
         AuthForm.SignIn -> SignInForm(
             isScreenVisible = isScreenVisible,
             windowSizeClass = windowSizeClass,
@@ -103,8 +101,7 @@ fun AuthScreen(
             modifier = Modifier.testTag("sign_up_form")
         )
 
-        AuthForm.VerifyEmail ->
-        {
+        AuthForm.VerifyEmail -> {
             VerificationForm(
                 isScreenVisible = isScreenVisible,
                 windowSizeClass = windowSizeClass,
@@ -121,8 +118,7 @@ fun AuthScreen(
             )
         }
 
-        AuthForm.ResetPassword ->
-        {
+        AuthForm.ResetPassword -> {
             PasswordResetForm(
                 isScreenVisible = isScreenVisible,
                 windowSizeClass = windowSizeClass,
@@ -160,8 +156,7 @@ private fun SignInForm(
     displayAuthForm: (AuthForm) -> Unit,
     onAnimationFinished: () -> Unit,
     modifier: Modifier = Modifier
-)
-{
+) {
     val signInSuccessMessage = stringResource(Res.string.sign_in_success)
     var isFormVisible by remember { mutableStateOf(true) }
     var currentDestination by remember { mutableStateOf<AuthForm?>(null) }
@@ -266,8 +261,7 @@ private fun SignUpForm(
     displayAuthForm: (AuthForm) -> Unit,
     onAnimationFinished: () -> Unit,
     modifier: Modifier = Modifier
-)
-{
+) {
     val signUpSuccessMessage = stringResource(Res.string.sign_up_success)
     var isFormVisible by remember { mutableStateOf(true) }
     var currentDestination by remember { mutableStateOf<AuthForm?>(null) }
@@ -275,8 +269,7 @@ private fun SignUpForm(
     LaunchedEffect(isScreenVisible) { isFormVisible = isScreenVisible }
 
     LaunchedEffect(isUserSignedUp) {
-        if (isUserSignedUp)
-        {
+        if (isUserSignedUp) {
             isFormVisible = false
             currentDestination = AuthForm.VerifyEmail
         }
@@ -369,8 +362,7 @@ private fun VerificationForm(
     enabled: Boolean,
     onAnimationFinished: () -> Unit,
     modifier: Modifier = Modifier
-)
-{
+) {
     val resendEmailSuccessMessage = stringResource(Res.string.resend_email_success)
     val deleteUserSuccessMessage = stringResource(Res.string.del_user_success)
     var isFormVisible by remember { mutableStateOf(true) }
@@ -478,8 +470,7 @@ private fun PasswordResetForm(
     displayAuthForm: (AuthForm) -> Unit,
     onAnimationFinished: () -> Unit,
     modifier: Modifier = Modifier
-)
-{
+) {
     val resetSuccessMessage = stringResource(Res.string.password_reset_success)
     var isFormVisible by remember { mutableStateOf(true) }
     var currentDestination by remember { mutableStateOf<AuthForm?>(null) }

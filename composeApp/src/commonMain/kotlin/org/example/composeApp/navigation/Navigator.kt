@@ -21,8 +21,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun Navigator(
     navController: NavHostController,
     windowSizeClass: WindowSizeClass
-)
-{
+) {
     NavHost(
         navController = navController,
         startDestination = Route.Auth

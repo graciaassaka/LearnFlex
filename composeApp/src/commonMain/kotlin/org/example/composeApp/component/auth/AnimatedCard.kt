@@ -1,9 +1,11 @@
 package org.example.composeApp.component.auth
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -28,8 +30,7 @@ fun AnimatedCard(
     onAnimationFinished: () -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
-)
-{
+) {
     val transitionState = remember { MutableTransitionState(false) }
 
     LaunchedEffect(isVisible) {

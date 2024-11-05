@@ -12,14 +12,12 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
-class SendPasswordResetEmailUseCaseTest
-{
+class SendPasswordResetEmailUseCaseTest {
     private lateinit var sendPasswordResetEmailUseCase: SendPasswordResetEmailUseCase
     private lateinit var authService: AuthService
 
     @Before
-    fun setUp()
-    {
+    fun setUp() {
         authService = mockk(relaxed = true)
         sendPasswordResetEmailUseCase = SendPasswordResetEmailUseCase(authService)
     }

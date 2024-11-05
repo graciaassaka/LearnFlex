@@ -3,17 +3,17 @@
                  android:drawable="@drawable/ic_logo">
     <target
             android:name="logo_group"
-            android:animation="@animator/logo_scale_up_x_animator" />
+            android:animation="@animator/logo_scale_up_x_animator"/>
     <target
             android:name="logo_group"
-            android:animation="@animator/logo_scale_up_y_animator" />
+            android:animation="@animator/logo_scale_up_y_animator"/>
     <target
             android:name="hat_group"
             android:animation="@animator/hat_translate_y_animator"/>
     <target
             android:name="logo_group"
-            android:animation="@animator/logo_scale_down_x_animator" />
+            android:animation="@animator/logo_scale_down_x_animator"/>
     <target
             android:name="logo_group"
-            android:animation="@animator/logo_scale_down_y_animator" />
+            android:animation="@animator/logo_scale_down_y_animator"/>
 </animated-vector>

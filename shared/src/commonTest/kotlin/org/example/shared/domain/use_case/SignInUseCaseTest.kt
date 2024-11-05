@@ -8,17 +8,14 @@ import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.service.AuthService
 import org.junit.Before
 import org.junit.Test
-import org.koin.test.KoinTest
 
 @ExperimentalCoroutinesApi
-class SignInUseCaseTest
-{
+class SignInUseCaseTest {
     private lateinit var signInUseCase: SignInUseCase
     private lateinit var authService: AuthService
 
     @Before
-    fun setUp()
-    {
+    fun setUp() {
         authService = mockk<AuthService>()
         signInUseCase = SignInUseCase(authService)
     }

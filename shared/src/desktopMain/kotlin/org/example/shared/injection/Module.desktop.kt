@@ -10,8 +10,7 @@ import org.koin.core.context.startKoin
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-actual fun initKoin(context: Any?)
-{
+actual fun initKoin(context: Any?) {
     startKoin {
         modules(
             firebaseInitModule,

@@ -11,18 +11,15 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.koin.core.context.stopKoin
-import org.koin.test.KoinTest
 
 @ExperimentalCoroutinesApi
-class GetUserDataUseCaseTest
-{
+class GetUserDataUseCaseTest {
     private lateinit var getUserDataUseCase: GetUserDataUseCase
     private lateinit var authService: AuthService
     private lateinit var user: User
 
     @Before
-    fun setUp()
-    {
+    fun setUp() {
         authService = mockk<AuthService>()
         getUserDataUseCase = GetUserDataUseCase(authService)
 
@@ -58,16 +55,17 @@ class GetUserDataUseCaseTest
     }
 
     @Test
-    fun `GetUserDataUseCase should return failure with the exception when AuthService#getUserData returns failure`() = runTest {
-        // Given
-        val exception = Exception("An error occurred")
-        coEvery { authService.getUserData() } returns Result.failure(exception)
+    fun `GetUserDataUseCase should return failure with the exception when AuthService#getUserData returns failure`() =
+        runTest {
+            // Given
+            val exception = Exception("An error occurred")
+            coEvery { authService.getUserData() } returns Result.failure(exception)
 
-        // When
-        val result = getUserDataUseCase()
+            // When
+            val result = getUserDataUseCase()
 
-        // Then
-        assert(result.isFailure)
-        assert(result.exceptionOrNull() == exception)
-    }
+            // Then
+            assert(result.isFailure)
+            assert(result.exceptionOrNull() == exception)
+        }
 }

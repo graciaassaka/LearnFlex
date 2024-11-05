@@ -22,20 +22,17 @@ import kotlin.test.Test
 
 @WireMockTest
 @ExperimentalCoroutinesApi
-actual class FirebaseAuthServiceTest
-{
+actual class FirebaseAuthServiceTest {
     private lateinit var firebaseAuthService: FirebaseAuthService
     private lateinit var httpClient: HttpClient
     private lateinit var wireMockServer: WireMockServer
 
-    companion object
-    {
+    companion object {
         private val firebaseInit = FirebaseInit()
     }
 
     @Before
-    fun setUp()
-    {
+    fun setUp() {
         wireMockServer = WireMockServer(WireMockConfiguration.options().port(9099))
         wireMockServer.start()
         configureFor(wireMockServer.port())
@@ -58,8 +55,7 @@ actual class FirebaseAuthServiceTest
     }
 
     @After
-    fun tearDown()
-    {
+    fun tearDown() {
         wireMockServer.stop()
         httpClient.close()
     }
@@ -317,7 +313,8 @@ actual class FirebaseAuthServiceTest
         )
 
         // Act
-        val result = firebaseAuthService.updateUserData(User(displayName = "test", photoUrl = "https://example.com/photo.jpg"))
+        val result =
+            firebaseAuthService.updateUserData(User(displayName = "test", photoUrl = "https://example.com/photo.jpg"))
 
         // Assert
         assert(result.isSuccess) { "Expected successful update profile" }
@@ -354,7 +351,8 @@ actual class FirebaseAuthServiceTest
         )
 
         // Act
-        val result = firebaseAuthService.updateUserData(User(displayName = "test", photoUrl = "https://example.com/photo.jpg"))
+        val result =
+            firebaseAuthService.updateUserData(User(displayName = "test", photoUrl = "https://example.com/photo.jpg"))
 
         // Assert
         assert(result.isFailure) { "Expected failed update profile" }

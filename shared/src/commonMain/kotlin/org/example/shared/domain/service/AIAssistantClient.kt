@@ -5,8 +5,7 @@ import org.example.shared.data.model.*
 /**
  * Interface for AI Assistant Client operations.
  */
-interface AIAssistantClient
-{
+interface AIAssistantClient {
     /**
      * Creates a new thread.
      * @return Result containing the created Thread.
@@ -42,7 +41,11 @@ interface AIAssistantClient
      * @param order The order in which to list the messages (default is DESC).
      * @return Result containing the list of messages.
      */
-    suspend fun listMessages(threadId: String, limit: Int = 20, order: MessagesOrder = MessagesOrder.DESC): Result<ListMessagesResponse>
+    suspend fun listMessages(
+        threadId: String,
+        limit: Int = 20,
+        order: MessagesOrder = MessagesOrder.DESC
+    ): Result<ListMessagesResponse>
 
     /**
      * Creates a new run in a thread.
@@ -67,5 +70,9 @@ interface AIAssistantClient
      * @param requestBody The request containing the tool output.
      * @return Result containing the updated Run.
      */
-    suspend fun submitToolOutput(threadId: String, runId: String, requestBody: SubmitToolOutputsRequestBody): Result<Run>
+    suspend fun submitToolOutput(
+        threadId: String,
+        runId: String,
+        requestBody: SubmitToolOutputsRequestBody
+    ): Result<Run>
 }

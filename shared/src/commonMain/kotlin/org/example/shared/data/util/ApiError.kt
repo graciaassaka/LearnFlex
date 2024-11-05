@@ -5,7 +5,7 @@ package org.example.shared.data.util
  *
  * @param message The error message.
  */
-sealed class ApiError(message: String? = null): Exception(message) {
+sealed class ApiError(message: String? = null) : Exception(message) {
 
     /**
      * Represents an unauthorized error.
@@ -16,7 +16,7 @@ sealed class ApiError(message: String? = null): Exception(message) {
     data class Unauthorized(
         val requestPath: String,
         override val message: String = "⚠️ Authentication required"
-    ): ApiError(message)
+    ) : ApiError(message)
 
     /**
      * Represents a forbidden error.
@@ -27,7 +27,7 @@ sealed class ApiError(message: String? = null): Exception(message) {
     data class Forbidden(
         val requestPath: String,
         override val message: String = "⛔ Access denied"
-    ): ApiError(message)
+    ) : ApiError(message)
 
     /**
      * Represents a not found error.
@@ -38,7 +38,7 @@ sealed class ApiError(message: String? = null): Exception(message) {
     data class NotFound(
         val requestPath: String,
         override val message: String = "❌ Resource not found"
-    ): ApiError(message)
+    ) : ApiError(message)
 
     /**
      * Represents a server error.
@@ -51,7 +51,7 @@ sealed class ApiError(message: String? = null): Exception(message) {
         val requestPath: String,
         val errorCode: Int,
         override val message: String = "❌ Server error"
-    ): ApiError(message)
+    ) : ApiError(message)
 
     /**
      * Represents a network error.
@@ -62,7 +62,7 @@ sealed class ApiError(message: String? = null): Exception(message) {
     data class NetworkError(
         val requestPath: String,
         override val message: String = "❌ Network connection failed"
-    ): ApiError(message)
+    ) : ApiError(message)
 
     /**
      * Represents a rate limit exceeded error.
@@ -73,5 +73,5 @@ sealed class ApiError(message: String? = null): Exception(message) {
     data class RateLimitExceeded(
         val requestPath: String,
         override val message: String = "❌ Rate limit exceeded"
-    ): ApiError(message)
+    ) : ApiError(message)
 }

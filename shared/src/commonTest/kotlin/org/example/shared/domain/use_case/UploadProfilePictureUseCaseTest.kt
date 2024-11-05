@@ -41,11 +41,13 @@ class UploadProfilePictureUseCaseTest {
         val uploadedUrl = "profile_pictures/user123.jpg"
 
         coEvery { authService.getUserData() } returns Result.success(user)
-        coEvery { storageService.uploadFile(
-            fileData = imageData,
-            path = "profile_pictures/${user.uid}.jpg",
-            fileType = FileType.IMAGE
-        ) } returns Result.success(uploadedUrl)
+        coEvery {
+            storageService.uploadFile(
+                fileData = imageData,
+                path = "profile_pictures/${user.uid}.jpg",
+                fileType = FileType.IMAGE
+            )
+        } returns Result.success(uploadedUrl)
         coEvery { authService.updateUserData(user.copy(photoUrl = uploadedUrl)) } returns Result.success(Unit)
 
         // When
@@ -54,11 +56,13 @@ class UploadProfilePictureUseCaseTest {
         // Then
         assertTrue(result.isSuccess)
         coVerify(exactly = 1) { authService.getUserData() }
-        coVerify(exactly = 1) { storageService.uploadFile(
-            fileData = imageData,
-            path = "profile_pictures/${user.uid}.jpg",
-            fileType = FileType.IMAGE
-        ) }
+        coVerify(exactly = 1) {
+            storageService.uploadFile(
+                fileData = imageData,
+                path = "profile_pictures/${user.uid}.jpg",
+                fileType = FileType.IMAGE
+            )
+        }
         coVerify(exactly = 1) { authService.updateUserData(user.copy(photoUrl = uploadedUrl)) }
     }
 
@@ -95,11 +99,13 @@ class UploadProfilePictureUseCaseTest {
         val uploadException = StorageException.UploadFailure("Upload failed")
 
         coEvery { authService.getUserData() } returns Result.success(user)
-        coEvery { storageService.uploadFile(
-            fileData = imageData,
-            path = "profile_pictures/${user.uid}.jpg",
-            fileType = FileType.IMAGE
-        ) } returns Result.failure(uploadException)
+        coEvery {
+            storageService.uploadFile(
+                fileData = imageData,
+                path = "profile_pictures/${user.uid}.jpg",
+                fileType = FileType.IMAGE
+            )
+        } returns Result.failure(uploadException)
 
         // When
         val result = uploadProfilePictureUseCase.invoke(imageData)
@@ -108,11 +114,13 @@ class UploadProfilePictureUseCaseTest {
         assertTrue(result.isFailure)
         assertEquals(uploadException, result.exceptionOrNull())
         coVerify(exactly = 1) { authService.getUserData() }
-        coVerify(exactly = 1) { storageService.uploadFile(
-            fileData = imageData,
-            path = "profile_pictures/${user.uid}.jpg",
-            fileType = FileType.IMAGE
-        ) }
+        coVerify(exactly = 1) {
+            storageService.uploadFile(
+                fileData = imageData,
+                path = "profile_pictures/${user.uid}.jpg",
+                fileType = FileType.IMAGE
+            )
+        }
         coVerify(exactly = 0) { authService.updateUserData(any()) }
     }
 
@@ -131,11 +139,13 @@ class UploadProfilePictureUseCaseTest {
         val updateException = Exception("Update failed")
 
         coEvery { authService.getUserData() } returns Result.success(user)
-        coEvery { storageService.uploadFile(
-            fileData = imageData,
-            path = "profile_pictures/${user.uid}.jpg",
-            fileType = FileType.IMAGE
-        ) } returns Result.success(uploadedUrl)
+        coEvery {
+            storageService.uploadFile(
+                fileData = imageData,
+                path = "profile_pictures/${user.uid}.jpg",
+                fileType = FileType.IMAGE
+            )
+        } returns Result.success(uploadedUrl)
         coEvery { authService.updateUserData(user.copy(photoUrl = uploadedUrl)) } returns Result.failure(updateException)
 
         // When
@@ -145,11 +155,13 @@ class UploadProfilePictureUseCaseTest {
         assertTrue(result.isFailure)
         assertEquals(updateException, result.exceptionOrNull())
         coVerify(exactly = 1) { authService.getUserData() }
-        coVerify(exactly = 1) { storageService.uploadFile(
-            fileData = imageData,
-            path = "profile_pictures/${user.uid}.jpg",
-            fileType = FileType.IMAGE
-        ) }
+        coVerify(exactly = 1) {
+            storageService.uploadFile(
+                fileData = imageData,
+                path = "profile_pictures/${user.uid}.jpg",
+                fileType = FileType.IMAGE
+            )
+        }
         coVerify(exactly = 1) { authService.updateUserData(user.copy(photoUrl = uploadedUrl)) }
     }
 

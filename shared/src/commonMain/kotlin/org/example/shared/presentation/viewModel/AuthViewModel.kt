@@ -29,8 +29,7 @@ class AuthViewModel(
     private val deleteUserUseCase: DeleteUserUseCase,
     private val sendPasswordResetEmailUseCase: SendPasswordResetEmailUseCase,
     private val dispatcher: CoroutineDispatcher,
-) : BaseViewModel(dispatcher)
-{
+) : BaseViewModel(dispatcher) {
 
     // StateFlow to hold the current UI state.
     private val _state = MutableStateFlow(AuthUIState())
@@ -42,8 +41,7 @@ class AuthViewModel(
      * @param email The new email to validate and update.
      */
     fun onSignInEmailChanged(email: String) = with(InputValidator.validateEmail(email)) {
-        when (this@with)
-        {
+        when (this@with) {
             is ValidationResult.Valid -> _state.update { it.copy(signInEmail = email, signInEmailError = null) }
             is ValidationResult.Invalid -> _state.update { it.copy(signInEmail = email, signInEmailError = message) }
         }
@@ -55,17 +53,28 @@ class AuthViewModel(
      * @param password The new password to validate and update.
      */
     fun onSignInPasswordChanged(password: String) = with(InputValidator.validatePassword(password)) {
-        when (this@with)
-        {
-            is ValidationResult.Valid -> _state.update { it.copy(signInPassword = password, signInPasswordError = null) }
-            is ValidationResult.Invalid -> _state.update { it.copy(signInPassword = password, signInPasswordError = message) }
+        when (this@with) {
+            is ValidationResult.Valid -> _state.update {
+                it.copy(
+                    signInPassword = password,
+                    signInPasswordError = null
+                )
+            }
+
+            is ValidationResult.Invalid -> _state.update {
+                it.copy(
+                    signInPassword = password,
+                    signInPasswordError = message
+                )
+            }
         }
     }
 
     /**
      * Toggles the visibility of the sign-in password.
      */
-    fun toggleSignInPasswordVisibility() = _state.update { it.copy(signInPasswordVisibility = !it.signInPasswordVisibility) }
+    fun toggleSignInPasswordVisibility() =
+        _state.update { it.copy(signInPasswordVisibility = !it.signInPasswordVisibility) }
 
     /**
      * Initiates the sign-in process.
@@ -76,7 +85,9 @@ class AuthViewModel(
         onSignInEmailChanged(value.signInEmail)
         onSignInPasswordChanged(value.signInPassword)
 
-        if (value.signInEmailError.isNullOrBlank() && value.signInPasswordError.isNullOrBlank()) viewModelScope.launch(dispatcher) {
+        if (value.signInEmailError.isNullOrBlank() && value.signInPasswordError.isNullOrBlank()) viewModelScope.launch(
+            dispatcher
+        ) {
             signInUseCase(
                 email = value.signInEmail,
                 password = value.signInPassword
@@ -97,8 +108,7 @@ class AuthViewModel(
      * @param email The new email to validate and update.
      */
     fun onSignUpEmailChanged(email: String) = with(InputValidator.validateEmail(email)) {
-        when (this@with)
-        {
+        when (this@with) {
             is ValidationResult.Valid -> _state.update { it.copy(signUpEmail = email, signUpEmailError = null) }
             is ValidationResult.Invalid -> _state.update { it.copy(signUpEmail = email, signUpEmailError = message) }
         }
@@ -110,17 +120,28 @@ class AuthViewModel(
      * @param password The new password to validate and update.
      */
     fun onSignUpPasswordChanged(password: String) = with(InputValidator.validatePassword(password)) {
-        when (this@with)
-        {
-            is ValidationResult.Valid -> _state.update { it.copy(signUpPassword = password, signUpPasswordError = null) }
-            is ValidationResult.Invalid -> _state.update { it.copy(signUpPassword = password, signUpPasswordError = message) }
+        when (this@with) {
+            is ValidationResult.Valid -> _state.update {
+                it.copy(
+                    signUpPassword = password,
+                    signUpPasswordError = null
+                )
+            }
+
+            is ValidationResult.Invalid -> _state.update {
+                it.copy(
+                    signUpPassword = password,
+                    signUpPasswordError = message
+                )
+            }
         }
     }
 
     /**
      * Toggles the visibility of the sign-up password.
      */
-    fun toggleSignUpPasswordVisibility() = _state.update { it.copy(signUpPasswordVisibility = !it.signUpPasswordVisibility) }
+    fun toggleSignUpPasswordVisibility() =
+        _state.update { it.copy(signUpPasswordVisibility = !it.signUpPasswordVisibility) }
 
     /**
      * Updates the sign-up password confirmation and its validation error state.
@@ -129,13 +150,22 @@ class AuthViewModel(
      */
     fun onSignUpPasswordConfirmationChanged(password: String) =
         with(InputValidator.validatePasswordConfirmation(_state.value.signUpPassword, password)) {
-            when (this@with)
-            {
+            when (this@with) {
                 is ValidationResult.Valid ->
-                    _state.update { it.copy(signUpPasswordConfirmation = password, signUpPasswordConfirmationError = null) }
+                    _state.update {
+                        it.copy(
+                            signUpPasswordConfirmation = password,
+                            signUpPasswordConfirmationError = null
+                        )
+                    }
 
                 is ValidationResult.Invalid ->
-                    _state.update { it.copy(signUpPasswordConfirmation = password, signUpPasswordConfirmationError = message) }
+                    _state.update {
+                        it.copy(
+                            signUpPasswordConfirmation = password,
+                            signUpPasswordConfirmationError = message
+                        )
+                    }
             }
         }
 
@@ -231,10 +261,20 @@ class AuthViewModel(
      * @param email The new email to validate and update.
      */
     fun onPasswordResetEmailChanged(email: String) = with(InputValidator.validateEmail(email)) {
-        when (this@with)
-        {
-            is ValidationResult.Valid -> _state.update { it.copy(resetPasswordEmail = email, resetPasswordEmailError = null) }
-            is ValidationResult.Invalid -> _state.update { it.copy(resetPasswordEmail = email, resetPasswordEmailError = message) }
+        when (this@with) {
+            is ValidationResult.Valid -> _state.update {
+                it.copy(
+                    resetPasswordEmail = email,
+                    resetPasswordEmailError = null
+                )
+            }
+
+            is ValidationResult.Invalid -> _state.update {
+                it.copy(
+                    resetPasswordEmail = email,
+                    resetPasswordEmailError = message
+                )
+            }
         }
     }
 
@@ -267,8 +307,7 @@ class AuthViewModel(
      *
      * @param form The authentication form to display.
      */
-    fun displayAuthForm(form: AuthForm) = when (form)
-    {
+    fun displayAuthForm(form: AuthForm) = when (form) {
         AuthForm.SignIn -> _state.update {
             AuthUIState().copy(currentForm = AuthForm.SignIn)
         }

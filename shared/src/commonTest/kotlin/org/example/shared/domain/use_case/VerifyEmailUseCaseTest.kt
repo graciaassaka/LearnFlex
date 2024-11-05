@@ -11,15 +11,13 @@ import org.junit.Before
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
-class VerifyEmailUseCaseTest
-{
+class VerifyEmailUseCaseTest {
     private lateinit var verifyEmailUseCase: VerifyEmailUseCase
     private lateinit var getUserDataUseCase: GetUserDataUseCase
     private lateinit var user: User
 
     @Before
-    fun setUp()
-    {
+    fun setUp() {
         getUserDataUseCase = mockk<GetUserDataUseCase>()
         verifyEmailUseCase = VerifyEmailUseCase(getUserDataUseCase)
 

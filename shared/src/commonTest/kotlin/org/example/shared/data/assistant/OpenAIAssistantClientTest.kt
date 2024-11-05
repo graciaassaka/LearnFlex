@@ -26,8 +26,7 @@ import kotlin.test.assertTrue
 
 @WireMockTest
 @ExperimentalCoroutinesApi
-class OpenAIAssistantClientTest
-{
+class OpenAIAssistantClientTest {
     private lateinit var openAIAssistantClient: OpenAIAssistantClient
     private lateinit var httpClient: HttpClient
     private lateinit var wireMockServer: WireMockServer

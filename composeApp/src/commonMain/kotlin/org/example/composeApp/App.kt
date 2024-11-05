@@ -11,8 +11,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
-fun App(windowSizeClass: WindowSizeClass)
-{
+fun App(windowSizeClass: WindowSizeClass) {
     val navHostController = rememberNavController()
     CompositionLocalProvider(
         LocalComposition.MaxFileSize provides 10L * 1024 * 1024

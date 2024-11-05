@@ -33,20 +33,17 @@ class CreateUserProfileViewModel(
     private val deleteProfilePictureUseCase: DeleteProfilePictureUseCase,
     private val dispatcher: CoroutineDispatcher,
     sharingStarted: SharingStarted
-) : BaseViewModel(dispatcher)
-{
+) : BaseViewModel(dispatcher) {
     // Mutable state flow to manage the UI state of the profile creation screen
     private val _state = MutableStateFlow(CreateProfileUIState())
     val state = _state
         .onStart { sharedViewModel.getUserData() }
         .stateIn(viewModelScope, sharingStarted, _state.value)
 
-    init
-    {
+    init {
         viewModelScope.launch {
             sharedViewModel.state.collect { sharedState ->
-                if (sharedState.error != null)
-                {
+                if (sharedState.error != null) {
                     handleError(sharedState.error)
                     sharedViewModel.clearError()
                 }
@@ -66,8 +63,7 @@ class CreateUserProfileViewModel(
      * @param username The new username input.
      */
     fun onUsernameChanged(username: String) = with(InputValidator.validateUsername(username)) {
-        when (this@with)
-        {
+        when (this@with) {
             is ValidationResult.Valid -> _state.update { it.copy(username = value, usernameError = null) }
             is ValidationResult.Invalid -> _state.update { it.copy(username = username, usernameError = message) }
         }

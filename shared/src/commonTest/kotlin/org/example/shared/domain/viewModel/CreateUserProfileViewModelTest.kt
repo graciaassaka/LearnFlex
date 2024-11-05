@@ -28,8 +28,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class CreateUserProfileViewModelTest
-{
+class CreateUserProfileViewModelTest {
     private lateinit var viewModel: CreateUserProfileViewModel
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var createProfileUseCase: CreateUserProfileUseCase
@@ -45,8 +44,7 @@ class CreateUserProfileViewModelTest
     )
 
     @Before
-    fun setUp()
-    {
+    fun setUp() {
         testDispatcher = StandardTestDispatcher()
         Dispatchers.setMain(testDispatcher)
         sharedViewModel = mockk(relaxed = true)
@@ -83,27 +81,28 @@ class CreateUserProfileViewModelTest
     }
 
     @Test
-    fun `init should call SharedViewModel#clearError and display error message when SharedViewModel state contains error`() = runTest {
-        // Given
-        val error = Exception("An error occurred")
-        sharedFlow.update { it.copy(error = error) }
+    fun `init should call SharedViewModel#clearError and display error message when SharedViewModel state contains error`() =
+        runTest {
+            // Given
+            val error = Exception("An error occurred")
+            sharedFlow.update { it.copy(error = error) }
 
-        val uiEvent = mutableListOf<UIEvent>()
-        val job = launch {
-            viewModel.uiEvent.toList(uiEvent)
+            val uiEvent = mutableListOf<UIEvent>()
+            val job = launch {
+                viewModel.uiEvent.toList(uiEvent)
+            }
+
+            // When
+            advanceUntilIdle()
+
+            // Then
+            verify { sharedViewModel.clearError() }
+
+            assertEquals(1, uiEvent.size)
+            assertTrue(uiEvent.first() is UIEvent.ShowSnackbar)
+
+            job.cancel()
         }
-
-        // When
-        advanceUntilIdle()
-
-        // Then
-        verify { sharedViewModel.clearError() }
-
-        assertEquals(1, uiEvent.size)
-        assertTrue(uiEvent.first() is UIEvent.ShowSnackbar)
-
-        job.cancel()
-    }
 
     @Test
     fun `onUsernameChanged should update username in state when username is valid`() = runTest {
@@ -215,29 +214,30 @@ class CreateUserProfileViewModelTest
         }
 
     @Test
-    fun `onUploadProfilePicture should show error message when uploadProfilePictureUseCase returns failure`() = runTest {
-        // Given
-        val imageData = byteArrayOf(0x00, 0x01, 0x02, 0x03)
-        val errorMessage = "Failed to upload profile picture"
+    fun `onUploadProfilePicture should show error message when uploadProfilePictureUseCase returns failure`() =
+        runTest {
+            // Given
+            val imageData = byteArrayOf(0x00, 0x01, 0x02, 0x03)
+            val errorMessage = "Failed to upload profile picture"
 
-        val uiEvents = mutableListOf<UIEvent>()
-        val job = launch {
-            viewModel.uiEvent.toList(uiEvents)
+            val uiEvents = mutableListOf<UIEvent>()
+            val job = launch {
+                viewModel.uiEvent.toList(uiEvents)
+            }
+
+            coEvery { uploadProfilePictureUseCase(imageData) } returns Result.failure(Exception(errorMessage))
+
+            // When
+            viewModel.onUploadProfilePicture(imageData, "Success message")
+            advanceUntilIdle()
+
+            // Then
+            coVerify { uploadProfilePictureUseCase(imageData) }
+            assertEquals(1, uiEvents.size)
+            assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
+
+            job.cancel()
         }
-
-        coEvery { uploadProfilePictureUseCase(imageData) } returns Result.failure(Exception(errorMessage))
-
-        // When
-        viewModel.onUploadProfilePicture(imageData, "Success message")
-        advanceUntilIdle()
-
-        // Then
-        coVerify { uploadProfilePictureUseCase(imageData) }
-        assertEquals(1, uiEvents.size)
-        assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
-
-        job.cancel()
-    }
 
     @Test
     fun `onProfilePictureDeleted should update state with empty photoUrl and show successMessage when deleteProfilePictureUseCase returns success`() =
@@ -265,27 +265,28 @@ class CreateUserProfileViewModelTest
         }
 
     @Test
-    fun `onProfilePictureDeleted should show error message when deleteProfilePictureUseCase returns failure`() = runTest {
-        // Given
-        val errorMessage = "Failed to delete profile picture"
-        val uiEvents = mutableListOf<UIEvent>()
-        val job = launch {
-            viewModel.uiEvent.toList(uiEvents)
+    fun `onProfilePictureDeleted should show error message when deleteProfilePictureUseCase returns failure`() =
+        runTest {
+            // Given
+            val errorMessage = "Failed to delete profile picture"
+            val uiEvents = mutableListOf<UIEvent>()
+            val job = launch {
+                viewModel.uiEvent.toList(uiEvents)
+            }
+
+            coEvery { deleteProfilePictureUseCase() } returns Result.failure(Exception(errorMessage))
+
+            // When
+            viewModel.onProfilePictureDeleted("Success message")
+            advanceUntilIdle()
+
+            // Then
+            coVerify { deleteProfilePictureUseCase() }
+            assertEquals(1, uiEvents.size)
+            assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
+
+            job.cancel()
         }
-
-        coEvery { deleteProfilePictureUseCase() } returns Result.failure(Exception(errorMessage))
-
-        // When
-        viewModel.onProfilePictureDeleted("Success message")
-        advanceUntilIdle()
-
-        // Then
-        coVerify { deleteProfilePictureUseCase() }
-        assertEquals(1, uiEvents.size)
-        assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
-
-        job.cancel()
-    }
 
     @Test
     fun `onCreateProfile should show successMessage when createUserProfile returns success`() = runTest {

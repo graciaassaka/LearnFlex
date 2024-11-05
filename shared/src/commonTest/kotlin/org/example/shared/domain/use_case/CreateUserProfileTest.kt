@@ -11,14 +11,12 @@ import org.junit.Before
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
-class CreateUserProfileTest
-{
+class CreateUserProfileTest {
     private lateinit var createUserProfileUseCase: CreateUserProfileUseCase
     private lateinit var userProfileRepos: UserProfileRepos
 
     @Before
-    fun setUp()
-    {
+    fun setUp() {
         userProfileRepos = mockk(relaxed = true)
         createUserProfileUseCase = CreateUserProfileUseCase(userProfileRepos)
     }

@@ -13,7 +13,8 @@ import androidx.compose.ui.unit.dp
  * @return A ColorScheme instance appropriate for the given theme settings.
  */
 @Composable
-actual fun getPlatformColorScheme(darkTheme: Boolean, dynamicColor: Boolean) = if (darkTheme) darkScheme else lightScheme
+actual fun getPlatformColorScheme(darkTheme: Boolean, dynamicColor: Boolean) =
+    if (darkTheme) darkScheme else lightScheme
 
 @Composable
 actual fun getPlatformShape(): Shapes = Shapes(

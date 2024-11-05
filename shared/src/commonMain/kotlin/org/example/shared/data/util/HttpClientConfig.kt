@@ -12,8 +12,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Object for configuring the HTTP client.
  */
-object HttpClientConfig
-{
+object HttpClientConfig {
     fun create(): HttpClient = HttpClient(OkHttp) {
         install(HttpTimeout) {
             requestTimeoutMillis = 60000L

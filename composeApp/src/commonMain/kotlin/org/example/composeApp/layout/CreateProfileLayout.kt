@@ -42,13 +42,13 @@ fun CreateProfileLayout(
     onAnimationFinished: () -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable (ColumnScope.() -> Unit)
-)
-{
-    val orientation = if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) Orientation.Vertical else Orientation.Horizontal
+) {
+    val orientation =
+        if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) Orientation.Vertical else Orientation.Horizontal
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) { CustomSnackbar(it, snackbarType) } },
-        contentWindowInsets = WindowInsets(0, 0 , 0 , 0)
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) {
         Box(modifier = modifier.fillMaxSize()) {
             SubcomposeLayout(modifier = Modifier.fillMaxSize()) { constraints ->
@@ -77,25 +77,27 @@ fun CreateProfileLayout(
                         content = content
                     )
                 }.map {
-                    when (orientation)
-                    {
-                        Orientation.Horizontal -> it.measure(constraints.copy(minWidth = cardAreaWidth, maxWidth = cardAreaWidth))
+                    when (orientation) {
+                        Orientation.Horizontal -> it.measure(
+                            constraints.copy(
+                                minWidth = cardAreaWidth,
+                                maxWidth = cardAreaWidth
+                            )
+                        )
+
                         Orientation.Vertical -> it.measure(constraints)
                     }
                 }
 
                 layout(width, height) {
-                    when (orientation)
-                    {
-                        Orientation.Horizontal ->
-                        {
+                    when (orientation) {
+                        Orientation.Horizontal -> {
                             val birdX = (birdAreaWidth - (birdPlaceable.firstOrNull()?.width ?: 0)) / 2
                             birdPlaceable.forEach { it.place(x = birdX, y = (height - it.height) / 2) }
                             contentPlaceable.forEach { it.place(x = birdAreaWidth, y = 0) }
                         }
 
-                        Orientation.Vertical ->
-                        {
+                        Orientation.Vertical -> {
                             val birdHeight = birdPlaceable.firstOrNull()?.height ?: 0
                             birdPlaceable.forEach { it.place(x = 0, y = 100) }
                             contentPlaceable.forEach { it.place(x = 0, y = birdHeight) }

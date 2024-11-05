@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.example.composeApp.component.auth.AnimatedCard
 import org.example.composeApp.component.auth.AnimatedBottomSheet
-import org.example.composeApp.util.Orientation
+import androidx.compose.foundation.layout.ColumnScopeimport org.example.composeApp.util.Orientation
 /**
  * A composable container that adapts its animation based on the given orientation.
  *

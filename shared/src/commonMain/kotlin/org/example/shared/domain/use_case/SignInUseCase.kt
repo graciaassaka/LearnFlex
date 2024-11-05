@@ -7,8 +7,7 @@ import org.example.shared.domain.service.AuthService
  *
  * @property authService The authentication service used to sign in the user.
  */
-class SignInUseCase(private val authService: AuthService)
-{
+class SignInUseCase(private val authService: AuthService) {
     /**
      * Invokes the use case to sign in a user with the provided email and password.
      *

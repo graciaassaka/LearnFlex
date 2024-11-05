@@ -7,7 +7,10 @@ import kotlinx.serialization.descriptors.SerialKind
 import kotlinx.serialization.descriptors.buildSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonPrimitive
 
 /**
  * Represents a request to create a run.
@@ -59,8 +62,7 @@ data class Run(
  * Enum representing the status of a run.
  */
 @Suppress("unused")
-enum class RunStatus(val value: String)
-{
+enum class RunStatus(val value: String) {
     QUEUED("queued"),
     IN_PROGRESS("in_progress"),
     REQUIRES_ACTION("requires_action"),
@@ -144,8 +146,7 @@ data class LastError(
  */
 @Serializable
 @Suppress("unused")
-enum class LastErrorCode(val value: String)
-{
+enum class LastErrorCode(val value: String) {
     SERVER_ERROR("server_error"),
     RATE_LIMIT_EXCEEDED("rate_limit_exceeded"),
     INVALID_PROMPT("invalid_prompt"),
@@ -177,15 +178,13 @@ data class TruncationStrategy(
  */
 @Serializable
 @Suppress("unused")
-enum class TruncationType(val value: String)
-{
+enum class TruncationType(val value: String) {
     AUTO("auto"),
     LAST_MESSAGES("last_messages")
 }
 
 @Suppress("unused")
-enum class ToolChoice(val value: String)
-{
+enum class ToolChoice(val value: String) {
     None("none"),
     Auto("auto"),
     Required("required")
@@ -229,6 +228,7 @@ sealed interface ResponseFormat {
                     composite.encodeStringElement(descriptor, 0, TYPE_JSON_OBJECT)
                     composite.endStructure(descriptor)
                 }
+
                 is JsonSchemaFormat -> {
                     val composite = encoder.beginStructure(descriptor)
                     composite.encodeStringElement(descriptor, 0, TYPE_JSON_SCHEMA)
@@ -244,8 +244,10 @@ sealed interface ResponseFormat {
                 input is JsonPrimitive && input.isString && input.content == "auto" -> Auto
                 input is JsonObject && input["type"]?.jsonPrimitive?.content == TYPE_JSON_OBJECT ->
                     JsonObjectFormat()
+
                 input is JsonObject && input["type"]?.jsonPrimitive?.content == TYPE_JSON_SCHEMA ->
                     JsonSchemaFormat(jsonSchema = input["json_schema"] ?: JsonObject(emptyMap()))
+
                 else -> throw SerializationException("Unknown ResponseFormat format")
             }
         }

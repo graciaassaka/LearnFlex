@@ -98,8 +98,8 @@ compose-window-size = { module = "org.jetbrains.compose.material3:material3-wind
 
 # Firebase libraries
 firebase-boom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-boom" }
-firebase-auth = { module = "com.google.firebase:firebase-auth-ktx"}
-firebase-storage = { module = "com.google.firebase:firebase-storage-ktx"}
+firebase-auth = { module = "com.google.firebase:firebase-auth-ktx" }
+firebase-storage = { module = "com.google.firebase:firebase-storage-ktx" }
 
 # Gitlive libraries
 gitlive-java = { module = "dev.gitlive:firebase-java-sdk", version.ref = "gitlive-java" }

@@ -3,8 +3,7 @@ package org.example.shared.data.firebase
 /**
  * Object for Firebase configuration.
  */
-expect object FirebaseConfig
-{
+expect object FirebaseConfig {
 
     /**
      * Retrieves the host address for the Firebase emulator.

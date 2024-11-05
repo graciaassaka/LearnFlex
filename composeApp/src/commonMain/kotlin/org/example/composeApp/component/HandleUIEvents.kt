@@ -27,21 +27,17 @@ fun HandleUIEvents(
     viewModel: BaseViewModel,
     snackbarHostState: SnackbarHostState,
     processSnackbarType: (SnackbarType) -> Unit,
-)
-{
+) {
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(true) {
         viewModel.uiEvent.collect { event: UIEvent ->
-            when (event)
-            {
-                is UIEvent.Navigate ->
-                {
+            when (event) {
+                is UIEvent.Navigate -> {
                     if (route is Route.Auth) navController.navigateAndClearBackStack(event.destination)
                     else navController.navigate(event.destination)
                 }
 
-                is UIEvent.ShowSnackbar ->
-                {
+                is UIEvent.ShowSnackbar -> {
                     processSnackbarType(event.type)
                     coroutineScope.launch { snackbarHostState.showSnackbar(event.message) }
                 }

@@ -19,8 +19,7 @@ import org.example.composeApp.dimension.Dimension
 fun SpeechBubble(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
-)
-{
+) {
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),

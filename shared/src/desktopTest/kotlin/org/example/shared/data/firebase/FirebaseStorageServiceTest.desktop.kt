@@ -344,7 +344,8 @@ actual class FirebaseStorageServiceTest {
         val path = "uploads/fileUrlTest"
         val bucket = FirebaseConfig.storageBucket
         val encodedPath = encodeStoragePath(path)
-        val expectedUrl = "http://${FirebaseConfig.emulatorHost}:${FirebaseConfig.storageEmulatorPort}/storage/v1/b/$bucket/o/$encodedPath?alt=media"
+        val expectedUrl =
+            "http://${FirebaseConfig.emulatorHost}:${FirebaseConfig.storageEmulatorPort}/storage/v1/b/$bucket/o/$encodedPath?alt=media"
 
         // When
         val result = firebaseStorageService.getFileUrl(path)

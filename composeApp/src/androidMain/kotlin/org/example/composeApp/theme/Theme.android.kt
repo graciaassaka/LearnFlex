@@ -18,11 +18,11 @@ import org.example.learnflex.R
  */
 @Composable
 actual fun getPlatformColorScheme(darkTheme: Boolean, dynamicColor: Boolean) = with(LocalContext.current) {
-   when{
-         dynamicColor -> if (darkTheme) dynamicDarkColorScheme(this) else dynamicLightColorScheme(this)
-         darkTheme -> darkScheme
-         else -> lightScheme
-   }
+    when {
+        dynamicColor -> if (darkTheme) dynamicDarkColorScheme(this) else dynamicLightColorScheme(this)
+        darkTheme -> darkScheme
+        else -> lightScheme
+    }
 }
 
 /**

@@ -17,7 +17,7 @@ class UserProfileReposImpl(private val firestore: FirebaseFirestore) : UserProfi
      * @param userProfile The user profile to create.
      * @return A Result indicating success or failure.
      */
-    override suspend fun createUserProfile(userProfile: UserProfile)= runCatching {
+    override suspend fun createUserProfile(userProfile: UserProfile) = runCatching {
         firestore.collection("users")
             .document(userProfile.id)
             .set(UserProfile.serializer(), userProfile) {
@@ -44,7 +44,7 @@ class UserProfileReposImpl(private val firestore: FirebaseFirestore) : UserProfi
      * @param userProfile The user profile to update.
      * @return A Result indicating success or failure.
      */
-    override suspend fun updateUserProfile(userProfile: UserProfile)= runCatching {
+    override suspend fun updateUserProfile(userProfile: UserProfile) = runCatching {
         firestore.collection("users")
             .document(userProfile.id)
             .set(userProfile)
@@ -56,7 +56,7 @@ class UserProfileReposImpl(private val firestore: FirebaseFirestore) : UserProfi
      * @param id The ID of the user profile to delete.
      * @return A Result indicating success or failure.
      */
-    override suspend fun deleteUserProfile(id: String)= runCatching {
+    override suspend fun deleteUserProfile(id: String) = runCatching {
         firestore.collection("users")
             .document(id)
             .delete()

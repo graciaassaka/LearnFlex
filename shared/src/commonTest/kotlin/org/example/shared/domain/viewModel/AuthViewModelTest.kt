@@ -1,6 +1,8 @@
 package org.example.shared.domain.viewModel
 
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,8 +24,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @ExperimentalCoroutinesApi
-class AuthViewModelTest
-{
+class AuthViewModelTest {
     private lateinit var viewModel: AuthViewModel
     private lateinit var signUpUseCase: SignUpUseCase
     private lateinit var signInUseCase: SignInUseCase
@@ -34,8 +35,7 @@ class AuthViewModelTest
     private val testDispatcher = StandardTestDispatcher()
 
     @Before
-    fun setup()
-    {
+    fun setup() {
         Dispatchers.setMain(testDispatcher)
         signUpUseCase = mockk(relaxed = true)
         signInUseCase = mockk(relaxed = true)
@@ -59,8 +59,7 @@ class AuthViewModelTest
     fun tearDown() = Dispatchers.resetMain()
 
     @Test
-    fun `onSignInEmailChanged with valid email should update email state and set email error to null`()
-    {
+    fun `onSignInEmailChanged with valid email should update email state and set email error to null`() {
         // Given
         val email = "test@example.com"
 
@@ -73,8 +72,7 @@ class AuthViewModelTest
     }
 
     @Test
-    fun `onSignInEmailChanged with invalid email should update email state and set email error to message`()
-    {
+    fun `onSignInEmailChanged with invalid email should update email state and set email error to message`() {
         // Given
         val email = "test"
         val message = (InputValidator.validateEmail(email) as ValidationResult.Invalid).message
@@ -87,8 +85,7 @@ class AuthViewModelTest
     }
 
     @Test
-    fun `onSignInPasswordChanged with valid password should update password state and set password error to null`()
-    {
+    fun `onSignInPasswordChanged with valid password should update password state and set password error to null`() {
         // Given
         val password = "P@ssw0rd"
 
@@ -101,8 +98,7 @@ class AuthViewModelTest
     }
 
     @Test
-    fun `onSignInPasswordChanged with invalid password should update password state and set password error to message`()
-    {
+    fun `onSignInPasswordChanged with invalid password should update password state and set password error to message`() {
         // Given
         val password = "password"
         val message = (InputValidator.validatePassword(password) as ValidationResult.Invalid).message
@@ -116,8 +112,7 @@ class AuthViewModelTest
     }
 
     @Test
-    fun `toggleSignInPasswordVisibility should toggle signInPasswordVisibility state`()
-    {
+    fun `toggleSignInPasswordVisibility should toggle signInPasswordVisibility state`() {
         // Given
         val initialVisibility = viewModel.state.value.signInPasswordVisibility
 
@@ -294,8 +289,7 @@ class AuthViewModelTest
 
 
     @Test
-    fun `onSignUpEmailChanged with valid email should update email state and set email error to null`()
-    {
+    fun `onSignUpEmailChanged with valid email should update email state and set email error to null`() {
         // Given
         val email = "test@example.com"
 
@@ -307,8 +301,7 @@ class AuthViewModelTest
     }
 
     @Test
-    fun `onSignUpEmailChanged with invalid email should update email state and set email error to message`()
-    {
+    fun `onSignUpEmailChanged with invalid email should update email state and set email error to message`() {
         // Given
         val email = "test"
         val message = (InputValidator.validateEmail(email) as ValidationResult.Invalid).message
@@ -322,8 +315,7 @@ class AuthViewModelTest
     }
 
     @Test
-    fun `onSignUpPasswordChanged with valid password should update password state and set password error to null`()
-    {
+    fun `onSignUpPasswordChanged with valid password should update password state and set password error to null`() {
         // Given
         val password = "P@ssw0rd"
 
@@ -336,8 +328,7 @@ class AuthViewModelTest
     }
 
     @Test
-    fun `onSignUpPasswordChanged with invalid password should update password state and set password error to message`()
-    {
+    fun `onSignUpPasswordChanged with invalid password should update password state and set password error to message`() {
         // Given
         val password = "password"
         val message = (InputValidator.validatePassword(password) as ValidationResult.Invalid).message
@@ -351,8 +342,7 @@ class AuthViewModelTest
     }
 
     @Test
-    fun `toggleSignUpPasswordVisibility should toggle signUpPasswordVisibility state`()
-    {
+    fun `toggleSignUpPasswordVisibility should toggle signUpPasswordVisibility state`() {
         // Given
         val initialVisibility = viewModel.state.value.signUpPasswordVisibility
 
@@ -364,8 +354,7 @@ class AuthViewModelTest
     }
 
     @Test
-    fun `onSignUpPasswordConfirmationChanged with valid password confirmation should update password confirmation state and set password confirmation error to null`()
-    {
+    fun `onSignUpPasswordConfirmationChanged with valid password confirmation should update password confirmation state and set password confirmation error to null`() {
         // Given
         val password = "P@ssw0rd"
         val passwordConfirmation = "P@ssw0rd"
@@ -380,12 +369,14 @@ class AuthViewModelTest
     }
 
     @Test
-    fun `onSignUpPasswordConfirmationChanged with invalid password confirmation should update password confirmation state and set password confirmation error to message`()
-    {
+    fun `onSignUpPasswordConfirmationChanged with invalid password confirmation should update password confirmation state and set password confirmation error to message`() {
         // Given
         val password = "P@ssw0rd"
         val passwordConfirmation = "password"
-        val message = (InputValidator.validatePasswordConfirmation(password, passwordConfirmation) as ValidationResult.Invalid).message
+        val message = (InputValidator.validatePasswordConfirmation(
+            password,
+            passwordConfirmation
+        ) as ValidationResult.Invalid).message
 
         // When
         viewModel.onSignUpPasswordChanged(password)
@@ -615,30 +606,31 @@ class AuthViewModelTest
     }
 
     @Test
-    fun `resendVerificationEmail displays success message when sendVerificationEmailUseCase returns success`() = runTest {
-        // Given
-        coEvery { sendVerificationEmailUseCase() } returns Result.success(Unit)
+    fun `resendVerificationEmail displays success message when sendVerificationEmailUseCase returns success`() =
+        runTest {
+            // Given
+            coEvery { sendVerificationEmailUseCase() } returns Result.success(Unit)
 
-        val uiEvents = mutableListOf<UIEvent>()
-        val job = launch {
-            viewModel.uiEvent.toList(uiEvents)
+            val uiEvents = mutableListOf<UIEvent>()
+            val job = launch {
+                viewModel.uiEvent.toList(uiEvents)
+            }
+            val successMessage = "Verification email sent successfully"
+
+            // When
+            viewModel.resendVerificationEmail(successMessage)
+            advanceUntilIdle()
+
+            // Then
+            assertEquals(1, uiEvents.size)
+
+            val event = uiEvents.first()
+
+            assertTrue(event is UIEvent.ShowSnackbar)
+            assertEquals(successMessage, event.message)
+
+            job.cancel()
         }
-        val successMessage = "Verification email sent successfully"
-
-        // When
-        viewModel.resendVerificationEmail(successMessage)
-        advanceUntilIdle()
-
-        // Then
-        assertEquals(1, uiEvents.size)
-
-        val event = uiEvents.first()
-
-        assertTrue(event is UIEvent.ShowSnackbar)
-        assertEquals(successMessage, event.message)
-
-        job.cancel()
-    }
 
     @Test
     fun `resendVerificationEmail displays error message when sendVerificationEmailUseCase returns failure`() = runTest {
@@ -803,31 +795,33 @@ class AuthViewModelTest
     }
 
     @Test
-    fun `onPasswordResetEmailChanged with valid email should update email state and set email error to null`() = runTest {
-        // Given
-        val email = "test@example.com"
+    fun `onPasswordResetEmailChanged with valid email should update email state and set email error to null`() =
+        runTest {
+            // Given
+            val email = "test@example.com"
 
-        // When
-        viewModel.onPasswordResetEmailChanged(email)
+            // When
+            viewModel.onPasswordResetEmailChanged(email)
 
-        // Then
-        assertEquals(email, viewModel.state.value.resetPasswordEmail)
-        assertNull(viewModel.state.value.resetPasswordEmailError)
-    }
+            // Then
+            assertEquals(email, viewModel.state.value.resetPasswordEmail)
+            assertNull(viewModel.state.value.resetPasswordEmailError)
+        }
 
     @Test
-    fun `onPasswordResetEmailChanged with invalid email should update email state and set email error to message`() = runTest {
-        // Given
-        val email = "test"
-        val message = (InputValidator.validateEmail(email) as ValidationResult.Invalid).message
+    fun `onPasswordResetEmailChanged with invalid email should update email state and set email error to message`() =
+        runTest {
+            // Given
+            val email = "test"
+            val message = (InputValidator.validateEmail(email) as ValidationResult.Invalid).message
 
-        // When
-        viewModel.onPasswordResetEmailChanged(email)
+            // When
+            viewModel.onPasswordResetEmailChanged(email)
 
-        // Then
-        assertEquals(email, viewModel.state.value.resetPasswordEmail)
-        assertEquals(message, viewModel.state.value.resetPasswordEmailError)
-    }
+            // Then
+            assertEquals(email, viewModel.state.value.resetPasswordEmail)
+            assertEquals(message, viewModel.state.value.resetPasswordEmailError)
+        }
 
     @Test
     fun `sendPasswordResetEmail with valid email should call sendPasswordResetEmailUseCase`() = runTest {
@@ -862,34 +856,35 @@ class AuthViewModelTest
     }
 
     @Test
-    fun `sendPasswordResetEmail displays success message when sendPasswordResetEmailUseCase returns success`() = runTest {
-        // Given
-        val email = "test@example.com"
-        val successMessage = "Password reset email sent successfully"
+    fun `sendPasswordResetEmail displays success message when sendPasswordResetEmailUseCase returns success`() =
+        runTest {
+            // Given
+            val email = "test@example.com"
+            val successMessage = "Password reset email sent successfully"
 
-        coEvery { sendPasswordResetEmailUseCase(email) } returns Result.success(Unit)
+            coEvery { sendPasswordResetEmailUseCase(email) } returns Result.success(Unit)
 
-        val uiEvents = mutableListOf<UIEvent>()
+            val uiEvents = mutableListOf<UIEvent>()
 
-        val job = launch {
-            viewModel.uiEvent.toList(uiEvents)
+            val job = launch {
+                viewModel.uiEvent.toList(uiEvents)
+            }
+
+            // When
+            viewModel.onPasswordResetEmailChanged(email)
+            viewModel.sendPasswordResetEmail(successMessage)
+            advanceUntilIdle()
+
+            // Then
+            assertEquals(1, uiEvents.size)
+
+            val event = uiEvents.first()
+
+            assertTrue(event is UIEvent.ShowSnackbar)
+            assertEquals(successMessage, event.message)
+
+            job.cancel()
         }
-
-        // When
-        viewModel.onPasswordResetEmailChanged(email)
-        viewModel.sendPasswordResetEmail(successMessage)
-        advanceUntilIdle()
-
-        // Then
-        assertEquals(1, uiEvents.size)
-
-        val event = uiEvents.first()
-
-        assertTrue(event is UIEvent.ShowSnackbar)
-        assertEquals(successMessage, event.message)
-
-        job.cancel()
-    }
 
     @Test
     fun `displayAuthForm should update currentForm state when form is SignIn`() = runTest {

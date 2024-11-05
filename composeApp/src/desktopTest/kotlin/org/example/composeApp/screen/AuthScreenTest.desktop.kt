@@ -16,16 +16,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.update
 import org.example.shared.presentation.state.AuthUIState
-import org.example.shared.presentation.viewModel.AuthViewModel
 import org.example.shared.presentation.util.AuthForm
 import org.example.shared.presentation.util.UIEvent
 import org.example.shared.presentation.util.validation.InputValidator
 import org.example.shared.presentation.util.validation.ValidationResult
+import org.example.shared.presentation.viewModel.AuthViewModel
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class AuthScreenTest
-{
+class AuthScreenTest {
     private lateinit var navController: NavController
     private lateinit var viewModel: AuthViewModel
     private lateinit var uiState: MutableStateFlow<AuthUIState>
@@ -34,14 +33,15 @@ class AuthScreenTest
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     @BeforeTest
-    fun setUp()
-    {
+    fun setUp() {
         navController = mockk(relaxed = true)
         viewModel = mockk(relaxed = true)
         uiState = MutableStateFlow(AuthUIState())
         uiEventFlow = MutableSharedFlow()
         windowSizeClass = WindowSizeClass.calculateFromSize(
-            DpSize(width = 800.dp, height = 800.dp), setOf(WindowWidthSizeClass.Expanded), setOf(WindowHeightSizeClass.Expanded)
+            DpSize(width = 800.dp, height = 800.dp),
+            setOf(WindowWidthSizeClass.Expanded),
+            setOf(WindowHeightSizeClass.Expanded)
         )
 
         every { viewModel.state } returns uiState
@@ -73,10 +73,12 @@ class AuthScreenTest
         val validationResult = InputValidator.validateEmail(email)
         every { viewModel.onSignInEmailChanged(email) } answers {
             uiState.update {
-                when (validationResult)
-                {
+                when (validationResult) {
                     is ValidationResult.Valid -> it.copy(signInEmail = email, signInEmailError = null)
-                    is ValidationResult.Invalid -> it.copy(signInEmail = email, signInEmailError = validationResult.message)
+                    is ValidationResult.Invalid -> it.copy(
+                        signInEmail = email,
+                        signInEmailError = validationResult.message
+                    )
                 }
             }
         }
@@ -102,10 +104,12 @@ class AuthScreenTest
         val validationResult = InputValidator.validateEmail(email)
         every { viewModel.onSignInEmailChanged(email) } answers {
             uiState.update {
-                when (validationResult)
-                {
+                when (validationResult) {
                     is ValidationResult.Valid -> it.copy(signInEmail = email, signInEmailError = null)
-                    is ValidationResult.Invalid -> it.copy(signInEmail = email, signInEmailError = validationResult.message)
+                    is ValidationResult.Invalid -> it.copy(
+                        signInEmail = email,
+                        signInEmailError = validationResult.message
+                    )
                 }
             }
         }
@@ -131,10 +135,12 @@ class AuthScreenTest
         val validationResult = InputValidator.validatePassword(password)
         every { viewModel.onSignInPasswordChanged(password) } answers {
             uiState.update {
-                when (validationResult)
-                {
+                when (validationResult) {
                     is ValidationResult.Valid -> it.copy(signInPassword = password, signInPasswordError = null)
-                    is ValidationResult.Invalid -> it.copy(signInPassword = password, signInPasswordError = validationResult.message)
+                    is ValidationResult.Invalid -> it.copy(
+                        signInPassword = password,
+                        signInPasswordError = validationResult.message
+                    )
                 }
             }
         }
@@ -159,10 +165,12 @@ class AuthScreenTest
         val validationResult = InputValidator.validatePassword(password)
         every { viewModel.onSignInPasswordChanged(password) } answers {
             uiState.update {
-                when (validationResult)
-                {
+                when (validationResult) {
                     is ValidationResult.Valid -> it.copy(signInPassword = password, signInPasswordError = null)
-                    is ValidationResult.Invalid -> it.copy(signInPassword = password, signInPasswordError = validationResult.message)
+                    is ValidationResult.Invalid -> it.copy(
+                        signInPassword = password,
+                        signInPasswordError = validationResult.message
+                    )
                 }
             }
         }
@@ -215,20 +223,24 @@ class AuthScreenTest
 
         every { viewModel.onSignInEmailChanged(email) } answers {
             uiState.update {
-                when (emailValidationResult)
-                {
+                when (emailValidationResult) {
                     is ValidationResult.Valid -> it.copy(signInEmail = email, signInEmailError = null)
-                    is ValidationResult.Invalid -> it.copy(signInEmail = email, signInEmailError = emailValidationResult.message)
+                    is ValidationResult.Invalid -> it.copy(
+                        signInEmail = email,
+                        signInEmailError = emailValidationResult.message
+                    )
                 }
             }
         }
 
         every { viewModel.onSignInPasswordChanged(password) } answers {
             uiState.update {
-                when (passwordValidationResult)
-                {
+                when (passwordValidationResult) {
                     is ValidationResult.Valid -> it.copy(signInPassword = password, signInPasswordError = null)
-                    is ValidationResult.Invalid -> it.copy(signInPassword = password, signInPasswordError = passwordValidationResult.message)
+                    is ValidationResult.Invalid -> it.copy(
+                        signInPassword = password,
+                        signInPasswordError = passwordValidationResult.message
+                    )
                 }
             }
         }
@@ -265,10 +277,12 @@ class AuthScreenTest
 
         every { viewModel.onSignInEmailChanged(email) } answers {
             uiState.update {
-                when (emailValidationResult)
-                {
+                when (emailValidationResult) {
                     is ValidationResult.Valid -> it.copy(signInEmail = email, signInEmailError = null)
-                    is ValidationResult.Invalid -> it.copy(signInEmail = email, signInEmailError = emailValidationResult.message)
+                    is ValidationResult.Invalid -> it.copy(
+                        signInEmail = email,
+                        signInEmailError = emailValidationResult.message
+                    )
                 }
             }
         }
@@ -297,10 +311,12 @@ class AuthScreenTest
 
         every { viewModel.onSignInPasswordChanged(password) } answers {
             uiState.update {
-                when (passwordValidationResult)
-                {
+                when (passwordValidationResult) {
                     is ValidationResult.Valid -> it.copy(signInPassword = password, signInPasswordError = null)
-                    is ValidationResult.Invalid -> it.copy(signInPassword = password, signInPasswordError = passwordValidationResult.message)
+                    is ValidationResult.Invalid -> it.copy(
+                        signInPassword = password,
+                        signInPasswordError = passwordValidationResult.message
+                    )
                 }
             }
         }
@@ -405,10 +421,12 @@ class AuthScreenTest
         val validationResult = InputValidator.validateEmail(email)
         every { viewModel.onSignUpEmailChanged(email) } answers {
             uiState.update {
-                when (validationResult)
-                {
+                when (validationResult) {
                     is ValidationResult.Valid -> it.copy(signUpEmail = email, signUpEmailError = null)
-                    is ValidationResult.Invalid -> it.copy(signUpEmail = email, signUpEmailError = validationResult.message)
+                    is ValidationResult.Invalid -> it.copy(
+                        signUpEmail = email,
+                        signUpEmailError = validationResult.message
+                    )
                 }
             }
         }
@@ -435,10 +453,12 @@ class AuthScreenTest
         val validationResult = InputValidator.validateEmail(email)
         every { viewModel.onSignUpEmailChanged(email) } answers {
             uiState.update {
-                when (validationResult)
-                {
+                when (validationResult) {
                     is ValidationResult.Valid -> it.copy(signUpEmail = email, signUpEmailError = null)
-                    is ValidationResult.Invalid -> it.copy(signUpEmail = email, signUpEmailError = validationResult.message)
+                    is ValidationResult.Invalid -> it.copy(
+                        signUpEmail = email,
+                        signUpEmailError = validationResult.message
+                    )
                 }
             }
         }
@@ -465,10 +485,12 @@ class AuthScreenTest
         val validationResult = InputValidator.validatePassword(password)
         every { viewModel.onSignUpPasswordChanged(password) } answers {
             uiState.update {
-                when (validationResult)
-                {
+                when (validationResult) {
                     is ValidationResult.Valid -> it.copy(signUpPassword = password, signUpPasswordError = null)
-                    is ValidationResult.Invalid -> it.copy(signUpPassword = password, signUpPasswordError = validationResult.message)
+                    is ValidationResult.Invalid -> it.copy(
+                        signUpPassword = password,
+                        signUpPasswordError = validationResult.message
+                    )
                 }
             }
         }
@@ -494,10 +516,12 @@ class AuthScreenTest
         val validationResult = InputValidator.validatePassword(password)
         every { viewModel.onSignUpPasswordChanged(password) } answers {
             uiState.update {
-                when (validationResult)
-                {
+                when (validationResult) {
                     is ValidationResult.Valid -> it.copy(signUpPassword = password, signUpPasswordError = null)
-                    is ValidationResult.Invalid -> it.copy(signUpPassword = password, signUpPasswordError = validationResult.message)
+                    is ValidationResult.Invalid -> it.copy(
+                        signUpPassword = password,
+                        signUpPasswordError = validationResult.message
+                    )
                 }
             }
         }
@@ -524,11 +548,15 @@ class AuthScreenTest
         val validationResult = InputValidator.validatePasswordConfirmation(password, password)
         every { viewModel.onSignUpPasswordConfirmationChanged(password) } answers {
             uiState.update {
-                when (validationResult)
-                {
-                    is ValidationResult.Valid -> it.copy(signUpPasswordConfirmation = password, signUpPasswordConfirmationError = null)
+                when (validationResult) {
+                    is ValidationResult.Valid -> it.copy(
+                        signUpPasswordConfirmation = password,
+                        signUpPasswordConfirmationError = null
+                    )
+
                     is ValidationResult.Invalid -> it.copy(
-                        signUpPasswordConfirmation = password, signUpPasswordConfirmationError = validationResult.message
+                        signUpPasswordConfirmation = password,
+                        signUpPasswordConfirmationError = validationResult.message
                     )
                 }
             }
@@ -556,11 +584,15 @@ class AuthScreenTest
         val validationResult = InputValidator.validatePasswordConfirmation(password, confirmPassword)
         every { viewModel.onSignUpPasswordConfirmationChanged(confirmPassword) } answers {
             uiState.update {
-                when (validationResult)
-                {
-                    is ValidationResult.Valid -> it.copy(signUpPasswordConfirmation = confirmPassword, signUpPasswordConfirmationError = null)
+                when (validationResult) {
+                    is ValidationResult.Valid -> it.copy(
+                        signUpPasswordConfirmation = confirmPassword,
+                        signUpPasswordConfirmationError = null
+                    )
+
                     is ValidationResult.Invalid -> it.copy(
-                        signUpPasswordConfirmation = confirmPassword, signUpPasswordConfirmationError = validationResult.message
+                        signUpPasswordConfirmation = confirmPassword,
+                        signUpPasswordConfirmationError = validationResult.message
                     )
                 }
             }
@@ -593,31 +625,39 @@ class AuthScreenTest
 
         every { viewModel.onSignUpEmailChanged(email) } answers {
             uiState.update {
-                when (emailValidationResult)
-                {
+                when (emailValidationResult) {
                     is ValidationResult.Valid -> it.copy(signUpEmail = email, signUpEmailError = null)
-                    is ValidationResult.Invalid -> it.copy(signUpEmail = email, signUpEmailError = emailValidationResult.message)
+                    is ValidationResult.Invalid -> it.copy(
+                        signUpEmail = email,
+                        signUpEmailError = emailValidationResult.message
+                    )
                 }
             }
         }
 
         every { viewModel.onSignUpPasswordChanged(password) } answers {
             uiState.update {
-                when (passwordValidationResult)
-                {
+                when (passwordValidationResult) {
                     is ValidationResult.Valid -> it.copy(signUpPassword = password, signUpPasswordError = null)
-                    is ValidationResult.Invalid -> it.copy(signUpPassword = password, signUpPasswordError = passwordValidationResult.message)
+                    is ValidationResult.Invalid -> it.copy(
+                        signUpPassword = password,
+                        signUpPasswordError = passwordValidationResult.message
+                    )
                 }
             }
         }
 
         every { viewModel.onSignUpPasswordConfirmationChanged(confirmPassword) } answers {
             uiState.update {
-                when (confirmPasswordValidationResult)
-                {
-                    is ValidationResult.Valid -> it.copy(signUpPasswordConfirmation = confirmPassword, signUpPasswordConfirmationError = null)
+                when (confirmPasswordValidationResult) {
+                    is ValidationResult.Valid -> it.copy(
+                        signUpPasswordConfirmation = confirmPassword,
+                        signUpPasswordConfirmationError = null
+                    )
+
                     is ValidationResult.Invalid -> it.copy(
-                        signUpPasswordConfirmation = confirmPassword, signUpPasswordConfirmationError = confirmPasswordValidationResult.message
+                        signUpPasswordConfirmation = confirmPassword,
+                        signUpPasswordConfirmationError = confirmPasswordValidationResult.message
                     )
                 }
             }
@@ -666,10 +706,12 @@ class AuthScreenTest
 
         every { viewModel.onSignUpEmailChanged(email) } answers {
             uiState.update {
-                when (emailValidationResult)
-                {
+                when (emailValidationResult) {
                     is ValidationResult.Valid -> it.copy(signUpEmail = email, signUpEmailError = null)
-                    is ValidationResult.Invalid -> it.copy(signUpEmail = email, signUpEmailError = emailValidationResult.message)
+                    is ValidationResult.Invalid -> it.copy(
+                        signUpEmail = email,
+                        signUpEmailError = emailValidationResult.message
+                    )
                 }
             }
         }
@@ -695,7 +737,10 @@ class AuthScreenTest
         val confirmPassword = "P@ssw0rd"
         uiState.update {
             it.copy(
-                signUpEmail = email, signUpEmailError = null, signUpPasswordConfirmation = confirmPassword, signUpPasswordConfirmationError = null
+                signUpEmail = email,
+                signUpEmailError = null,
+                signUpPasswordConfirmation = confirmPassword,
+                signUpPasswordConfirmationError = null
             )
         }
 
@@ -704,10 +749,12 @@ class AuthScreenTest
 
         every { viewModel.onSignUpPasswordChanged(password) } answers {
             uiState.update {
-                when (passwordValidationResult)
-                {
+                when (passwordValidationResult) {
                     is ValidationResult.Valid -> it.copy(signUpPassword = password, signUpPasswordError = null)
-                    is ValidationResult.Invalid -> it.copy(signUpPassword = password, signUpPasswordError = passwordValidationResult.message)
+                    is ValidationResult.Invalid -> it.copy(
+                        signUpPassword = password,
+                        signUpPasswordError = passwordValidationResult.message
+                    )
                 }
             }
         }
@@ -731,19 +778,29 @@ class AuthScreenTest
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
         val email = "test@example.com"
         val password = "P@ssw0rd"
-        uiState.update { it.copy(signUpEmail = email, signUpEmailError = null, signUpPassword = password, signUpPasswordError = null) }
+        uiState.update {
+            it.copy(
+                signUpEmail = email,
+                signUpEmailError = null,
+                signUpPassword = password,
+                signUpPasswordError = null
+            )
+        }
 
         val confirmPassword = "password123"
         val confirmPasswordValidationResult = InputValidator.validatePasswordConfirmation(password, confirmPassword)
 
         every { viewModel.onSignUpPasswordConfirmationChanged(confirmPassword) } answers {
             uiState.update {
-                when (confirmPasswordValidationResult)
-                {
-                    is ValidationResult.Valid -> it.copy(signUpPasswordConfirmation = confirmPassword, signUpPasswordConfirmationError = null)
+                when (confirmPasswordValidationResult) {
+                    is ValidationResult.Valid -> it.copy(
+                        signUpPasswordConfirmation = confirmPassword,
+                        signUpPasswordConfirmationError = null
+                    )
 
                     is ValidationResult.Invalid -> it.copy(
-                        signUpPasswordConfirmation = confirmPassword, signUpPasswordConfirmationError = confirmPasswordValidationResult.message
+                        signUpPasswordConfirmation = confirmPassword,
+                        signUpPasswordConfirmationError = confirmPasswordValidationResult.message
                     )
                 }
             }
@@ -893,7 +950,10 @@ class AuthScreenTest
             uiState.update {
                 when (validationResult) {
                     is ValidationResult.Valid -> it.copy(resetPasswordEmail = email, resetPasswordEmailError = null)
-                    is ValidationResult.Invalid -> it.copy(resetPasswordEmail = email, resetPasswordEmailError = validationResult.message)
+                    is ValidationResult.Invalid -> it.copy(
+                        resetPasswordEmail = email,
+                        resetPasswordEmailError = validationResult.message
+                    )
                 }
             }
         }
@@ -923,7 +983,10 @@ class AuthScreenTest
             uiState.update {
                 when (validationResult) {
                     is ValidationResult.Valid -> it.copy(resetPasswordEmail = email, resetPasswordEmailError = null)
-                    is ValidationResult.Invalid -> it.copy(resetPasswordEmail = email, resetPasswordEmailError = validationResult.message)
+                    is ValidationResult.Invalid -> it.copy(
+                        resetPasswordEmail = email,
+                        resetPasswordEmailError = validationResult.message
+                    )
                 }
             }
         }
@@ -994,7 +1057,10 @@ class AuthScreenTest
             uiState.update {
                 when (emailValidationResult) {
                     is ValidationResult.Valid -> it.copy(resetPasswordEmail = email, resetPasswordEmailError = null)
-                    is ValidationResult.Invalid -> it.copy(resetPasswordEmail = email, resetPasswordEmailError = emailValidationResult.message)
+                    is ValidationResult.Invalid -> it.copy(
+                        resetPasswordEmail = email,
+                        resetPasswordEmailError = emailValidationResult.message
+                    )
                 }
             }
         }
@@ -1030,7 +1096,10 @@ class AuthScreenTest
             uiState.update {
                 when (emailValidationResult) {
                     is ValidationResult.Valid -> it.copy(resetPasswordEmail = email, resetPasswordEmailError = null)
-                    is ValidationResult.Invalid -> it.copy(resetPasswordEmail = email, resetPasswordEmailError = emailValidationResult.message)
+                    is ValidationResult.Invalid -> it.copy(
+                        resetPasswordEmail = email,
+                        resetPasswordEmailError = emailValidationResult.message
+                    )
                 }
             }
         }

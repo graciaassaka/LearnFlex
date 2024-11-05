@@ -36,8 +36,7 @@ fun AnimatedBottomSheet(
     onAnimationFinished: () -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
-)
-{
+) {
     val transitionState = remember { MutableTransitionState(false) }
 
     LaunchedEffect(isVisible) {

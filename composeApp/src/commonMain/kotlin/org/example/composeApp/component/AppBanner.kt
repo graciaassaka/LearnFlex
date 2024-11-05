@@ -36,8 +36,7 @@ fun AppBanner(
     orientation: Orientation,
     isVisible: Boolean,
     modifier: Modifier = Modifier
-)
-{
+) {
     val transitionState = remember { MutableTransitionState(false) }
 
     LaunchedEffect(isVisible) {
@@ -73,8 +72,7 @@ private fun ComponentLayout(
     orientation: Orientation,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
-) = when (orientation)
-{
+) = when (orientation) {
     Orientation.Vertical -> Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,

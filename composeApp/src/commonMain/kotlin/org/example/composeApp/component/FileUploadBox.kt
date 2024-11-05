@@ -39,8 +39,7 @@ fun FileUploadBox(
     onFileDeleted: () -> Unit,
     modifier: Modifier = Modifier,
     isUploaded: Boolean = false,
-)
-{
+) {
     val borderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
     val borderWidth = 1.dp
     val dashLength = 10.dp
@@ -50,17 +49,17 @@ fun FileUploadBox(
         shape = RectangleShape,
         color = MaterialTheme.colorScheme.surface,
         modifier = modifier.drawBehind {
-                drawRoundRect(
-                    color = borderColor,
-                    style = Stroke(
-                        width = borderWidth.toPx(),
-                        pathEffect = PathEffect.dashPathEffect(
-                            intervals = floatArrayOf(dashLength.toPx(), gapLength.toPx()),
-                            phase = 0f
-                        )
+            drawRoundRect(
+                color = borderColor,
+                style = Stroke(
+                    width = borderWidth.toPx(),
+                    pathEffect = PathEffect.dashPathEffect(
+                        intervals = floatArrayOf(dashLength.toPx(), gapLength.toPx()),
+                        phase = 0f
                     )
                 )
-            }
+            )
+        }
     ) {
         Column(
             modifier = Modifier

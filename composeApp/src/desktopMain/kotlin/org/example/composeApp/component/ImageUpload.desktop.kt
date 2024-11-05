@@ -20,8 +20,7 @@ actual fun ImageUpload(
     handleError: (String) -> Unit,
     modifier: Modifier,
     isUploaded: Boolean
-)
-{
+) {
     var showFileDialog by remember { mutableStateOf(false) }
     val maxFileSize = LocalComposition.MaxFileSize.current
 
@@ -40,8 +39,7 @@ actual fun ImageUpload(
             isUploaded = isUploaded
         )
 
-        if (showFileDialog)
-        {
+        if (showFileDialog) {
             LaunchedEffect(Unit) {
                 showFileDialog = false
 

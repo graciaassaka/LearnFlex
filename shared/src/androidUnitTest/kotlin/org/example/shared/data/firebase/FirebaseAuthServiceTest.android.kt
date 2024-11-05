@@ -54,7 +54,9 @@ actual class FirebaseAuthServiceTest {
         val password = "password"
 
         // Mock behavior
-        every { firebaseAuth.createUserWithEmailAndPassword(email, password) } returns createSuccessfulTask(mockAuthResult)
+        every { firebaseAuth.createUserWithEmailAndPassword(email, password) } returns createSuccessfulTask(
+            mockAuthResult
+        )
         every { mockAuthResult.user } returns mockUser
         every { mockUser.sendEmailVerification() } returns createSuccessfulVoidTask()
 
@@ -77,7 +79,9 @@ actual class FirebaseAuthServiceTest {
         val exception = Exception("Sign up failed")
 
         // Mock behavior to throw exception
-        every { firebaseAuth.createUserWithEmailAndPassword(email, password) } returns createFailedTask<AuthResult>(exception)
+        every { firebaseAuth.createUserWithEmailAndPassword(email, password) } returns createFailedTask<AuthResult>(
+            exception
+        )
 
         // When
         val result = firebaseAuthService.signUp(email, password)
@@ -119,7 +123,9 @@ actual class FirebaseAuthServiceTest {
         val exception = Exception("Sign in failed")
 
         // Mock behavior to throw exception
-        every { firebaseAuth.signInWithEmailAndPassword(email, password) } returns createFailedTask<AuthResult>(exception)
+        every { firebaseAuth.signInWithEmailAndPassword(email, password) } returns createFailedTask<AuthResult>(
+            exception
+        )
 
         // When
         val result = firebaseAuthService.signIn(email, password)
@@ -228,12 +234,12 @@ actual class FirebaseAuthServiceTest {
 
     @Test
     fun `updateUserData with valid user data completes successfully`() = runTest {
-       TODO()
+        TODO()
     }
 
     @Test
     fun `updateUserData with null user data returns failure`() = runTest {
-       TODO()
+        TODO()
     }
 
     // Test for sendEmailVerification success

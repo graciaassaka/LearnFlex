@@ -19,14 +19,12 @@ import org.junit.Before
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
-class BaseViewModelTest
-{
+class BaseViewModelTest {
     private lateinit var viewModel: BaseViewModel
     private val testDispatcher = StandardTestDispatcher()
 
     @Before
-    fun setup()
-    {
+    fun setup() {
         Dispatchers.setMain(testDispatcher)
         viewModel = BaseViewModel(testDispatcher)
     }
@@ -35,8 +33,7 @@ class BaseViewModelTest
     fun tearDown() = Dispatchers.resetMain()
 
     @Test
-    fun `initial state is correct`()
-    {
+    fun `initial state is correct`() {
         assertTrue(viewModel.isScreenVisible.value)
     }
 
@@ -61,8 +58,7 @@ class BaseViewModelTest
     }
 
     @Test
-    fun `navigate with waiting for animation sets screen visibility to false`()
-    {
+    fun `navigate with waiting for animation sets screen visibility to false`() {
         val destination = Route.Auth
         viewModel.navigate(destination, true)
         assertTrue(!viewModel.isScreenVisible.value)

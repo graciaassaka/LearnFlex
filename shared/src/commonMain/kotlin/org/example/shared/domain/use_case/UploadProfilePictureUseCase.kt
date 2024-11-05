@@ -11,8 +11,7 @@ import org.example.shared.domain.service.StorageService
  * @property authService The service used to handle authentication and user data.
  */
 class UploadProfilePictureUseCase(
-    private val storageService: StorageService,
-    private val authService: AuthService
+    private val storageService: StorageService, private val authService: AuthService
 ) {
     /**
      * Invokes the use case to upload a profile picture.
@@ -24,9 +23,7 @@ class UploadProfilePictureUseCase(
         val user = authService.getUserData().getOrThrow()
 
         val url = storageService.uploadFile(
-            fileData = image,
-            path = "profile_pictures/${user.uid}.jpg",
-            fileType = FileType.IMAGE
+            fileData = image, path = "profile_pictures/${user.uid}.jpg", fileType = FileType.IMAGE
         ).getOrThrow()
 
         authService.updateUserData(user.copy(photoUrl = url)).getOrThrow()

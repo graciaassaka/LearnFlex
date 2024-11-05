@@ -11,8 +11,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
 import org.koin.dsl.module
 
-actual fun initKoin(context: Any?)
-{
+actual fun initKoin(context: Any?) {
     require(context is Context) { "Android context required" }
     startKoin {
         androidContext(context)

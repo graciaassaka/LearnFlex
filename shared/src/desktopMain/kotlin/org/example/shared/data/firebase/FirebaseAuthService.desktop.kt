@@ -22,8 +22,7 @@ actual class FirebaseAuthService(
     private val client: HttpClient,
     private val firebaseInit: FirebaseInit,
     private val useEmulator: Boolean
-) : AuthService
-{
+) : AuthService {
 
     /**
      * Signs up a new user with the given email and password.
@@ -71,8 +70,7 @@ actual class FirebaseAuthService(
     /**
      * Signs out the current user.
      */
-    override suspend fun signOut()
-    {
+    override suspend fun signOut() {
         firebaseInit.idToken = ""
         firebaseInit.refreshToken = ""
     }
@@ -155,17 +153,14 @@ actual class FirebaseAuthService(
      *
      * @param path The path for the authentication request.
      */
-    private fun HttpRequestBuilder.setUpAuthRequest(path: String)
-    {
+    private fun HttpRequestBuilder.setUpAuthRequest(path: String) {
         url {
-            if (useEmulator)
-            {
+            if (useEmulator) {
                 protocol = URLProtocol.HTTP
                 host = FirebaseConfig.emulatorHost
                 port = FirebaseConfig.authEmulatorPort
                 encodedPath = "/identitytoolkit.googleapis.com/v1/accounts:$path"
-            } else
-            {
+            } else {
                 protocol = URLProtocol.HTTPS
                 host = "identitytoolkit.googleapis.com"
                 encodedPath = "/v1/accounts:$path"
@@ -181,10 +176,8 @@ actual class FirebaseAuthService(
      * @param handleSuccess Optional success handler.
      * @throws ApiError If the response indicates an error.
      */
-    private suspend fun HttpResponse.handleAuthResponse(handleSuccess: (suspend () -> Unit)? = null)
-    {
-        when (status.value)
-        {
+    private suspend fun HttpResponse.handleAuthResponse(handleSuccess: (suspend () -> Unit)? = null) {
+        when (status.value) {
             200 -> handleSuccess?.invoke() ?: Unit
             401 -> throw (ApiError.Unauthorized(request.url.encodedPath))
             403 -> throw (ApiError.Forbidden(request.url.encodedPath))

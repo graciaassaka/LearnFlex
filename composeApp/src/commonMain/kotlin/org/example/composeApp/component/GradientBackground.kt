@@ -23,8 +23,7 @@ fun GradientBackground(
     color1: androidx.compose.ui.graphics.Color,
     color2: androidx.compose.ui.graphics.Color,
     modifier: Modifier = Modifier
-)
-{
+) {
     val time by produceState(0f) { while (true) withInfiniteAnimationFrameMillis { value = it / 1000f } }
     Canvas(modifier = modifier.fillMaxSize()) {
         val fraction = (sin(time) + 1) / 2

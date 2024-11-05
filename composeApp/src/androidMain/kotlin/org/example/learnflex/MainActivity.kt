@@ -14,11 +14,9 @@ import org.example.composeApp.App
  * MainActivity is the entry point of the Android application.
  * It extends ComponentActivity and sets the content view to the App composable.
  */
-class MainActivity : ComponentActivity()
-{
+class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-    override fun onCreate(savedInstanceState: Bundle?)
-    {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)

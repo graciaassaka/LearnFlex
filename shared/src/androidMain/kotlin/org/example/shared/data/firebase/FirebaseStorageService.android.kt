@@ -11,8 +11,7 @@ import org.example.shared.domain.service.StorageService
  *
  * @property storage The FirebaseStorage instance used for storage operations.
  */
-actual class FirebaseStorageService(private val storage: FirebaseStorage) : StorageService
-{
+actual class FirebaseStorageService(private val storage: FirebaseStorage) : StorageService {
 
     /**
      * Uploads a file to Firebase Storage.
@@ -68,8 +67,7 @@ actual class FirebaseStorageService(private val storage: FirebaseStorage) : Stor
         onFailure = { Result.failure(StorageException.DownloadFailure("Failed to get file URL", it)) }
     )
 
-    companion object
-    {
+    companion object {
         const val MAX_DOWNLOAD_SIZE = 10L * 1024 * 1024
     }
 }

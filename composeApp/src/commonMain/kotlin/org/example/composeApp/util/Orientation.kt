@@ -6,8 +6,7 @@ package org.example.composeApp.util
  * The Orientation enum is used to specify the direction in which a component
  * or layout should be arranged. It can either be Vertical or Horizontal.
  */
-enum class Orientation
-{
+enum class Orientation {
     Vertical,
     Horizontal
 }

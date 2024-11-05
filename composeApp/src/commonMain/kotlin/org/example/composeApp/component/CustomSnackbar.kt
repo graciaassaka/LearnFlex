@@ -19,17 +19,14 @@ fun CustomSnackbar(
     snackbarData: SnackbarData,
     snackbarType: SnackbarType,
     modifier: Modifier = Modifier
-)
-{
-    val backgroundColor = when (snackbarType)
-    {
+) {
+    val backgroundColor = when (snackbarType) {
         SnackbarType.Success -> MaterialTheme.colorScheme.primaryContainer
         SnackbarType.Error -> MaterialTheme.colorScheme.errorContainer
         SnackbarType.Warning -> MaterialTheme.colorScheme.tertiaryContainer
         SnackbarType.Info -> MaterialTheme.colorScheme.primaryContainer
     }
-    val contentColor = when (snackbarType)
-    {
+    val contentColor = when (snackbarType) {
         SnackbarType.Success -> MaterialTheme.colorScheme.onPrimaryContainer
         SnackbarType.Error -> MaterialTheme.colorScheme.onErrorContainer
         SnackbarType.Warning -> MaterialTheme.colorScheme.onTertiaryContainer

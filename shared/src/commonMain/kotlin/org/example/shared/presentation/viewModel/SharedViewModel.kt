@@ -19,8 +19,7 @@ class SharedViewModel(
     private val getUserDataUseCase: GetUserDataUseCase,
     private val dispatcher: CoroutineDispatcher,
     sharingStarted: SharingStarted
-) : ViewModel()
-{
+) : ViewModel() {
     // MutableStateFlow to hold the current state of the ViewModel.
     private val _state = MutableStateFlow(SharedState())
 

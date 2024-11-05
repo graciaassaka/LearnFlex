@@ -35,8 +35,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class CreateProfileScreenTest
-{
+class CreateProfileScreenTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -49,8 +48,7 @@ class CreateProfileScreenTest
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     @Before
-    fun setUp()
-    {
+    fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         navController = TestNavHostController(context)
         viewModel = mockk(relaxed = true)
@@ -80,8 +78,7 @@ class CreateProfileScreenTest
     }
 
     @Test
-    fun createProfileScreenDisplaysCorrectly()
-    {
+    fun createProfileScreenDisplaysCorrectly() {
         composeTestRule.onNodeWithTag("imageUpload").assertIsDisplayed()
         composeTestRule.onNodeWithTag("usernameTextField").assertIsDisplayed()
         composeTestRule.onNodeWithTag("goalTextField").assertIsDisplayed()
@@ -91,15 +88,18 @@ class CreateProfileScreenTest
     }
 
     @Test
-    fun usernameTextField_calls_viewModel_onUsernameChanged_whenTextEntered()
-    {
+    fun usernameTextField_calls_viewModel_onUsernameChanged_whenTextEntered() {
         val username = "TestUser"
         every { viewModel.onUsernameChanged(username) } answers {
             with(InputValidator.validateUsername(username)) {
-                when (this@with)
-                {
+                when (this@with) {
                     is ValidationResult.Valid -> uiState.update { it.copy(username = value, usernameError = null) }
-                    is ValidationResult.Invalid -> uiState.update { it.copy(username = username, usernameError = message) }
+                    is ValidationResult.Invalid -> uiState.update {
+                        it.copy(
+                            username = username,
+                            usernameError = message
+                        )
+                    }
                 }
             }
         }
@@ -111,16 +111,19 @@ class CreateProfileScreenTest
     }
 
     @Test
-    fun usernameTextField_displaysError_whenInvalidUsernameEntered()
-    {
+    fun usernameTextField_displaysError_whenInvalidUsernameEntered() {
         val username = "Test User"
         val errorMessage = (InputValidator.validateUsername(username) as ValidationResult.Invalid).message
         every { viewModel.onUsernameChanged(username) } answers {
             with(InputValidator.validateUsername(username)) {
-                when (this@with)
-                {
+                when (this@with) {
                     is ValidationResult.Valid -> uiState.update { it.copy(username = value, usernameError = null) }
-                    is ValidationResult.Invalid -> uiState.update { it.copy(username = username, usernameError = message) }
+                    is ValidationResult.Invalid -> uiState.update {
+                        it.copy(
+                            username = username,
+                            usernameError = message
+                        )
+                    }
                 }
             }
         }
@@ -132,8 +135,7 @@ class CreateProfileScreenTest
     }
 
     @Test
-    fun goalTextField_calls_viewModel_onGoalChanged_whenTextEntered()
-    {
+    fun goalTextField_calls_viewModel_onGoalChanged_whenTextEntered() {
         val goal = "TestGoal"
         every { viewModel.onGoalChanged(goal) } answers {
             uiState.update { it.copy(goal = goal) }
@@ -146,8 +148,7 @@ class CreateProfileScreenTest
     }
 
     @Test
-    fun levelDropdown_calls_viewModel_onLevelChanged_whenSelected()
-    {
+    fun levelDropdown_calls_viewModel_onLevelChanged_whenSelected() {
         val level = Level.Advanced
         every {
             viewModel.toggleLevelDropdownVisibility()
@@ -158,7 +159,7 @@ class CreateProfileScreenTest
             uiState.update { it.copy(level = level) }
         }
 
-        composeTestRule.onNodeWithTag("${ Level::class.simpleName }_dropdown_button").performClick()
+        composeTestRule.onNodeWithTag("${Level::class.simpleName}_dropdown_button").performClick()
         verify { viewModel.toggleLevelDropdownVisibility() }
 
         composeTestRule.onNodeWithText(Level.Advanced.name).performClick()
@@ -168,8 +169,7 @@ class CreateProfileScreenTest
     }
 
     @Test
-    fun fieldPicker_calls_viewModel_onFieldChanged_whenScrolled()
-    {
+    fun fieldPicker_calls_viewModel_onFieldChanged_whenScrolled() {
         composeTestRule.onNodeWithTag("Picker")
             .performTouchInput {
                 down(Offset(10f, 0f))
@@ -181,8 +181,7 @@ class CreateProfileScreenTest
     }
 
     @Test
-    fun createProfileButton_calls_viewModel_onCreateProfile_whenClicked()
-    {
+    fun createProfileButton_calls_viewModel_onCreateProfile_whenClicked() {
         composeTestRule.onNodeWithTag("createProfileButton").performClick()
 
         verify { viewModel.onCreateProfile(any()) }

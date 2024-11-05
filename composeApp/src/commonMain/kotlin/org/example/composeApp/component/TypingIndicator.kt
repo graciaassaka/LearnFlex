@@ -26,13 +26,11 @@ import org.example.composeApp.dimension.Spacing
 @Composable
 fun TypingIndicator(
     modifier: Modifier = Modifier
-)
-{
+) {
     var dotsCount by remember { mutableStateOf(1) }
 
     LaunchedEffect(Unit) {
-        while (true)
-        {
+        while (true) {
             repeat(3) {
                 delay(300)
                 dotsCount = (dotsCount % 3).inc()
@@ -50,8 +48,7 @@ fun TypingIndicator(
 }
 
 @Composable
-private fun Dot(visible: Boolean)
-{
+private fun Dot(visible: Boolean) {
     val alpha by animateFloatAsState(
         targetValue = if (visible) 1f else 0.5f,
         animationSpec = tween(

@@ -20,16 +20,14 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 @ExperimentalCoroutinesApi
-class SharedViewModelTest
-{
+class SharedViewModelTest {
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var getUserDataUseCase: GetUserDataUseCase
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var userData: User
 
     @Before
-    fun setup()
-    {
+    fun setup() {
         Dispatchers.setMain(testDispatcher)
         getUserDataUseCase = mockk(relaxed = true)
         sharedViewModel = SharedViewModel(getUserDataUseCase, testDispatcher, SharingStarted.Eagerly)

@@ -244,7 +244,9 @@ actual class FirebaseStorageServiceTest {
         every { mockStorageReference.child(path) } returns mockChildReference
 
         // Mock getBytes() to return a successful Task<ByteArray>
-        every { mockChildReference.getBytes(FirebaseStorageService.MAX_DOWNLOAD_SIZE) } returns createSuccessfulTask(expectedData)
+        every { mockChildReference.getBytes(FirebaseStorageService.MAX_DOWNLOAD_SIZE) } returns createSuccessfulTask(
+            expectedData
+        )
 
         // When
         val result = firebaseStorageService.downloadFile(path)
@@ -270,7 +272,9 @@ actual class FirebaseStorageServiceTest {
         every { mockStorageReference.child(path) } returns mockChildReference
 
         // Mock getBytes() to return a failed Task<ByteArray>
-        every { mockChildReference.getBytes(FirebaseStorageService.MAX_DOWNLOAD_SIZE) } returns createFailedTask(exception)
+        every { mockChildReference.getBytes(FirebaseStorageService.MAX_DOWNLOAD_SIZE) } returns createFailedTask(
+            exception
+        )
 
         // When
         val result = firebaseStorageService.downloadFile(path)

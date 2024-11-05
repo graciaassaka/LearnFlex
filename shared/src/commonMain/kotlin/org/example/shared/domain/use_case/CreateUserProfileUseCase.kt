@@ -8,8 +8,7 @@ import org.example.shared.domain.repository.UserProfileRepos
  *
  * @property userProfileRepos The repository interface for user profile operations.
  */
-class CreateUserProfileUseCase(private val userProfileRepos: UserProfileRepos)
-{
+class CreateUserProfileUseCase(private val userProfileRepos: UserProfileRepos) {
     /**
      * Invokes the use case to create a new user profile.
      *

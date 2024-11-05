@@ -27,8 +27,7 @@ fun PulsingImage(
     image: DrawableResource,
     modifier: Modifier = Modifier,
     size: Dp = 100.dp,
-)
-{
+) {
     var scale by remember { mutableStateOf(1f) }
 
     val animatedScale by animateFloatAsState(
