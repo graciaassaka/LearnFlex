@@ -30,6 +30,7 @@ tasks.register("generateConstants") {
             
             object OpenAIConstants {
                 const val API_KEY = "${getLocalProperty("OPENAI_API_KEY")}"
+                const val STYLE_ASSISTANT_ID = "${getLocalProperty("OPENAI_STYLE_ASSISTANT_ID")}"
             }
         """.trimIndent()
 
