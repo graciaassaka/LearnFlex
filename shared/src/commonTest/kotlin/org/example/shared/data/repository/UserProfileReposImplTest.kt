@@ -12,6 +12,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import org.example.shared.data.firestore.UserProfileReposImpl
 import org.example.shared.data.model.Field
 import org.example.shared.data.model.LearningPreferences
 import org.example.shared.data.model.Level

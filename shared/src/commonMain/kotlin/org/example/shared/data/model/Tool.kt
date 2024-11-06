@@ -32,8 +32,8 @@ sealed class Tool {
     @Serializable
     @SerialName("file_search")
     data class FileSearchTool(
-        @SerialName("type") val type: String = FILE_SEARCH,
-        @SerialName("file_search") val fileSearch: FileSearch? = null
+        @SerialName("file_search") val fileSearch: FileSearch? = null,
+        @SerialName("type") val type: String = FILE_SEARCH
     ) : Tool()
 
     /**
@@ -42,8 +42,8 @@ sealed class Tool {
     @Serializable
     @SerialName("function")
     data class FunctionTool(
-        @SerialName("type") val type: String = FUNCTION,
-        @SerialName("function") val function: Function
+        @SerialName("function") val function: Function,
+        @SerialName("type") val type: String = FUNCTION
     ) : Tool()
 }
 

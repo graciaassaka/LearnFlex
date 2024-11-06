@@ -49,7 +49,6 @@ data class Message(
 /**
  * Represents the status of a message.
  */
-@Serializable
 @Suppress("unused")
 enum class MessageStatus {
     @SerialName("in_progress")

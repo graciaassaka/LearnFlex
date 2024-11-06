@@ -18,7 +18,8 @@ import kotlinx.serialization.json.jsonPrimitive
 @Serializable
 data class RunRequestBody(
     @SerialName("assistant_id") val assistantId: String,
-    @SerialName("instructions") val instructions: String
+    @SerialName("instructions") val instructions: String,
+    @SerialName("tools") val tools: List<Tool> = emptyList(),
 )
 
 /**
@@ -84,6 +85,10 @@ data class RequiredAction(
     @SerialName("submit_tool_outputs") val submitToolOutputs: SubmitToolOutputs? = null,
 )
 
+enum class RequiredActionType(val value: String) {
+    SUBMIT_TOOL_OUTPUTS("submit_tool_outputs")
+}
+
 /**
  * Details about tool outputs that need to be submitted.
  */
@@ -144,7 +149,6 @@ data class LastError(
 /**
  * Enum representing the error codes for the last error.
  */
-@Serializable
 @Suppress("unused")
 enum class LastErrorCode(val value: String) {
     SERVER_ERROR("server_error"),

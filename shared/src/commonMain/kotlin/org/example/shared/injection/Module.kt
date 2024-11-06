@@ -5,15 +5,17 @@ import dev.gitlive.firebase.firestore.firestore
 import io.ktor.http.*
 import kotlinx.coroutines.flow.SharingStarted
 import org.example.shared.data.assistant.OpenAIAssistantClient
+import org.example.shared.data.assistant.StyleQuizServiceImpl
 import org.example.shared.data.firebase.FirebaseAuthService
 import org.example.shared.data.firebase.FirebaseStorageService
-import org.example.shared.data.repository.UserProfileReposImpl
+import org.example.shared.data.firestore.UserProfileReposImpl
 import org.example.shared.data.util.HttpClientConfig
 import org.example.shared.data.util.OpenAIConstants
 import org.example.shared.domain.repository.UserProfileRepos
 import org.example.shared.domain.service.AIAssistantClient
 import org.example.shared.domain.service.AuthService
 import org.example.shared.domain.service.StorageService
+import org.example.shared.domain.service.StyleQuizService
 import org.example.shared.domain.use_case.*
 import org.example.shared.presentation.viewModel.AuthViewModel
 import org.example.shared.presentation.viewModel.BaseViewModel
@@ -55,6 +57,8 @@ val commonModule = module {
             get(), URLBuilder(protocol = URLProtocol.HTTPS, host = "api.openai.com").build(), OpenAIConstants.API_KEY
         )
     }
+
+    single<StyleQuizService> { StyleQuizServiceImpl(get()) }
 
     single { SignUpUseCase(get()) }
     single { SignInUseCase(get()) }

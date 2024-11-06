@@ -1,4 +1,4 @@
-package org.example.shared.data.repository
+package org.example.shared.data.firestore
 
 import dev.gitlive.firebase.firestore.FirebaseFirestore
 import org.example.shared.data.model.UserProfile
