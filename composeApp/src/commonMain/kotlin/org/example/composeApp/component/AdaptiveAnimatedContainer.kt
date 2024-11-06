@@ -6,9 +6,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.example.composeApp.component.auth.AnimatedCard
 import org.example.composeApp.component.auth.AnimatedBottomSheet
-import androidx.compose.foundation.layout.ColumnScopeimport org.example.composeApp.util.Orientation
+import org.example.composeApp.component.auth.AnimatedCard
+import org.example.composeApp.util.Orientation
+
 /**
  * A composable container that adapts its animation based on the given orientation.
  *
@@ -25,8 +26,7 @@ fun AdaptiveAnimatedContainer(
     onAnimationFinished: () -> Unit,
     cardWidth: Int,
     content: @Composable (ColumnScope.() -> Unit)
-) = when (orientation)
-{
+) = when (orientation) {
     Orientation.Horizontal -> AnimatedCard(
         isVisible = isVisible,
         onAnimationFinished = onAnimationFinished,
