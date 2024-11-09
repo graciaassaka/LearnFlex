@@ -74,6 +74,7 @@ val commonModule = module {
     single { DeleteProfilePictureUseCase(get(), get()) }
     single { GetStyleQuestionnaireUseCase(get()) }
     single { GetStyleResultUseCase(get()) }
+    single { GetUserStyleUseCase(get()) }
 
     single<UserProfileRepos> { UserProfileReposImpl(get()) }
     single<LearningStyleRepos> { LearningStyleReposImpl(get()) }
