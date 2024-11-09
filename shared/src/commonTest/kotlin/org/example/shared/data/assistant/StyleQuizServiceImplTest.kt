@@ -6,6 +6,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.example.shared.data.model.*
+import org.example.shared.data.util.Style
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -282,32 +283,32 @@ class StyleQuizServiceImplTest {
     @Test
     fun `evaluateResponses should return correct dominant style and breakdown when all styles are present`() {
         // Given
-        val responses = listOf(Style.Visual, Style.Auditory, Style.Kinesthetic, Style.Visual)
+        val responses = listOf(Style.VISUAL, Style.READING, Style.KINESTHETIC, Style.VISUAL)
 
         // When
         val result = styleQuizService.evaluateResponses(responses)
 
         // Then
         val styleResult = result.getOrThrow()
-        assertEquals("Visual", styleResult.dominantStyle)
+        assertEquals("visual", styleResult.dominantStyle)
         assertEquals(50, styleResult.styleBreakdown.visual)
-        assertEquals(25, styleResult.styleBreakdown.auditory)
+        assertEquals(25, styleResult.styleBreakdown.reading)
         assertEquals(25, styleResult.styleBreakdown.kinesthetic)
     }
 
     @Test
     fun `evaluateResponses should return correct dominant style and breakdown when single style is present`() {
         // Given
-        val responses = listOf(Style.Visual, Style.Visual, Style.Visual)
+        val responses = listOf(Style.VISUAL, Style.VISUAL, Style.VISUAL)
 
         // When
         val result = styleQuizService.evaluateResponses(responses)
 
         // Then
         val styleResult = result.getOrThrow()
-        assertEquals("Visual", styleResult.dominantStyle)
+        assertEquals("visual", styleResult.dominantStyle)
         assertEquals(100, styleResult.styleBreakdown.visual)
-        assertEquals(0, styleResult.styleBreakdown.auditory)
+        assertEquals(0, styleResult.styleBreakdown.reading)
         assertEquals(0, styleResult.styleBreakdown.kinesthetic)
     }
 
@@ -327,16 +328,16 @@ class StyleQuizServiceImplTest {
     @Test
     fun `evaluateResponses should return correct dominant style and breakdown when multiple dominant styles are present`() {
         // Given
-        val responses = listOf(Style.Visual, Style.Auditory, Style.Visual, Style.Auditory)
+        val responses = listOf(Style.VISUAL, Style.READING, Style.VISUAL, Style.READING)
 
         // When
         val result = styleQuizService.evaluateResponses(responses)
 
         // Then
         val styleResult = result.getOrThrow()
-        assertTrue(styleResult.dominantStyle == "Visual" || styleResult.dominantStyle == "Auditory")
+        assertTrue(styleResult.dominantStyle == "visual" || styleResult.dominantStyle == "auditory")
         assertEquals(50, styleResult.styleBreakdown.visual)
-        assertEquals(50, styleResult.styleBreakdown.auditory)
+        assertEquals(50, styleResult.styleBreakdown.reading)
         assertEquals(0, styleResult.styleBreakdown.kinesthetic)
     }
 

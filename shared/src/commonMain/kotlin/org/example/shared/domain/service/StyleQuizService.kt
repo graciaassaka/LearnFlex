@@ -1,9 +1,9 @@
 package org.example.shared.domain.service
 
 import org.example.shared.data.model.LearningPreferences
-import org.example.shared.data.model.Style
 import org.example.shared.data.model.StyleQuestionnaire
 import org.example.shared.data.model.StyleResult
+import org.example.shared.data.util.Style
 
 /**
  * Service interface for generating and evaluating style quizzes.

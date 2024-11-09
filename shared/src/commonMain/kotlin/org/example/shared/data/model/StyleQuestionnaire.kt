@@ -53,22 +53,12 @@ data class StyleResult(
  * Represents the breakdown of different styles.
  *
  * @property visual The score for visual style.
- * @property auditory The score for auditory style.
+ * @property reading The score for reading style.
  * @property kinesthetic The score for kinesthetic style.
  */
 @Serializable
 data class StyleBreakdown(
-    val visual: Int,
-    val auditory: Int,
-    val kinesthetic: Int
+    val visual: Int? = null,
+    val reading: Int? = null,
+    val kinesthetic: Int? = null
 )
-
-/**
- * Enum representing different styles.
- */
-@Suppress("unused")
-enum class Style {
-    Visual,
-    Auditory,
-    Kinesthetic
-}

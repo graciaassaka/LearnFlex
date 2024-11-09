@@ -5,6 +5,7 @@ import kotlinx.serialization.json.*
 import org.example.shared.data.model.*
 import org.example.shared.data.model.Function
 import org.example.shared.data.util.OpenAIConstants
+import org.example.shared.data.util.Style
 import org.example.shared.domain.service.StyleQuizService
 
 /**
@@ -108,7 +109,7 @@ class StyleQuizServiceImpl(private val assistant: OpenAIAssistantClient) : Style
                 requiredAction
                     .submitToolOutputs
                     ?.toolCalls
-                    ?.forEach { submitToolOutput(threadId, id, it.id, preferences) }
+                    ?.forEach {call -> submitToolOutput(threadId, id, call.id, preferences) }
                     ?: throw IllegalStateException("No tool calls to submit")
             }
         }
@@ -180,14 +181,14 @@ class StyleQuizServiceImpl(private val assistant: OpenAIAssistantClient) : Style
      * @throws IllegalArgumentException if the responses list is empty.
      */
     override fun evaluateResponses(responses: List<Style>) =
-        responses.groupingBy { it }.eachCount().runCatching {
+        responses.groupingBy { it.value }.eachCount().runCatching {
             if (responses.isEmpty()) throw IllegalArgumentException("Responses cannot be empty")
             StyleResult(
-                dominantStyle = maxBy { it.value }.key.toString(),
+                dominantStyle = maxBy { it.value }.key,
                 styleBreakdown = StyleBreakdown(
-                    visual = getOrDefault(Style.Visual, 0) * 100 / responses.size,
-                    auditory = getOrDefault(Style.Auditory, 0) * 100 / responses.size,
-                    kinesthetic = getOrDefault(Style.Kinesthetic, 0) * 100 / responses.size
+                    visual = getOrDefault(Style.VISUAL.value, 0) * 100 / responses.size,
+                    reading = getOrDefault(Style.READING.value, 0) * 100 / responses.size,
+                    kinesthetic = getOrDefault(Style.KINESTHETIC.value, 0) * 100 / responses.size
                 )
             )
         }
