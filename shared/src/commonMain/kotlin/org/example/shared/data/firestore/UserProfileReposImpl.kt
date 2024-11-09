@@ -2,6 +2,7 @@ package org.example.shared.data.firestore
 
 import dev.gitlive.firebase.firestore.FirebaseFirestore
 import org.example.shared.data.model.UserProfile
+import org.example.shared.data.util.FirestoreCollection
 import org.example.shared.domain.repository.UserProfileRepos
 
 /**
@@ -18,7 +19,7 @@ class UserProfileReposImpl(private val firestore: FirebaseFirestore) : UserProfi
      * @return A Result indicating success or failure.
      */
     override suspend fun createUserProfile(userProfile: UserProfile) = runCatching {
-        firestore.collection("users")
+        firestore.collection(FirestoreCollection.USERS.value)
             .document(userProfile.id)
             .set(UserProfile.serializer(), userProfile) {
                 encodeDefaults = true
@@ -32,7 +33,7 @@ class UserProfileReposImpl(private val firestore: FirebaseFirestore) : UserProfi
      * @return A Result containing the user profile or an error.
      */
     override suspend fun getUserProfile(id: String) = runCatching {
-        firestore.collection("users")
+        firestore.collection(FirestoreCollection.USERS.value)
             .document(id)
             .get()
             .data(UserProfile.serializer())
@@ -45,7 +46,7 @@ class UserProfileReposImpl(private val firestore: FirebaseFirestore) : UserProfi
      * @return A Result indicating success or failure.
      */
     override suspend fun updateUserProfile(userProfile: UserProfile) = runCatching {
-        firestore.collection("users")
+        firestore.collection(FirestoreCollection.USERS.value)
             .document(userProfile.id)
             .set(userProfile)
     }
@@ -57,7 +58,7 @@ class UserProfileReposImpl(private val firestore: FirebaseFirestore) : UserProfi
      * @return A Result indicating success or failure.
      */
     override suspend fun deleteUserProfile(id: String) = runCatching {
-        firestore.collection("users")
+        firestore.collection(FirestoreCollection.USERS.value)
             .document(id)
             .delete()
     }
