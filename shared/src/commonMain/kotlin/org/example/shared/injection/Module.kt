@@ -8,9 +8,11 @@ import org.example.shared.data.assistant.OpenAIAssistantClient
 import org.example.shared.data.assistant.StyleQuizServiceImpl
 import org.example.shared.data.firebase.FirebaseAuthService
 import org.example.shared.data.firebase.FirebaseStorageService
+import org.example.shared.data.firestore.LearningStyleReposImpl
 import org.example.shared.data.firestore.UserProfileReposImpl
 import org.example.shared.data.util.HttpClientConfig
 import org.example.shared.data.util.OpenAIConstants
+import org.example.shared.domain.repository.LearningStyleRepos
 import org.example.shared.domain.repository.UserProfileRepos
 import org.example.shared.domain.service.AIAssistantClient
 import org.example.shared.domain.service.AuthService
@@ -70,11 +72,14 @@ val commonModule = module {
     single { CreateUserProfileUseCase(get()) }
     single { UploadProfilePictureUseCase(get(), get()) }
     single { DeleteProfilePictureUseCase(get(), get()) }
+    single { GetStyleQuestionnaireUseCase(get()) }
+    single { GetStyleResultUseCase(get()) }
 
     single<UserProfileRepos> { UserProfileReposImpl(get()) }
+    single<LearningStyleRepos> { LearningStyleReposImpl(get()) }
 
     viewModel { BaseViewModel(get()) }
     viewModel { SharedViewModel(get(), get(), get()) }
     viewModel { AuthViewModel(get(), get(), get(), get(), get(), get(), get()) }
-    viewModel { CreateUserProfileViewModel(get(), get(), get(), get(), get(), get()) }
+    viewModel { CreateUserProfileViewModel(get(), get(), get(), get(), get(), get(), get(), get()) }
 }
