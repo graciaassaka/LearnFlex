@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.update
 import org.example.composeApp.theme.LearnFlexTheme
+import org.example.composeApp.util.TestTags
 import org.example.shared.presentation.state.AuthUIState
 import org.example.shared.presentation.util.AuthForm
 import org.example.shared.presentation.util.UIEvent
@@ -75,12 +76,12 @@ class AuthScreenTest {
 
     @Test
     fun signInForm_displaysCorrectly() {
-        composeTestRule.onNodeWithTag("sign_in_screen_title").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("sign_in_email_field").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("sign_in_password_field").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("sign_in_button").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("sign_in_forgot_password_button").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("sign_in_create_account_button").assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_SCREEN_TITLE.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_EMAIL_FIELD.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_PASSWORD_FIELD.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_BUTTON.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_FORGOT_PASSWORD_BUTTON.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_CREATE_ACCOUNT_BUTTON.tag).assertIsDisplayed()
     }
 
     @Test
@@ -101,7 +102,7 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("sign_in_email_field").performTextInput(email)
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
         verify { viewModel.onSignInEmailChanged(email) }
@@ -126,7 +127,7 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("sign_in_email_field").performTextInput(email)
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
         verify { viewModel.onSignInEmailChanged(email) }
@@ -151,7 +152,7 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("sign_in_password_field").performTextInput(password)
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_PASSWORD_FIELD.tag).performTextInput(password)
 
         // Then
         verify { viewModel.onSignInPasswordChanged(password) }
@@ -175,7 +176,7 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("sign_in_password_field").performTextInput(password)
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_PASSWORD_FIELD.tag).performTextInput(password)
 
         // Then
         verify { viewModel.onSignInPasswordChanged(password) }
@@ -193,8 +194,8 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("sign_in_password_field").performTextInput(password)
-        composeTestRule.onNodeWithTag("toggle_password_visibility").performClick()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_PASSWORD_FIELD.tag).performTextInput(password)
+        composeTestRule.onNodeWithTag(TestTags.TOGGLE_PASSWORD_VISIBILITY.tag).performClick()
 
         // Then
         verify { viewModel.toggleSignInPasswordVisibility() }
@@ -238,9 +239,9 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("sign_in_email_field").performTextInput(email)
-        composeTestRule.onNodeWithTag("sign_in_password_field").performTextInput(password)
-        composeTestRule.onNodeWithTag("sign_in_button").performClick()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_EMAIL_FIELD.tag).performTextInput(email)
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_PASSWORD_FIELD.tag).performTextInput(password)
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_BUTTON.tag).performClick()
         composeTestRule.waitForIdle()
 
         // Then
@@ -269,10 +270,10 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("sign_in_email_field").performTextInput(email)
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
-        composeTestRule.onNodeWithTag("sign_in_button").assertIsNotEnabled()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_BUTTON.tag).assertIsNotEnabled()
     }
 
     @Test
@@ -297,10 +298,10 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("sign_in_password_field").performTextInput(password)
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_PASSWORD_FIELD.tag).performTextInput(password)
 
         // Then
-        composeTestRule.onNodeWithTag("sign_in_button").assertIsNotEnabled()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_BUTTON.tag).assertIsNotEnabled()
     }
 
     @Test
@@ -310,9 +311,9 @@ class AuthScreenTest {
 
 
         // Then
-        composeTestRule.onNodeWithTag("sign_in_button").assertIsNotEnabled()
-        composeTestRule.onNodeWithTag("sign_in_forgot_password_button").assertIsNotEnabled()
-        composeTestRule.onNodeWithTag("sign_in_create_account_button").assertIsNotEnabled()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_BUTTON.tag).assertIsNotEnabled()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_FORGOT_PASSWORD_BUTTON.tag).assertIsNotEnabled()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_CREATE_ACCOUNT_BUTTON.tag).assertIsNotEnabled()
     }
 
     @Test
@@ -323,7 +324,7 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("sign_in_forgot_password_button").performClick()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_FORGOT_PASSWORD_BUTTON.tag).performClick()
         composeTestRule.waitForIdle()
 
         // Then
@@ -338,23 +339,23 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("sign_in_create_account_button").performClick()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_CREATE_ACCOUNT_BUTTON.tag).performClick()
         composeTestRule.waitForIdle()
 
         // Then
         verify { viewModel.displayAuthForm(AuthForm.SignUp) }
-        composeTestRule.onNodeWithTag("sign_up_form").assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_FORM.tag).assertIsDisplayed()
     }
 
     @Test
     fun signUpForm_displaysCorrectly() {
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
-        composeTestRule.onNodeWithTag("sign_up_screen_title").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("sign_up_email_field").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("sign_up_password_field").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("sign_up_confirm_password_field").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("sign_up_button").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("sign_up_sign_in_button").assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_SCREEN_TITLE.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_EMAIL_FIELD.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_PASSWORD_FIELD.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_CONFIRM_PASSWORD_FIELD.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_BUTTON.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_SIGN_IN_BUTTON.tag).assertIsDisplayed()
     }
 
     @Test
@@ -376,7 +377,7 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("sign_up_email_field").performTextInput(email)
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
         verify { viewModel.onSignUpEmailChanged(email) }
@@ -402,7 +403,7 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("sign_up_email_field").performTextInput(email)
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
         verify { viewModel.onSignUpEmailChanged(email) }
@@ -428,7 +429,7 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("sign_up_password_field").performTextInput(password)
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_PASSWORD_FIELD.tag).performTextInput(password)
 
         // Then
         verify { viewModel.onSignUpPasswordChanged(password) }
@@ -453,7 +454,7 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("sign_up_password_field").performTextInput(password)
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_PASSWORD_FIELD.tag).performTextInput(password)
 
         // Then
         verify { viewModel.onSignUpPasswordChanged(password) }
@@ -483,7 +484,7 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("sign_up_confirm_password_field").performTextInput(password)
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_CONFIRM_PASSWORD_FIELD.tag).performTextInput(password)
 
         // Then
         verify { viewModel.onSignUpPasswordConfirmationChanged(password) }
@@ -513,7 +514,7 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("sign_up_confirm_password_field").performTextInput(confirmPassword)
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_CONFIRM_PASSWORD_FIELD.tag).performTextInput(confirmPassword)
 
         // Then
         verify { viewModel.onSignUpPasswordConfirmationChanged(confirmPassword) }
@@ -578,10 +579,10 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("sign_up_email_field").performTextInput(email)
-        composeTestRule.onNodeWithTag("sign_up_password_field").performTextInput(password)
-        composeTestRule.onNodeWithTag("sign_up_confirm_password_field").performTextInput(confirmPassword)
-        composeTestRule.onNodeWithTag("sign_up_button").performClick()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_EMAIL_FIELD.tag).performTextInput(email)
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_PASSWORD_FIELD.tag).performTextInput(password)
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_CONFIRM_PASSWORD_FIELD.tag).performTextInput(confirmPassword)
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_BUTTON.tag).performClick()
         composeTestRule.waitForIdle()
 
         // Then
@@ -619,10 +620,10 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("sign_up_email_field").performTextInput(email)
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
-        composeTestRule.onNodeWithTag("sign_up_button").assertIsNotEnabled()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_BUTTON.tag).assertIsNotEnabled()
     }
 
     @Test
@@ -656,10 +657,10 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("sign_up_password_field").performTextInput(password)
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_PASSWORD_FIELD.tag).performTextInput(password)
 
         // Then
-        composeTestRule.onNodeWithTag("sign_up_button").assertIsNotEnabled()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_BUTTON.tag).assertIsNotEnabled()
     }
 
     @Test
@@ -696,10 +697,10 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("sign_up_confirm_password_field").performTextInput(confirmPassword)
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_CONFIRM_PASSWORD_FIELD.tag).performTextInput(confirmPassword)
 
         // Then
-        composeTestRule.onNodeWithTag("sign_up_button").assertIsNotEnabled()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_BUTTON.tag).assertIsNotEnabled()
     }
 
     @Test
@@ -708,8 +709,8 @@ class AuthScreenTest {
         uiState.update { it.copy(currentForm = AuthForm.SignUp, isLoading = true) }
 
         // Then
-        composeTestRule.onNodeWithTag("sign_up_button").assertIsNotEnabled()
-        composeTestRule.onNodeWithTag("sign_up_sign_in_button").assertIsNotEnabled()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_BUTTON.tag).assertIsNotEnabled()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_SIGN_IN_BUTTON.tag).assertIsNotEnabled()
     }
 
     @Test
@@ -721,23 +722,23 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("sign_up_sign_in_button").performClick()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_SIGN_IN_BUTTON.tag).performClick()
         composeTestRule.waitForIdle()
 
         // Then
         verify { viewModel.displayAuthForm(AuthForm.SignIn) }
-        composeTestRule.onNodeWithTag("sign_in_form").assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_FORM.tag).assertIsDisplayed()
     }
 
     @Test
     fun verifyEmailForm_displaysCorrectly() {
         uiState.update { it.copy(currentForm = AuthForm.VerifyEmail, signUpEmail = "test@example.com") }
-        composeTestRule.onNodeWithTag("verify_email_screen_title").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("verify_email_screen_description").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("verify_email_screen_email").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("verify_email_screen_edit_email_button").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("verify_email_screen_verify_email_button").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("verify_email_resend_email_button").assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.VERIFY_EMAIL_SCREEN_TITLE.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.VERIFY_EMAIL_SCREEN_DESCRIPTION.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.VERIFY_EMAIL_SCREEN_EMAIL.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.VERIFY_EMAIL_SCREEN_EDIT_EMAIL_BUTTON.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.VERIFY_EMAIL_SCREEN_VERIFY_EMAIL_BUTTON.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.VERIFY_EMAIL_RESEND_EMAIL_BUTTON.tag).assertIsDisplayed()
     }
 
     @Test
@@ -749,13 +750,13 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("verify_email_screen_edit_email_button").performClick()
+        composeTestRule.onNodeWithTag(TestTags.VERIFY_EMAIL_SCREEN_EDIT_EMAIL_BUTTON.tag).performClick()
         composeTestRule.waitForIdle()
 
         // Then
         verify { viewModel.displayAuthForm(AuthForm.SignUp) }
         verify { viewModel.deleteUser(any()) }
-        composeTestRule.onNodeWithTag("sign_up_form").assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_UP_FORM.tag).assertIsDisplayed()
     }
 
     @Test
@@ -764,17 +765,17 @@ class AuthScreenTest {
         uiState.update { it.copy(currentForm = AuthForm.VerifyEmail, isLoading = true) }
 
         // Then
-        composeTestRule.onNodeWithTag("verify_email_screen_verify_email_button").assertIsNotEnabled()
-        composeTestRule.onNodeWithTag("verify_email_resend_email_button").assertIsNotEnabled()
+        composeTestRule.onNodeWithTag(TestTags.VERIFY_EMAIL_SCREEN_VERIFY_EMAIL_BUTTON.tag).assertIsNotEnabled()
+        composeTestRule.onNodeWithTag(TestTags.VERIFY_EMAIL_RESEND_EMAIL_BUTTON.tag).assertIsNotEnabled()
     }
 
     @Test
     fun passwordResetForm_displaysCorrectly() {
         uiState.update { it.copy(currentForm = AuthForm.ResetPassword) }
-        composeTestRule.onNodeWithTag("reset_password_screen_title").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("reset_password_email_field").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("reset_password_button").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("reset_password_sign_in_button").assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.RESET_PASSWORD_SCREEN_TITLE.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.RESET_PASSWORD_EMAIL_FIELD.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.RESET_PASSWORD_BUTTON.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.RESET_PASSWORD_SIGN_IN_BUTTON.tag).assertIsDisplayed()
     }
 
     @Test
@@ -797,7 +798,7 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("reset_password_email_field").performTextInput(email)
+        composeTestRule.onNodeWithTag(TestTags.RESET_PASSWORD_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
         verify { viewModel.onPasswordResetEmailChanged(email) }
@@ -824,7 +825,7 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("reset_password_email_field").performTextInput(email)
+        composeTestRule.onNodeWithTag(TestTags.RESET_PASSWORD_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
         verify { viewModel.onPasswordResetEmailChanged(email) }
@@ -837,8 +838,8 @@ class AuthScreenTest {
         uiState.update { it.copy(currentForm = AuthForm.ResetPassword, isLoading = true) }
 
         // Then
-        composeTestRule.onNodeWithTag("reset_password_button").assertIsNotEnabled()
-        composeTestRule.onNodeWithTag("reset_password_sign_in_button").assertIsNotEnabled()
+        composeTestRule.onNodeWithTag(TestTags.RESET_PASSWORD_BUTTON.tag).assertIsNotEnabled()
+        composeTestRule.onNodeWithTag(TestTags.RESET_PASSWORD_SIGN_IN_BUTTON.tag).assertIsNotEnabled()
     }
 
     @Test
@@ -850,12 +851,12 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("reset_password_sign_in_button").performClick()
+        composeTestRule.onNodeWithTag(TestTags.RESET_PASSWORD_SIGN_IN_BUTTON.tag).performClick()
         composeTestRule.waitForIdle()
 
         // Then
         verify { viewModel.displayAuthForm(AuthForm.SignIn) }
-        composeTestRule.onNodeWithTag("sign_in_form").assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.SIGN_IN_FORM.tag).assertIsDisplayed()
     }
 
     @Test
@@ -883,8 +884,8 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("reset_password_email_field").performTextInput(email)
-        composeTestRule.onNodeWithTag("reset_password_button").performClick()
+        composeTestRule.onNodeWithTag(TestTags.RESET_PASSWORD_EMAIL_FIELD.tag).performTextInput(email)
+        composeTestRule.onNodeWithTag(TestTags.RESET_PASSWORD_BUTTON.tag).performClick()
         composeTestRule.waitForIdle()
 
         // Then
@@ -911,9 +912,9 @@ class AuthScreenTest {
         }
 
         // When
-        composeTestRule.onNodeWithTag("reset_password_email_field").performTextInput(email)
+        composeTestRule.onNodeWithTag(TestTags.RESET_PASSWORD_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
-        composeTestRule.onNodeWithTag("reset_password_button").assertIsNotEnabled()
+        composeTestRule.onNodeWithTag(TestTags.RESET_PASSWORD_BUTTON.tag).assertIsNotEnabled()
     }
 }

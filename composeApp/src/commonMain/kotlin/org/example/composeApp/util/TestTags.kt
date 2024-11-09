@@ -1,0 +1,42 @@
+package org.example.composeApp.util
+
+import org.example.shared.data.model.Level
+
+enum class TestTags(val tag: String) {
+    SIGN_IN_FORM("sign_in_form"),
+    SIGN_IN_SCREEN_TITLE("sign_in_screen_title"),
+    SIGN_IN_EMAIL_FIELD("sign_in_email_field"),
+    SIGN_IN_PASSWORD_FIELD("sign_in_password_field"),
+    SIGN_IN_BUTTON("sign_in_button"),
+    SIGN_IN_FORGOT_PASSWORD_BUTTON("sign_in_forgot_password_button"),
+    SIGN_IN_CREATE_ACCOUNT_BUTTON("sign_in_create_account_button"),
+    SIGN_UP_FORM("sign_up_form"),
+    SIGN_UP_SCREEN_TITLE("sign_up_screen_title"),
+    SIGN_UP_EMAIL_FIELD("sign_up_email_field"),
+    SIGN_UP_PASSWORD_FIELD("sign_up_password_field"),
+    SIGN_UP_CONFIRM_PASSWORD_FIELD("sign_up_confirm_password_field"),
+    SIGN_UP_BUTTON("sign_up_button"),
+    SIGN_UP_SIGN_IN_BUTTON("sign_up_sign_in_button"),
+    VERIFY_EMAIL_FORM("verify_email_form"),
+    VERIFY_EMAIL_SCREEN_TITLE("verify_email_screen_title"),
+    VERIFY_EMAIL_SCREEN_DESCRIPTION("verify_email_screen_description"),
+    VERIFY_EMAIL_SCREEN_EMAIL("verify_email_screen_email"),
+    VERIFY_EMAIL_SCREEN_EDIT_EMAIL_BUTTON("verify_email_screen_edit_email_button"),
+    VERIFY_EMAIL_SCREEN_VERIFY_EMAIL_BUTTON("verify_email_screen_verify_email_button"),
+    VERIFY_EMAIL_RESEND_EMAIL_BUTTON("verify_email_resend_email_button"),
+    RESET_PASSWORD_FORM("reset_password_form"),
+    RESET_PASSWORD_SCREEN_TITLE("reset_password_screen_title"),
+    RESET_PASSWORD_EMAIL_FIELD("reset_password_email_field"),
+    RESET_PASSWORD_BUTTON("reset_password_button"),
+    RESET_PASSWORD_SIGN_IN_BUTTON("reset_password_sign_in_button"),
+    TOGGLE_PASSWORD_VISIBILITY("toggle_password_visibility"),
+    PERSONAL_INFO_FORM("personal_info_form"),
+    IMAGE_UPLOAD("imageUpload"),
+    USERNAME_TEXT_FIELD("usernameTextField"),
+    GOAL_TEXT_FIELD("goalTextField"),
+    LEVEL_DROPDOWN("levelDropdown"),
+    FIELD_PICKER("fieldPicker"),
+    CREATE_PROFILE_BUTTON("createProfileButton"),
+    PICKER("Picker"),
+    LEVEL_DROPDOWN_BUTTON("${Level::class.simpleName}_dropdown_button")
+}

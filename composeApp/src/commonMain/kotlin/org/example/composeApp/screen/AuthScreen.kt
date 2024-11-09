@@ -32,6 +32,7 @@ import org.example.composeApp.layout.AuthLayout
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.util.AuthForm
 import org.example.shared.presentation.util.SnackbarType
+import org.example.composeApp.util.TestTags
 import org.example.shared.presentation.viewModel.AuthViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -74,7 +75,7 @@ fun AuthScreen(
             enabled = !uiState.isLoading,
             displayAuthForm = viewModel::displayAuthForm,
             onAnimationFinished = viewModel::onExitAnimationFinished,
-            modifier = Modifier.testTag("sign_in_form")
+            modifier = Modifier.testTag(TestTags.SIGN_IN_FORM.tag)
         )
 
         AuthForm.SignUp -> SignUpForm(
@@ -98,7 +99,7 @@ fun AuthScreen(
             enabled = !uiState.isLoading,
             displayAuthForm = viewModel::displayAuthForm,
             onAnimationFinished = viewModel::onExitAnimationFinished,
-            modifier = Modifier.testTag("sign_up_form")
+            modifier = Modifier.testTag(TestTags.SIGN_UP_FORM.tag)
         )
 
         AuthForm.VerifyEmail -> {
@@ -114,7 +115,7 @@ fun AuthScreen(
                 displayAuthForm = viewModel::displayAuthForm,
                 enabled = !uiState.isLoading,
                 onAnimationFinished = viewModel::onExitAnimationFinished,
-                modifier = Modifier.testTag("verify_email_form")
+                modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_FORM.tag)
             )
         }
 
@@ -131,7 +132,7 @@ fun AuthScreen(
                 enabled = !uiState.isLoading,
                 displayAuthForm = viewModel::displayAuthForm,
                 onAnimationFinished = viewModel::onExitAnimationFinished,
-                modifier = Modifier.testTag("forgot_password_form")
+                modifier = Modifier.testTag(TestTags.RESET_PASSWORD_FORM.tag)
             )
         }
     }
@@ -185,14 +186,14 @@ private fun SignInForm(
                 text = stringResource(Res.string.sign_in_screen_title),
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.testTag("sign_in_screen_title")
+                modifier = Modifier.testTag(TestTags.SIGN_IN_SCREEN_TITLE.tag)
             )
             EmailInputField(
                 email = email,
                 onEmailChanged = onEmailChanged,
                 emailError = emailError,
                 enabled = enabled,
-                modifier = Modifier.testTag("sign_in_email_field")
+                modifier = Modifier.testTag(TestTags.SIGN_IN_EMAIL_FIELD.tag)
             )
             PasswordInputField(
                 password = password,
@@ -201,7 +202,7 @@ private fun SignInForm(
                 enabled = enabled,
                 onPasswordVisibilityToggled = onPasswordVisibilityToggled,
                 passwordVisibility = passwordVisibility,
-                modifier = Modifier.testTag("sign_in_password_field"),
+                modifier = Modifier.testTag(TestTags.SIGN_IN_PASSWORD_FIELD.tag),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                 keyboardActions = KeyboardActions { onSignInClicked(signInSuccessMessage) },
             )
@@ -211,7 +212,7 @@ private fun SignInForm(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
-                    .testTag("sign_in_button"),
+                    .testTag(TestTags.SIGN_IN_BUTTON.tag),
                 shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
                 content = { Text(stringResource(Res.string.sign_in_button_label)) }
             )
@@ -221,7 +222,7 @@ private fun SignInForm(
                     currentDestination = AuthForm.ResetPassword
                 },
                 enabled = enabled,
-                modifier = Modifier.testTag("sign_in_forgot_password_button"),
+                modifier = Modifier.testTag(TestTags.SIGN_IN_FORGOT_PASSWORD_BUTTON.tag),
                 content = { Text(stringResource(Res.string.forgot_password_button_label)) }
             )
             AuthDivider()
@@ -231,7 +232,7 @@ private fun SignInForm(
                     currentDestination = AuthForm.SignUp
                 },
                 enabled = enabled,
-                modifier = Modifier.testTag("sign_in_create_account_button"),
+                modifier = Modifier.testTag(TestTags.SIGN_IN_CREATE_ACCOUNT_BUTTON.tag),
                 content = { Text(stringResource(Res.string.create_account_button_label)) }
             )
         }
@@ -297,14 +298,14 @@ private fun SignUpForm(
                 text = stringResource(Res.string.sign_up_screen_title),
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.testTag("sign_up_screen_title")
+                modifier = Modifier.testTag(TestTags.SIGN_UP_SCREEN_TITLE.tag)
             )
             EmailInputField(
                 email = email,
                 onEmailChanged = onEmailChanged,
                 emailError = emailError,
                 enabled = enabled,
-                modifier = Modifier.testTag("sign_up_email_field")
+                modifier = Modifier.testTag(TestTags.SIGN_UP_EMAIL_FIELD.tag)
             )
             PasswordInputField(
                 password = password,
@@ -313,14 +314,14 @@ private fun SignUpForm(
                 enabled = enabled,
                 passwordVisibility = passwordVisibility,
                 onPasswordVisibilityToggled = onPasswordVisibilityToggled,
-                modifier = Modifier.testTag("sign_up_password_field")
+                modifier = Modifier.testTag(TestTags.SIGN_UP_PASSWORD_FIELD.tag)
             )
             ConfirmPasswordInputField(
                 password = confirmedPassword,
                 onPasswordChanged = onConfirmedPasswordChanged,
                 passwordError = confirmedPasswordError,
                 enabled = enabled,
-                modifier = Modifier.testTag("sign_up_confirm_password_field"),
+                modifier = Modifier.testTag(TestTags.SIGN_UP_CONFIRM_PASSWORD_FIELD.tag),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                 keyboardActions = KeyboardActions { onSignUpClicked(signUpSuccessMessage) },
             )
@@ -330,7 +331,7 @@ private fun SignUpForm(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
-                    .testTag("sign_up_button"),
+                    .testTag(TestTags.SIGN_UP_BUTTON.tag),
                 shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
                 content = { Text(stringResource(Res.string.sign_up_button_label)) }
             )
@@ -341,7 +342,7 @@ private fun SignUpForm(
                     currentDestination = AuthForm.SignIn
                 },
                 enabled = enabled,
-                modifier = Modifier.testTag("sign_up_sign_in_button"),
+                modifier = Modifier.testTag(TestTags.SIGN_UP_SIGN_IN_BUTTON.tag),
                 content = { Text(stringResource(Res.string.already_have_account_button_label)) }
             )
         }
@@ -393,14 +394,14 @@ private fun VerificationForm(
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.testTag("verify_email_screen_title")
+                modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_SCREEN_TITLE.tag)
             )
             Text(
                 text = stringResource(Res.string.verify_email_screen_description),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.testTag("verify_email_screen_description")
+                modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_SCREEN_DESCRIPTION.tag)
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -413,7 +414,7 @@ private fun VerificationForm(
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.testTag("verify_email_screen_email")
+                    modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_SCREEN_EMAIL.tag)
                 )
                 IconButton(
                     onClick = {
@@ -421,7 +422,7 @@ private fun VerificationForm(
                         deleteUser(deleteUserSuccessMessage)
                         currentDestination = AuthForm.SignUp
                     },
-                    modifier = Modifier.testTag("verify_email_screen_edit_email_button"),
+                    modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_SCREEN_EDIT_EMAIL_BUTTON.tag),
                     enabled = enabled
                 ) {
                     Icon(
@@ -438,7 +439,7 @@ private fun VerificationForm(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
-                    .testTag("verify_email_screen_verify_email_button"),
+                    .testTag(TestTags.VERIFY_EMAIL_SCREEN_VERIFY_EMAIL_BUTTON.tag),
                 shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
                 content = { Text(stringResource(Res.string.verify_email_button_label)) }
             )
@@ -448,7 +449,7 @@ private fun VerificationForm(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
-                    .testTag("verify_email_resend_email_button"),
+                    .testTag(TestTags.VERIFY_EMAIL_RESEND_EMAIL_BUTTON.tag),
                 shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
                 content = { Text(stringResource(Res.string.resend_email_button_label)) }
             )
@@ -499,14 +500,14 @@ private fun PasswordResetForm(
                 text = stringResource(Res.string.password_reset_screen_title),
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.testTag("reset_password_screen_title")
+                modifier = Modifier.testTag(TestTags.RESET_PASSWORD_SCREEN_TITLE.tag)
             )
             EmailInputField(
                 email = email,
                 onEmailChanged = onEmailChanged,
                 emailError = emailError,
                 enabled = enabled,
-                modifier = Modifier.testTag("reset_password_email_field"),
+                modifier = Modifier.testTag(TestTags.RESET_PASSWORD_EMAIL_FIELD.tag),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                 keyboardActions = KeyboardActions { onResetPasswordClicked(resetSuccessMessage) }
             )
@@ -516,7 +517,7 @@ private fun PasswordResetForm(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
-                    .testTag("reset_password_button"),
+                  .testTag(TestTags.RESET_PASSWORD_BUTTON.tag),
                 shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
                 content = { Text(stringResource(Res.string.send_reset_password_email_button_label)) }
             )
@@ -527,7 +528,7 @@ private fun PasswordResetForm(
                     currentDestination = AuthForm.SignIn
                 },
                 enabled = enabled,
-                modifier = Modifier.testTag("reset_password_sign_in_button"),
+                modifier = Modifier.testTag(TestTags.RESET_PASSWORD_SIGN_IN_BUTTON.tag),
                 content = { Text(stringResource(Res.string.back_to_sign_in_button_label)) }
             )
         }
@@ -580,7 +581,7 @@ private fun PasswordInputField(
     trailingIcon = {
         IconButton(
             onClick = onPasswordVisibilityToggled,
-            modifier = Modifier.testTag("toggle_password_visibility")
+            modifier = Modifier.testTag(TestTags.TOGGLE_PASSWORD_VISIBILITY.tag)
         ) {
             Icon(
                 imageVector = if (passwordVisibility) Icons.Default.Visibility else Icons.Default.VisibilityOff,

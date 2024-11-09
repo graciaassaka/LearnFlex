@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.update
+import org.example.composeApp.util.TestTags
 import org.example.shared.presentation.state.AuthUIState
 import org.example.shared.presentation.util.AuthForm
 import org.example.shared.presentation.util.UIEvent
@@ -57,12 +58,12 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_in_screen_title").assertIsDisplayed()
-        onNodeWithTag("sign_in_email_field").assertIsDisplayed()
-        onNodeWithTag("sign_in_password_field").assertIsDisplayed()
-        onNodeWithTag("sign_in_button").assertIsDisplayed()
-        onNodeWithTag("sign_in_forgot_password_button").assertIsDisplayed()
-        onNodeWithTag("sign_in_create_account_button").assertIsDisplayed()
+        onNodeWithTag(TestTags.SIGN_IN_SCREEN_TITLE.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.SIGN_IN_EMAIL_FIELD.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.SIGN_IN_PASSWORD_FIELD.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.SIGN_IN_BUTTON.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.SIGN_IN_FORGOT_PASSWORD_BUTTON.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.SIGN_IN_CREATE_ACCOUNT_BUTTON.tag).assertIsDisplayed()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -89,7 +90,7 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_in_email_field").performTextInput(email)
+        onNodeWithTag(TestTags.SIGN_IN_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
         verify { viewModel.onSignInEmailChanged(email) }
@@ -120,7 +121,7 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_in_email_field").performTextInput(email)
+        onNodeWithTag(TestTags.SIGN_IN_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
         verify { viewModel.onSignInEmailChanged(email) }
@@ -151,7 +152,7 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_in_password_field").performTextInput(password)
+        onNodeWithTag(TestTags.SIGN_IN_PASSWORD_FIELD.tag).performTextInput(password)
 
         // Then
         verify { viewModel.onSignInPasswordChanged(password) }
@@ -181,7 +182,7 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_in_password_field").performTextInput(password)
+        onNodeWithTag(TestTags.SIGN_IN_PASSWORD_FIELD.tag).performTextInput(password)
 
         // Then
         verify { viewModel.onSignInPasswordChanged(password) }
@@ -205,8 +206,8 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_in_password_field").performTextInput(password)
-        onNodeWithTag("toggle_password_visibility").performClick()
+        onNodeWithTag(TestTags.SIGN_IN_PASSWORD_FIELD.tag).performTextInput(password)
+        onNodeWithTag(TestTags.TOGGLE_PASSWORD_VISIBILITY.tag).performClick()
 
         // Then
         verify { viewModel.toggleSignInPasswordVisibility() }
@@ -256,9 +257,9 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_in_email_field").performTextInput(email)
-        onNodeWithTag("sign_in_password_field").performTextInput(password)
-        onNodeWithTag("sign_in_button").performClick()
+        onNodeWithTag(TestTags.SIGN_IN_EMAIL_FIELD.tag).performTextInput(email)
+        onNodeWithTag(TestTags.SIGN_IN_PASSWORD_FIELD.tag).performTextInput(password)
+        onNodeWithTag(TestTags.SIGN_IN_BUTTON.tag).performClick()
         waitForIdle()
 
         // Then
@@ -293,10 +294,10 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_in_email_field").performTextInput(email)
+        onNodeWithTag(TestTags.SIGN_IN_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
-        onNodeWithTag("sign_in_button").assertIsNotEnabled()
+        onNodeWithTag(TestTags.SIGN_IN_BUTTON.tag).assertIsNotEnabled()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -327,10 +328,10 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_in_password_field").performTextInput(password)
+        onNodeWithTag(TestTags.SIGN_IN_PASSWORD_FIELD.tag).performTextInput(password)
 
         // Then
-        onNodeWithTag("sign_in_button").assertIsNotEnabled()
+        onNodeWithTag(TestTags.SIGN_IN_BUTTON.tag).assertIsNotEnabled()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -347,9 +348,9 @@ class AuthScreenTest {
         }
 
         // Then
-        onNodeWithTag("sign_in_button").assertIsNotEnabled()
-        onNodeWithTag("sign_in_forgot_password_button").assertIsNotEnabled()
-        onNodeWithTag("sign_in_create_account_button").assertIsNotEnabled()
+        onNodeWithTag(TestTags.SIGN_IN_BUTTON.tag).assertIsNotEnabled()
+        onNodeWithTag(TestTags.SIGN_IN_FORGOT_PASSWORD_BUTTON.tag).assertIsNotEnabled()
+        onNodeWithTag(TestTags.SIGN_IN_CREATE_ACCOUNT_BUTTON.tag).assertIsNotEnabled()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -366,7 +367,7 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_in_forgot_password_button").performClick()
+        onNodeWithTag(TestTags.SIGN_IN_FORGOT_PASSWORD_BUTTON.tag).performClick()
         waitForIdle()
 
         // Then
@@ -387,12 +388,12 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_in_create_account_button").performClick()
+        onNodeWithTag(TestTags.SIGN_IN_CREATE_ACCOUNT_BUTTON.tag).performClick()
         waitForIdle()
 
         // Then
         verify { viewModel.displayAuthForm(AuthForm.SignUp) }
-        onNodeWithTag("sign_up_form").assertIsDisplayed()
+        onNodeWithTag(TestTags.SIGN_UP_FORM.tag).assertIsDisplayed()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -404,12 +405,12 @@ class AuthScreenTest {
             )
         }
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
-        onNodeWithTag("sign_up_screen_title").assertIsDisplayed()
-        onNodeWithTag("sign_up_email_field").assertIsDisplayed()
-        onNodeWithTag("sign_up_password_field").assertIsDisplayed()
-        onNodeWithTag("sign_up_confirm_password_field").assertIsDisplayed()
-        onNodeWithTag("sign_up_button").assertIsDisplayed()
-        onNodeWithTag("sign_up_sign_in_button").assertIsDisplayed()
+        onNodeWithTag(TestTags.SIGN_UP_SCREEN_TITLE.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.SIGN_UP_EMAIL_FIELD.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.SIGN_UP_PASSWORD_FIELD.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.SIGN_UP_CONFIRM_PASSWORD_FIELD.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.SIGN_UP_BUTTON.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.SIGN_UP_SIGN_IN_BUTTON.tag).assertIsDisplayed()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -437,7 +438,7 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_up_email_field").performTextInput(email)
+        onNodeWithTag(TestTags.SIGN_UP_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
         verify { viewModel.onSignUpEmailChanged(email) }
@@ -469,7 +470,7 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_up_email_field").performTextInput(email)
+        onNodeWithTag(TestTags.SIGN_UP_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
         verify { viewModel.onSignUpEmailChanged(email) }
@@ -501,7 +502,7 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_up_password_field").performTextInput(password)
+        onNodeWithTag(TestTags.SIGN_UP_PASSWORD_FIELD.tag).performTextInput(password)
 
         // Then
         verify { viewModel.onSignUpPasswordChanged(password) }
@@ -532,7 +533,7 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_up_password_field").performTextInput(password)
+        onNodeWithTag(TestTags.SIGN_UP_PASSWORD_FIELD.tag).performTextInput(password)
 
         // Then
         verify { viewModel.onSignUpPasswordChanged(password) }
@@ -568,7 +569,7 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_up_confirm_password_field").performTextInput(password)
+        onNodeWithTag(TestTags.SIGN_UP_CONFIRM_PASSWORD_FIELD.tag).performTextInput(password)
 
         // Then
         verify { viewModel.onSignUpPasswordConfirmationChanged(password) }
@@ -604,7 +605,7 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_up_confirm_password_field").performTextInput(confirmPassword)
+        onNodeWithTag(TestTags.SIGN_UP_CONFIRM_PASSWORD_FIELD.tag).performTextInput(confirmPassword)
 
         // Then
         verify { viewModel.onSignUpPasswordConfirmationChanged(confirmPassword) }
@@ -675,10 +676,10 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_up_email_field").performTextInput(email)
-        onNodeWithTag("sign_up_password_field").performTextInput(password)
-        onNodeWithTag("sign_up_confirm_password_field").performTextInput(confirmPassword)
-        onNodeWithTag("sign_up_button").performClick()
+        onNodeWithTag(TestTags.SIGN_UP_EMAIL_FIELD.tag).performTextInput(email)
+        onNodeWithTag(TestTags.SIGN_UP_PASSWORD_FIELD.tag).performTextInput(password)
+        onNodeWithTag(TestTags.SIGN_UP_CONFIRM_PASSWORD_FIELD.tag).performTextInput(confirmPassword)
+        onNodeWithTag(TestTags.SIGN_UP_BUTTON.tag).performClick()
         waitForIdle()
 
         // Then
@@ -722,10 +723,10 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_up_email_field").performTextInput(email)
+        onNodeWithTag(TestTags.SIGN_UP_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
-        onNodeWithTag("sign_up_button").assertIsNotEnabled()
+        onNodeWithTag(TestTags.SIGN_UP_BUTTON.tag).assertIsNotEnabled()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -765,10 +766,10 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_up_password_field").performTextInput(password)
+        onNodeWithTag(TestTags.SIGN_UP_PASSWORD_FIELD.tag).performTextInput(password)
 
         // Then
-        onNodeWithTag("sign_up_button").assertIsNotEnabled()
+        onNodeWithTag(TestTags.SIGN_UP_BUTTON.tag).assertIsNotEnabled()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -812,10 +813,10 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_up_confirm_password_field").performTextInput(confirmPassword)
+        onNodeWithTag(TestTags.SIGN_UP_CONFIRM_PASSWORD_FIELD.tag).performTextInput(confirmPassword)
 
         // Then
-        onNodeWithTag("sign_up_button").assertIsNotEnabled()
+        onNodeWithTag(TestTags.SIGN_UP_BUTTON.tag).assertIsNotEnabled()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -832,8 +833,8 @@ class AuthScreenTest {
         }
 
         // Then
-        onNodeWithTag("sign_up_button").assertIsNotEnabled()
-        onNodeWithTag("sign_up_sign_in_button").assertIsNotEnabled()
+        onNodeWithTag(TestTags.SIGN_UP_BUTTON.tag).assertIsNotEnabled()
+        onNodeWithTag(TestTags.SIGN_UP_SIGN_IN_BUTTON.tag).assertIsNotEnabled()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -851,12 +852,12 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("sign_up_sign_in_button").performClick()
+        onNodeWithTag(TestTags.SIGN_UP_SIGN_IN_BUTTON.tag).performClick()
         waitForIdle()
 
         // Then
         verify { viewModel.displayAuthForm(AuthForm.SignIn) }
-        onNodeWithTag("sign_in_form").assertIsDisplayed()
+        onNodeWithTag(TestTags.SIGN_IN_FORM.tag).assertIsDisplayed()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -868,12 +869,12 @@ class AuthScreenTest {
             )
         }
         uiState.update { it.copy(currentForm = AuthForm.VerifyEmail, signUpEmail = "test@example.com") }
-        onNodeWithTag("verify_email_screen_title").assertIsDisplayed()
-        onNodeWithTag("verify_email_screen_description").assertIsDisplayed()
-        onNodeWithTag("verify_email_screen_email").assertIsDisplayed()
-        onNodeWithTag("verify_email_screen_edit_email_button").assertIsDisplayed()
-        onNodeWithTag("verify_email_screen_verify_email_button").assertIsDisplayed()
-        onNodeWithTag("verify_email_resend_email_button").assertIsDisplayed()
+        onNodeWithTag(TestTags.VERIFY_EMAIL_SCREEN_TITLE.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.VERIFY_EMAIL_SCREEN_DESCRIPTION.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.VERIFY_EMAIL_SCREEN_EMAIL.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.VERIFY_EMAIL_SCREEN_EDIT_EMAIL_BUTTON.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.VERIFY_EMAIL_SCREEN_VERIFY_EMAIL_BUTTON.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.VERIFY_EMAIL_RESEND_EMAIL_BUTTON.tag).assertIsDisplayed()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -891,13 +892,13 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("verify_email_screen_edit_email_button").performClick()
+        onNodeWithTag(TestTags.VERIFY_EMAIL_SCREEN_EDIT_EMAIL_BUTTON.tag).performClick()
         waitForIdle()
 
         // Then
         verify { viewModel.displayAuthForm(AuthForm.SignUp) }
         verify { viewModel.deleteUser(any()) }
-        onNodeWithTag("sign_up_form").assertIsDisplayed()
+        onNodeWithTag(TestTags.SIGN_UP_FORM.tag).assertIsDisplayed()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -914,8 +915,8 @@ class AuthScreenTest {
         }
 
         // Then
-        onNodeWithTag("verify_email_screen_verify_email_button").assertIsNotEnabled()
-        onNodeWithTag("verify_email_resend_email_button").assertIsNotEnabled()
+        onNodeWithTag(TestTags.VERIFY_EMAIL_SCREEN_VERIFY_EMAIL_BUTTON.tag).assertIsNotEnabled()
+        onNodeWithTag(TestTags.VERIFY_EMAIL_RESEND_EMAIL_BUTTON.tag).assertIsNotEnabled()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -932,10 +933,10 @@ class AuthScreenTest {
         }
 
         // Then
-        onNodeWithTag("reset_password_screen_title").assertIsDisplayed()
-        onNodeWithTag("reset_password_email_field").assertIsDisplayed()
-        onNodeWithTag("reset_password_button").assertIsDisplayed()
-        onNodeWithTag("reset_password_sign_in_button").assertIsDisplayed()
+        onNodeWithTag(TestTags.RESET_PASSWORD_SCREEN_TITLE.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.RESET_PASSWORD_EMAIL_FIELD.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.RESET_PASSWORD_BUTTON.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.RESET_PASSWORD_SIGN_IN_BUTTON.tag).assertIsDisplayed()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -964,7 +965,7 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("reset_password_email_field").performTextInput(email)
+        onNodeWithTag(TestTags.RESET_PASSWORD_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
         verify { viewModel.onPasswordResetEmailChanged(email) }
@@ -997,7 +998,7 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("reset_password_email_field").performTextInput(email)
+        onNodeWithTag(TestTags.RESET_PASSWORD_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
         verify { viewModel.onPasswordResetEmailChanged(email) }
@@ -1018,8 +1019,8 @@ class AuthScreenTest {
         }
 
         // Then
-        onNodeWithTag("reset_password_button").assertIsNotEnabled()
-        onNodeWithTag("reset_password_sign_in_button").assertIsNotEnabled()
+        onNodeWithTag(TestTags.RESET_PASSWORD_BUTTON.tag).assertIsNotEnabled()
+        onNodeWithTag(TestTags.RESET_PASSWORD_SIGN_IN_BUTTON.tag).assertIsNotEnabled()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -1037,12 +1038,12 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("reset_password_sign_in_button").performClick()
+        onNodeWithTag(TestTags.RESET_PASSWORD_SIGN_IN_BUTTON.tag).performClick()
         waitForIdle()
 
         // Then
         verify { viewModel.displayAuthForm(AuthForm.SignIn) }
-        onNodeWithTag("sign_in_form").assertIsDisplayed()
+        onNodeWithTag(TestTags.SIGN_IN_FORM.tag).assertIsDisplayed()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -1076,8 +1077,8 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("reset_password_email_field").performTextInput(email)
-        onNodeWithTag("reset_password_button").performClick()
+        onNodeWithTag(TestTags.RESET_PASSWORD_EMAIL_FIELD.tag).performTextInput(email)
+        onNodeWithTag(TestTags.RESET_PASSWORD_BUTTON.tag).performClick()
         waitForIdle()
 
         // Then
@@ -1110,9 +1111,9 @@ class AuthScreenTest {
                 windowSizeClass = windowSizeClass, navController = navController, viewModel = viewModel
             )
         }
-        onNodeWithTag("reset_password_email_field").performTextInput(email)
+        onNodeWithTag(TestTags.RESET_PASSWORD_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
-        onNodeWithTag("reset_password_button").assertIsNotEnabled()
+        onNodeWithTag(TestTags.RESET_PASSWORD_BUTTON.tag).assertIsNotEnabled()
     }
 }
