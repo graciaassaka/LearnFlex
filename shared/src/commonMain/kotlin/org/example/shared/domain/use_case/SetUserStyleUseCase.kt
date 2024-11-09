@@ -16,5 +16,5 @@ class SetUserStyleUseCase (private val styleRepos: LearningStyleRepos) {
      * @param userId The ID of the user.
      * @param style The learning style to set for the user.
      */
-    suspend fun invoke(userId: String, style: StyleResult) = styleRepos.setLearningStyle(userId, style)
+    suspend operator fun invoke(userId: String, style: StyleResult) = styleRepos.setLearningStyle(userId, style)
 }

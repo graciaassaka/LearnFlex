@@ -9,19 +9,16 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
-import org.example.shared.data.model.Field
-import org.example.shared.data.model.Level
-import org.example.shared.data.model.User
-import org.example.shared.domain.use_case.CreateUserProfileUseCase
-import org.example.shared.domain.use_case.DeleteProfilePictureUseCase
-import org.example.shared.domain.use_case.UploadProfilePictureUseCase
+import org.example.shared.data.model.*
+import org.example.shared.data.util.Style
+import org.example.shared.domain.use_case.*
 import org.example.shared.presentation.state.SharedState
+import org.example.shared.presentation.util.ProfileCreationForm
 import org.example.shared.presentation.util.UIEvent
 import org.example.shared.presentation.viewModel.CreateUserProfileViewModel
 import org.example.shared.presentation.viewModel.SharedViewModel
 import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Before
 import kotlin.test.Test
 import kotlin.test.assertNotNull
@@ -34,6 +31,9 @@ class CreateUserProfileViewModelTest {
     private lateinit var createProfileUseCase: CreateUserProfileUseCase
     private lateinit var uploadProfilePictureUseCase: UploadProfilePictureUseCase
     private lateinit var deleteProfilePictureUseCase: DeleteProfilePictureUseCase
+    private lateinit var getStyleQuestionnaireUseCase: GetStyleQuestionnaireUseCase
+    private lateinit var getStyleResultUseCase: GetStyleResultUseCase
+    private lateinit var setUserStyleUseCase: SetUserStyleUseCase
     private lateinit var testDispatcher: TestDispatcher
     private val sharedFlow = MutableStateFlow(SharedState())
     private val user = User(
@@ -51,11 +51,17 @@ class CreateUserProfileViewModelTest {
         createProfileUseCase = mockk(relaxed = true)
         uploadProfilePictureUseCase = mockk(relaxed = true)
         deleteProfilePictureUseCase = mockk(relaxed = true)
+        getStyleQuestionnaireUseCase = mockk(relaxed = true)
+        getStyleResultUseCase = mockk(relaxed = true)
+        setUserStyleUseCase = mockk(relaxed = true)
         viewModel = CreateUserProfileViewModel(
             sharedViewModel,
             createProfileUseCase,
             uploadProfilePictureUseCase,
             deleteProfilePictureUseCase,
+            getStyleQuestionnaireUseCase,
+            getStyleResultUseCase,
+            setUserStyleUseCase,
             testDispatcher,
             SharingStarted.Eagerly
         )
@@ -289,6 +295,36 @@ class CreateUserProfileViewModelTest {
         }
 
     @Test
+    fun `onCreateProfile should call createProfileUseCase when username is valid`() = runTest {
+        // Given
+        val username = "TestUser"
+
+        coEvery { createProfileUseCase(any()) } returns Result.success(Unit)
+
+        // When
+        viewModel.onUsernameChanged(username)
+        viewModel.onCreateProfile("Success message")
+        advanceUntilIdle()
+
+        // Then
+        coVerify { createProfileUseCase(any()) }
+    }
+
+    @Test
+    fun `onCreateProfile should not call createProfileUseCase when username is invalid`() = runTest {
+        // Given
+        val username = ""
+
+        // When
+        viewModel.onUsernameChanged(username)
+        viewModel.onCreateProfile("Success message")
+        advanceUntilIdle()
+
+        // Then
+        coVerify(exactly = 0) { createProfileUseCase(any()) }
+    }
+
+    @Test
     fun `onCreateProfile should show successMessage when createUserProfile returns success`() = runTest {
         // Given
         val successMessage = "Profile created successfully"
@@ -300,6 +336,7 @@ class CreateUserProfileViewModelTest {
         coEvery { createProfileUseCase(any()) } returns Result.success(Unit)
 
         // When
+        viewModel.onUsernameChanged("TestUser")
         viewModel.onCreateProfile(successMessage)
         advanceUntilIdle()
 
@@ -323,6 +360,7 @@ class CreateUserProfileViewModelTest {
         coEvery { createProfileUseCase(any()) } returns Result.failure(Exception(errorMessage))
 
         // When
+        viewModel.onUsernameChanged("TestUser")
         viewModel.onCreateProfile("Success message")
         advanceUntilIdle()
 
@@ -332,5 +370,197 @@ class CreateUserProfileViewModelTest {
         assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
 
         job.cancel()
+    }
+
+    @Test
+    fun `startStyleQuestionnaire should call getStyleQuestionnaireUseCase and update state with questionnaire`() = runTest {
+        // Given
+        val questionnaire = mockk<StyleQuestionnaire>()
+
+        coEvery { getStyleQuestionnaireUseCase(any()) } returns Result.success(mockk())
+
+        // When
+        viewModel.startStyleQuestionnaire()
+        advanceUntilIdle()
+
+        // Then
+        coVerify(exactly = 1){ getStyleQuestionnaireUseCase(any()) }
+    }
+
+    @Test
+    fun `startStyleQuestionnaire should update state with questionnaire when getStyleQuestionnaireUseCase returns success`() = runTest {
+        // Given
+        val questionnaire = mockk<StyleQuestionnaire>()
+
+        coEvery { getStyleQuestionnaireUseCase(any()) } returns Result.success(questionnaire)
+
+        // When
+        viewModel.startStyleQuestionnaire()
+        advanceUntilIdle()
+
+        // Then
+        coVerify(exactly = 1){ getStyleQuestionnaireUseCase(any()) }
+        assertEquals(questionnaire, viewModel.state.value.styleQuestionnaire)
+    }
+
+    @Test
+    fun `startStyleQuestionnaire should show error message when getStyleQuestionnaireUseCase returns failure`() = runTest {
+        // Given
+        val errorMessage = "Failed to fetch style questionnaire"
+        val uiEvents = mutableListOf<UIEvent>()
+        val job = launch {
+            viewModel.uiEvent.toList(uiEvents)
+        }
+
+        coEvery { getStyleQuestionnaireUseCase(any()) } returns Result.failure(Exception(errorMessage))
+
+        // When
+        viewModel.startStyleQuestionnaire()
+        advanceUntilIdle()
+
+        // Then
+        coVerify(exactly = 1){ getStyleQuestionnaireUseCase(any()) }
+        assertEquals(1, uiEvents.size)
+        assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `onQuestionAnswered should update state with style response`() = runTest {
+        // Given
+        val style = Style.READING
+
+        // When
+        viewModel.onQuestionAnswered(style)
+        advanceUntilIdle()
+
+        // Then
+        assertEquals(1, viewModel.state.value.styleResponses.size)
+        assertEquals(style, viewModel.state.value.styleResponses.first())
+    }
+
+    @Test
+    fun `onQuestionnaireCompleted should call getStyleResultUseCase and update state with result`() = runTest {
+        // Given
+        val result = mockk<StyleResult>()
+
+        coEvery { getStyleResultUseCase(any()) } returns Result.success(result)
+
+        // When
+        viewModel.onQuestionnaireCompleted()
+        advanceUntilIdle()
+
+        // Then
+        coVerify(exactly = 1){ getStyleResultUseCase(any()) }
+        assertEquals(result, viewModel.state.value.styleResult)
+    }
+
+    @Test
+    fun `onQuestionnaireCompleted should show error message when getStyleResultUseCase returns failure`() = runTest {
+        // Given
+        val errorMessage = "Failed to fetch style result"
+        val uiEvents = mutableListOf<UIEvent>()
+        val job = launch {
+            viewModel.uiEvent.toList(uiEvents)
+        }
+
+        coEvery { getStyleResultUseCase(any()) } returns Result.failure(Exception(errorMessage))
+
+        // When
+        viewModel.onQuestionnaireCompleted()
+        advanceUntilIdle()
+
+        // Then
+        coVerify(exactly = 1){ getStyleResultUseCase(any()) }
+        assertEquals(1, uiEvents.size)
+        assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `setLearningStyle should call setUserStyleUseCase`() = runTest {
+        // Given
+        coEvery { setUserStyleUseCase(any(), any()) } returns Result.success(Unit)
+
+        // When
+        viewModel.setLearningStyle(mockk<StyleResult>(), "Success message")
+        advanceUntilIdle()
+
+        // Then
+        coVerify(exactly = 1){ setUserStyleUseCase(any(), any()) }
+    }
+
+    @Test
+    fun `setLearningStyle should show successMessage and set showStyleResultDialog to false when setUserStyleUseCase returns success`() =
+        runTest {
+            // Given
+            val successMessage = "Learning style set successfully"
+            val uiEvents = mutableListOf<UIEvent>()
+            val job = launch {
+                viewModel.uiEvent.toList(uiEvents)
+            }
+
+            coEvery { setUserStyleUseCase(any(), any()) } returns Result.success(Unit)
+
+            // When
+            viewModel.setLearningStyle(mockk<StyleResult>(), successMessage)
+            advanceUntilIdle()
+
+            // Then
+            assertEquals(1, uiEvents.size)
+            assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
+            assertFalse(viewModel.state.value.showStyleResultDialog)
+
+            job.cancel()
+        }
+
+    @Test
+    fun `setLearningStyle should show error message when setUserStyleUseCase returns failure`() = runTest {
+        // Given
+        val errorMessage = "Failed to set learning style"
+        val uiEvents = mutableListOf<UIEvent>()
+        val job = launch {
+            viewModel.uiEvent.toList(uiEvents)
+        }
+
+        coEvery { setUserStyleUseCase(any(), any()) } returns Result.failure(Exception(errorMessage))
+
+        // When
+        viewModel.setLearningStyle(mockk<StyleResult>(), "Success message")
+        advanceUntilIdle()
+
+        // Then
+        assertEquals(1, uiEvents.size)
+        assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `displayProfileCreationForm should update state with currentForm when form is PERSONAL_INFO`() = runTest {
+        // Given
+        val form = ProfileCreationForm.PERSONAL_INFO
+
+        // When
+        viewModel.displayProfileCreationForm(form)
+        advanceUntilIdle()
+
+        // Then
+        assertEquals(form, viewModel.state.value.currentForm)
+    }
+
+    @Test
+    fun `displayProfileCreationForm should update state with currentForm when form is STYLE_QUESTIONNAIRE`() = runTest {
+        // Given
+        val form = ProfileCreationForm.STYLE_QUESTIONNAIRE
+
+        // When
+        viewModel.displayProfileCreationForm(form)
+        advanceUntilIdle()
+
+        // Then
+        assertEquals(form, viewModel.state.value.currentForm)
     }
 }

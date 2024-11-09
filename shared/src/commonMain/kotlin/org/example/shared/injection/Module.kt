@@ -83,5 +83,5 @@ val commonModule = module {
     viewModel { BaseViewModel(get()) }
     viewModel { SharedViewModel(get(), get(), get()) }
     viewModel { AuthViewModel(get(), get(), get(), get(), get(), get(), get()) }
-    viewModel { CreateUserProfileViewModel(get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { CreateUserProfileViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
 }
