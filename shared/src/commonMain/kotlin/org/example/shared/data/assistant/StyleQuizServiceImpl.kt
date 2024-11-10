@@ -6,6 +6,7 @@ import org.example.shared.data.model.*
 import org.example.shared.data.model.Function
 import org.example.shared.data.util.OpenAIConstants
 import org.example.shared.data.util.Style
+import org.example.shared.domain.service.AIAssistantClient
 import org.example.shared.domain.service.StyleQuizService
 
 /**
@@ -14,7 +15,7 @@ import org.example.shared.domain.service.StyleQuizService
  *
  * @property assistant The OpenAIAssistantClient used to interact with the OpenAI API.
  */
-class StyleQuizServiceImpl(private val assistant: OpenAIAssistantClient) : StyleQuizService {
+class StyleQuizServiceImpl(private val assistant: AIAssistantClient) : StyleQuizService {
     /**
      * Generates a learning style quiz based on the provided learning preferences.
      *
@@ -32,7 +33,7 @@ class StyleQuizServiceImpl(private val assistant: OpenAIAssistantClient) : Style
 
             var run = createRun(thread.id).getOrThrow()
 
-            while (run.status == RunStatus.IN_PROGRESS.value || run.status == RunStatus.REQUIRES_ACTION.value) {
+            while (RunStatus.valueOf(run.status.uppercase()).isRunActive()) {
                 run = retrieveRun(thread.id, run.id).getOrThrow().apply {
                     handleRequiredAction(thread.id, preferences)
                 }
@@ -93,9 +94,24 @@ class StyleQuizServiceImpl(private val assistant: OpenAIAssistantClient) : Style
                     put("description", JsonPrimitive("The user's learning goal"))
                 })
             },
-            required = listOf("field", "level", "goal")
+            required = listOf("field", "level", "goal"),
+            additionalProperties = false
         )
     )
+
+
+    /**
+     * Determines if the given run status is active.
+     *
+     * @return `true` if the run status is either QUEUED, IN_PROGRESS, or REQUIRES_ACTION, `false` otherwise.
+     */
+    private fun RunStatus.isRunActive(): Boolean = when (this) {
+        RunStatus.QUEUED,
+        RunStatus.IN_PROGRESS,
+        RunStatus.REQUIRES_ACTION -> true
+
+        else                      -> false
+    }
 
     /**
      * Handles the required action for the given run.
@@ -104,13 +120,15 @@ class StyleQuizServiceImpl(private val assistant: OpenAIAssistantClient) : Style
      * @param preferences The user's learning preferences.
      */
     private suspend fun Run.handleRequiredAction(threadId: String, preferences: LearningPreferences) =
-        when (RequiredActionType.valueOf(requiredAction!!.type.uppercase())) {
-            RequiredActionType.SUBMIT_TOOL_OUTPUTS -> {
-                requiredAction
-                    .submitToolOutputs
-                    ?.toolCalls
-                    ?.forEach {call -> submitToolOutput(threadId, id, call.id, preferences) }
-                    ?: throw IllegalStateException("No tool calls to submit")
+        requiredAction?.let { action ->
+            when (RequiredActionType.valueOf(action.type.uppercase())) {
+                RequiredActionType.SUBMIT_TOOL_OUTPUTS -> {
+                    requiredAction
+                        .submitToolOutputs
+                        ?.toolCalls
+                        ?.forEach { call -> submitToolOutput(threadId, id, call.id, preferences) }
+                        ?: throw IllegalStateException("No tool calls to submit")
+                }
             }
         }
 
@@ -156,6 +174,7 @@ class StyleQuizServiceImpl(private val assistant: OpenAIAssistantClient) : Style
         when (RunStatus.valueOf(status.uppercase())) {
             RunStatus.COMPLETED -> getAssistantMessage(threadId)
             RunStatus.FAILED -> throw IllegalStateException("Run failed: ${lastError?.message}")
+            RunStatus.CANCELLED -> throw IllegalStateException("Run cancelled: ${lastError?.message}")
             RunStatus.INCOMPLETE -> throw IllegalStateException("Run incomplete: ${incompleteDetails?.reason}")
             RunStatus.EXPIRED -> throw IllegalStateException("Run expired: ${lastError?.message}")
             else -> throw IllegalStateException("Unexpected status: $status")

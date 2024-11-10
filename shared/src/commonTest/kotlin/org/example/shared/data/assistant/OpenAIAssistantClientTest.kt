@@ -753,7 +753,8 @@ class OpenAIAssistantClientTest {
                                           "enum": ["celsius", "fahrenheit"]
                                         }
                                       },
-                                      "required": ["location"]
+                                      "required": ["location"],
+                                      "additionalProperties": false
                                     }
                                   }
                                 }

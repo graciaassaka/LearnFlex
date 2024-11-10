@@ -2,14 +2,12 @@ package org.example.shared.data.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-
 import kotlinx.serialization.json.JsonObject
 
 /**
  * Represents a tool that can be used by the assistant.
  */
 @Serializable
-@Suppress("unused")
 sealed class Tool {
     companion object {
         const val CODE_INTERPRETER = "code_interpreter"
@@ -21,29 +19,27 @@ sealed class Tool {
      * Represents a code interpreter tool.
      */
     @Serializable
-    @SerialName("code_interpreter")
-    data class CodeInterpreterTool(
-        @SerialName("type") val type: String = CODE_INTERPRETER
-    ) : Tool()
+    @SerialName(CODE_INTERPRETER)
+    data object CodeInterpreterTool : Tool()
 
     /**
      * Represents a file search tool with optional configuration.
      */
     @Serializable
-    @SerialName("file_search")
+    @SerialName(FILE_SEARCH)
     data class FileSearchTool(
-        @SerialName("file_search") val fileSearch: FileSearch? = null,
-        @SerialName("type") val type: String = FILE_SEARCH
+        @SerialName("file_search")
+        val fileSearch: FileSearch? = null
     ) : Tool()
 
     /**
      * Represents a function tool that can be called by the assistant.
      */
     @Serializable
-    @SerialName("function")
+    @SerialName(FUNCTION)
     data class FunctionTool(
-        @SerialName("function") val function: Function,
-        @SerialName("type") val type: String = FUNCTION
+        @SerialName("function")
+        val function: Function
     ) : Tool()
 }
 
@@ -51,10 +47,11 @@ sealed class Tool {
  * Configuration for file search behavior.
  */
 @Serializable
-@SerialName("file_search")
 data class FileSearch(
-    @SerialName("max_num_results") val maxNumResults: Int? = null,
-    @SerialName("ranking_options") val rankingOptions: RankingOptions? = null
+    @SerialName("max_num_results")
+    val maxNumResults: Int? = null,
+    @SerialName("ranking_options")
+    val rankingOptions: RankingOptions? = null
 )
 
 /**
@@ -62,20 +59,25 @@ data class FileSearch(
  */
 @Serializable
 data class RankingOptions(
-    @SerialName("ranker") val ranker: String? = null,
-    @SerialName("score_threshold") val scoreThreshold: Float? = null
+    @SerialName("ranker")
+    val ranker: String? = null,
+    @SerialName("score_threshold")
+    val scoreThreshold: Float? = null
 )
 
 /**
  * Represents a function that can be called by the assistant.
  */
 @Serializable
-@SerialName("function")
 data class Function(
-    @SerialName("name") val name: String,
-    @SerialName("description") val description: String,
-    @SerialName("parameters") val parameters: Parameters,
-    @SerialName("strict") val strict: Boolean? = null
+    @SerialName("name")
+    val name: String,
+    @SerialName("description")
+    val description: String,
+    @SerialName("parameters")
+    val parameters: Parameters? = null,
+    @SerialName("strict")
+    val strict: Boolean? = null
 )
 
 /**
@@ -83,7 +85,12 @@ data class Function(
  */
 @Serializable
 data class Parameters(
-    @SerialName("type") val type: String,
-    @SerialName("properties") val properties: JsonObject,
-    @SerialName("required") val required: List<String>? = null
+    @SerialName("type")
+    val type: String,
+    @SerialName("properties")
+    val properties: JsonObject,
+    @SerialName("required")
+    val required: List<String>? = null,
+    @SerialName("additionalProperties")
+    val additionalProperties: Boolean
 )

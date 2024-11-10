@@ -7,6 +7,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import org.example.shared.data.model.*
 import org.example.shared.data.util.ApiError
+import org.example.shared.data.util.ErrorContainer
 import org.example.shared.domain.service.AIAssistantClient
 
 /**
@@ -168,14 +169,17 @@ class OpenAIAssistantClient(
      *
      * @param handleSuccess The lambda to execute if the request is successful.
      */
-    private suspend fun <T> HttpResponse.handleAssistantResponse(handleSuccess: (suspend () -> T)): T =
-        when (status.value) {
-            200 -> handleSuccess()
-            401 -> throw (ApiError.Unauthorized(request.url.encodedPath))
-            403 -> throw (ApiError.Forbidden(request.url.encodedPath))
-            404 -> throw (ApiError.NotFound(request.url.encodedPath))
-            429 -> throw (ApiError.RateLimitExceeded(request.url.encodedPath))
-            503 -> throw (ApiError.NetworkError(request.url.encodedPath))
-            else -> throw (ApiError.ServerError(request.url.encodedPath, status.value))
+    private suspend fun <T> HttpResponse.handleAssistantResponse(handleSuccess: (suspend () -> T)): T {
+        val errorContainer = if (status.isSuccess()) null else body<ErrorContainer>()
+        return when (status.value) {
+                200  -> handleSuccess()
+                400  -> throw ApiError.BadRequest(requestPath = request.url.encodedPath, errorContainer = errorContainer)
+                401  -> throw ApiError.Unauthorized(requestPath = request.url.encodedPath, errorContainer = errorContainer)
+                403  -> throw ApiError.Forbidden(requestPath = request.url.encodedPath,errorContainer = errorContainer)
+                404  -> throw ApiError.NotFound(requestPath = request.url.encodedPath, errorContainer = errorContainer)
+                429  -> throw ApiError.RateLimitExceeded(requestPath = request.url.encodedPath, errorContainer = errorContainer)
+                503  -> throw ApiError.NetworkError(requestPath = request.url.encodedPath, errorContainer = errorContainer)
+                else -> throw ApiError.ServerError(requestPath = request.url.encodedPath, errorCode = status.value, errorContainer = errorContainer)
+            }
         }
 }
