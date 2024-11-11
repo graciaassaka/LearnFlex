@@ -13,6 +13,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.example.shared.FirebaseInit
+import org.example.shared.data.firebase.util.TestFirebaseUtil
 import org.example.shared.data.util.FileType
 import org.example.shared.data.util.StorageException
 import org.junit.After
@@ -31,9 +32,7 @@ actual class FirebaseStorageServiceTest {
     private lateinit var wireMockServer: WireMockServer
 
     companion object {
-        private val firebaseInit = FirebaseInit().apply {
-            idToken = "test-id-token"
-        }
+        private val firebaseInit = TestFirebaseUtil.getFirebaseInit()
         private const val WIREMOCK_PORT = 9099
     }
 
@@ -82,6 +81,7 @@ actual class FirebaseStorageServiceTest {
     fun tearDown() {
         wireMockServer.stop()
         httpClient.close()
+        TestFirebaseUtil.cleanup()
     }
 
     /**
@@ -136,7 +136,7 @@ actual class FirebaseStorageServiceTest {
     fun `uploadFile should fail when server returns error`() = runTest {
         // Given
         val fileData = byteArrayOf(4, 5, 6)
-        val path = "uploads/failureTest" // Include file extension
+        val path = "uploads/failureTest"
         val fileType = FileType.DOCUMENT
         val bucket = FirebaseConfig.storageBucket
         val uploadUrlPath = "/upload/storage/v1/b/$bucket/o"

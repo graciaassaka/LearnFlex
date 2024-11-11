@@ -23,8 +23,11 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.update
 import org.example.composeApp.theme.LearnFlexTheme
 import org.example.composeApp.util.LocalComposition
-import org.example.shared.data.model.Level
+import org.example.composeApp.util.TestTags
+import org.example.shared.data.model.*
+import org.example.shared.data.util.Style
 import org.example.shared.presentation.state.CreateProfileUIState
+import org.example.shared.presentation.util.ProfileCreationForm
 import org.example.shared.presentation.util.UIEvent
 import org.example.shared.presentation.util.validation.InputValidator
 import org.example.shared.presentation.util.validation.ValidationResult
@@ -32,6 +35,7 @@ import org.example.shared.presentation.viewModel.CreateUserProfileViewModel
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
@@ -79,12 +83,12 @@ class CreateProfileScreenTest {
 
     @Test
     fun createProfileScreenDisplaysCorrectly() {
-        composeTestRule.onNodeWithTag("imageUpload").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("usernameTextField").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("goalTextField").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("levelDropdown").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("fieldPicker").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("createProfileButton").assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_IMAGE_UPLOAD.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_USERNAME_TEXT_FIELD.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_GOAL_TEXT_FIELD.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_LEVEL_DROPDOWN.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_FIELD_PICKER.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_CREATE_PROFILE_BUTTON.tag).assertIsDisplayed()
     }
 
     @Test
@@ -93,7 +97,7 @@ class CreateProfileScreenTest {
         every { viewModel.onUsernameChanged(username) } answers {
             with(InputValidator.validateUsername(username)) {
                 when (this@with) {
-                    is ValidationResult.Valid -> uiState.update { it.copy(username = value, usernameError = null) }
+                    is ValidationResult.Valid   -> uiState.update { it.copy(username = value, usernameError = null) }
                     is ValidationResult.Invalid -> uiState.update {
                         it.copy(
                             username = username,
@@ -104,7 +108,7 @@ class CreateProfileScreenTest {
             }
         }
 
-        composeTestRule.onNodeWithTag("usernameTextField").performTextInput(username)
+        composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_USERNAME_TEXT_FIELD.tag).performTextInput(username)
 
         verify { viewModel.onUsernameChanged(username) }
         composeTestRule.onNodeWithText(username).assertIsDisplayed()
@@ -117,7 +121,7 @@ class CreateProfileScreenTest {
         every { viewModel.onUsernameChanged(username) } answers {
             with(InputValidator.validateUsername(username)) {
                 when (this@with) {
-                    is ValidationResult.Valid -> uiState.update { it.copy(username = value, usernameError = null) }
+                    is ValidationResult.Valid   -> uiState.update { it.copy(username = value, usernameError = null) }
                     is ValidationResult.Invalid -> uiState.update {
                         it.copy(
                             username = username,
@@ -128,7 +132,7 @@ class CreateProfileScreenTest {
             }
         }
 
-        composeTestRule.onNodeWithTag("usernameTextField").performTextInput(username)
+        composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_USERNAME_TEXT_FIELD.tag).performTextInput(username)
 
         verify { viewModel.onUsernameChanged(username) }
         composeTestRule.onNodeWithText(errorMessage).assertIsDisplayed()
@@ -141,10 +145,23 @@ class CreateProfileScreenTest {
             uiState.update { it.copy(goal = goal) }
         }
 
-        composeTestRule.onNodeWithTag("goalTextField").performTextInput(goal)
+        composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_GOAL_TEXT_FIELD.tag).performTextInput(goal)
 
         verify { viewModel.onGoalChanged(goal) }
         composeTestRule.onNodeWithText(goal).assertIsDisplayed()
+    }
+
+    @Test
+    fun goalTextField_displays_character_count() {
+        val goal = "TestGoal"
+        every { viewModel.onGoalChanged(goal) } answers {
+            uiState.update { it.copy(goal = goal) }
+        }
+
+        composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_GOAL_TEXT_FIELD.tag).performTextInput(goal)
+
+        composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_GOAL_CHAR_COUNTER.tag, true)
+            .assertTextContains(value = goal.length.toString(), substring = true)
     }
 
     @Test
@@ -159,7 +176,7 @@ class CreateProfileScreenTest {
             uiState.update { it.copy(level = level) }
         }
 
-        composeTestRule.onNodeWithTag("${Level::class.simpleName}_dropdown_button").performClick()
+        composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_LEVEL_DROPDOWN_BUTTON.tag).performClick()
         verify { viewModel.toggleLevelDropdownVisibility() }
 
         composeTestRule.onNodeWithText(Level.Advanced.name).performClick()
@@ -170,7 +187,7 @@ class CreateProfileScreenTest {
 
     @Test
     fun fieldPicker_calls_viewModel_onFieldChanged_whenScrolled() {
-        composeTestRule.onNodeWithTag("Picker")
+        composeTestRule.onNodeWithTag("${Field::class.simpleName}_picker")
             .performTouchInput {
                 down(Offset(10f, 0f))
                 moveTo(Offset(10f, -100f))
@@ -182,9 +199,127 @@ class CreateProfileScreenTest {
 
     @Test
     fun createProfileButton_calls_viewModel_onCreateProfile_whenClicked() {
-        composeTestRule.onNodeWithTag("createProfileButton").performClick()
+        composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_CREATE_PROFILE_BUTTON.tag).performClick()
 
         verify { viewModel.onCreateProfile(any()) }
+    }
+
+    @Test
+    fun personalInfoForm_disables_buttons_and_fields_when_loading() {
+        uiState.update { it.copy(isLoading = true) }
+
+        composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_USERNAME_TEXT_FIELD.tag).assertIsNotEnabled()
+        composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_GOAL_TEXT_FIELD.tag).assertIsNotEnabled()
+        composeTestRule.onNodeWithTag("${Level::class.simpleName}_dropdown_button").assertIsNotEnabled()
+        composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_CREATE_PROFILE_BUTTON.tag).assertIsNotEnabled()
+    }
+
+    @Test
+    fun styleQuestionnaireForm_displays_correctly() {
+        uiState.update {
+            it.copy(
+                currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
+                styleQuestionnaire = styleQuestionnaire
+            )
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE.tag).assertIsEnabled()
+        composeTestRule.onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_OPTIONS_GROUP.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_NEXT_BUTTON.tag).assertIsDisplayed()
+    }
+
+    @Test
+    fun styleQuestionnaireOptionsGroup_selects_option_whenClicked() {
+        uiState.update {
+            it.copy(
+                currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
+                styleQuestionnaire = styleQuestionnaire
+            )
+        }
+
+        composeTestRule.onNodeWithText(Style.READING.value).performClick()
+
+        composeTestRule.onNodeWithText(Style.READING.value).assertIsSelected()
+    }
+
+    @Test
+    fun styleQuestionnaireOptionsGroup_calls_viewModel_onQuestionAnswered_whenNextButtonClicked() {
+        uiState.update {
+            it.copy(
+                currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
+                styleQuestionnaire = styleQuestionnaire
+            )
+        }
+
+        composeTestRule.onNodeWithText(Style.READING.value).performClick()
+        composeTestRule.onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_NEXT_BUTTON.tag).performClick()
+
+        verify { viewModel.onQuestionAnswered(any()) }
+        composeTestRule.onNodeWithText(Style.READING.value).assertIsSelected()
+    }
+
+    @Test
+    fun styleQuestionnaireResultDialog_displays_correctly() {
+        uiState.update {
+            it.copy(
+                currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
+                styleQuestionnaire = styleQuestionnaire,
+                styleResult = styleResult,
+                showStyleResultDialog = true
+            )
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_RESULT_DIALOG.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_SET_LEARNING_STYLE_BUTTON.tag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_BREAKDOWN.tag).assertIsDisplayed()
+    }
+
+    @Test
+    fun styleQuestionnaireResultDialog_calls_viewModel_setLearningStyle_whenButtonClicked() {
+        uiState.update {
+            it.copy(
+                currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
+                styleQuestionnaire = styleQuestionnaire,
+                styleResult = styleResult,
+                showStyleResultDialog = true
+            )
+        }
+
+        composeTestRule.onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_SET_LEARNING_STYLE_BUTTON.tag).performClick()
+
+        verify { viewModel.setLearningStyle(any()) }
+    }
+
+    @Test
+    fun styleQuestionnaireResultDialog_calls_viewModel_startStyleQuestionnaire_whenButtonClicked() {
+        uiState.update {
+            it.copy(
+                currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
+                styleQuestionnaire = styleQuestionnaire,
+                styleResult = styleResult,
+                showStyleResultDialog = true
+            )
+        }
+
+        composeTestRule.onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_RESTART_BUTTON.tag).performClick()
+
+        verify { viewModel.startStyleQuestionnaire() }
+    }
+
+    companion object {
+        private val styleQuestionnaire = StyleQuestionnaire(
+            listOf(
+                StyleQuestion(
+                    listOf(StyleOption(Style.READING.value, Style.READING.value)), "Question 1",
+                )
+            )
+        )
+        private val styleResult = StyleResult(
+            dominantStyle = Style.READING.value,
+            styleBreakdown = StyleBreakdown(visual = 0, reading = 50, kinesthetic = 50)
+        )
     }
 }
 

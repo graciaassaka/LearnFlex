@@ -13,6 +13,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.example.shared.FirebaseInit
+import org.example.shared.data.firebase.util.TestFirebaseUtil
 import org.example.shared.data.model.User
 import org.example.shared.data.util.ApiError
 import org.example.shared.data.util.FirebaseConstants
@@ -28,7 +29,7 @@ actual class FirebaseAuthServiceTest {
     private lateinit var wireMockServer: WireMockServer
 
     companion object {
-        private val firebaseInit = FirebaseInit()
+        private val firebaseInit = TestFirebaseUtil.getFirebaseInit()
     }
 
     @Before
@@ -58,6 +59,7 @@ actual class FirebaseAuthServiceTest {
     fun tearDown() {
         wireMockServer.stop()
         httpClient.close()
+        TestFirebaseUtil.cleanup()
     }
 
     @Test

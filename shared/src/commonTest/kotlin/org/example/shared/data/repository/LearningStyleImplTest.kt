@@ -58,7 +58,8 @@ class LearningStyleImplTest {
     @Test
     fun `getLearningStyle should return the user's learning style`() = runTest {
         // Given
-        coEvery { documentRef.get() } returns mockk<DocumentSnapshot>(relaxed = true)
+        val documentSnapshot = mockk<DocumentSnapshot>(relaxed = true)
+        coEvery { documentRef.get() } returns documentSnapshot
 
         // When
         val result = learningStyleRepos.getLearningStyle(userId)

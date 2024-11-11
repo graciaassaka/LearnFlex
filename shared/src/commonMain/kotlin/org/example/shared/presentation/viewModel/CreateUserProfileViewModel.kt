@@ -180,13 +180,14 @@ class CreateUserProfileViewModel(
         update {
             it.copy(
                 isLoading = true,
+                styleQuestionnaire = StyleQuestionnaire(emptyList()),
                 styleResponses = emptyList(),
                 styleResult = null,
                 showStyleResultDialog = false
             )
         }
 
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             getStyleQuestionnaireUseCase(LearningPreferences(value.field.name, value.level.name, value.goal))
                 .onSuccess { questionnaire -> _state.update { it.copy(styleQuestionnaire = questionnaire) } }
                 .onFailure { error -> handleError(error) }
@@ -214,23 +215,23 @@ class CreateUserProfileViewModel(
     /**
      * Sets the learning style for the user.
      *
-     * @param result The result of the style questionnaire.
      * @param successMessage The message to show on successful setting of the learning style.
      */
-    fun setLearningStyle(result: StyleResult, successMessage: String) = with(_state) {
-        update { it.copy(isLoading = true) }
+    fun setLearningStyle(successMessage: String) = with(_state) {
+        try {
+            require(value.styleResult != null)
 
-        viewModelScope.launch {
-            setUserStyleUseCase(_state.value.userId, result)
-                .onSuccess {
-                    showSnackbar(successMessage, SnackbarType.Success)
-                    update { it.copy(showStyleResultDialog = false) }
-                }.onFailure { error ->
-                    handleError(error)
-                }
+            update { it.copy(isLoading = true) }
+            viewModelScope.launch(dispatcher) {
+                    setUserStyleUseCase(value.userId, value.styleResult!!)
+                        .onSuccess { showSnackbar(successMessage, SnackbarType.Success) }
+                        .onFailure { error -> handleError(error) }
+            }
+        } catch (e: IllegalArgumentException) {
+            handleError(e)
+        } finally {
+            update { it.copy(showStyleResultDialog = false, isLoading = false) }
         }
-
-        update { it.copy(isLoading = false) }
     }
 
     /**

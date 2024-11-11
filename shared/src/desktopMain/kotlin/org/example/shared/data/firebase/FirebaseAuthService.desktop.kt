@@ -8,6 +8,7 @@ import io.ktor.http.*
 import org.example.shared.FirebaseInit
 import org.example.shared.data.model.User
 import org.example.shared.data.util.ApiError
+import org.example.shared.data.util.ErrorContainer
 import org.example.shared.data.util.FirebaseConstants
 import org.example.shared.domain.service.AuthService
 
@@ -177,14 +178,16 @@ actual class FirebaseAuthService(
      * @throws ApiError If the response indicates an error.
      */
     private suspend fun HttpResponse.handleAuthResponse(handleSuccess: (suspend () -> Unit)? = null) {
+        val errorContent = if (!status.isSuccess()) body<ErrorContainer>() else null
         when (status.value) {
             200 -> handleSuccess?.invoke() ?: Unit
-            401 -> throw (ApiError.Unauthorized(request.url.encodedPath))
-            403 -> throw (ApiError.Forbidden(request.url.encodedPath))
-            404 -> throw (ApiError.NotFound(request.url.encodedPath))
-            429 -> throw (ApiError.RateLimitExceeded(request.url.encodedPath))
-            503 -> throw (ApiError.NetworkError(request.url.encodedPath))
-            else -> throw (ApiError.ServerError(request.url.encodedPath, status.value))
+            400 -> throw ApiError.BadRequest(requestPath = request.url.encodedPath, errorContainer = errorContent)
+            401 -> throw ApiError.Unauthorized(requestPath = request.url.encodedPath, errorContainer = errorContent)
+            403 -> throw ApiError.Forbidden(requestPath = request.url.encodedPath, errorContainer = errorContent)
+            404 -> throw ApiError.NotFound(requestPath = request.url.encodedPath, errorContainer = errorContent)
+            429 -> throw ApiError.RateLimitExceeded(requestPath = request.url.encodedPath, errorContainer = errorContent)
+            503 -> throw ApiError.NetworkError(requestPath = request.url.encodedPath, errorContainer = errorContent)
+            else -> throw ApiError.ServerError(requestPath = request.url.encodedPath, status.value, errorContainer = errorContent)
         }
     }
 }

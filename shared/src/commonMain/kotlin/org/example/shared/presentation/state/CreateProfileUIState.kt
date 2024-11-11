@@ -7,6 +7,26 @@ import org.example.shared.data.model.StyleQuestionnaire
 import org.example.shared.data.model.StyleResult
 import org.example.shared.presentation.util.ProfileCreationForm
 
+/**
+ * Represents the UI state for the Create Profile screen.
+ *
+ * @property currentForm The current form being displayed in the profile creation process.
+ * @property userId The ID of the user creating the profile.
+ * @property username The username input by the user.
+ * @property usernameError An error message related to the username input, if any.
+ * @property email The email of the user.
+ * @property photoUrl The URL of the user's profile photo.
+ * @property field The selected field of learning for the user.
+ * @property level The selected level of learning for the user.
+ * @property isLevelDropdownVisible Indicates whether the level dropdown is visible.
+ * @property goal The goal input by the user.
+ * @property isProfileCreated Indicates whether the profile has been successfully created.
+ * @property styleQuestionnaire The style questionnaire containing a list of style questions.
+ * @property styleResponses The list of styles selected by the user in the questionnaire.
+ * @property styleResult The result of the style questionnaire.
+ * @property showStyleResultDialog Indicates whether to show the style result dialog.
+ * @property isLoading Indicates whether the screen is currently in a loading state.
+ */
 data class CreateProfileUIState(
     val currentForm: ProfileCreationForm = ProfileCreationForm.PERSONAL_INFO,
     val userId : String = "",

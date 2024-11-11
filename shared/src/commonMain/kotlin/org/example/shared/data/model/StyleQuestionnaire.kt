@@ -58,7 +58,7 @@ data class StyleResult(
  */
 @Serializable
 data class StyleBreakdown(
-    val visual: Int,
-    val reading: Int,
-    val kinesthetic: Int
+    val visual: Int = 0,
+    val reading: Int = 0,
+    val kinesthetic: Int = 0
 )

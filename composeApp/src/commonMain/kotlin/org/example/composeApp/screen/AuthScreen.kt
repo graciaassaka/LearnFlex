@@ -168,6 +168,7 @@ private fun SignInForm(
         windowSizeClass = windowSizeClass,
         snackbarHostState = snackbarHostState,
         snackbarType = snackbarType,
+        enabled = enabled,
         isVisible = isFormVisible,
         onAnimationFinished = {
             if (currentDestination == null) onAnimationFinished()
@@ -280,6 +281,7 @@ private fun SignUpForm(
         windowSizeClass = windowSizeClass,
         snackbarHostState = snackbarHostState,
         snackbarType = snackbarType,
+        enabled = enabled,
         isVisible = isFormVisible,
         onAnimationFinished = {
             if (currentDestination == null) onAnimationFinished()
@@ -375,6 +377,7 @@ private fun VerificationForm(
         windowSizeClass = windowSizeClass,
         snackbarHostState = snackbarHostState,
         snackbarType = snackbarType,
+        enabled = enabled,
         isVisible = isFormVisible,
         onAnimationFinished = {
             if (currentDestination == null) onAnimationFinished()
@@ -482,6 +485,7 @@ private fun PasswordResetForm(
         windowSizeClass = windowSizeClass,
         snackbarHostState = snackbarHostState,
         snackbarType = snackbarType,
+        enabled = enabled,
         isVisible = isFormVisible,
         onAnimationFinished = {
             if (currentDestination == null) onAnimationFinished()

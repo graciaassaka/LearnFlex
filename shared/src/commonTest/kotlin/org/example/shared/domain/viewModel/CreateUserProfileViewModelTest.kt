@@ -480,65 +480,6 @@ class CreateUserProfileViewModelTest {
     }
 
     @Test
-    fun `setLearningStyle should call setUserStyleUseCase`() = runTest {
-        // Given
-        coEvery { setUserStyleUseCase(any(), any()) } returns Result.success(Unit)
-
-        // When
-        viewModel.setLearningStyle(mockk<StyleResult>(), "Success message")
-        advanceUntilIdle()
-
-        // Then
-        coVerify(exactly = 1){ setUserStyleUseCase(any(), any()) }
-    }
-
-    @Test
-    fun `setLearningStyle should show successMessage and set showStyleResultDialog to false when setUserStyleUseCase returns success`() =
-        runTest {
-            // Given
-            val successMessage = "Learning style set successfully"
-            val uiEvents = mutableListOf<UIEvent>()
-            val job = launch {
-                viewModel.uiEvent.toList(uiEvents)
-            }
-
-            coEvery { setUserStyleUseCase(any(), any()) } returns Result.success(Unit)
-
-            // When
-            viewModel.setLearningStyle(mockk<StyleResult>(), successMessage)
-            advanceUntilIdle()
-
-            // Then
-            assertEquals(1, uiEvents.size)
-            assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
-            assertFalse(viewModel.state.value.showStyleResultDialog)
-
-            job.cancel()
-        }
-
-    @Test
-    fun `setLearningStyle should show error message when setUserStyleUseCase returns failure`() = runTest {
-        // Given
-        val errorMessage = "Failed to set learning style"
-        val uiEvents = mutableListOf<UIEvent>()
-        val job = launch {
-            viewModel.uiEvent.toList(uiEvents)
-        }
-
-        coEvery { setUserStyleUseCase(any(), any()) } returns Result.failure(Exception(errorMessage))
-
-        // When
-        viewModel.setLearningStyle(mockk<StyleResult>(), "Success message")
-        advanceUntilIdle()
-
-        // Then
-        assertEquals(1, uiEvents.size)
-        assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
-
-        job.cancel()
-    }
-
-    @Test
     fun `displayProfileCreationForm should update state with currentForm when form is PERSONAL_INFO`() = runTest {
         // Given
         val form = ProfileCreationForm.PERSONAL_INFO
@@ -562,5 +503,148 @@ class CreateUserProfileViewModelTest {
 
         // Then
         assertEquals(form, viewModel.state.value.currentForm)
+    }
+
+    @Test
+    fun `setLearningStyle should call setUserStyleUseCase with userId and styleResult when styleResult is not null`() = runTest {
+        // Given
+        val successMessage = "Style set successfully"
+        val userId = "user123"
+
+        coEvery { setUserStyleUseCase(userId, testStyleResult) } returns Result.success(Unit)
+        coEvery { getStyleResultUseCase(any()) } returns Result.success(testStyleResult)
+        sharedFlow.update { it.copy(userData = user.copy(uid = userId)) }
+
+        // When
+        viewModel.onQuestionnaireCompleted() // This will set the styleResult
+        advanceUntilIdle()
+        viewModel.setLearningStyle(successMessage)
+        advanceUntilIdle()
+
+        // Then
+        coVerify { setUserStyleUseCase(userId, testStyleResult) }
+        assertFalse(viewModel.state.value.showStyleResultDialog)
+        assertFalse(viewModel.state.value.isLoading)
+    }
+
+    @Test
+    fun `setLearningStyle should show success message when setUserStyleUseCase returns success`() = runTest {
+        // Given
+        val successMessage = "Style set successfully"
+        val userId = "user123"
+
+        val uiEvents = mutableListOf<UIEvent>()
+        val job = launch { viewModel.uiEvent.toList(uiEvents) }
+
+        coEvery { setUserStyleUseCase(userId, testStyleResult) } returns Result.success(Unit)
+        coEvery { getStyleResultUseCase(any()) } returns Result.success(testStyleResult)
+        sharedFlow.update { it.copy(userData = user.copy(uid = userId)) }
+
+        // When
+        viewModel.onQuestionnaireCompleted() // This will set the styleResult
+        advanceUntilIdle()
+        viewModel.setLearningStyle(successMessage)
+        advanceUntilIdle()
+
+        // Then
+        assertEquals(1, uiEvents.size)
+        assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
+        assertEquals(successMessage, (uiEvents.first() as UIEvent.ShowSnackbar).message)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `setLearningStyle should show error message when setUserStyleUseCase returns failure`() = runTest {
+        // Given
+        val successMessage = "Style set successfully"
+        val errorMessage = "Failed to set style"
+        val userId = "user123"
+
+        val uiEvents = mutableListOf<UIEvent>()
+        val job = launch { viewModel.uiEvent.toList(uiEvents) }
+
+        coEvery { setUserStyleUseCase(userId, testStyleResult) } returns Result.failure(Exception(errorMessage))
+        coEvery { getStyleResultUseCase(any()) } returns Result.success(testStyleResult)
+        sharedFlow.update { it.copy(userData = user.copy(uid = userId)) }
+
+        // When
+        viewModel.onQuestionnaireCompleted()
+        advanceUntilIdle()
+        viewModel.setLearningStyle(successMessage)
+        advanceUntilIdle()
+
+        // Then
+        assertEquals(1, uiEvents.size)
+        assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
+        assertEquals(errorMessage, (uiEvents.first() as UIEvent.ShowSnackbar).message)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `setLearningStyle should handle null styleResult and show error message`() = runTest {
+        // Given
+        val successMessage = "Style set successfully"
+        val userId = "user123"
+
+        val uiEvents = mutableListOf<UIEvent>()
+        val job = launch { viewModel.uiEvent.toList(uiEvents) }
+
+        sharedFlow.update { it.copy(userData = user.copy(uid = userId)) }
+
+        // When
+        viewModel.setLearningStyle(successMessage)
+        advanceUntilIdle()
+
+        // Then
+        coVerify(exactly = 0) { setUserStyleUseCase(any(), any())}
+        assertEquals(1, uiEvents.size)
+        assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
+        assertFalse(viewModel.state.value.showStyleResultDialog)
+        assertFalse(viewModel.state.value.isLoading)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `setLearningStyle should update showStyleResultDialog state correctly`() = runTest {
+        // Given
+        val successMessage = "Style set successfully"
+        val userId = "user123"
+
+        coEvery { setUserStyleUseCase(userId, testStyleResult) } returns Result.success(Unit)
+        coEvery { getStyleResultUseCase(any()) } returns Result.success(testStyleResult)
+        sharedFlow.update { it.copy(userData = user.copy(uid = userId)) }
+
+        // When
+        viewModel.onQuestionnaireCompleted()
+        advanceUntilIdle()
+        viewModel.setLearningStyle(successMessage)
+        advanceUntilIdle()
+
+        // Then
+        assertFalse(viewModel.state.value.showStyleResultDialog)
+    }
+
+    companion object {
+        private val testStyleBreakdown = StyleBreakdown(visual = 30, reading = 40, kinesthetic = 30)
+        private val testStyleResult = StyleResult(
+            dominantStyle = Style.READING.value,
+            styleBreakdown = testStyleBreakdown
+        )
+        private val user = User(
+            uid = "user123",
+            displayName = "TestUser",
+            email = "test@example.com",
+            emailVerified = true,
+        )
+        private val styleQuestionnaire = StyleQuestionnaire(
+            listOf(
+                StyleQuestion(
+                    listOf(StyleOption(Style.READING.value, Style.READING.value)), "Question 1",
+                )
+            )
+        )
     }
 }

@@ -12,12 +12,23 @@ import org.jetbrains.compose.resources.stringResource
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
 
+/**
+ * A composable function for handling image uploads. It provides a user interface to select an image file,
+ * handles file size validation, and manages the loading state.
+ *
+ * @param enabled A boolean flag indicating whether the image is currently being uploaded.
+ * @param onImageSelected A callback function that receives the selected image as a ByteArray.
+ * @param onImageDeleted A callback function to handle the deletion of the uploaded image.
+ * @param handleError A callback function to handle errors that occur during the image upload process.
+ * @param modifier A Modifier for styling this composable.
+ * @param isUploaded A boolean flag indicating whether the image has been successfully uploaded.
+ */
 @Composable
 actual fun ImageUpload(
-    isLoading: Boolean,
+    enabled: Boolean,
     onImageSelected: (ByteArray) -> Unit,
     onImageDeleted: () -> Unit,
-    handleError: (String) -> Unit,
+    handleError: (Throwable) -> Unit,
     modifier: Modifier,
     isUploaded: Boolean
 ) {
@@ -34,7 +45,7 @@ actual fun ImageUpload(
         FileUploadBox(
             uploadText = "Upload Photo",
             onClick = { showFileDialog = true },
-            isLoading = isLoading,
+            enabled = enabled,
             onFileDeleted = onImageDeleted,
             isUploaded = isUploaded
         )
@@ -50,7 +61,7 @@ actual fun ImageUpload(
 
                 val result = fileChooser.showOpenDialog(null)
                 if (result == JFileChooser.APPROVE_OPTION) fileChooser.selectedFile.run {
-                    if (length() > maxFileSize) handleError(fileTooLargeErr)
+                    if (length() > maxFileSize) handleError(Exception(fileTooLargeErr))
                     else inputStream().buffered().use { onImageSelected(it.readBytes()) }
                 }
             }

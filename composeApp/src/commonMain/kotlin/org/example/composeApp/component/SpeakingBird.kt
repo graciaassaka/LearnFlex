@@ -15,27 +15,28 @@ import org.example.composeApp.util.Orientation
 import org.jetbrains.compose.resources.painterResource
 
 /**
- * A composable function that displays a speaking bird with a speech bubble.
+ * A composable function that displays a "SpeakingBird" component with a speech bubble and a bird image.
  *
- * @param isLoading A boolean flag indicating whether the bird is currently speaking.
- * @param modifier The modifier to be applied to the speaking bird layout.
- * @param content The content to be displayed inside the speech bubble.
+ * @param orientation Specifies the orientation of the component, either Vertical or Horizontal.
+ * @param enabled A Boolean flag indicating whether the component is enabled or not, showing a typing indicator if true.
+ * @param modifier A [Modifier] to be applied to the component.
+ * @param content The composable content to be displayed inside the speech bubble when enabled is false.
  */
 @Composable
 fun SpeakingBird(
     orientation: Orientation,
-    isLoading: Boolean,
+    enabled: Boolean,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val (bubbleAlignment, birdAlignment) = when (orientation) {
-        Orientation.Vertical -> Alignment.TopEnd to Alignment.BottomStart
-        Orientation.Horizontal -> Alignment.TopCenter to Alignment.BottomCenter
+    val (height, bubbleAlignment, birdAlignment) = when (orientation) {
+        Orientation.Vertical -> Triple(Dimension.SPEAKING_BIRD_HEIGHT_VER.dp, Alignment.TopEnd, Alignment.BottomStart)
+        Orientation.Horizontal -> Triple(Dimension.SPEAKING_BIRD_HEIGHT_HOR.dp, Alignment.TopCenter, Alignment.BottomCenter)
     }
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(Dimension.SPEAKING_BIRD_HEIGHT.dp)
+            .height(height)
             .padding(Padding.MEDIUM.dp),
     ) {
         SpeechBubble(
@@ -54,7 +55,7 @@ fun SpeakingBird(
                 modifier = Modifier.padding(Padding.MEDIUM.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
-                content = { if (isLoading) TypingIndicator(modifier = Modifier.padding(Padding.MEDIUM.dp)) else content() }
+                content = { if (!enabled) TypingIndicator(modifier = Modifier.padding(Padding.MEDIUM.dp)) else content() }
             )
         }
         Image(

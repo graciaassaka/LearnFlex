@@ -1,4 +1,4 @@
-package org.example.composeApp.component
+package org.example.composeApp.layout
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -29,7 +29,7 @@ import kotlin.math.roundToInt
  * @param modifier Modifier to be applied to the picker layout.
  */
 @Composable
-inline fun <reified T> EnumScrollablePicker(
+inline fun <reified T> EnumScrollablePickerLayout(
     label: String,
     crossinline onChange: (T) -> Unit,
     enabled: Boolean,
@@ -58,7 +58,7 @@ inline fun <reified T> EnumScrollablePicker(
         Spacer(Modifier.weight(1f))
         Box(
             modifier = Modifier
-                .testTag("Picker")
+                .testTag("${T::class.simpleName}_picker")
                 .height(itemHeight * 3)
                 .draggable(
                     orientation = Orientation.Vertical,

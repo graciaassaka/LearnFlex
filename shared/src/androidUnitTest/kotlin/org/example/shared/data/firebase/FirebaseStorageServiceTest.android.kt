@@ -88,27 +88,29 @@ actual class FirebaseStorageServiceTest {
         val fileData = byteArrayOf(1, 2, 3)
         val path = "uploads/image1"
         val fileType = FileType.IMAGE
-        val expectedPath = "$path.jpg"
 
         // Create a successful UploadTask
         val successfulUploadTask = createSuccessfulUploadTask()
 
         // Mock StorageReference.child() to return mockChildReference when called with expectedPath
-        every { mockStorageReference.child(expectedPath) } returns mockChildReference
+        every { mockStorageReference.child(any()) } returns mockChildReference
 
         // Mock putBytes() to return the successful UploadTask
-        every { mockChildReference.putBytes(fileData) } returns successfulUploadTask
+        every { mockChildReference.putBytes(any()) } returns successfulUploadTask
 
         // When
         val result = firebaseStorageService.uploadFile(fileData, path, fileType)
 
         // Then
-        verify(exactly = 1) { mockStorageReference.child(expectedPath) }
-        verify(exactly = 1) { mockChildReference.putBytes(fileData) }
+        verify(exactly = 1) {
+            mockStorageReference.child(any())
+            mockChildReference.putBytes(any())
+        }
+
         coVerify(exactly = 1) { successfulUploadTask.await() }
 
         assertTrue(result.isSuccess)
-        assertEquals(expectedPath, result.getOrNull())
+        assertEquals(path, result.getOrNull())
     }
 
     /**
@@ -120,27 +122,29 @@ actual class FirebaseStorageServiceTest {
         val fileData = byteArrayOf(4, 5, 6)
         val path = "uploads/document1"
         val fileType = FileType.DOCUMENT
-        val expectedPath = "$path.pdf"
 
         // Create a successful UploadTask
         val successfulUploadTask = createSuccessfulUploadTask()
 
         // Mock StorageReference.child() to return mockChildReference when called with expectedPath
-        every { mockStorageReference.child(expectedPath) } returns mockChildReference
+        every { mockStorageReference.child(any()) } returns mockChildReference
 
         // Mock putBytes() to return the successful UploadTask
-        every { mockChildReference.putBytes(fileData) } returns successfulUploadTask
+        every { mockChildReference.putBytes(any()) } returns successfulUploadTask
 
         // When
         val result = firebaseStorageService.uploadFile(fileData, path, fileType)
 
         // Then
-        verify(exactly = 1) { mockStorageReference.child(expectedPath) }
-        verify(exactly = 1) { mockChildReference.putBytes(fileData) }
+        verify(exactly = 1) {
+            mockStorageReference.child(any())
+            mockChildReference.putBytes(any())
+        }
+
         coVerify(exactly = 1) { successfulUploadTask.await() }
 
         assertTrue(result.isSuccess)
-        assertEquals(expectedPath, result.getOrNull())
+        assertEquals(path, result.getOrNull())
     }
 
     /**

@@ -9,33 +9,35 @@ import dev.gitlive.firebase.initialize
 import org.example.shared.data.firebase.FirebaseConfig
 import org.example.shared.data.util.FirebaseConstants
 
-class FirebaseInit {
+class FirebaseInit(skipInit: Boolean = false) {
     var idToken = ""
     var refreshToken = ""
 
     init {
-        FirebasePlatform.initializeFirebasePlatform(
-            object : FirebasePlatform() {
-                val storage = mutableMapOf<String, String>()
-                override fun store(key: String, value: String) = storage.set(key, value)
-                override fun retrieve(key: String) = storage[key]
-                override fun clear(key: String) {
-                    storage.remove(key)
-                }
+        if (skipInit.not()) {
+            FirebasePlatform.initializeFirebasePlatform(
+                object : FirebasePlatform() {
+                    val storage = mutableMapOf<String, String>()
+                    override fun store(key: String, value: String) = storage.set(key, value)
+                    override fun retrieve(key: String) = storage[key]
+                    override fun clear(key: String) {
+                        storage.remove(key)
+                    }
 
-                override fun log(msg: String) = println(msg)
-            },
-        )
-        Firebase.initialize(
-            Application(),
-            options = FirebaseOptions(
-                applicationId = FirebaseConstants.APP_ID,
-                apiKey = FirebaseConstants.API_KEY,
-                projectId = FirebaseConstants.PROJECT_ID
+                    override fun log(msg: String) = println(msg)
+                },
             )
-        )
+            Firebase.initialize(
+                Application(),
+                options = FirebaseOptions(
+                    applicationId = FirebaseConstants.APP_ID,
+                    apiKey = FirebaseConstants.API_KEY,
+                    projectId = FirebaseConstants.PROJECT_ID
+                )
+            )
 
-        setupEmulator()
+            setupEmulator()
+        }
     }
 
     private fun setupEmulator() {

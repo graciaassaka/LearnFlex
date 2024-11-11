@@ -13,12 +13,22 @@ import learnflex.composeapp.generated.resources.upload_photo_text
 import org.example.composeApp.util.LocalComposition
 import org.jetbrains.compose.resources.stringResource
 
+/**
+ * A composable function for handling image upload functionality.
+ *
+ * @param enabled Indicates whether the image upload process is ongoing.
+ * @param onImageSelected A callback function that is invoked when an image is selected. Provides the selected image as a ByteArray.
+ * @param onImageDeleted A callback function that is invoked when the selected image is deleted.
+ * @param handleError A callback function to handle errors that occur during image selection or upload.
+ * @param modifier A Modifier instance to be applied to the composable.
+ * @param isUploaded A boolean flag indicating whether an image has already been uploaded.
+ */
 @Composable
 actual fun ImageUpload(
-    isLoading: Boolean,
+    enabled: Boolean,
     onImageSelected: (ByteArray) -> Unit,
     onImageDeleted: () -> Unit,
-    handleError: (String) -> Unit,
+    handleError: (Throwable) -> Unit,
     modifier: Modifier,
     isUploaded: Boolean,
 ) {
@@ -34,8 +44,8 @@ actual fun ImageUpload(
         uri?.let {
             with(context.contentResolver) {
                 openFileDescriptor(uri, "r")?.use { descriptor ->
-                    if (descriptor.statSize > maxFileSize) handleError(fileTooLargeErr)
-                    else openInputStream(uri)?.use { onImageSelected(it.readBytes()) } ?: handleError(fileNotFoundErr)
+                    if (descriptor.statSize > maxFileSize) handleError(Exception(fileTooLargeErr))
+                    else openInputStream(uri)?.use { onImageSelected(it.readBytes()) } ?: handleError(Exception(fileNotFoundErr))
                 }
             }
         }
@@ -44,7 +54,7 @@ actual fun ImageUpload(
     FileUploadBox(
         uploadText = stringResource(Res.string.upload_photo_text),
         onClick = { pickImage.launch(PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly)) },
-        isLoading = isLoading,
+        enabled = enabled,
         onFileDeleted = onImageDeleted,
         modifier = modifier,
         isUploaded = isUploaded

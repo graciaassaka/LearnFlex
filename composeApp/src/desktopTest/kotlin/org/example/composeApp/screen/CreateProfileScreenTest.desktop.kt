@@ -19,8 +19,11 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.update
 import org.example.composeApp.theme.LearnFlexTheme
 import org.example.composeApp.util.LocalComposition
-import org.example.shared.data.model.Level
+import org.example.composeApp.util.TestTags
+import org.example.shared.data.model.*
+import org.example.shared.data.util.Style
 import org.example.shared.presentation.state.CreateProfileUIState
+import org.example.shared.presentation.util.ProfileCreationForm
 import org.example.shared.presentation.util.UIEvent
 import org.example.shared.presentation.util.validation.InputValidator
 import org.example.shared.presentation.util.validation.ValidationResult
@@ -63,12 +66,12 @@ class CreateProfileScreenTest {
                 }
             }
         }
-        onNodeWithTag("imageUpload").assertIsDisplayed()
-        onNodeWithTag("usernameTextField").assertIsDisplayed()
-        onNodeWithTag("goalTextField").assertIsDisplayed()
-        onNodeWithTag("levelDropdown").assertIsDisplayed()
-        onNodeWithTag("fieldPicker").assertIsDisplayed()
-        onNodeWithTag("createProfileButton").assertIsDisplayed()
+        onNodeWithTag(TestTags.PERSONAL_INFO_IMAGE_UPLOAD.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.PERSONAL_INFO_USERNAME_TEXT_FIELD.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.PERSONAL_INFO_GOAL_TEXT_FIELD.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.PERSONAL_INFO_LEVEL_DROPDOWN.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.PERSONAL_INFO_FIELD_PICKER.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.PERSONAL_INFO_CREATE_PROFILE_BUTTON.tag).assertIsDisplayed()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -96,7 +99,7 @@ class CreateProfileScreenTest {
             }
         }
 
-        onNodeWithTag("usernameTextField").performTextInput(username)
+        onNodeWithTag(TestTags.PERSONAL_INFO_USERNAME_TEXT_FIELD.tag).performTextInput(username)
 
         verify { viewModel.onUsernameChanged(username) }
         onNodeWithText(username).assertIsDisplayed()
@@ -128,7 +131,7 @@ class CreateProfileScreenTest {
             }
         }
 
-        onNodeWithTag("usernameTextField").performTextInput(username)
+        onNodeWithTag(TestTags.PERSONAL_INFO_USERNAME_TEXT_FIELD.tag).performTextInput(username)
 
         verify { viewModel.onUsernameChanged(username) }
         onNodeWithText(errorMessage).assertIsDisplayed()
@@ -149,7 +152,7 @@ class CreateProfileScreenTest {
             uiState.update { it.copy(goal = goal) }
         }
 
-        onNodeWithTag("goalTextField").performTextInput(goal)
+        onNodeWithTag(TestTags.PERSONAL_INFO_GOAL_TEXT_FIELD.tag).performTextInput(goal)
 
         verify { viewModel.onGoalChanged(goal) }
         onNodeWithText(goal).assertIsDisplayed()
@@ -175,7 +178,7 @@ class CreateProfileScreenTest {
             uiState.update { it.copy(level = level) }
         }
 
-        onNodeWithTag("${Level::class.simpleName}_dropdown_button").performClick()
+        onNodeWithTag(TestTags.PERSONAL_INFO_LEVEL_DROPDOWN_BUTTON.tag).performClick()
         verify { viewModel.toggleLevelDropdownVisibility() }
 
         onNodeWithText(Level.Advanced.name).performClick()
@@ -194,7 +197,7 @@ class CreateProfileScreenTest {
                 }
             }
         }
-        onNodeWithTag("Picker")
+        onNodeWithTag("${Field::class.simpleName}_picker")
             .performTouchInput {
                 down(Offset(10f, 0f))
                 moveTo(Offset(10f, -100f))
@@ -214,8 +217,184 @@ class CreateProfileScreenTest {
                 }
             }
         }
-        onNodeWithTag("createProfileButton").performClick()
+        onNodeWithTag(TestTags.PERSONAL_INFO_CREATE_PROFILE_BUTTON.tag).performClick()
 
         verify { viewModel.onCreateProfile(any()) }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun personalInfoForm_disables_buttons_and_fields_when_loading() = runComposeUiTest {
+        setContent {
+            CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
+                LearnFlexTheme {
+                    CreateProfileScreen(windowSizeClass, navController, viewModel)
+                }
+            }
+        }
+
+        uiState.update { it.copy(isLoading = true) }
+
+        onNodeWithTag(TestTags.PERSONAL_INFO_USERNAME_TEXT_FIELD.tag).assertIsNotEnabled()
+        onNodeWithTag(TestTags.PERSONAL_INFO_GOAL_TEXT_FIELD.tag).assertIsNotEnabled()
+        onNodeWithTag("${Level::class.simpleName}_dropdown_button").assertIsNotEnabled()
+        onNodeWithTag(TestTags.PERSONAL_INFO_CREATE_PROFILE_BUTTON.tag).assertIsNotEnabled()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun styleQuestionnaireForm_displays_correctly() = runComposeUiTest {
+        setContent {
+            CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
+                LearnFlexTheme {
+                    CreateProfileScreen(windowSizeClass, navController, viewModel)
+                }
+            }
+        }
+
+        uiState.update {
+            it.copy(
+                currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
+                styleQuestionnaire = styleQuestionnaire
+            )
+        }
+
+        onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE.tag).assertIsEnabled()
+        onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_OPTIONS_GROUP.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_NEXT_BUTTON.tag).assertIsDisplayed()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun styleQuestionnaireOptionsGroup_selects_option_whenClicked() = runComposeUiTest {
+        setContent {
+            CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
+                LearnFlexTheme {
+                    CreateProfileScreen(windowSizeClass, navController, viewModel)
+                }
+            }
+        }
+
+        uiState.update {
+            it.copy(
+                currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
+                styleQuestionnaire = styleQuestionnaire
+            )
+        }
+
+        onNodeWithText(Style.READING.value).performClick()
+        onNodeWithText(Style.READING.value).assertIsSelected()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun styleQuestionnaireOptionsGroup_calls_viewModel_onQuestionAnswered_whenNextButtonClicked() = runComposeUiTest {
+        setContent {
+            CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
+                LearnFlexTheme {
+                    CreateProfileScreen(windowSizeClass, navController, viewModel)
+                }
+            }
+        }
+
+        uiState.update {
+            it.copy(
+                currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
+                styleQuestionnaire = styleQuestionnaire
+            )
+        }
+
+        onNodeWithText(Style.READING.value).performClick()
+        onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_NEXT_BUTTON.tag).performClick()
+
+        verify { viewModel.onQuestionAnswered(any()) }
+        onNodeWithText(Style.READING.value).assertIsSelected()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun styleQuestionnaireResultDialog_displays_correctly() = runComposeUiTest {
+        setContent {
+            CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
+                LearnFlexTheme {
+                    CreateProfileScreen(windowSizeClass, navController, viewModel)
+                }
+            }
+        }
+
+        uiState.update {
+            it.copy(
+                currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
+                styleQuestionnaire = styleQuestionnaire,
+                styleResult = styleResult,
+                showStyleResultDialog = true
+            )
+        }
+
+        onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_RESULT_DIALOG.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_SET_LEARNING_STYLE_BUTTON.tag).assertIsDisplayed()
+        onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_BREAKDOWN.tag).assertIsDisplayed()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun styleQuestionnaireResultDialog_calls_viewModel_setLearningStyle_whenButtonClicked() = runComposeUiTest {
+        setContent {
+            CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
+                LearnFlexTheme {
+                    CreateProfileScreen(windowSizeClass, navController, viewModel)
+                }
+            }
+        }
+
+        uiState.update {
+            it.copy(
+                currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
+                styleQuestionnaire = styleQuestionnaire,
+                styleResult = styleResult,
+                showStyleResultDialog = true
+            )
+        }
+
+        onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_SET_LEARNING_STYLE_BUTTON.tag).performClick()
+        verify { viewModel.setLearningStyle(any()) }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun styleQuestionnaireResultDialog_calls_viewModel_startStyleQuestionnaire_whenButtonClicked() = runComposeUiTest {
+        setContent {
+            CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
+                LearnFlexTheme {
+                    CreateProfileScreen(windowSizeClass, navController, viewModel)
+                }
+            }
+        }
+
+        uiState.update {
+            it.copy(
+                currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
+                styleQuestionnaire = styleQuestionnaire,
+                styleResult = styleResult,
+                showStyleResultDialog = true
+            )
+        }
+
+        onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_RESTART_BUTTON.tag).performClick()
+        verify { viewModel.startStyleQuestionnaire() }
+    }
+
+    companion object {
+        private val styleQuestionnaire = StyleQuestionnaire(
+            listOf(
+                StyleQuestion(
+                    listOf(StyleOption(Style.READING.value, Style.READING.value)), "Question 1",
+                )
+            )
+        )
+        private val styleResult = StyleResult(
+            dominantStyle = Style.READING.value,
+            styleBreakdown = StyleBreakdown(visual = 0, reading = 50, kinesthetic = 50)
+        )
     }
 }

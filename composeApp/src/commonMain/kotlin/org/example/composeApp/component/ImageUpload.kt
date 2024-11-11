@@ -4,21 +4,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 /**
- * A composable function for uploading images.
+ * A composable function for handling image upload functionality.
  *
- * @param isLoading A boolean indicating if the upload is in progress.
- * @param onImageSelected A callback function to handle the selected image as a ByteArray.
- * @param onImageDeleted A callback function to handle the deletion of an image.
- * @param handleError A callback function to handle errors, receiving an error message as a String.
- * @param modifier A Modifier for styling the composable.
- * @param isUploaded A boolean indicating if the image has been uploaded.
+ * @param enabled Controls whether the image upload components are enabled or not.
+ * @param onImageSelected Callback triggered when an image is selected, providing the image as a ByteArray.
+ * @param onImageDeleted Callback triggered when an image is deleted.
+ * @param handleError Callback for handling errors that may occur during image upload or deletion.
+ * @param modifier Modifier to be applied to the image upload component.
+ * @param isUploaded Indicates whether an image has already been uploaded.
  */
 @Composable
 expect fun ImageUpload(
-    isLoading: Boolean,
+    enabled: Boolean,
     onImageSelected: (ByteArray) -> Unit,
     onImageDeleted: () -> Unit,
-    handleError: (String) -> Unit,
+    handleError: (Throwable) -> Unit,
     modifier: Modifier,
     isUploaded: Boolean
 )

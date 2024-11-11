@@ -1,12 +1,11 @@
 package org.example.composeApp.layout
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.*
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.unit.dp
@@ -33,6 +32,7 @@ fun AuthLayout(
     windowSizeClass: WindowSizeClass,
     snackbarHostState: SnackbarHostState,
     snackbarType: SnackbarType,
+    enabled: Boolean,
     isVisible: Boolean,
     onAnimationFinished: () -> Unit,
     modifier: Modifier = Modifier,
@@ -81,7 +81,7 @@ fun AuthLayout(
                             )
                         )
 
-                        Orientation.Vertical -> it.measure(constraints)
+                        Orientation.Vertical   -> it.measure(constraints)
                     }
                 }
 
@@ -93,7 +93,7 @@ fun AuthLayout(
                             contentPlaceable.forEach { it.place(x = logoAreaWidth, y = 0) }
                         }
 
-                        Orientation.Vertical -> {
+                        Orientation.Vertical   -> {
                             val appBannerY = 200
                             appBannerPlaceable.forEach { it.place(x = (width - it.width) / 2, y = appBannerY) }
                             val contentY = 500
@@ -102,6 +102,10 @@ fun AuthLayout(
                     }
                 }
             }
+            if (!enabled) CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }
