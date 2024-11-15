@@ -69,24 +69,7 @@ Sensitive data, such as API keys, is managed through an environment file:
 - Add the `.env` file to `.gitignore` to prevent it from being tracked by version control.
 - Use an appropriate library to read environment variables within Kotlin.
 
-### 9. **Project Enhancements from Recent Commits**
-
-The following changes were made during the current sprint to enhance the project:
-
-1. **Project Refactoring**: Cleaned up project structure, updated AndroidManifest, and removed redundant
-   configurations ([Commit 156c0f1](https://github.com/graciaassaka/LearnFlex/commit/156c0f1841c4daafaaac0242ae5bdccb364a4913)).
-2. **Desktop Target and Koin Updates**: Added desktop target and updated Koin
-   dependencies ([Commit 6709230](https://github.com/graciaassaka/LearnFlex/commit/670923094316ce1f60cf48b6c7b68c396222d3c0)).
-3. **Launcher Icon**: Added launcher icon and updated
-   dependencies ([Commit 906536e](https://github.com/graciaassaka/LearnFlex/commit/906536e3b8111180bf55c79dc0996469b8dcbbde)).
-4. **Logo and Theme Setup**: Unified the logo setup and added color schemes for
-   themes ([Commit 2b105f3](https://github.com/graciaassaka/LearnFlex/commit/2b105f37295a43ed771c0ddb042c8e74337b8907)).
-5. **Firebase Integration**: Integrated Firebase services for Android and
-   desktop ([Commit 470924d](https://github.com/graciaassaka/LearnFlex/commit/470924d1840db89a9597d43c79ccc8c1afccadfe)).
-6. **Launcher and Theming Enhancements**: Added dynamic color theming and updated launcher
-   icons ([Commit c4fb1b0](https://github.com/graciaassaka/LearnFlex/commit/c4fb1b03dc8bbbf3f0556ea9b78ad23b3805db56)).
-
-### 10. **Testing and Documentation**
+### 9. **Testing and Documentation**
 
 - Initial unit tests have been written for Koin modules and Firebase integration.
 - Documenting the setup process ensures all developers have the same foundation and understanding of the project
