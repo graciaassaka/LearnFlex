@@ -87,6 +87,8 @@ kotlin {
                 implementation(libs.ktor.client.log)
                 implementation(libs.androidx.lifecycle.viewmodel)
                 implementation(libs.gitlive.firestore)
+                implementation(libs.room.runtime)
+                implementation(libs.room.ktx)
             }
         }
 
@@ -104,6 +106,7 @@ kotlin {
                 implementation(libs.slf4j)
                 implementation(libs.wiremock)
                 implementation(libs.mockk.agent.jvm)
+                implementation(libs.room.testing)
             }
         }
 
