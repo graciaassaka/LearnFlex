@@ -1,6 +1,6 @@
 package org.example.shared.domain.service
 
-import org.example.shared.data.model.User
+import org.example.shared.domain.model.User
 
 /**
  * Interface defining authentication-related operations.

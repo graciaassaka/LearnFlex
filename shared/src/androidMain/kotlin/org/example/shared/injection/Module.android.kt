@@ -4,8 +4,9 @@ import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
-import org.example.shared.data.firebase.FirebaseAuthService
-import org.example.shared.data.firebase.FirebaseStorageService
+import org.example.shared.data.local.database.DatabaseProvider
+import org.example.shared.data.remote.firebase.FirebaseAuthService
+import org.example.shared.data.remote.firebase.FirebaseStorageService
 import org.example.shared.domain.service.AuthService
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
@@ -34,4 +35,8 @@ actual fun getFirebaseAuthServiceModule() = module {
 actual fun getFirebaseStorageServiceModule() = module {
     single { FirebaseStorage.getInstance() }
     single { FirebaseStorageService(get()) }
+}
+
+actual fun getDatabaseModule()= module {
+    single { DatabaseProvider(androidContext()).getDatabase() }
 }

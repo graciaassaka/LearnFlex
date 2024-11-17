@@ -1,6 +1,6 @@
 package org.example.shared.domain.service
 
-import org.example.shared.data.model.*
+import org.example.shared.data.remote.model.*
 
 /**
  * Interface for AI Assistant Client operations.

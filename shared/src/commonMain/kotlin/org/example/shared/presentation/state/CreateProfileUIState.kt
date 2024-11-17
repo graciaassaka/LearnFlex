@@ -1,10 +1,10 @@
 package org.example.shared.presentation.state
 
-import org.example.shared.data.model.Field
-import org.example.shared.data.model.Level
-import org.example.shared.data.util.Style
-import org.example.shared.data.model.StyleQuestionnaire
-import org.example.shared.data.model.StyleResult
+import org.example.shared.domain.model.Field
+import org.example.shared.domain.model.Level
+import org.example.shared.domain.constant.Style
+import org.example.shared.domain.model.StyleQuestionnaire
+import org.example.shared.domain.model.StyleResult
 import org.example.shared.presentation.util.ProfileCreationForm
 
 /**

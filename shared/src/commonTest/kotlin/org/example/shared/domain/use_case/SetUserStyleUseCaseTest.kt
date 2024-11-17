@@ -4,8 +4,8 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.example.shared.data.model.StyleResult
-import org.example.shared.domain.repository.LearningStyleRepos
+import org.example.shared.domain.model.StyleResult
+import org.example.shared.domain.data_source.LearningStyleRemoteDataSource
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 
 class SetUserStyleUseCaseTest {
     private lateinit var setUserStyleUseCase: SetUserStyleUseCase
-    private lateinit var styleRepos: LearningStyleRepos
+    private lateinit var styleRepos: LearningStyleRemoteDataSource
 
     @Before
     fun setUp() {

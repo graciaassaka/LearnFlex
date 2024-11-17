@@ -4,8 +4,8 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.example.shared.data.model.User
-import org.example.shared.data.util.FileType
+import org.example.shared.domain.model.User
+import org.example.shared.domain.constant.FileType
 import org.example.shared.data.util.StorageException
 import org.example.shared.domain.service.AuthService
 import org.example.shared.domain.service.StorageService
@@ -36,7 +36,7 @@ class UploadProfilePictureUseCaseTest {
             email = "test@example.com",
             photoUrl = "old_url",
             emailVerified = true,
-            uid = "user123"
+            localId = "user123"
         )
         val uploadedUrl = "profile_pictures/user123.jpg"
 
@@ -44,7 +44,7 @@ class UploadProfilePictureUseCaseTest {
         coEvery {
             storageService.uploadFile(
                 fileData = imageData,
-                path = "profile_pictures/${user.uid}.jpg",
+                path = "profile_pictures/${user.localId}.jpg",
                 fileType = FileType.IMAGE
             )
         } returns Result.success(uploadedUrl)
@@ -59,7 +59,7 @@ class UploadProfilePictureUseCaseTest {
         coVerify(exactly = 1) {
             storageService.uploadFile(
                 fileData = imageData,
-                path = "profile_pictures/${user.uid}.jpg",
+                path = "profile_pictures/${user.localId}.jpg",
                 fileType = FileType.IMAGE
             )
         }
@@ -94,7 +94,7 @@ class UploadProfilePictureUseCaseTest {
             email = "test@example.com",
             photoUrl = "old_url",
             emailVerified = true,
-            uid = "user123"
+            localId = "user123"
         )
         val uploadException = StorageException.UploadFailure("Upload failed")
 
@@ -102,7 +102,7 @@ class UploadProfilePictureUseCaseTest {
         coEvery {
             storageService.uploadFile(
                 fileData = imageData,
-                path = "profile_pictures/${user.uid}.jpg",
+                path = "profile_pictures/${user.localId}.jpg",
                 fileType = FileType.IMAGE
             )
         } returns Result.failure(uploadException)
@@ -117,7 +117,7 @@ class UploadProfilePictureUseCaseTest {
         coVerify(exactly = 1) {
             storageService.uploadFile(
                 fileData = imageData,
-                path = "profile_pictures/${user.uid}.jpg",
+                path = "profile_pictures/${user.localId}.jpg",
                 fileType = FileType.IMAGE
             )
         }
@@ -133,7 +133,7 @@ class UploadProfilePictureUseCaseTest {
             email = "test@example.com",
             photoUrl = "old_url",
             emailVerified = true,
-            uid = "user123"
+            localId = "user123"
         )
         val uploadedUrl = "profile_pictures/user123.jpg"
         val updateException = Exception("Update failed")
@@ -142,7 +142,7 @@ class UploadProfilePictureUseCaseTest {
         coEvery {
             storageService.uploadFile(
                 fileData = imageData,
-                path = "profile_pictures/${user.uid}.jpg",
+                path = "profile_pictures/${user.localId}.jpg",
                 fileType = FileType.IMAGE
             )
         } returns Result.success(uploadedUrl)
@@ -158,7 +158,7 @@ class UploadProfilePictureUseCaseTest {
         coVerify(exactly = 1) {
             storageService.uploadFile(
                 fileData = imageData,
-                path = "profile_pictures/${user.uid}.jpg",
+                path = "profile_pictures/${user.localId}.jpg",
                 fileType = FileType.IMAGE
             )
         }
@@ -174,7 +174,7 @@ class UploadProfilePictureUseCaseTest {
             email = "test@example.com",
             photoUrl = "old_url",
             emailVerified = true,
-            uid = "user123"
+            localId = "user123"
         )
         val uploadedUrl = "profile_pictures/user123.jpg"
 
@@ -190,7 +190,7 @@ class UploadProfilePictureUseCaseTest {
         coVerify {
             storageService.uploadFile(
                 fileData = imageData,
-                path = "profile_pictures/${user.uid}.jpg",
+                path = "profile_pictures/${user.localId}.jpg",
                 fileType = FileType.IMAGE
             )
         }

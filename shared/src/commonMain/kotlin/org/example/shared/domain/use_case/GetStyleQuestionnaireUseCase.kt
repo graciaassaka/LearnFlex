@@ -1,6 +1,6 @@
 package org.example.shared.domain.use_case
 
-import org.example.shared.data.model.LearningPreferences
+import org.example.shared.domain.model.LearningPreferences
 import org.example.shared.domain.service.StyleQuizService
 
 /**

@@ -1,6 +1,6 @@
 package org.example.shared.domain.use_case
 
-import org.example.shared.data.util.FileType
+import org.example.shared.domain.constant.FileType
 import org.example.shared.domain.service.AuthService
 import org.example.shared.domain.service.StorageService
 
@@ -23,7 +23,7 @@ class UploadProfilePictureUseCase(
         val user = authService.getUserData().getOrThrow()
 
         val url = storageService.uploadFile(
-            fileData = image, path = "profile_pictures/${user.uid}.jpg", fileType = FileType.IMAGE
+            fileData = image, path = "profile_pictures/${user.localId}.jpg", fileType = FileType.IMAGE
         ).getOrThrow()
 
         authService.updateUserData(user.copy(photoUrl = url)).getOrThrow()

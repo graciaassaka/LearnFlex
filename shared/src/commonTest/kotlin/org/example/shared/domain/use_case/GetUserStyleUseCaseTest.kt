@@ -4,8 +4,8 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.example.shared.data.model.StyleResult
-import org.example.shared.domain.repository.LearningStyleRepos
+import org.example.shared.domain.model.StyleResult
+import org.example.shared.domain.data_source.LearningStyleRemoteDataSource
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 
 class GetUserStyleUseCaseTest {
     private lateinit var getUserStyleUseCase: GetUserStyleUseCase
-    private lateinit var styleRepos: LearningStyleRepos
+    private lateinit var styleRepos: LearningStyleRemoteDataSource
 
     @Before
     fun setUp() {
@@ -27,14 +27,14 @@ class GetUserStyleUseCaseTest {
         getUserStyleUseCase("userId")
 
         // Then
-        coVerify(exactly = 1) { styleRepos.getLearningStyle(any()) }
+        coVerify(exactly = 1) { styleRepos.fetchLearningStyle(any()) }
     }
 
     @Test
     fun `getUserStyleUseCase should return Result#success when getLearningStyle is successful`() = runTest {
         // Given
         val expected = mockk<StyleResult>()
-        coEvery { styleRepos.getLearningStyle(any()) } returns Result.success(expected)
+        coEvery { styleRepos.fetchLearningStyle(any()) } returns Result.success(expected)
 
         // When
         val result = getUserStyleUseCase("userId")
@@ -48,7 +48,7 @@ class GetUserStyleUseCaseTest {
     fun `getUserStyleUseCase should return Result#failure when getLearningStyle is failed`() = runTest {
         // Given
         val expected = Exception("Error")
-        coEvery { styleRepos.getLearningStyle(any()) } returns Result.failure(expected)
+        coEvery { styleRepos.fetchLearningStyle(any()) } returns Result.failure(expected)
 
         // When
         val result = getUserStyleUseCase("userId")

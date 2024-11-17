@@ -1,14 +1,14 @@
 package org.example.shared.domain.use_case
 
-import org.example.shared.data.model.StyleResult
-import org.example.shared.domain.repository.LearningStyleRepos
+import org.example.shared.domain.model.StyleResult
+import org.example.shared.domain.data_source.LearningStyleRemoteDataSource
 
 /**
  * Use case for setting the user's learning style.
  *
  * @property styleRepos The repository to interact with learning styles.
  */
-class SetUserStyleUseCase (private val styleRepos: LearningStyleRepos) {
+class SetUserStyleUseCase (private val styleRepos: LearningStyleRemoteDataSource) {
 
     /**
      * Sets the learning style for a user.

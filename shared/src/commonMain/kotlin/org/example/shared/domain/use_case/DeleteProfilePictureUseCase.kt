@@ -21,7 +21,7 @@ class DeleteProfilePictureUseCase(
     suspend operator fun invoke() = runCatching {
         val user = authService.getUserData().getOrThrow()
 
-        storageService.deleteFile("profile_pictures/${user.uid}.jpg").getOrThrow()
+        storageService.deleteFile("profile_pictures/${user.localId}.jpg").getOrThrow()
 
         authService.updateUserData(user.copy(photoUrl = null)).getOrThrow()
     }

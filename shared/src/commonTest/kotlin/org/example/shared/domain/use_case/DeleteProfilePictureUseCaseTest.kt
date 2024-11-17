@@ -4,7 +4,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.example.shared.data.model.User
+import org.example.shared.domain.model.User
 import org.example.shared.domain.service.AuthService
 import org.example.shared.domain.service.StorageService
 import org.junit.Assert.assertEquals
@@ -33,11 +33,11 @@ class DeleteProfilePictureUseCaseTest {
             email = "test@example.com",
             photoUrl = "old_url",
             emailVerified = true,
-            uid = "user123"
+            localId = "user123"
         )
 
         coEvery { authService.getUserData() } returns Result.success(user)
-        coEvery { storageService.deleteFile("profile_pictures/${user.uid}.jpg") } returns Result.success(Unit)
+        coEvery { storageService.deleteFile("profile_pictures/${user.localId}.jpg") } returns Result.success(Unit)
         coEvery { authService.updateUserData(user.copy(photoUrl = null)) } returns Result.success(Unit)
 
         // When
@@ -46,7 +46,7 @@ class DeleteProfilePictureUseCaseTest {
         // Then
         assertTrue(result.isSuccess)
         coVerify(exactly = 1) { authService.getUserData() }
-        coVerify(exactly = 1) { storageService.deleteFile("profile_pictures/${user.uid}.jpg") }
+        coVerify(exactly = 1) { storageService.deleteFile("profile_pictures/${user.localId}.jpg") }
         coVerify(exactly = 1) { authService.updateUserData(user.copy(photoUrl = null)) }
     }
 
@@ -76,12 +76,12 @@ class DeleteProfilePictureUseCaseTest {
             email = "test@example.com",
             photoUrl = "old_url",
             emailVerified = true,
-            uid = "user123"
+            localId = "user123"
         )
         val deleteException = Exception("Delete failed")
 
         coEvery { authService.getUserData() } returns Result.success(user)
-        coEvery { storageService.deleteFile("profile_pictures/${user.uid}.jpg") } returns Result.failure(deleteException)
+        coEvery { storageService.deleteFile("profile_pictures/${user.localId}.jpg") } returns Result.failure(deleteException)
 
         // When
         val result = deleteProfilePictureUseCase.invoke()
@@ -90,7 +90,7 @@ class DeleteProfilePictureUseCaseTest {
         assertTrue(result.isFailure)
         assertEquals(deleteException, result.exceptionOrNull())
         coVerify(exactly = 1) { authService.getUserData() }
-        coVerify(exactly = 1) { storageService.deleteFile("profile_pictures/${user.uid}.jpg") }
+        coVerify(exactly = 1) { storageService.deleteFile("profile_pictures/${user.localId}.jpg") }
         coVerify(exactly = 0) { authService.updateUserData(any()) }
     }
 
@@ -102,12 +102,12 @@ class DeleteProfilePictureUseCaseTest {
             email = "test@example.com",
             photoUrl = "old_url",
             emailVerified = true,
-            uid = "user123"
+            localId = "user123"
         )
         val updateException = Exception("Update failed")
 
         coEvery { authService.getUserData() } returns Result.success(user)
-        coEvery { storageService.deleteFile("profile_pictures/${user.uid}.jpg") } returns Result.success(Unit)
+        coEvery { storageService.deleteFile("profile_pictures/${user.localId}.jpg") } returns Result.success(Unit)
         coEvery { authService.updateUserData(user.copy(photoUrl = null)) } returns Result.failure(updateException)
 
         // When
@@ -117,7 +117,7 @@ class DeleteProfilePictureUseCaseTest {
         assertTrue(result.isFailure)
         assertEquals(updateException, result.exceptionOrNull())
         coVerify(exactly = 1) { authService.getUserData() }
-        coVerify(exactly = 1) { storageService.deleteFile("profile_pictures/${user.uid}.jpg") }
+        coVerify(exactly = 1) { storageService.deleteFile("profile_pictures/${user.localId}.jpg") }
         coVerify(exactly = 1) { authService.updateUserData(user.copy(photoUrl = null)) }
     }
 }

@@ -20,8 +20,8 @@ import kotlinx.coroutines.flow.update
 import org.example.composeApp.theme.LearnFlexTheme
 import org.example.composeApp.util.LocalComposition
 import org.example.composeApp.util.TestTags
-import org.example.shared.data.model.*
-import org.example.shared.data.util.Style
+import org.example.shared.domain.constant.Style
+import org.example.shared.domain.model.*
 import org.example.shared.presentation.state.CreateProfileUIState
 import org.example.shared.presentation.util.ProfileCreationForm
 import org.example.shared.presentation.util.UIEvent

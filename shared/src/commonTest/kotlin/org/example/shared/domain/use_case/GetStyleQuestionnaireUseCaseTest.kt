@@ -2,8 +2,8 @@ package org.example.shared.domain.use_case
 
 import io.mockk.*
 import kotlinx.coroutines.test.runTest
-import org.example.shared.data.model.LearningPreferences
-import org.example.shared.data.model.StyleQuestionnaire
+import org.example.shared.domain.model.LearningPreferences
+import org.example.shared.domain.model.StyleQuestionnaire
 import org.example.shared.domain.service.StyleQuizService
 import org.junit.Before
 import org.junit.Test

@@ -4,8 +4,10 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import org.example.shared.data.model.*
-import org.example.shared.data.util.Style
+import org.example.shared.domain.constant.Style
+import org.example.shared.domain.constant.SyncStatus
+import org.example.shared.domain.model.*
+import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.use_case.*
 import org.example.shared.presentation.state.CreateProfileUIState
 import org.example.shared.presentation.util.ProfileCreationForm
@@ -14,48 +16,66 @@ import org.example.shared.presentation.util.validation.InputValidator
 import org.example.shared.presentation.util.validation.ValidationResult
 
 /**
- * ViewModel class for creating a user profile.
+ * ViewModel for the profile creation screen.
  *
- * @property sharedViewModel A shared view model instance for accessing user data.
- * @property createUserProfileUseCase A use case for creating a new user profile.
- * @property uploadProfilePictureUseCase A use case for uploading a profile picture.
- * @property deleteProfilePictureUseCase A use case for deleting a profile picture.
- * @property dispatcher Coroutine dispatcher for managing coroutine contexts.
- * @param sharingStarted Determines when sharing of the state flow starts.
+ * @param getUserDataUseCase The use case to get the user data.
+ * @param createUserProfileUseCase The use case to create a user profile.
+ * @param uploadProfilePictureUseCase The use case to upload a profile picture.
+ * @param deleteProfilePictureUseCase The use case to delete a profile picture.
+ * @param getStyleQuestionnaireUseCase The use case to get the style questionnaire.
+ * @param getStyleResultUseCase The use case to get the style result.
+ * @param setUserStyleUseCase The use case to set the user style.
+ * @param syncManager The sync manager for user profiles.
+ * @param dispatcher The coroutine dispatcher to run the use cases on.
+ * @param sharingStarted The sharing strategy for the state flow.
  */
 class CreateUserProfileViewModel(
-    private val sharedViewModel: SharedViewModel,
+    private val getUserDataUseCase: GetUserDataUseCase,
     private val createUserProfileUseCase: CreateUserProfileUseCase,
     private val uploadProfilePictureUseCase: UploadProfilePictureUseCase,
     private val deleteProfilePictureUseCase: DeleteProfilePictureUseCase,
     private val getStyleQuestionnaireUseCase: GetStyleQuestionnaireUseCase,
     private val getStyleResultUseCase: GetStyleResultUseCase,
     private val setUserStyleUseCase: SetUserStyleUseCase,
+    private val syncManager: SyncManager<UserProfile>,
     private val dispatcher: CoroutineDispatcher,
     sharingStarted: SharingStarted
 ) : BaseViewModel(dispatcher) {
     // Mutable state flow to manage the UI state of the profile creation screen
     private val _state = MutableStateFlow(CreateProfileUIState())
     val state = _state
-        .onStart { sharedViewModel.getUserData() }
+        .onStart { getUserData() }
         .stateIn(viewModelScope, sharingStarted, _state.value)
 
+    // Collects sync status updates and handles errors
     init {
         viewModelScope.launch {
-            sharedViewModel.state.collect { sharedState ->
-                if (sharedState.error != null) {
-                    handleError(sharedState.error)
-                    sharedViewModel.clearError()
-                }
-                _state.update {
-                    it.copy(
-                        userId = sharedState.userData?.uid ?: "",
-                        username = sharedState.userData?.displayName ?: "",
-                        email = sharedState.userData?.email ?: "",
-                    )
-                }
-            }
+            syncManager.syncStatus.collect { if (it is SyncStatus.Error) handleError(it.error) }
         }
+    }
+
+    /**
+     * Fetches the user data from the database.
+     */
+    fun getUserData() = with(_state) {
+        update { it.copy(isLoading = true) }
+
+        viewModelScope.launch(dispatcher) {
+            getUserDataUseCase()
+                .onSuccess { userData ->
+                    update {
+                        it.copy(
+                            userId = userData.localId ?: "",
+                            username = userData.displayName ?: "",
+                            email = userData.email ?: "",
+                        )
+                    }
+                }.onFailure {
+                    handleError(it)
+                }
+        }
+
+        update { it.copy(isLoading = false) }
     }
 
     /**
@@ -155,11 +175,13 @@ class CreateUserProfileViewModel(
         if (value.usernameError.isNullOrBlank()) viewModelScope.launch(dispatcher) {
             createUserProfileUseCase(
                 UserProfile(
-                    id = sharedViewModel.state.value.userData?.uid ?: "",
-                    email = sharedViewModel.state.value.userData?.email ?: "",
+                    id = value.userId,
+                    email = value.email,
                     username = value.username,
                     photoUrl = value.photoUrl,
-                    preferences = LearningPreferences(value.field.name, value.level.name, value.goal)
+                    preferences = LearningPreferences(value.field.name, value.level.name, value.goal),
+                    createdAt = System.currentTimeMillis(),
+                    lastUpdated = System.currentTimeMillis()
                 )
             ).onSuccess {
                 showSnackbar(successMessage, SnackbarType.Success)
@@ -223,9 +245,9 @@ class CreateUserProfileViewModel(
 
             update { it.copy(isLoading = true) }
             viewModelScope.launch(dispatcher) {
-                    setUserStyleUseCase(value.userId, value.styleResult!!)
-                        .onSuccess { showSnackbar(successMessage, SnackbarType.Success) }
-                        .onFailure { error -> handleError(error) }
+                setUserStyleUseCase(value.userId, value.styleResult!!)
+                    .onSuccess { showSnackbar(successMessage, SnackbarType.Success) }
+                    .onFailure { error -> handleError(error) }
             }
         } catch (e: IllegalArgumentException) {
             handleError(e)

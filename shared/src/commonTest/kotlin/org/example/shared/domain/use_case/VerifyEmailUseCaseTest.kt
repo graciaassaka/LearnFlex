@@ -6,7 +6,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.example.shared.data.model.User
+import org.example.shared.domain.model.User
 import org.junit.Before
 import org.junit.Test
 

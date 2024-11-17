@@ -3,27 +3,39 @@ package org.example.shared.injection
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.firestore.firestore
 import io.ktor.http.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.SharingStarted
-import org.example.shared.data.assistant.OpenAIAssistantClient
-import org.example.shared.data.assistant.StyleQuizServiceImpl
-import org.example.shared.data.firebase.FirebaseAuthService
-import org.example.shared.data.firebase.FirebaseStorageService
-import org.example.shared.data.firestore.LearningStyleReposImpl
-import org.example.shared.data.firestore.UserProfileReposImpl
+import org.example.shared.data.local.database.LearnFlexDatabase
+import org.example.shared.data.remote.assistant.OpenAIAssistantClient
+import org.example.shared.data.remote.assistant.StyleQuizServiceImpl
+import org.example.shared.data.remote.firebase.FirebaseAuthService
+import org.example.shared.data.remote.firebase.FirebaseStorageService
+import org.example.shared.data.remote.firestore.LearningStyleRemoteDataSourceImpl
+import org.example.shared.data.remote.firestore.UserProfileRemoteDataSourceImpl
+import org.example.shared.data.repository.UserProfileRepositoryImpl
+import org.example.shared.data.sync.handler.UserProfileSyncHandler
+import org.example.shared.data.sync.manager.SyncManagerImpl
 import org.example.shared.data.util.HttpClientConfig
 import org.example.shared.data.util.OpenAIConstants
-import org.example.shared.domain.repository.LearningStyleRepos
-import org.example.shared.domain.repository.UserProfileRepos
+import org.example.shared.domain.data_source.LearningStyleRemoteDataSource
+import org.example.shared.domain.data_source.UserProfileRemoteDataSource
+import org.example.shared.domain.model.UserProfile
+import org.example.shared.domain.repository.UserProfileRepository
 import org.example.shared.domain.service.AIAssistantClient
 import org.example.shared.domain.service.AuthService
 import org.example.shared.domain.service.StorageService
 import org.example.shared.domain.service.StyleQuizService
+import org.example.shared.domain.sync.SyncHandler
+import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.use_case.*
 import org.example.shared.presentation.viewModel.AuthViewModel
 import org.example.shared.presentation.viewModel.BaseViewModel
 import org.example.shared.presentation.viewModel.CreateUserProfileViewModel
-import org.example.shared.presentation.viewModel.SharedViewModel
 import org.koin.core.module.Module
+import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -31,57 +43,134 @@ expect fun initKoin(context: Any?)
 
 expect fun getDispatcherModule(): Module
 
+expect fun getDatabaseModule(): Module
+
 expect fun getFirebaseAuthServiceModule(): Module
 
 expect fun getFirebaseStorageServiceModule(): Module
 
 val commonModule = module {
+    // Core dependencies
+    single {
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).also { scope ->
+            Runtime.getRuntime().addShutdownHook(Thread {
+                scope.cancel()
+            })
+        }
+    }
     single { SharingStarted.WhileSubscribed(5000) }
 
-    includes(getDispatcherModule())
+    // Include platform-specific modules
+    includes(
+        getDispatcherModule(),
+        getDatabaseModule(),
+        getFirebaseAuthServiceModule(),
+        getFirebaseStorageServiceModule()
+    )
 
+    // HTTP Client
     single {
-        HttpClientConfig.create().also { Runtime.getRuntime().addShutdownHook(Thread { it.close() }) }
+        HttpClientConfig.create().also { client ->
+            Runtime.getRuntime().addShutdownHook(Thread {
+                client.close()
+            })
+        }
     }
 
+    // Firebase Services
     single { Firebase.firestore }
-
-    includes(getFirebaseAuthServiceModule())
-
     single<AuthService> { get<FirebaseAuthService>() }
-
-    includes(getFirebaseStorageServiceModule())
-
     single<StorageService> { get<FirebaseStorageService>() }
 
+    // OpenAI Services
     single<AIAssistantClient> {
         OpenAIAssistantClient(
-            get(), URLBuilder(protocol = URLProtocol.HTTPS, host = "api.openai.com").build(), OpenAIConstants.API_KEY
+            httpClient = get(),
+            baseUrl = URLBuilder(
+                protocol = URLProtocol.HTTPS,
+                host = "api.openai.com"
+            ).build(),
+            apiKey = OpenAIConstants.API_KEY
         )
     }
 
+    // Style Quiz Service
     single<StyleQuizService> { StyleQuizServiceImpl(get()) }
 
-    single { SignUpUseCase(get()) }
-    single { SignInUseCase(get()) }
-    single { GetUserDataUseCase(get()) }
-    single { SendVerificationEmailUseCase(get()) }
-    single { VerifyEmailUseCase(get()) }
-    single { DeleteUserUseCase(get()) }
-    single { SendPasswordResetEmailUseCase(get()) }
-    single { CreateUserProfileUseCase(get()) }
-    single { UploadProfilePictureUseCase(get(), get()) }
-    single { DeleteProfilePictureUseCase(get(), get()) }
-    single { GetStyleQuestionnaireUseCase(get()) }
-    single { GetStyleResultUseCase(get()) }
-    single { GetUserStyleUseCase(get()) }
-    single { SetUserStyleUseCase(get()) }
+    // Database DAOs
+    single { get<LearnFlexDatabase>().userProfileDao() }
 
-    single<UserProfileRepos> { UserProfileReposImpl(get()) }
-    single<LearningStyleRepos> { LearningStyleReposImpl(get()) }
+    // Remote Data Sources
+    single<UserProfileRemoteDataSource> { UserProfileRemoteDataSourceImpl(get()) }
+    single<LearningStyleRemoteDataSource> { LearningStyleRemoteDataSourceImpl(get()) }
 
+    // Sync-related dependencies
+    single<SyncHandler<UserProfile>> {
+        UserProfileSyncHandler(get(), get())
+    }
+
+    single<SyncManager<UserProfile>> {
+        SyncManagerImpl<UserProfile>(
+            syncScope = get(),
+            syncHandler = get(),
+            maxRetries = 3
+        ).also { syncManager ->
+            Runtime.getRuntime().addShutdownHook(Thread {
+                syncManager.close()
+            })
+        }
+    }
+
+    // Repositories
+    single<UserProfileRepository> {
+        UserProfileRepositoryImpl(
+            remoteDataSource = get(),
+            userProfileDao = get(),
+            syncManager = get()
+        )
+    }
+
+    // Use Cases
+    singleOf(::SignUpUseCase)
+    singleOf(::SignInUseCase)
+    singleOf(::GetUserDataUseCase)
+    singleOf(::SendVerificationEmailUseCase)
+    singleOf(::VerifyEmailUseCase)
+    singleOf(::DeleteUserUseCase)
+    singleOf(::SendPasswordResetEmailUseCase)
+    singleOf(::CreateUserProfileUseCase)
+    singleOf(::UploadProfilePictureUseCase)
+    singleOf(::DeleteProfilePictureUseCase)
+    singleOf(::GetStyleQuestionnaireUseCase)
+    singleOf(::GetStyleResultUseCase)
+    singleOf(::GetUserStyleUseCase)
+    singleOf(::SetUserStyleUseCase)
+
+    // ViewModels
     viewModel { BaseViewModel(get()) }
-    viewModel { SharedViewModel(get(), get(), get()) }
-    viewModel { AuthViewModel(get(), get(), get(), get(), get(), get(), get()) }
-    viewModel { CreateUserProfileViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel {
+        AuthViewModel(
+            signUpUseCase = get(),
+            signInUseCase = get(),
+            sendVerificationEmailUseCase = get(),
+            verifyEmailUseCase = get(),
+            deleteUserUseCase = get(),
+            sendPasswordResetEmailUseCase = get(),
+            dispatcher = get()
+        )
+    }
+    viewModel {
+        CreateUserProfileViewModel(
+            getUserDataUseCase = get(),
+            createUserProfileUseCase = get(),
+            uploadProfilePictureUseCase = get(),
+            deleteProfilePictureUseCase = get(),
+            getStyleQuestionnaireUseCase = get(),
+            getStyleResultUseCase = get(),
+            setUserStyleUseCase = get(),
+            syncManager = get(),
+            dispatcher = get(),
+            sharingStarted = get()
+        )
+    }
 }

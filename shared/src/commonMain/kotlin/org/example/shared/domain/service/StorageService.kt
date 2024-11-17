@@ -1,6 +1,6 @@
 package org.example.shared.domain.service
 
-import org.example.shared.data.util.FileType
+import org.example.shared.domain.constant.FileType
 
 /**
  * Interface for storage service operations.

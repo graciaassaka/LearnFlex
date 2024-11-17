@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.room)
+    alias(libs.plugins.ksp)
 }
 
 val localProperties = Properties()
@@ -106,7 +108,6 @@ kotlin {
                 implementation(libs.slf4j)
                 implementation(libs.wiremock)
                 implementation(libs.mockk.agent.jvm)
-                implementation(libs.room.testing)
             }
         }
 
@@ -139,6 +140,7 @@ kotlin {
                 implementation(libs.androidx.test.rules)
                 implementation(libs.mockk.android)
                 implementation(libs.robolectric)
+                implementation(libs.room.testing)
             }
         }
 
@@ -147,6 +149,7 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.swing)
                 implementation(libs.ktor.client.okhttp.jvm)
                 implementation(libs.gitlive.java)
+                implementation(libs.sqlite)
             }
         }
 
@@ -172,6 +175,18 @@ android {
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += mapOf(
+                    "room.schemaLocation" to "$projectDir/schemas",
+                    "room.incremental" to "true",
+                    "room.expandProjection" to "true"
+                )
+            }
+        }
+    }
+    room {
+        schemaDirectory("$projectDir/schemas")
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -194,8 +209,12 @@ android {
         }
     }
 }
+
 dependencies {
     implementation(libs.ktor.client.okhttp.jvm)
+    androidTestImplementation(libs.androidx.test.junit)
+    add("kspAndroid", libs.room.compiler)
+    add("kspAndroidTest", libs.room.compiler)
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {

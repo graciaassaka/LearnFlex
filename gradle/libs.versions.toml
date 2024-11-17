@@ -1,5 +1,5 @@
 [versions]
-agp = "8.7.0-rc01"
+agp = "8.5.2"
 android-compileSdk = "34"
 android-minSdk = "33"
 android-targetSdk = "34"
@@ -29,11 +29,12 @@ gitlive-java = "0.4.6"
 google-services = "4.4.2"
 junit = "4.13.2"
 koin = "4.0.0"
-kotlin = "2.0.20"
+kotlin = "2.0.21"
 kotlin-serialization = "1.7.1"
 kotlin-serialization-plugin = "1.9.10"
 kotlinx-coroutines-test = "1.8.0"
 kotlinx-parcelize = "2.1.0-Beta2"
+ksp = "2.0.21-1.0.28"
 ktor = "2.3.12"
 lifecycle-viewmodel = "2.8.3-rc01"
 mockito = "5.12.0"
@@ -44,7 +45,7 @@ roboletric = "4.10.3"
 uiToolingPreviewAndroid = "1.7.5"
 material3Android = "1.3.1"
 slf4j = "2.0.7"
-sqlite = "2.5.0-alpha01"
+sqlite = "2.5.0-alpha11"
 swing = "1.8.0"
 room = "2.7.0-alpha11"
 wiremock = "2.35.0"
@@ -152,4 +153,6 @@ kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", versio
 dotenv = { id = "co.uzzu.dotenv.gradle", version.ref = "dotenv" }
 googleServices = { id = "com.google.gms.google-services", version.ref = "google-services" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlinx-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlinx-parcelize" }
+kotlinx-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+room = { id = "androidx.room", version.ref = "room" }

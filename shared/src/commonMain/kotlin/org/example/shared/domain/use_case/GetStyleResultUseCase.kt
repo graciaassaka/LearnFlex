@@ -1,6 +1,6 @@
 package org.example.shared.domain.use_case
 
-import org.example.shared.data.util.Style
+import org.example.shared.domain.constant.Style
 import org.example.shared.domain.service.StyleQuizService
 
 /**

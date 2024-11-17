@@ -6,7 +6,7 @@ import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.FirebaseOptions
 import dev.gitlive.firebase.firestore.firestore
 import dev.gitlive.firebase.initialize
-import org.example.shared.data.firebase.FirebaseConfig
+import org.example.shared.data.remote.firebase.FirebaseConfig
 import org.example.shared.data.util.FirebaseConstants
 
 class FirebaseInit(skipInit: Boolean = false) {

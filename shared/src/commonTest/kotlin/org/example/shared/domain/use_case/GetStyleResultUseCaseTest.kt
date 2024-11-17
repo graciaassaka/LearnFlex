@@ -4,7 +4,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.example.shared.data.model.StyleResult
+import org.example.shared.domain.model.StyleResult
 import org.example.shared.domain.service.StyleQuizService
 import org.junit.Before
 import kotlin.test.Test

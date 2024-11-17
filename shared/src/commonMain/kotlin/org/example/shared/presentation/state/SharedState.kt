@@ -1,6 +1,6 @@
 package org.example.shared.presentation.state
 
-import org.example.shared.data.model.User
+import org.example.shared.domain.model.User
 
 /**
  * Data class representing the shared state of the application.

@@ -30,8 +30,12 @@ import org.example.composeApp.dimension.Padding
 import org.example.composeApp.layout.AlignedLabeledBarsLayout
 import org.example.composeApp.layout.EnumScrollablePickerLayout
 import org.example.composeApp.util.TestTags
-import org.example.shared.data.model.*
-import org.example.shared.data.util.Style
+import org.example.shared.domain.model.StyleBreakdown
+import org.example.shared.domain.model.StyleQuestion
+import org.example.shared.domain.model.StyleQuestionnaire
+import org.example.shared.domain.constant.Style
+import org.example.shared.domain.model.Field
+import org.example.shared.domain.model.Level
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.util.ProfileCreationForm
 import org.example.shared.presentation.util.SnackbarType
