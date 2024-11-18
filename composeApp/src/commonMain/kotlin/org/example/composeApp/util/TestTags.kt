@@ -37,7 +37,6 @@ enum class TestTags(val tag: String) {
     PERSONAL_INFO_LEVEL_DROPDOWN("levelDropdown"),
     PERSONAL_INFO_FIELD_PICKER("fieldPicker"),
     PERSONAL_INFO_CREATE_PROFILE_BUTTON("createProfileButton"),
-    PERSONAL_INFO_PICKER("Picker"),
     PERSONAL_INFO_LEVEL_DROPDOWN_BUTTON("${Level::class.simpleName}_dropdown_button"),
     PERSONAL_INFO_GOAL_CHAR_COUNTER("personal_info_form_goal_char_counter"),
     STYLE_QUESTIONNAIRE("style_form"),
