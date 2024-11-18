@@ -13,8 +13,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.example.shared.data.remote.firebase.util.TestFirebaseUtil
-import org.example.shared.data.remote.firebase.FirebaseAuthService
-import org.example.shared.data.util.ApiError
+import org.example.shared.data.remote.util.ApiError
 import org.example.shared.data.util.FirebaseConstants
 import org.example.shared.domain.model.User
 import org.junit.After

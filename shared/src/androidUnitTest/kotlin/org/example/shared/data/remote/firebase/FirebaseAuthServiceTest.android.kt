@@ -232,16 +232,6 @@ actual class FirebaseAuthServiceTest {
         assertEquals("Reload failed", result.exceptionOrNull()?.message)
     }
 
-    @Test
-    fun `updateUserData with valid user data completes successfully`() = runTest {
-        TODO()
-    }
-
-    @Test
-    fun `updateUserData with null user data returns failure`() = runTest {
-        TODO()
-    }
-
     // Test for sendEmailVerification success
     @Test
     fun `sendEmailVerification should call sendEmailVerification on current user`() = runTest {

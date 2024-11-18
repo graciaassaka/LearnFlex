@@ -3,9 +3,11 @@ package org.example.shared.domain.use_case
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.test.runTest
-import org.example.shared.domain.model.StyleResult
-import org.example.shared.domain.data_source.LearningStyleRemoteDataSource
+import org.example.shared.domain.model.LearningStyle
+import org.example.shared.domain.repository.Repository
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -13,7 +15,7 @@ import kotlin.test.assertEquals
 
 class GetUserStyleUseCaseTest {
     private lateinit var getUserStyleUseCase: GetUserStyleUseCase
-    private lateinit var styleRepos: LearningStyleRemoteDataSource
+    private lateinit var styleRepos: Repository<LearningStyle>
 
     @Before
     fun setUp() {
@@ -27,17 +29,17 @@ class GetUserStyleUseCaseTest {
         getUserStyleUseCase("userId")
 
         // Then
-        coVerify(exactly = 1) { styleRepos.fetchLearningStyle(any()) }
+        coVerify(exactly = 1) { styleRepos.get(any()) }
     }
 
     @Test
     fun `getUserStyleUseCase should return Result#success when getLearningStyle is successful`() = runTest {
         // Given
-        val expected = mockk<StyleResult>()
-        coEvery { styleRepos.fetchLearningStyle(any()) } returns Result.success(expected)
+        val expected = mockk<LearningStyle>()
+        coEvery { styleRepos.get(any()) } returns flowOf(Result.success(expected))
 
         // When
-        val result = getUserStyleUseCase("userId")
+        val result = getUserStyleUseCase("userId").single()
 
         // Then
         assertTrue(result.isSuccess)
@@ -48,10 +50,10 @@ class GetUserStyleUseCaseTest {
     fun `getUserStyleUseCase should return Result#failure when getLearningStyle is failed`() = runTest {
         // Given
         val expected = Exception("Error")
-        coEvery { styleRepos.fetchLearningStyle(any()) } returns Result.failure(expected)
+        coEvery { styleRepos.get(any()) } returns flowOf(Result.failure(expected))
 
         // When
-        val result = getUserStyleUseCase("userId")
+        val result = getUserStyleUseCase("userId").single()
 
         // Then
         assertTrue(result.isFailure)

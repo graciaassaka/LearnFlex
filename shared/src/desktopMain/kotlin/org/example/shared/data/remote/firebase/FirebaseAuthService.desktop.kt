@@ -6,10 +6,10 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import org.example.shared.FirebaseInit
-import org.example.shared.domain.model.User
-import org.example.shared.data.util.ApiError
-import org.example.shared.data.util.ErrorContainer
+import org.example.shared.data.remote.util.ApiError
+import org.example.shared.data.remote.util.ErrorContainer
 import org.example.shared.data.util.FirebaseConstants
+import org.example.shared.domain.model.User
 import org.example.shared.domain.service.AuthService
 
 /**

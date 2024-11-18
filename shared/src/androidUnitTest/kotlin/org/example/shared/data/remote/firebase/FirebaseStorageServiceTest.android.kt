@@ -10,8 +10,8 @@ import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.test.runTest
+import org.example.shared.data.remote.util.StorageException
 import org.example.shared.domain.constant.FileType
-import org.example.shared.data.util.StorageException
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals

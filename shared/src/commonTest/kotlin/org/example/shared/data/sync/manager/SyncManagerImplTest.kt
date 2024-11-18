@@ -9,6 +9,7 @@ import kotlinx.coroutines.withTimeout
 import org.example.shared.domain.constant.SyncOperationType
 import org.example.shared.domain.constant.SyncStatus
 import org.example.shared.domain.sync.SyncHandler
+import org.example.shared.domain.sync.SyncOperation
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -76,7 +77,7 @@ class SyncManagerImplTest {
     fun `multiple operations are processed sequentially`() = testScope.runTest {
         // Given
         val operations = List(3) { index ->
-            SyncOperation("test data $index", SyncOperationType.CREATE)
+            SyncOperation(SyncOperationType.CREATE, "test data $index")
         }
         syncManager = SyncManagerImpl(
             syncScope = backgroundScope,
@@ -166,18 +167,18 @@ class SyncManagerImplTest {
     }
 
     companion object {
-        private val operation = SyncOperation("test data", SyncOperationType.CREATE)
+        private val operation = SyncOperation(SyncOperationType.CREATE, "test data")
     }
 }
 
 private class MockSyncHandler : SyncHandler<String> {
-    val operations = mutableListOf<org.example.shared.domain.sync.SyncOperation<String>>()
+    val operations = mutableListOf<SyncOperation<String>>()
     var shouldFail = false
     var failCount = 0
     var callCount = 0
     var addDelay = false
 
-    override suspend fun handleSync(operation: org.example.shared.domain.sync.SyncOperation<String>) {
+    override suspend fun handleSync(operation: SyncOperation<String>) {
         callCount++
         if (addDelay) delay(1000)
 
@@ -191,8 +192,3 @@ private class MockSyncHandler : SyncHandler<String> {
         }
     }
 }
-
-private class SyncOperation<String>(
-    override val data: String,
-    override val type: SyncOperationType
-) : org.example.shared.domain.sync.SyncOperation<String>

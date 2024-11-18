@@ -10,8 +10,7 @@ actual class DatabaseProvider {
         val dbFile = File(System.getProperty("java.io.tmpdir"), DatabaseConfig.DATABASE_NAME)
         return Room.databaseBuilder<LearnFlexDatabase>(
             name = dbFile.absolutePath
-        ).addMigrations(*DatabaseMigration.ALL_MIGRATIONS)
-            .fallbackToDestructiveMigrationOnDowngrade(true)
+        ).fallbackToDestructiveMigration(true)
             .setQueryCoroutineContext(Dispatchers.IO)
             .setDriver(BundledSQLiteDriver())
             .build()

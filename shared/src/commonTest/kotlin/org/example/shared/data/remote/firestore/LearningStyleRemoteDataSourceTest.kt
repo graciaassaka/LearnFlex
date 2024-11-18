@@ -9,31 +9,23 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
+import org.example.shared.data.remote.util.FirestoreCollection
+import org.example.shared.domain.constant.Style
+import org.example.shared.domain.data_source.RemoteDataSource
+import org.example.shared.domain.model.LearningStyle
 import org.example.shared.domain.model.StyleBreakdown
 import org.example.shared.domain.model.StyleResult
-import org.example.shared.data.util.FirestoreCollection
-import org.example.shared.domain.constant.Style
-import org.example.shared.domain.data_source.LearningStyleRemoteDataSource
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
-class LearningStyleRemoteDataSourceImplTest {
+class LearningStyleRemoteDataSourceTest {
 
     private lateinit var firestore: FirebaseFirestore
     private lateinit var collectionRef: CollectionReference
     private lateinit var documentRef: DocumentReference
-    private lateinit var learningStyleRemoteDataSource: LearningStyleRemoteDataSource
-    private val userId = "userId123"
-    private val expectedStyleResult = StyleResult(
-            dominantStyle = Style.VISUAL.value,
-            styleBreakdown = StyleBreakdown(
-                visual = 70,
-                reading = 20,
-                kinesthetic = 10
-            )
-        )
+    private lateinit var learningStyleRemoteDataSource: RemoteDataSource<LearningStyle>
 
     @Before
     fun setUp() {
@@ -44,14 +36,14 @@ class LearningStyleRemoteDataSourceImplTest {
         every { firestore.collection(FirestoreCollection.LEARNING_STYLES.value) } returns collectionRef
         every { collectionRef.path } returns FirestoreCollection.LEARNING_STYLES.value
         every { collectionRef.document } returns documentRef
-        every { collectionRef.document(userId) } returns documentRef
+        every { collectionRef.document(USER_ID) } returns documentRef
         every { collectionRef.parent } returns null
 
-        every { documentRef.id } returns userId
-        every { documentRef.path } returns "${FirestoreCollection.LEARNING_STYLES.value}/$userId"
+        every { documentRef.id } returns USER_ID
+        every { documentRef.path } returns "${FirestoreCollection.LEARNING_STYLES.value}/$USER_ID"
         every { documentRef.parent } returns collectionRef
 
-        learningStyleRemoteDataSource = LearningStyleRemoteDataSourceImpl(firestore)
+        learningStyleRemoteDataSource = LearningStyleRemoteDataSource(firestore)
     }
 
     @Test
@@ -61,7 +53,7 @@ class LearningStyleRemoteDataSourceImplTest {
         coEvery { documentRef.get() } returns documentSnapshot
 
         // When
-        val result = learningStyleRemoteDataSource.fetchLearningStyle(userId)
+        val result = learningStyleRemoteDataSource.fetch(USER_ID)
 
         // Then
         assertTrue(result.isSuccess)
@@ -75,7 +67,7 @@ class LearningStyleRemoteDataSourceImplTest {
         coEvery { documentRef.get() } throws exception
 
         // When
-        val result = learningStyleRemoteDataSource.fetchLearningStyle(userId)
+        val result = learningStyleRemoteDataSource.fetch(USER_ID)
 
         // Then
         assertTrue(result.isFailure)
@@ -84,40 +76,44 @@ class LearningStyleRemoteDataSourceImplTest {
     }
 
     @Test
-    fun `setLearningStyle should successfully set the user's learning style`() = runTest {
+    fun `create should successfully set the user's learning style`() = runTest {
         // Given
-        coEvery { documentRef.set(expectedStyleResult) } returns Unit
+        coEvery { documentRef.set(LearningStyle.serializer(), learningStyle) { encodeDefaults = true } } returns Unit
 
         // When
-        val result = learningStyleRemoteDataSource.setLearningStyle(userId, expectedStyleResult)
+        val result = learningStyleRemoteDataSource.create(learningStyle)
 
         // Then
         assertTrue(result.isSuccess)
-        coVerify(exactly = 1) { documentRef.set(expectedStyleResult) }
+        coVerify(exactly = 1) { documentRef.set(learningStyle) }
     }
 
     @Test
-    fun `setLearningStyle should return a failure when an exception is thrown`() = runTest {
+    fun `create should return a failure when an exception is thrown`() = runTest {
         // Given
         val exception = Exception("Test exception")
-        coEvery { documentRef.set(expectedStyleResult) } throws exception
+        coEvery {
+            documentRef.set(LearningStyle.serializer(), learningStyle) {
+                encodeDefaults = true
+            }
+        } throws exception
 
         // When
-        val result = learningStyleRemoteDataSource.setLearningStyle(userId, expectedStyleResult)
+        val result = learningStyleRemoteDataSource.create(learningStyle)
 
         // Then
         assertTrue(result.isFailure)
         assertEquals(exception, result.exceptionOrNull())
-        coVerify(exactly = 1) { documentRef.set(expectedStyleResult) }
+        coVerify(exactly = 1) { documentRef.set(learningStyle) }
     }
 
     @Test
-    fun `deleteLearningStyle should successfully delete the user's learning style`() = runTest {
+    fun `delete should successfully delete the user's learning style`() = runTest {
         // Given
         coEvery { documentRef.delete() } returns Unit
 
         // When
-        val result = learningStyleRemoteDataSource.deleteLearningStyle(userId)
+        val result = learningStyleRemoteDataSource.delete(USER_ID)
 
         // Then
         assertTrue(result.isSuccess)
@@ -125,17 +121,35 @@ class LearningStyleRemoteDataSourceImplTest {
     }
 
     @Test
-    fun `deleteLearningStyle should return a failure when an exception is thrown`() = runTest {
+    fun `delete should return a failure when an exception is thrown`() = runTest {
         // Given
         val exception = Exception("Test exception")
         coEvery { documentRef.delete() } throws exception
 
         // When
-        val result = learningStyleRemoteDataSource.deleteLearningStyle(userId)
+        val result = learningStyleRemoteDataSource.delete(USER_ID)
 
         // Then
         assertTrue(result.isFailure)
         assertEquals(exception, result.exceptionOrNull())
         coVerify(exactly = 1) { documentRef.delete() }
+    }
+
+    companion object {
+        private const val USER_ID = "userId123"
+        private val styleResult = StyleResult(
+            dominantStyle = Style.VISUAL.value,
+            styleBreakdown = StyleBreakdown(
+                visual = 70,
+                reading = 20,
+                kinesthetic = 10
+            )
+        )
+        private val learningStyle = LearningStyle(
+            id = USER_ID,
+            style = styleResult,
+            createdAt = System.currentTimeMillis(),
+            lastUpdated = System.currentTimeMillis()
+        )
     }
 }

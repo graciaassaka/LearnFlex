@@ -2,35 +2,24 @@ package org.example.shared.data.sync.handler
 
 import org.example.shared.data.local.dao.UserProfileDao
 import org.example.shared.data.local.entity.UserProfileEntity
-import org.example.shared.domain.constant.SyncOperationType
-import org.example.shared.domain.data_source.UserProfileRemoteDataSource
+import org.example.shared.data.sync.handler.delagate.SyncDelegate
+import org.example.shared.data.sync.util.ModelHelper
+import org.example.shared.domain.data_source.RemoteDataSource
 import org.example.shared.domain.model.UserProfile
 import org.example.shared.domain.sync.SyncHandler
-import org.example.shared.domain.sync.SyncOperation
 
 class UserProfileSyncHandler(
-    private val remoteDataSource: UserProfileRemoteDataSource,
-    private val userProfileDao: UserProfileDao
-) : SyncHandler<UserProfile> {
-    override suspend fun handleSync(operation: SyncOperation<UserProfile>) {
-        when (operation.type) {
-            SyncOperationType.CREATE,
-            SyncOperationType.UPDATE -> remoteDataSource.setUserProfile(operation.data).getOrThrow()
-
-            SyncOperationType.DELETE -> remoteDataSource.deleteUserProfile(operation.data.id).getOrThrow()
-
-            SyncOperationType.SYNC   -> syncUserProfile(operation)
+    remoteDataSource: RemoteDataSource<UserProfile>,
+    userProfileDao: UserProfileDao
+) : SyncHandler<UserProfile> by SyncDelegate(
+    remoteDataSource,
+    userProfileDao,
+    object : ModelHelper<UserProfile, UserProfileEntity> {
+        override fun getId(model: UserProfile) = model.id
+        override fun getLastUpdated(model: UserProfile) = model.lastUpdated
+        override fun toEntity(model: UserProfile) = with(model) {
+            UserProfileEntity(id, username, email, photoUrl, preferences, createdAt, lastUpdated)
         }
     }
-
-    private suspend fun syncUserProfile(operation: SyncOperation<UserProfile>) {
-        val remote = remoteDataSource.fetchUserProfile(operation.data.id).getOrThrow()
-
-        if (operation.data.lastUpdated < remote.lastUpdated) {
-            userProfileDao.update(UserProfileEntity.fromUserProfile(remote))
-        } else {
-            remoteDataSource.setUserProfile(operation.data).getOrThrow()
-        }
-    }
-}
+)
 

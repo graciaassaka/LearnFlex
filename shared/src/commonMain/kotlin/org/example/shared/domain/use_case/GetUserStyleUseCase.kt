@@ -1,13 +1,14 @@
 package org.example.shared.domain.use_case
 
-import org.example.shared.domain.data_source.LearningStyleRemoteDataSource
+import org.example.shared.domain.model.LearningStyle
+import org.example.shared.domain.repository.Repository
 
 /**
  * Use case for getting the user's style.
  *
- * @property styleRepos The repository to get the user's style.
+ * @property repository The repository to get the user's style.
  */
-class GetUserStyleUseCase(private val styleRepos: LearningStyleRemoteDataSource) {
+class GetUserStyleUseCase(private val repository: Repository<LearningStyle>) {
 
     /**
      * Invokes the use case to get the user's style.
@@ -15,5 +16,5 @@ class GetUserStyleUseCase(private val styleRepos: LearningStyleRemoteDataSource)
      * @param userId The ID of the user to get the style.
      * @return The user's style.
      */
-    suspend operator fun invoke(userId: String) = styleRepos.fetchLearningStyle(userId)
+    operator fun invoke(userId: String) = repository.get(userId)
 }

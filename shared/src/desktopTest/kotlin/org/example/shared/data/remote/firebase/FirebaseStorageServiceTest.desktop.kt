@@ -13,8 +13,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.example.shared.data.remote.firebase.util.TestFirebaseUtil
+import org.example.shared.data.remote.util.StorageException
 import org.example.shared.domain.constant.FileType
-import org.example.shared.data.util.StorageException
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

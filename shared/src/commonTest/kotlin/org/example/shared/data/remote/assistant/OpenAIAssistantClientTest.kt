@@ -15,8 +15,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.example.shared.data.remote.model.*
-import org.example.shared.data.remote.assistant.OpenAIAssistantClient
-import org.example.shared.data.util.ApiError
+import org.example.shared.data.remote.util.ApiError
 import org.example.shared.data.util.OpenAIConstants
 import org.junit.After
 import org.junit.Before

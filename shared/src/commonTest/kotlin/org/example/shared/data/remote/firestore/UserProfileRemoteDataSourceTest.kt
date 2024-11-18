@@ -11,8 +11,8 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.example.shared.data.util.FirestoreCollection
-import org.example.shared.domain.data_source.UserProfileRemoteDataSource
+import org.example.shared.data.remote.util.FirestoreCollection
+import org.example.shared.domain.data_source.RemoteDataSource
 import org.example.shared.domain.model.Field
 import org.example.shared.domain.model.LearningPreferences
 import org.example.shared.domain.model.Level
@@ -21,25 +21,12 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
-class UserProfileRemoteDataSourceImplTest {
+class UserProfileRemoteDataSourceTest {
 
     private lateinit var firestore: FirebaseFirestore
     private lateinit var collectionRef: CollectionReference
     private lateinit var documentRef: DocumentReference
-    private lateinit var userProfileRemoteDataSource: UserProfileRemoteDataSource
-    private val userProfile = UserProfile(
-        id = "userId123",
-        username = "testUser",
-        email = "test@example.com",
-        photoUrl = "https://example.com/photo.jpg",
-        preferences = LearningPreferences(
-            field = Field.ComputerScience.name,
-            level = Level.Intermediate.name,
-            goal = "Learn new things"
-        ),
-        createdAt = System.currentTimeMillis(),
-        lastUpdated = System.currentTimeMillis()
-    )
+    private lateinit var userProfileRemoteDataSource: RemoteDataSource<UserProfile>
 
     @Before
     fun setUp() {
@@ -57,7 +44,7 @@ class UserProfileRemoteDataSourceImplTest {
         every { documentRef.path } returns "${FirestoreCollection.USERS.value}/${userProfile.id}"
         every { documentRef.parent } returns collectionRef
 
-        userProfileRemoteDataSource = org.example.shared.data.remote.firestore.UserProfileRemoteDataSourceImpl(firestore)
+        userProfileRemoteDataSource = UserProfileRemoteDataSource(firestore)
     }
 
     @Test
@@ -66,7 +53,7 @@ class UserProfileRemoteDataSourceImplTest {
         coEvery { documentRef.set(UserProfile.serializer(), userProfile) { encodeDefaults = true } } returns Unit
 
         // Act
-        val result = userProfileRemoteDataSource.setUserProfile(userProfile)
+        val result = userProfileRemoteDataSource.create(userProfile)
 
         // Assert
         assertTrue(result.isSuccess)
@@ -80,7 +67,7 @@ class UserProfileRemoteDataSourceImplTest {
         coEvery { documentRef.set(UserProfile.serializer(), userProfile) { encodeDefaults = true } } throws exception
 
         // Act
-        val result = userProfileRemoteDataSource.setUserProfile(userProfile)
+        val result = userProfileRemoteDataSource.create(userProfile)
 
         // Assert
         assertTrue(result.isFailure)
@@ -97,7 +84,7 @@ class UserProfileRemoteDataSourceImplTest {
         coEvery { documentRef.get() } returns documentSnapshot
 
         // Act
-        val result = userProfileRemoteDataSource.fetchUserProfile(userProfile.id)
+        val result = userProfileRemoteDataSource.fetch(userProfile.id)
 
         // Assert
         assertTrue(result.isSuccess)
@@ -112,7 +99,7 @@ class UserProfileRemoteDataSourceImplTest {
         coEvery { documentRef.get() } throws exception
 
         // Act
-        val result = userProfileRemoteDataSource.fetchUserProfile(userProfile.id)
+        val result = userProfileRemoteDataSource.fetch(userProfile.id)
 
         // Assert
         assertTrue(result.isFailure)
@@ -121,12 +108,12 @@ class UserProfileRemoteDataSourceImplTest {
     }
 
     @Test
-    fun `deleteUserProfile should successfully delete a user profile`() = runTest {
+    fun `delete should successfully delete a user profile`() = runTest {
         // Arrange
         coEvery { documentRef.delete() } returns Unit
 
         // Act
-        val result = userProfileRemoteDataSource.deleteUserProfile(userProfile.id)
+        val result = userProfileRemoteDataSource.delete(userProfile.id)
 
         // Assert
         assertTrue(result.isSuccess)
@@ -134,17 +121,33 @@ class UserProfileRemoteDataSourceImplTest {
     }
 
     @Test
-    fun `deleteUserProfile should return a failure when an exception is thrown`() = runTest {
+    fun `delete should return a failure when an exception is thrown`() = runTest {
         // Arrange
         val exception = Exception("Test exception")
         coEvery { documentRef.delete() } throws exception
 
         // Act
-        val result = userProfileRemoteDataSource.deleteUserProfile(userProfile.id)
+        val result = userProfileRemoteDataSource.delete(userProfile.id)
 
         // Assert
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull() == exception)
         coVerify(exactly = 1) { documentRef.delete() }
+    }
+
+    companion object {
+        private val userProfile = UserProfile(
+            id = "userId123",
+            username = "testUser",
+            email = "test@example.com",
+            photoUrl = "https://example.com/photo.jpg",
+            preferences = LearningPreferences(
+                field = Field.ComputerScience.name,
+                level = Level.Intermediate.name,
+                goal = "Learn new things"
+            ),
+            createdAt = System.currentTimeMillis(),
+            lastUpdated = System.currentTimeMillis()
+        )
     }
 }

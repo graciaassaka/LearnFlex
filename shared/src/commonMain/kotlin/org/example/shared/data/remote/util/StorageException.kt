@@ -1,4 +1,4 @@
-package org.example.shared.data.util
+package org.example.shared.data.remote.util
 
 /**
  * A sealed class representing different types of storage-related exceptions.

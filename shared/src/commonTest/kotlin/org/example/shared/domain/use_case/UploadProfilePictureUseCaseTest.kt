@@ -4,9 +4,9 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.example.shared.domain.model.User
+import org.example.shared.data.remote.util.StorageException
 import org.example.shared.domain.constant.FileType
-import org.example.shared.data.util.StorageException
+import org.example.shared.domain.model.User
 import org.example.shared.domain.service.AuthService
 import org.example.shared.domain.service.StorageService
 import org.junit.Assert.assertEquals

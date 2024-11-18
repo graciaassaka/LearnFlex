@@ -1,4 +1,4 @@
-package org.example.shared.data.util
+package org.example.shared.data.remote.util
 
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*

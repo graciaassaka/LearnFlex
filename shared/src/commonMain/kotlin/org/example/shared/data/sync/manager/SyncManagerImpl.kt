@@ -1,9 +1,11 @@
 package org.example.shared.data.sync.manager
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import org.example.shared.domain.constant.SyncStatus
 import org.example.shared.domain.sync.SyncHandler
 import org.example.shared.domain.sync.SyncManager
@@ -12,17 +14,17 @@ import org.example.shared.domain.sync.SyncOperation
 /**
  * Implementation of the SyncManager interface.
  *
- * @param T The type of data to be synchronized.
+ * @param Model The type of data to be synchronized.
  * @param syncScope The CoroutineScope in which synchronization operations will be executed.
  * @param syncHandler The handler responsible for processing synchronization operations.
  * @param maxRetries The maximum number of retries for a failed synchronization operation.
  */
-class SyncManagerImpl<T>(
+class SyncManagerImpl<Model>(
     syncScope: CoroutineScope,
-    private val syncHandler: SyncHandler<T>,
+    private val syncHandler: SyncHandler<Model>,
     private val maxRetries: Int = 3
-) : SyncManager<T>, AutoCloseable {
-    private val pendingOperations = Channel<SyncOperation<T>>(Channel.UNLIMITED)
+) : SyncManager<Model>, AutoCloseable {
+    private val pendingOperations = Channel<SyncOperation<Model>>(Channel.UNLIMITED)
     private val _syncStatus = MutableStateFlow<SyncStatus>(SyncStatus.Idle)
     override val syncStatus = _syncStatus.asStateFlow()
     private val job = syncScope.launch { for (operation in pendingOperations) processOperation(operation) }
@@ -32,7 +34,7 @@ class SyncManagerImpl<T>(
      *
      * @param operation The synchronization operation to be queued.
      */
-    override suspend fun queueOperation(operation: SyncOperation<T>) = pendingOperations.send(operation)
+    override suspend fun queueOperation(operation: SyncOperation<Model>) = pendingOperations.send(operation)
 
 
     /**
@@ -42,7 +44,7 @@ class SyncManagerImpl<T>(
      * @param retryCount The current retry count for the operation.
      */
     private suspend fun processOperation(
-        operation: SyncOperation<T>,
+        operation: SyncOperation<Model>,
         retryCount: Int = 0
     ): Unit = try {
         _syncStatus.value = SyncStatus.InProgress

@@ -24,7 +24,7 @@ import org.example.shared.presentation.util.validation.ValidationResult
  * @param deleteProfilePictureUseCase The use case to delete a profile picture.
  * @param getStyleQuestionnaireUseCase The use case to get the style questionnaire.
  * @param getStyleResultUseCase The use case to get the style result.
- * @param setUserStyleUseCase The use case to set the user style.
+ * @param createUserStyleUseCase The use case to set the user style.
  * @param syncManager The sync manager for user profiles.
  * @param dispatcher The coroutine dispatcher to run the use cases on.
  * @param sharingStarted The sharing strategy for the state flow.
@@ -36,7 +36,7 @@ class CreateUserProfileViewModel(
     private val deleteProfilePictureUseCase: DeleteProfilePictureUseCase,
     private val getStyleQuestionnaireUseCase: GetStyleQuestionnaireUseCase,
     private val getStyleResultUseCase: GetStyleResultUseCase,
-    private val setUserStyleUseCase: SetUserStyleUseCase,
+    private val createUserStyleUseCase: CreateUserStyleUseCase,
     private val syncManager: SyncManager<UserProfile>,
     private val dispatcher: CoroutineDispatcher,
     sharingStarted: SharingStarted
@@ -245,9 +245,18 @@ class CreateUserProfileViewModel(
 
             update { it.copy(isLoading = true) }
             viewModelScope.launch(dispatcher) {
-                setUserStyleUseCase(value.userId, value.styleResult!!)
-                    .onSuccess { showSnackbar(successMessage, SnackbarType.Success) }
-                    .onFailure { error -> handleError(error) }
+                createUserStyleUseCase(
+                    LearningStyle(
+                        id = value.userId,
+                        style = value.styleResult!!,
+                        createdAt = System.currentTimeMillis(),
+                        lastUpdated = System.currentTimeMillis()
+                    )
+                ).onSuccess {
+                    showSnackbar(successMessage, SnackbarType.Success)
+                }.onFailure { error ->
+                    handleError(error)
+                }
             }
         } catch (e: IllegalArgumentException) {
             handleError(e)

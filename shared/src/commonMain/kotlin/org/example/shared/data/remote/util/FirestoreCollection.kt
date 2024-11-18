@@ -1,4 +1,4 @@
-package org.example.shared.data.util
+package org.example.shared.data.remote.util
 
 /**
  * Enum representing Firestore collections.

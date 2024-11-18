@@ -1,8 +1,8 @@
 package org.example.shared.data.remote.firestore
 
 import dev.gitlive.firebase.firestore.FirebaseFirestore
-import org.example.shared.data.util.FirestoreCollection
-import org.example.shared.domain.data_source.UserProfileRemoteDataSource
+import org.example.shared.data.remote.util.FirestoreCollection
+import org.example.shared.domain.data_source.RemoteDataSource
 import org.example.shared.domain.model.UserProfile
 
 /**
@@ -10,18 +10,18 @@ import org.example.shared.domain.model.UserProfile
  *
  * @property firestore The Firebase Firestore instance.
  */
-class UserProfileRemoteDataSourceImpl(private val firestore: FirebaseFirestore) : UserProfileRemoteDataSource {
+class UserProfileRemoteDataSource(private val firestore: FirebaseFirestore) : RemoteDataSource<UserProfile> {
 
     /**
      * Creates a new user profile in the Firestore database.
      *
-     * @param userProfile The user profile to create.
+     * @param item The user profile to create.
      * @return A Result indicating success or failure.
      */
-    override suspend fun setUserProfile(userProfile: UserProfile) = runCatching {
+    override suspend fun create(item: UserProfile) = runCatching {
         firestore.collection(FirestoreCollection.USERS.value)
-            .document(userProfile.id)
-            .set(UserProfile.serializer(), userProfile) {
+            .document(item.id)
+            .set(UserProfile.serializer(), item) {
                 encodeDefaults = true
             }
     }
@@ -32,7 +32,7 @@ class UserProfileRemoteDataSourceImpl(private val firestore: FirebaseFirestore) 
      * @param id The ID of the user profile to retrieve.
      * @return A Result containing the user profile or an error.
      */
-    override suspend fun fetchUserProfile(id: String) = runCatching {
+    override suspend fun fetch(id: String) = runCatching {
         firestore.collection(FirestoreCollection.USERS.value)
             .document(id)
             .get()
@@ -45,7 +45,7 @@ class UserProfileRemoteDataSourceImpl(private val firestore: FirebaseFirestore) 
      * @param id The ID of the user profile to delete.
      * @return A Result indicating success or failure.
      */
-    override suspend fun deleteUserProfile(id: String) = runCatching {
+    override suspend fun delete(id: String) = runCatching {
         firestore.collection(FirestoreCollection.USERS.value)
             .document(id)
             .delete()

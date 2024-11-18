@@ -6,19 +6,19 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.model.UserProfile
-import org.example.shared.domain.repository.UserProfileRepository
+import org.example.shared.domain.repository.Repository
 import org.junit.Before
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class CreateUserProfileUseCaseTest {
     private lateinit var createUserProfileUseCase: CreateUserProfileUseCase
-    private lateinit var userProfileRepository: UserProfileRepository
+    private lateinit var repository: Repository<UserProfile>
 
     @Before
     fun setUp() {
-        userProfileRepository = mockk(relaxed = true)
-        createUserProfileUseCase = CreateUserProfileUseCase(userProfileRepository)
+        repository = mockk(relaxed = true)
+        createUserProfileUseCase = CreateUserProfileUseCase(repository)
     }
 
     @Test
@@ -30,14 +30,14 @@ class CreateUserProfileUseCaseTest {
         createUserProfileUseCase(userProfile)
 
         // Assert
-        coVerify { userProfileRepository.createUserProfile(userProfile) }
+        coVerify { repository.create(userProfile) }
     }
 
     @Test
     fun `invoke should return success when createUserProfile succeeds`() = runTest {
         // Arrange
         val userProfile = mockk<UserProfile>(relaxed = true)
-        coEvery { userProfileRepository.createUserProfile(userProfile) } returns Result.success(Unit)
+        coEvery { repository.create(userProfile) } returns Result.success(Unit)
 
         // Act
         val result = createUserProfileUseCase(userProfile)
@@ -50,7 +50,7 @@ class CreateUserProfileUseCaseTest {
     fun `invoke should return failure when createUserProfile fails`() = runTest {
         // Arrange
         val userProfile = mockk<UserProfile>(relaxed = true)
-        coEvery { userProfileRepository.createUserProfile(userProfile) } returns Result.failure(Exception())
+        coEvery { repository.create(userProfile) } returns Result.failure(Exception())
 
         // Act
         val result = createUserProfileUseCase(userProfile)

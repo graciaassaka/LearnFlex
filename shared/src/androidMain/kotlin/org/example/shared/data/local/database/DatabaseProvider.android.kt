@@ -9,8 +9,7 @@ actual class DatabaseProvider(private val context: Context) {
         context = context.applicationContext,
         klass = LearnFlexDatabase::class.java,
         name = context.getDatabasePath(DatabaseConfig.DATABASE_NAME).absolutePath,
-    ).addMigrations(*DatabaseMigration.ALL_MIGRATIONS)
-        .fallbackToDestructiveMigrationOnDowngrade(true)
+    ).fallbackToDestructiveMigration(true)
         .setQueryCoroutineContext(Dispatchers.IO)
         .build()
 }
