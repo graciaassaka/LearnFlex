@@ -8,9 +8,12 @@ import learnflex.composeapp.generated.resources.Res
 import learnflex.composeapp.generated.resources.app_name
 import org.example.shared.injection.initKoin
 import org.jetbrains.compose.resources.stringResource
+import java.io.File
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 fun main() {
+    println("Database location: ${File(System.getProperty("java.io.tmpdir"), "learnflex.db").absolutePath}")
+
     initKoin(null)
 
     application {

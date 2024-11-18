@@ -1,6 +1,7 @@
 package org.example.shared.data.local.database
 
 import androidx.room.Room
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.Dispatchers
 import java.io.File
 
@@ -12,6 +13,7 @@ actual class DatabaseProvider {
         ).addMigrations(*DatabaseMigration.ALL_MIGRATIONS)
             .fallbackToDestructiveMigrationOnDowngrade(true)
             .setQueryCoroutineContext(Dispatchers.IO)
+            .setDriver(BundledSQLiteDriver())
             .build()
     }
 }

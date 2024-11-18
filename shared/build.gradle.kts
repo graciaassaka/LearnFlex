@@ -90,7 +90,6 @@ kotlin {
                 implementation(libs.androidx.lifecycle.viewmodel)
                 implementation(libs.gitlive.firestore)
                 implementation(libs.room.runtime)
-                implementation(libs.room.ktx)
             }
         }
 
@@ -213,8 +212,11 @@ android {
 dependencies {
     implementation(libs.ktor.client.okhttp.jvm)
     androidTestImplementation(libs.androidx.test.junit)
+    add("kspCommonMainMetadata", libs.room.compiler)
     add("kspAndroid", libs.room.compiler)
+    add("kspDesktop", libs.room.compiler)
     add("kspAndroidTest", libs.room.compiler)
+    add("kspDesktopTest", libs.room.compiler)
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
