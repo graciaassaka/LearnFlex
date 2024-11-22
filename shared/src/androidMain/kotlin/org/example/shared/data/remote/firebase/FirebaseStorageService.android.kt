@@ -4,14 +4,14 @@ import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import org.example.shared.data.remote.util.StorageException
 import org.example.shared.domain.constant.FileType
-import org.example.shared.domain.service.StorageService
+import org.example.shared.domain.service.StorageClient
 
 /**
  * Service class for handling Firebase Storage operations.
  *
  * @property storage The FirebaseStorage instance used for storage operations.
  */
-actual class FirebaseStorageService(private val storage: FirebaseStorage) : StorageService {
+actual class FirebaseStorageClient(private val storage: FirebaseStorage) : StorageClient {
 
     /**
      * Uploads a file to Firebase Storage.

@@ -10,7 +10,7 @@ import kotlinx.serialization.json.Json
 import org.example.shared.FirebaseInit
 import org.example.shared.data.remote.util.StorageException
 import org.example.shared.domain.constant.FileType
-import org.example.shared.domain.service.StorageService
+import org.example.shared.domain.service.StorageClient
 import java.net.URLEncoder
 
 /**
@@ -19,10 +19,10 @@ import java.net.URLEncoder
  * @property client The HTTP client used for making requests.
  * @property firebaseInit The Firebase initialization object containing configuration and tokens.
  */
-actual class FirebaseStorageService(
+actual class FirebaseStorageClient(
     private val client: HttpClient,
     private val firebaseInit: FirebaseInit
-) : StorageService
+) : StorageClient
 {
     /**
      * Uploads a file to Firebase Storage.

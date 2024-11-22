@@ -41,6 +41,8 @@ class CreateUserProfileViewModel(
     private val dispatcher: CoroutineDispatcher,
     sharingStarted: SharingStarted
 ) : BaseViewModel(dispatcher) {
+    // The number of questions to be fetched in the style questionnaire
+    val questionCount = 5
     // Mutable state flow to manage the UI state of the profile creation screen
     private val _state = MutableStateFlow(CreateProfileUIState())
     val state = _state
@@ -202,7 +204,7 @@ class CreateUserProfileViewModel(
         update {
             it.copy(
                 isLoading = true,
-                styleQuestionnaire = StyleQuestionnaire(emptyList()),
+                styleQuestionnaire = emptyList(),
                 styleResponses = emptyList(),
                 styleResult = null,
                 showStyleResultDialog = false
@@ -210,12 +212,22 @@ class CreateUserProfileViewModel(
         }
 
         viewModelScope.launch(dispatcher) {
-            getStyleQuestionnaireUseCase(LearningPreferences(value.field.name, value.level.name, value.goal))
-                .onSuccess { questionnaire -> _state.update { it.copy(styleQuestionnaire = questionnaire) } }
-                .onFailure { error -> handleError(error) }
+            getStyleQuestionnaireUseCase(
+                LearningPreferences(value.field.name, value.level.name, value.goal),
+                questionCount
+            )
+                .collect { result ->
+                    result.fold(
+                        onSuccess = { question ->
+                            update { state -> state.copy(styleQuestionnaire = state.styleQuestionnaire + question) }
+                        },
+                        onFailure = { error ->
+                            handleError(error)
+                        }
+                    )
+                    update { it.copy(isLoading = false) }
+                }
         }
-
-        update { it.copy(isLoading = false) }
     }
 
     /**

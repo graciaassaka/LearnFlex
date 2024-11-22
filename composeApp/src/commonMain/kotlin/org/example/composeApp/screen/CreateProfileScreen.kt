@@ -10,7 +10,6 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.SportsFootball
 import androidx.compose.material3.*
-import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,12 +29,11 @@ import org.example.composeApp.dimension.Padding
 import org.example.composeApp.layout.AlignedLabeledBarsLayout
 import org.example.composeApp.layout.EnumScrollablePickerLayout
 import org.example.composeApp.util.TestTags
-import org.example.shared.domain.model.StyleBreakdown
-import org.example.shared.domain.model.StyleQuestion
-import org.example.shared.domain.model.StyleQuestionnaire
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.Field
 import org.example.shared.domain.model.Level
+import org.example.shared.domain.model.StyleBreakdown
+import org.example.shared.domain.model.StyleQuestion
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.util.ProfileCreationForm
 import org.example.shared.presentation.util.SnackbarType
@@ -101,6 +99,7 @@ fun CreateProfileScreen(
                 isScreenVisible = isScreenVisible,
                 onExitAnimationFinished = viewModel::onExitAnimationFinished,
                 styleQuestionnaire = uiState.styleQuestionnaire,
+                questionCount = viewModel.questionCount,
                 onQuestionAnswered = viewModel::onQuestionAnswered,
                 onQuestionnaireCompleted = viewModel::onQuestionnaireCompleted,
                 startStyleQuestionnaire = viewModel::startStyleQuestionnaire,
@@ -254,7 +253,8 @@ private fun StyleQuestionnaireScreen(
     enabled: Boolean,
     isScreenVisible: Boolean,
     onExitAnimationFinished: () -> Unit,
-    styleQuestionnaire: StyleQuestionnaire,
+    styleQuestionnaire: List<StyleQuestion>,
+    questionCount: Int,
     onQuestionAnswered: (Style) -> Unit,
     onQuestionnaireCompleted: () -> Unit,
     startStyleQuestionnaire: () -> Unit,
@@ -265,11 +265,7 @@ private fun StyleQuestionnaireScreen(
     modifier: Modifier = Modifier
 ) {
     var currentQuestionIndex by remember { mutableIntStateOf(0) }
-
-    val currentQuestion by remember(styleQuestionnaire, currentQuestionIndex) {
-        mutableStateOf(styleQuestionnaire.styleQuestions.getOrNull(currentQuestionIndex))
-    }
-
+    val currentQuestion = styleQuestionnaire.getOrNull(currentQuestionIndex)
     var selectedOption by remember(currentQuestion) { mutableStateOf("") }
     var selectedStyle by remember(currentQuestion) { mutableStateOf<Style?>(null) }
 
@@ -280,16 +276,16 @@ private fun StyleQuestionnaireScreen(
         snackbarHostState = snackbarHostState,
         snackbarType = currentSnackbarType,
         question = currentQuestion?.scenario ?: "",
-        enabled = enabled,
+        enabled = enabled && currentQuestionIndex < styleQuestionnaire.size,
         isVisible = isScreenVisible,
         onAnimationFinished = onExitAnimationFinished,
-        modifier = modifier,
+        modifier = modifier
     ) {
         currentQuestion?.let { question ->
             QuestionContent(
                 question = question,
                 selectedOption = selectedOption,
-                enabled = enabled,
+                enabled = enabled && currentQuestionIndex < styleQuestionnaire.size,
                 onOptionSelected = { option ->
                     selectedOption = option
                     selectedStyle = try {
@@ -299,19 +295,19 @@ private fun StyleQuestionnaireScreen(
                         null
                     }
                 },
+                isQuizFinished = currentQuestionIndex == questionCount - 1,
                 onNextClicked = {
                     selectedStyle?.let { style ->
                         onQuestionAnswered(style)
-                        if (currentQuestionIndex < styleQuestionnaire.styleQuestions.size - 1) {
-                            currentQuestionIndex++
-                        } else {
-                            onQuestionnaireCompleted()
-                        }
+                        if (currentQuestionIndex < styleQuestionnaire.size) currentQuestionIndex++
                     }
                 }
+                },
+                onFinish = onQuestionnaireCompleted,
             )
         }
     }
+
     if (showStyleBreakdownDialog && styleBreakdown != null) {
         StyleBreakdownDialog(
             enabled = enabled,
@@ -331,7 +327,9 @@ private fun QuestionContent(
     selectedOption: String,
     enabled: Boolean,
     onOptionSelected: (String) -> Unit,
+    isQuizFinished: Boolean,
     onNextClicked: () -> Unit,
+    onFinish: () -> Unit,
     modifier: Modifier = Modifier
 ) = Column(
     modifier = modifier.fillMaxSize(),
@@ -347,13 +345,16 @@ private fun QuestionContent(
     )
 
     Button(
-        onClick = onNextClicked,
+        onClick = if (isQuizFinished) onFinish else onNextClicked,
         enabled = enabled && selectedOption.isNotBlank(),
         modifier = Modifier
             .align(Alignment.End)
             .testTag(TestTags.STYLE_QUESTIONNAIRE_NEXT_BUTTON.tag),
     ) {
-        Text(stringResource(Res.string.next_button_label))
+        Text(
+            if (isQuizFinished) stringResource(Res.string.finish_button_label)
+            else stringResource(Res.string.next_button_label)
+        )
     }
 }
 

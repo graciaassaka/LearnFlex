@@ -5,7 +5,7 @@ import org.example.shared.domain.model.User
 /**
  * Interface defining authentication-related operations.
  */
-interface AuthService {
+interface AuthClient {
 
     /**
      * Signs up a new user with the provided email and password.

@@ -1,13 +1,13 @@
 package org.example.shared.domain.use_case
 
-import org.example.shared.domain.service.AuthService
+import org.example.shared.domain.service.AuthClient
 
 /**
  * Use case class for signing in a user.
  *
- * @property authService The authentication service used to sign in the user.
+ * @property authClient The authentication service used to sign in the user.
  */
-class SignInUseCase(private val authService: AuthService) {
+class SignInUseCase(private val authClient: AuthClient) {
     /**
      * Invokes the use case to sign in a user with the provided email and password.
      *
@@ -15,5 +15,5 @@ class SignInUseCase(private val authService: AuthService) {
      * @param password The password of the user.
      * @return The result of the sign-in operation.
      */
-    suspend operator fun invoke(email: String, password: String) = authService.signIn(email, password)
+    suspend operator fun invoke(email: String, password: String) = authClient.signIn(email, password)
 }

@@ -5,19 +5,19 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.example.shared.domain.service.AuthService
+import org.example.shared.domain.service.AuthClient
 import org.junit.Before
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class DeleteUserProfileUseCaseTest {
     private lateinit var deleteUserUseCase: DeleteUserUseCase
-    private lateinit var authService: AuthService
+    private lateinit var authClient: AuthClient
 
     @Before
     fun setUp() {
-        authService = mockk(relaxed = true)
-        deleteUserUseCase = DeleteUserUseCase(authService)
+        authClient = mockk(relaxed = true)
+        deleteUserUseCase = DeleteUserUseCase(authClient)
     }
 
     @Test
@@ -26,13 +26,13 @@ class DeleteUserProfileUseCaseTest {
         deleteUserUseCase()
 
         // Then
-        coVerify { authService.deleteUser() }
+        coVerify { authClient.deleteUser() }
     }
 
     @Test
     fun `invoke should return result#success when authService#deleteUser is successful`() = runTest {
         // Given
-        coEvery { authService.deleteUser() } returns Result.success(Unit)
+        coEvery { authClient.deleteUser() } returns Result.success(Unit)
 
         // When
         val result = deleteUserUseCase()
@@ -45,7 +45,7 @@ class DeleteUserProfileUseCaseTest {
     fun `invoke should return result#failure when authService#deleteUser throws an exception`() = runTest {
         // Given
         val exception = Exception("Test exception")
-        coEvery { authService.deleteUser() } returns Result.failure(exception)
+        coEvery { authClient.deleteUser() } returns Result.failure(exception)
 
         // When
         val result = deleteUserUseCase()

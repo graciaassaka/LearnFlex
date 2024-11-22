@@ -1,21 +1,22 @@
 package org.example.shared.domain.service
 
-import org.example.shared.domain.model.LearningPreferences
-import org.example.shared.domain.model.StyleQuestionnaire
-import org.example.shared.domain.model.StyleResult
+import kotlinx.coroutines.flow.Flow
 import org.example.shared.domain.constant.Style
+import org.example.shared.domain.model.LearningPreferences
+import org.example.shared.domain.model.StyleQuestion
+import org.example.shared.domain.model.StyleResult
 
 /**
  * Service interface for generating and evaluating style quizzes.
  */
-interface StyleQuizService {
+interface StyleQuizClient {
     /**
-     * Generates a quiz based on the provided learning preferences.
+     * Generates a style questionnaire based on the user's learning preferences.
      *
-     * @param preferences The learning preferences which include the field of study, level of expertise, and learning goal.
-     * @return A Result wrapping a StyleQuestionnaire that contains a list of style questions tailored to the given preferences.
+     * @param preferences The user's learning preferences.
+     * @return A result containing the style questionnaire.
      */
-    suspend fun generateQuiz(preferences: LearningPreferences): Result<StyleQuestionnaire>
+    fun streamQuestions(preferences: LearningPreferences, number: Int): Flow<Result<StyleQuestion>>
     /**
      * Evaluates a list of style responses to determine the dominant learning style and provide a style breakdown.
      *

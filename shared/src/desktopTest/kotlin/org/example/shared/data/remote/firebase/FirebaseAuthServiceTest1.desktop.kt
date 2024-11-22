@@ -22,8 +22,8 @@ import kotlin.test.Test
 
 @WireMockTest
 @ExperimentalCoroutinesApi
-actual class FirebaseAuthServiceTest {
-    private lateinit var firebaseAuthService: FirebaseAuthService
+actual class FirebaseAuthClientTest {
+    private lateinit var firebaseAuthService: FirebaseAuthClient
     private lateinit var httpClient: HttpClient
     private lateinit var wireMockServer: WireMockServer
 
@@ -51,7 +51,7 @@ actual class FirebaseAuthServiceTest {
             }
         }
 
-        firebaseAuthService = FirebaseAuthService(httpClient, firebaseInit, true)
+        firebaseAuthService = FirebaseAuthClient(httpClient, firebaseInit, true)
     }
 
     @After

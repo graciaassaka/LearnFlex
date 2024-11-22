@@ -4,16 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Represents a questionnaire containing a list of style questions.
- *
- * @property styleQuestions The list of style questions.
- */
-@Serializable
-data class StyleQuestionnaire(
-    @SerialName("questions") val styleQuestions: List<StyleQuestion>
-)
-
-/**
  * Represents a style question with a list of options and a scenario.
  *
  * @property styleOptions The list of style options.

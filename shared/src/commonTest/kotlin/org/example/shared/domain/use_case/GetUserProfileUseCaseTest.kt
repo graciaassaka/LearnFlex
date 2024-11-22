@@ -6,7 +6,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.model.User
-import org.example.shared.domain.service.AuthService
+import org.example.shared.domain.service.AuthClient
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -15,13 +15,13 @@ import org.koin.core.context.stopKoin
 @ExperimentalCoroutinesApi
 class GetUserProfileUseCaseTest {
     private lateinit var getUserDataUseCase: GetUserDataUseCase
-    private lateinit var authService: AuthService
+    private lateinit var authClient: AuthClient
     private lateinit var user: User
 
     @Before
     fun setUp() {
-        authService = mockk<AuthService>()
-        getUserDataUseCase = GetUserDataUseCase(authService)
+        authClient = mockk<AuthClient>()
+        getUserDataUseCase = GetUserDataUseCase(authClient)
 
         user = mockk<User>()
     }
@@ -33,19 +33,19 @@ class GetUserProfileUseCaseTest {
     @Test
     fun `GetUserDataUseCase should call AuthService#getUserData`() = runTest {
         // Given
-        coEvery { authService.getUserData() } returns Result.success(user)
+        coEvery { authClient.getUserData() } returns Result.success(user)
 
         // When
         getUserDataUseCase()
 
         // Then
-        coVerify(exactly = 1) { authService.getUserData() }
+        coVerify(exactly = 1) { authClient.getUserData() }
     }
 
     @Test
     fun `GetUserDataUseCase should return success when AuthService#getUserData returns success`() = runTest {
         // Given
-        coEvery { authService.getUserData() } returns Result.success(user)
+        coEvery { authClient.getUserData() } returns Result.success(user)
 
         // When
         val result = getUserDataUseCase()
@@ -59,7 +59,7 @@ class GetUserProfileUseCaseTest {
         runTest {
             // Given
             val exception = Exception("An error occurred")
-            coEvery { authService.getUserData() } returns Result.failure(exception)
+            coEvery { authClient.getUserData() } returns Result.failure(exception)
 
             // When
             val result = getUserDataUseCase()

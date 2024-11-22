@@ -24,9 +24,9 @@ import java.net.URLEncoder
 import kotlin.test.assertContentEquals
 
 @ExperimentalCoroutinesApi
-actual class FirebaseStorageServiceTest {
+actual class FirebaseStorageClientTest {
 
-    private lateinit var firebaseStorageService: FirebaseStorageService
+    private lateinit var firebaseStorageService: FirebaseStorageClient
     private lateinit var httpClient: HttpClient
     private lateinit var wireMockServer: WireMockServer
 
@@ -69,7 +69,7 @@ actual class FirebaseStorageServiceTest {
         }
 
         // Initialize FirebaseStorageService
-        firebaseStorageService = FirebaseStorageService(
+        firebaseStorageService = FirebaseStorageClient(
             client = httpClient,
             firebaseInit = firebaseInit
         )

@@ -1,18 +1,18 @@
 package org.example.shared.domain.use_case
 
-import org.example.shared.domain.service.AuthService
+import org.example.shared.domain.service.AuthClient
 
 /**
  * Use case class for fetching user data.
  *
- * @property authService The authentication service used to fetch user data.
+ * @property authClient The authentication service used to fetch user data.
  */
-class GetUserDataUseCase(private val authService: AuthService) {
+class GetUserDataUseCase(private val authClient: AuthClient) {
 
     /**
      * Invokes the use case to fetch user data.
      *
      * @return The result of the user data fetch operation.
      */
-    suspend operator fun invoke() = authService.getUserData()
+    suspend operator fun invoke() = authClient.getUserData()
 }

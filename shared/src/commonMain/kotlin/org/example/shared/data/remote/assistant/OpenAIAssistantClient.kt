@@ -128,6 +128,21 @@ class OpenAIAssistantClient(
     }
 
     /**
+     * Cancels a run by its ID.
+     *
+     * @param threadId The ID of the thread.
+     * @param runId The ID of the run to cancel.
+     * @return A [Result] indicating the success or failure of the operation.
+     */
+    override suspend fun cancelRun(threadId: String, runId: String) = runCatching {
+        httpClient.post {
+            setUpAssistantRequest("/v1/threads/$threadId/runs/$runId/cancel")
+        }.run {
+            handleAssistantResponse { }
+        }
+    }
+
+    /**
      * Submits tool output for a run.
      *
      * @param threadId The ID of the thread.
@@ -138,7 +153,7 @@ class OpenAIAssistantClient(
     override suspend fun submitToolOutput(threadId: String, runId: String, requestBody: SubmitToolOutputsRequestBody) =
         runCatching {
             httpClient.post {
-                setUpAssistantRequest("/v1/threads/$threadId/runs/$runId/tool_outputs")
+                setUpAssistantRequest("/v1/threads/$threadId/runs/$runId/submit_tool_outputs")
                 setBody(requestBody)
             }.run {
                 handleAssistantResponse { body<Run>() }

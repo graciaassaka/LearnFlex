@@ -7,8 +7,8 @@ import kotlinx.coroutines.test.runTest
 import org.example.shared.data.remote.util.StorageException
 import org.example.shared.domain.constant.FileType
 import org.example.shared.domain.model.User
-import org.example.shared.domain.service.AuthService
-import org.example.shared.domain.service.StorageService
+import org.example.shared.domain.service.AuthClient
+import org.example.shared.domain.service.StorageClient
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -17,14 +17,14 @@ import org.junit.Test
 class UploadProfilePictureUseCaseTest {
 
     private lateinit var uploadProfilePictureUseCase: UploadProfilePictureUseCase
-    private lateinit var storageService: StorageService
-    private lateinit var authService: AuthService
+    private lateinit var storageClient: StorageClient
+    private lateinit var authClient: AuthClient
 
     @Before
     fun setUp() {
-        storageService = mockk(relaxed = true)
-        authService = mockk(relaxed = true)
-        uploadProfilePictureUseCase = UploadProfilePictureUseCase(storageService, authService)
+        storageClient = mockk(relaxed = true)
+        authClient = mockk(relaxed = true)
+        uploadProfilePictureUseCase = UploadProfilePictureUseCase(storageClient, authClient)
     }
 
     @Test
@@ -40,30 +40,30 @@ class UploadProfilePictureUseCaseTest {
         )
         val uploadedUrl = "profile_pictures/user123.jpg"
 
-        coEvery { authService.getUserData() } returns Result.success(user)
+        coEvery { authClient.getUserData() } returns Result.success(user)
         coEvery {
-            storageService.uploadFile(
+            storageClient.uploadFile(
                 fileData = imageData,
                 path = "profile_pictures/${user.localId}.jpg",
                 fileType = FileType.IMAGE
             )
         } returns Result.success(uploadedUrl)
-        coEvery { authService.updateUserData(user.copy(photoUrl = uploadedUrl)) } returns Result.success(Unit)
+        coEvery { authClient.updateUserData(user.copy(photoUrl = uploadedUrl)) } returns Result.success(Unit)
 
         // When
         val result = uploadProfilePictureUseCase.invoke(imageData)
 
         // Then
         assertTrue(result.isSuccess)
-        coVerify(exactly = 1) { authService.getUserData() }
+        coVerify(exactly = 1) { authClient.getUserData() }
         coVerify(exactly = 1) {
-            storageService.uploadFile(
+            storageClient.uploadFile(
                 fileData = imageData,
                 path = "profile_pictures/${user.localId}.jpg",
                 fileType = FileType.IMAGE
             )
         }
-        coVerify(exactly = 1) { authService.updateUserData(user.copy(photoUrl = uploadedUrl)) }
+        coVerify(exactly = 1) { authClient.updateUserData(user.copy(photoUrl = uploadedUrl)) }
     }
 
     @Test
@@ -72,7 +72,7 @@ class UploadProfilePictureUseCaseTest {
         val imageData = byteArrayOf(1, 2, 3)
         val exception = Exception("Failed to get user data")
 
-        coEvery { authService.getUserData() } returns Result.failure(exception)
+        coEvery { authClient.getUserData() } returns Result.failure(exception)
 
         // When
         val result = uploadProfilePictureUseCase.invoke(imageData)
@@ -80,9 +80,9 @@ class UploadProfilePictureUseCaseTest {
         // Then
         assertTrue(result.isFailure)
         assertEquals(exception, result.exceptionOrNull())
-        coVerify(exactly = 1) { authService.getUserData() }
-        coVerify(exactly = 0) { storageService.uploadFile(any(), any(), any()) }
-        coVerify(exactly = 0) { authService.updateUserData(any()) }
+        coVerify(exactly = 1) { authClient.getUserData() }
+        coVerify(exactly = 0) { storageClient.uploadFile(any(), any(), any()) }
+        coVerify(exactly = 0) { authClient.updateUserData(any()) }
     }
 
     @Test
@@ -98,9 +98,9 @@ class UploadProfilePictureUseCaseTest {
         )
         val uploadException = StorageException.UploadFailure("Upload failed")
 
-        coEvery { authService.getUserData() } returns Result.success(user)
+        coEvery { authClient.getUserData() } returns Result.success(user)
         coEvery {
-            storageService.uploadFile(
+            storageClient.uploadFile(
                 fileData = imageData,
                 path = "profile_pictures/${user.localId}.jpg",
                 fileType = FileType.IMAGE
@@ -113,15 +113,15 @@ class UploadProfilePictureUseCaseTest {
         // Then
         assertTrue(result.isFailure)
         assertEquals(uploadException, result.exceptionOrNull())
-        coVerify(exactly = 1) { authService.getUserData() }
+        coVerify(exactly = 1) { authClient.getUserData() }
         coVerify(exactly = 1) {
-            storageService.uploadFile(
+            storageClient.uploadFile(
                 fileData = imageData,
                 path = "profile_pictures/${user.localId}.jpg",
                 fileType = FileType.IMAGE
             )
         }
-        coVerify(exactly = 0) { authService.updateUserData(any()) }
+        coVerify(exactly = 0) { authClient.updateUserData(any()) }
     }
 
     @Test
@@ -138,15 +138,15 @@ class UploadProfilePictureUseCaseTest {
         val uploadedUrl = "profile_pictures/user123.jpg"
         val updateException = Exception("Update failed")
 
-        coEvery { authService.getUserData() } returns Result.success(user)
+        coEvery { authClient.getUserData() } returns Result.success(user)
         coEvery {
-            storageService.uploadFile(
+            storageClient.uploadFile(
                 fileData = imageData,
                 path = "profile_pictures/${user.localId}.jpg",
                 fileType = FileType.IMAGE
             )
         } returns Result.success(uploadedUrl)
-        coEvery { authService.updateUserData(user.copy(photoUrl = uploadedUrl)) } returns Result.failure(updateException)
+        coEvery { authClient.updateUserData(user.copy(photoUrl = uploadedUrl)) } returns Result.failure(updateException)
 
         // When
         val result = uploadProfilePictureUseCase.invoke(imageData)
@@ -154,15 +154,15 @@ class UploadProfilePictureUseCaseTest {
         // Then
         assertTrue(result.isFailure)
         assertEquals(updateException, result.exceptionOrNull())
-        coVerify(exactly = 1) { authService.getUserData() }
+        coVerify(exactly = 1) { authClient.getUserData() }
         coVerify(exactly = 1) {
-            storageService.uploadFile(
+            storageClient.uploadFile(
                 fileData = imageData,
                 path = "profile_pictures/${user.localId}.jpg",
                 fileType = FileType.IMAGE
             )
         }
-        coVerify(exactly = 1) { authService.updateUserData(user.copy(photoUrl = uploadedUrl)) }
+        coVerify(exactly = 1) { authClient.updateUserData(user.copy(photoUrl = uploadedUrl)) }
     }
 
     @Test
@@ -178,9 +178,9 @@ class UploadProfilePictureUseCaseTest {
         )
         val uploadedUrl = "profile_pictures/user123.jpg"
 
-        coEvery { authService.getUserData() } returns Result.success(user)
-        coEvery { storageService.uploadFile(any(), any(), any()) } returns Result.success(uploadedUrl)
-        coEvery { authService.updateUserData(any()) } returns Result.success(Unit)
+        coEvery { authClient.getUserData() } returns Result.success(user)
+        coEvery { storageClient.uploadFile(any(), any(), any()) } returns Result.success(uploadedUrl)
+        coEvery { authClient.updateUserData(any()) } returns Result.success(Unit)
 
         // When
         val result = uploadProfilePictureUseCase.invoke(imageData)
@@ -188,7 +188,7 @@ class UploadProfilePictureUseCaseTest {
         // Then
         assertTrue(result.isSuccess)
         coVerify {
-            storageService.uploadFile(
+            storageClient.uploadFile(
                 fileData = imageData,
                 path = "profile_pictures/${user.localId}.jpg",
                 fileType = FileType.IMAGE

@@ -1,17 +1,17 @@
 package org.example.shared.domain.use_case
 
-import org.example.shared.domain.service.AuthService
-import org.example.shared.domain.service.StorageService
+import org.example.shared.domain.service.AuthClient
+import org.example.shared.domain.service.StorageClient
 
 /**
  * Use case for deleting a user's profile picture.
  *
- * @property storageService The service responsible for file storage operations.
- * @property authService The service responsible for authentication and user data operations.
+ * @property storageClient The service responsible for file storage operations.
+ * @property authClient The service responsible for authentication and user data operations.
  */
 class DeleteProfilePictureUseCase(
-    private val storageService: StorageService,
-    private val authService: AuthService
+    private val storageClient: StorageClient,
+    private val authClient: AuthClient
 ) {
     /**
      * Deletes the profile picture of the currently authenticated user.
@@ -19,10 +19,10 @@ class DeleteProfilePictureUseCase(
      * @return A [Result] indicating the success or failure of the operation.
      */
     suspend operator fun invoke() = runCatching {
-        val user = authService.getUserData().getOrThrow()
+        val user = authClient.getUserData().getOrThrow()
 
-        storageService.deleteFile("profile_pictures/${user.localId}.jpg").getOrThrow()
+        storageClient.deleteFile("profile_pictures/${user.localId}.jpg").getOrThrow()
 
-        authService.updateUserData(user.copy(photoUrl = null)).getOrThrow()
+        authClient.updateUserData(user.copy(photoUrl = null)).getOrThrow()
     }
 }

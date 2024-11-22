@@ -5,18 +5,18 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.model.StyleResult
-import org.example.shared.domain.service.StyleQuizService
+import org.example.shared.domain.service.StyleQuizClient
 import org.junit.Before
 import kotlin.test.Test
 
 class GetStyleResultUseCaseTest {
     private lateinit var getStyleResultUseCase: GetStyleResultUseCase
-    private lateinit var styleQuizService: StyleQuizService
+    private lateinit var styleQuizClient: StyleQuizClient
 
     @Before
     fun setUp() {
-        styleQuizService = mockk<StyleQuizService>(relaxed = true)
-        getStyleResultUseCase = GetStyleResultUseCase(styleQuizService)
+        styleQuizClient = mockk<StyleQuizClient>(relaxed = true)
+        getStyleResultUseCase = GetStyleResultUseCase(styleQuizClient)
     }
 
     @Test
@@ -25,14 +25,14 @@ class GetStyleResultUseCaseTest {
         getStyleResultUseCase(mockk())
 
         // Assert
-        coVerify(exactly = 1) { styleQuizService.evaluateResponses(any()) }
+        coVerify(exactly = 1) { styleQuizClient.evaluateResponses(any()) }
     }
 
     @Test
     fun `getStyleResult should return Result#success when styleQuizService#evaluateResponses returns StyleResult`() = runTest {
         // Arrange
         val styleResult = mockk<StyleResult>()
-        coEvery { styleQuizService.evaluateResponses(any()) } returns Result.success(styleResult)
+        coEvery { styleQuizClient.evaluateResponses(any()) } returns Result.success(styleResult)
 
         // Act
         val result = getStyleResultUseCase(mockk())
@@ -46,7 +46,7 @@ class GetStyleResultUseCaseTest {
     fun `getStyleResult should return Result#failure when styleQuizService#evaluateResponses throws an exception`() = runTest {
         // Arrange
         val exception = Exception("An error occurred")
-        coEvery { styleQuizService.evaluateResponses(any()) } returns Result.failure(exception)
+        coEvery { styleQuizClient.evaluateResponses(any()) } returns Result.failure(exception)
 
         // Act
         val result = getStyleResultUseCase(mockk())

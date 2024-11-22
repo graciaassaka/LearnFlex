@@ -64,6 +64,14 @@ interface AIAssistantClient {
     suspend fun retrieveRun(threadId: String, runId: String): Result<Run>
 
     /**
+     * Cancels a run by its ID.
+     * @param threadId The ID of the thread containing the run.
+     * @param runId The ID of the run to be canceled.
+     * @return Result indicating the success or failure of the operation.
+     */
+    suspend fun cancelRun(threadId: String, runId: String): Result<Unit>
+
+    /**
      * Submits tool output for a run.
      * @param threadId The ID of the thread containing the run.
      * @param runId The ID of the run to submit the tool output for.

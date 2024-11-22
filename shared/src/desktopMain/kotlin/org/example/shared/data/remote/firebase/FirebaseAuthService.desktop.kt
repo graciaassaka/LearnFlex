@@ -10,7 +10,7 @@ import org.example.shared.data.remote.util.ApiError
 import org.example.shared.data.remote.util.ErrorContainer
 import org.example.shared.data.util.FirebaseConstants
 import org.example.shared.domain.model.User
-import org.example.shared.domain.service.AuthService
+import org.example.shared.domain.service.AuthClient
 
 /**
  * Service for handling Firebase authentication.
@@ -19,11 +19,11 @@ import org.example.shared.domain.service.AuthService
  * @property firebaseInit The Firebase initialization object.
  * @property useEmulator Flag indicating whether to use the Firebase emulator.
  */
-actual class FirebaseAuthService(
+actual class FirebaseAuthClient(
     private val client: HttpClient,
     private val firebaseInit: FirebaseInit,
     private val useEmulator: Boolean
-) : AuthService {
+) : AuthClient {
 
     /**
      * Signs up a new user with the given email and password.

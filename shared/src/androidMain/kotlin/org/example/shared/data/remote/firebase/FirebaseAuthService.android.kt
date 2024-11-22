@@ -5,16 +5,16 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.tasks.await
 import org.example.shared.domain.model.User
-import org.example.shared.domain.service.AuthService
+import org.example.shared.domain.service.AuthClient
 
 /**
  * Service class for Firebase Authentication.
  *
  * @property auth The FirebaseAuth instance used for authentication operations.
  */
-actual class FirebaseAuthService(
+actual class FirebaseAuthClient(
     private val auth: FirebaseAuth
-) : AuthService {
+) : AuthClient {
     /**
      * Signs up a new user with the provided email and password.
      *

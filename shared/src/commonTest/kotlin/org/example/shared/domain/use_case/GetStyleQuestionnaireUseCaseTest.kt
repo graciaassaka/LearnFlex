@@ -1,21 +1,24 @@
 package org.example.shared.domain.use_case
 
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.model.LearningPreferences
-import org.example.shared.domain.model.StyleQuestionnaire
-import org.example.shared.domain.service.StyleQuizService
+import org.example.shared.domain.model.StyleQuestion
+import org.example.shared.domain.service.StyleQuizClient
 import org.junit.Before
 import org.junit.Test
 
 class GetStyleQuestionnaireUseCaseTest {
     private lateinit var getStyleQuestionnaireUseCase: GetStyleQuestionnaireUseCase
-    private lateinit var styleQuizService: StyleQuizService
+    private lateinit var styleQuizClient: StyleQuizClient
 
     @Before
     fun setUp() {
-        styleQuizService = mockk<StyleQuizService>(relaxed = true)
-        getStyleQuestionnaireUseCase = GetStyleQuestionnaireUseCase(styleQuizService)
+        styleQuizClient = mockk<StyleQuizClient>(relaxed = true)
+        getStyleQuestionnaireUseCase = GetStyleQuestionnaireUseCase(styleQuizClient)
     }
 
     @Test
@@ -24,39 +27,43 @@ class GetStyleQuestionnaireUseCaseTest {
         val preferences = mockk<LearningPreferences>()
 
         // Act
-        getStyleQuestionnaireUseCase(preferences)
+        getStyleQuestionnaireUseCase(preferences, 5)
 
         // Assert
-        coVerify(exactly = 1) { styleQuizService.generateQuiz(preferences) }
+        coVerify(exactly = 1) { styleQuizClient.streamQuestions(preferences, 5) }
     }
 
     @Test
-    fun `getStyleQuestionnaire should return Result#success when styleQuizService#generateQuiz returns a questionnaire`() = runTest {
-        // Arrange
-        val preferences = mockk<LearningPreferences>()
-        val questionnaire = mockk<StyleQuestionnaire>()
-        coEvery { styleQuizService.generateQuiz(preferences) } returns Result.success(questionnaire)
+    fun `getStyleQuestionnaire should return Result#success when styleQuizService#generateQuiz returns a questionnaire`() =
+        runTest {
+            // Arrange
+            val preferences = mockk<LearningPreferences>()
+            val question = mockk<StyleQuestion>()
+            coEvery { styleQuizClient.streamQuestions(preferences, 1) } returns flowOf(Result.success(question))
 
-        // Act
-        val result = getStyleQuestionnaireUseCase(preferences)
+            // Act
+            val result = mutableListOf<Result<StyleQuestion>>()
+            getStyleQuestionnaireUseCase(preferences, 1).collect(result::add)
 
-        // Assert
-        assert(result.isSuccess)
-        assert(result.getOrNull() == questionnaire)
-    }
+            // Assert
+            assert(result.size == 1)
+            assert(result[0].getOrNull() == question)
+        }
 
     @Test
-    fun `getStyleQuestionnaire should return Result#failure when styleQuizService#generateQuiz throws an exception`() = runTest {
-        // Arrange
-        val preferences = mockk<LearningPreferences>()
-        val exception = Exception("An error occurred")
-        coEvery { styleQuizService.generateQuiz(preferences) } returns Result.failure(exception)
+    fun `getStyleQuestionnaire should return Result#failure when styleQuizService#generateQuiz throws an exception`() =
+        runTest {
+            // Arrange
+            val preferences = mockk<LearningPreferences>()
+            val exception = Exception("An error occurred")
+            coEvery { styleQuizClient.streamQuestions(preferences, 5) } returns flowOf(Result.failure(exception))
 
-        // Act
-        val result = getStyleQuestionnaireUseCase(preferences)
+            // Act
+            val result = mutableListOf<Result<StyleQuestion>>()
+            getStyleQuestionnaireUseCase(preferences, 5).collect(result::add)
 
-        // Assert
-        assert(result.isFailure)
-        assert(result.exceptionOrNull() == exception)
-    }
+            // Assert
+            assert(result.size == 1)
+            assert(result[0].exceptionOrNull() == exception)
+        }
 }

@@ -18,9 +18,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @ExperimentalCoroutinesApi
-actual class FirebaseStorageServiceTest {
+actual class FirebaseStorageClientTest {
 
-    private lateinit var firebaseStorageService: FirebaseStorageService
+    private lateinit var firebaseStorageService: FirebaseStorageClient
     private lateinit var mockStorage: FirebaseStorage
     private lateinit var mockStorageReference: StorageReference
     private lateinit var mockChildReference: StorageReference
@@ -44,7 +44,7 @@ actual class FirebaseStorageServiceTest {
         every { mockStorageReference.child(any()) } returns mockChildReference
 
         // Initialize the service with mocked FirebaseStorage
-        firebaseStorageService = FirebaseStorageService(mockStorage)
+        firebaseStorageService = FirebaseStorageClient(mockStorage)
 
         // Mock the await() extension function
         mockkStatic("kotlinx.coroutines.tasks.TasksKt")
@@ -248,7 +248,7 @@ actual class FirebaseStorageServiceTest {
         every { mockStorageReference.child(path) } returns mockChildReference
 
         // Mock getBytes() to return a successful Task<ByteArray>
-        every { mockChildReference.getBytes(FirebaseStorageService.MAX_DOWNLOAD_SIZE) } returns createSuccessfulTask(
+        every { mockChildReference.getBytes(FirebaseStorageClient.MAX_DOWNLOAD_SIZE) } returns createSuccessfulTask(
             expectedData
         )
 
@@ -257,7 +257,7 @@ actual class FirebaseStorageServiceTest {
 
         // Then
         verify(exactly = 1) { mockStorageReference.child(path) }
-        verify(exactly = 1) { mockChildReference.getBytes(FirebaseStorageService.MAX_DOWNLOAD_SIZE) }
+        verify(exactly = 1) { mockChildReference.getBytes(FirebaseStorageClient.MAX_DOWNLOAD_SIZE) }
 
         assertTrue(result.isSuccess)
         assertEquals(expectedData, result.getOrNull())
@@ -276,7 +276,7 @@ actual class FirebaseStorageServiceTest {
         every { mockStorageReference.child(path) } returns mockChildReference
 
         // Mock getBytes() to return a failed Task<ByteArray>
-        every { mockChildReference.getBytes(FirebaseStorageService.MAX_DOWNLOAD_SIZE) } returns createFailedTask(
+        every { mockChildReference.getBytes(FirebaseStorageClient.MAX_DOWNLOAD_SIZE) } returns createFailedTask(
             exception
         )
 
@@ -285,7 +285,7 @@ actual class FirebaseStorageServiceTest {
 
         // Then
         verify(exactly = 1) { mockStorageReference.child(path) }
-        verify(exactly = 1) { mockChildReference.getBytes(FirebaseStorageService.MAX_DOWNLOAD_SIZE) }
+        verify(exactly = 1) { mockChildReference.getBytes(FirebaseStorageClient.MAX_DOWNLOAD_SIZE) }
 
         assertTrue(result.isFailure)
         val failure = result.exceptionOrNull()

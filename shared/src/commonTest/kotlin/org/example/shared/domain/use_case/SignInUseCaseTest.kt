@@ -5,19 +5,19 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.example.shared.domain.service.AuthService
+import org.example.shared.domain.service.AuthClient
 import org.junit.Before
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class SignInUseCaseTest {
     private lateinit var signInUseCase: SignInUseCase
-    private lateinit var authService: AuthService
+    private lateinit var authClient: AuthClient
 
     @Before
     fun setUp() {
-        authService = mockk<AuthService>()
-        signInUseCase = SignInUseCase(authService)
+        authClient = mockk<AuthClient>()
+        signInUseCase = SignInUseCase(authClient)
     }
 
 
@@ -26,13 +26,13 @@ class SignInUseCaseTest {
         // Given
         val email = "test@example.com"
         val password = "password"
-        coEvery { authService.signIn(any(), any()) } returns Result.success(Unit)
+        coEvery { authClient.signIn(any(), any()) } returns Result.success(Unit)
 
         // When
         signInUseCase(email, password)
 
         // Then
-        coVerify(exactly = 1) { authService.signIn(email, password) }
+        coVerify(exactly = 1) { authClient.signIn(email, password) }
     }
 
     @Test
@@ -40,7 +40,7 @@ class SignInUseCaseTest {
         // Given
         val email = "test@example.com"
         val password = "password"
-        coEvery { authService.signIn(any(), any()) } returns Result.success(Unit)
+        coEvery { authClient.signIn(any(), any()) } returns Result.success(Unit)
 
         // When
         val result = signInUseCase(email, password)
@@ -56,7 +56,7 @@ class SignInUseCaseTest {
         val password = "password"
         val exception = Exception("An error occurred")
 
-        coEvery { authService.signIn(any(), any()) } returns Result.failure(exception)
+        coEvery { authClient.signIn(any(), any()) } returns Result.failure(exception)
 
         // When
         val result = signInUseCase(email, password)

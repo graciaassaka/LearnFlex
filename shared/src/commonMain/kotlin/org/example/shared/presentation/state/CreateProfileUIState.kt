@@ -1,9 +1,9 @@
 package org.example.shared.presentation.state
 
+import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.Field
 import org.example.shared.domain.model.Level
-import org.example.shared.domain.constant.Style
-import org.example.shared.domain.model.StyleQuestionnaire
+import org.example.shared.domain.model.StyleQuestion
 import org.example.shared.domain.model.StyleResult
 import org.example.shared.presentation.util.ProfileCreationForm
 
@@ -39,7 +39,7 @@ data class CreateProfileUIState(
     val isLevelDropdownVisible: Boolean = false,
     val goal: String = "",
     val isProfileCreated: Boolean = false,
-    val styleQuestionnaire: StyleQuestionnaire = StyleQuestionnaire(emptyList()),
+    val styleQuestionnaire: List<StyleQuestion> = emptyList(),
     val styleResponses: List<Style> = emptyList(),
     val styleResult: StyleResult? = null,
     val showStyleResultDialog: Boolean = false,

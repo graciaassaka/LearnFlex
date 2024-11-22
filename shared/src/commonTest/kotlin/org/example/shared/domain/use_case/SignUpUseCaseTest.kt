@@ -5,7 +5,7 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.example.shared.domain.service.AuthService
+import org.example.shared.domain.service.AuthClient
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -14,12 +14,12 @@ import org.koin.core.context.stopKoin
 @ExperimentalCoroutinesApi
 class SignUpUseCaseTest {
     private lateinit var signUpUseCase: SignUpUseCase
-    private lateinit var authService: AuthService
+    private lateinit var authClient: AuthClient
 
     @Before
     fun setUp() {
-        authService = mockk<AuthService>()
-        signUpUseCase = SignUpUseCase(authService)
+        authClient = mockk<AuthClient>()
+        signUpUseCase = SignUpUseCase(authClient)
     }
 
     @After
@@ -32,13 +32,13 @@ class SignUpUseCaseTest {
         // Given
         val email = "test@example.com"
         val password = "password"
-        coEvery { authService.signUp(any(), any()) } returns Result.success(Unit)
+        coEvery { authClient.signUp(any(), any()) } returns Result.success(Unit)
 
         // When
         signUpUseCase(email, password)
 
         // Then
-        coVerify(exactly = 1) { authService.signUp(email, password) }
+        coVerify(exactly = 1) { authClient.signUp(email, password) }
     }
 
     @Test
@@ -46,7 +46,7 @@ class SignUpUseCaseTest {
         // Given
         val email = "test@example.com"
         val password = "password"
-        coEvery { authService.signUp(any(), any()) } returns Result.success(Unit)
+        coEvery { authClient.signUp(any(), any()) } returns Result.success(Unit)
 
         // When
         val result = signUpUseCase(email, password)
@@ -62,7 +62,7 @@ class SignUpUseCaseTest {
         val password = "password"
         val exception = Exception("An error occurred")
 
-        coEvery { authService.signUp(any(), any()) } returns Result.failure(exception)
+        coEvery { authClient.signUp(any(), any()) } returns Result.failure(exception)
 
         // When
         val result = signUpUseCase(email, password)

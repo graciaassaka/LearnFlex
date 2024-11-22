@@ -16,9 +16,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @ExperimentalCoroutinesApi
-actual class FirebaseAuthServiceTest {
+actual class FirebaseAuthClientTest {
 
-    private lateinit var firebaseAuthService: FirebaseAuthService
+    private lateinit var firebaseAuthService: FirebaseAuthClient
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var mockAuthResult: AuthResult
     private lateinit var mockUser: FirebaseUser
@@ -31,7 +31,7 @@ actual class FirebaseAuthServiceTest {
         mockAuthResult = mockk(relaxed = true)
 
         // Initialize the service with mocked FirebaseAuth
-        firebaseAuthService = FirebaseAuthService(firebaseAuth)
+        firebaseAuthService = FirebaseAuthClient(firebaseAuth)
     }
 
     // Helper function to create a successful Task with a result

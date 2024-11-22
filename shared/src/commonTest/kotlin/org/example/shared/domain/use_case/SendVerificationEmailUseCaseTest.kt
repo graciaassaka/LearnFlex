@@ -5,38 +5,38 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.example.shared.domain.service.AuthService
+import org.example.shared.domain.service.AuthClient
 import org.junit.Before
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class SendVerificationEmailUseCaseTest {
     private lateinit var sendVerificationEmailUseCase: SendVerificationEmailUseCase
-    private lateinit var authService: AuthService
+    private lateinit var authClient: AuthClient
 
     @Before
     fun setUp() {
-        authService = mockk<AuthService>()
-        sendVerificationEmailUseCase = SendVerificationEmailUseCase(authService)
+        authClient = mockk<AuthClient>()
+        sendVerificationEmailUseCase = SendVerificationEmailUseCase(authClient)
     }
 
     @Test
     fun `SendVerificationEmailUseCase should call AuthService#sendVerificationEmail`() = runTest {
         // Given
-        coEvery { authService.sendEmailVerification() } returns Result.success(Unit)
+        coEvery { authClient.sendEmailVerification() } returns Result.success(Unit)
 
         // When
         sendVerificationEmailUseCase()
 
         // Then
-        coVerify(exactly = 1) { authService.sendEmailVerification() }
+        coVerify(exactly = 1) { authClient.sendEmailVerification() }
     }
 
     @Test
     fun `SendVerificationEmailUseCase should return success when AuthService#sendVerificationEmail returns success`() =
         runTest {
             // Given
-            coEvery { authService.sendEmailVerification() } returns Result.success(Unit)
+            coEvery { authClient.sendEmailVerification() } returns Result.success(Unit)
 
             // When
             val result = sendVerificationEmailUseCase()
@@ -50,7 +50,7 @@ class SendVerificationEmailUseCaseTest {
         runTest {
             // Given
             val exception = Exception("An error occurred")
-            coEvery { authService.sendEmailVerification() } returns Result.failure(exception)
+            coEvery { authClient.sendEmailVerification() } returns Result.failure(exception)
 
             // When
             val result = sendVerificationEmailUseCase()

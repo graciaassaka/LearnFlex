@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
@@ -405,31 +406,31 @@ class CreateUserProfileViewModelTest {
     fun `startStyleQuestionnaire should call getStyleQuestionnaireUseCase and update state with questionnaire`() =
         runTest {
             // Given
-            coEvery { getStyleQuestionnaireUseCase(any()) } returns Result.success(mockk())
+            coEvery { getStyleQuestionnaireUseCase(any(), any()) } returns flowOf(Result.success(mockk()))
 
             // When
             viewModel.startStyleQuestionnaire()
             advanceUntilIdle()
 
             // Then
-            coVerify(exactly = 1) { getStyleQuestionnaireUseCase(any()) }
+            coVerify(exactly = 1) { getStyleQuestionnaireUseCase(any(), any()) }
         }
 
     @Test
     fun `startStyleQuestionnaire should update state with questionnaire when getStyleQuestionnaireUseCase returns success`() =
         runTest {
             // Given
-            val questionnaire = mockk<StyleQuestionnaire>()
+            val question = mockk<StyleQuestion>()
 
-            coEvery { getStyleQuestionnaireUseCase(any()) } returns Result.success(questionnaire)
+            coEvery { getStyleQuestionnaireUseCase(any(), any()) } returns flowOf(Result.success(question))
 
             // When
             viewModel.startStyleQuestionnaire()
             advanceUntilIdle()
 
             // Then
-            coVerify(exactly = 1) { getStyleQuestionnaireUseCase(any()) }
-            assertEquals(questionnaire, viewModel.state.value.styleQuestionnaire)
+            coVerify(exactly = 1) { getStyleQuestionnaireUseCase(any(), any()) }
+            assertEquals(question, viewModel.state.value.styleQuestionnaire.first())
         }
 
     @Test
@@ -442,14 +443,19 @@ class CreateUserProfileViewModelTest {
                 viewModel.uiEvent.toList(uiEvents)
             }
 
-            coEvery { getStyleQuestionnaireUseCase(any()) } returns Result.failure(Exception(errorMessage))
+            coEvery {
+                getStyleQuestionnaireUseCase(
+                    any(),
+                    any()
+                )
+            } returns flowOf(Result.failure(Exception(errorMessage)))
 
             // When
             viewModel.startStyleQuestionnaire()
             advanceUntilIdle()
 
             // Then
-            coVerify(exactly = 1) { getStyleQuestionnaireUseCase(any()) }
+            coVerify(exactly = 1) { getStyleQuestionnaireUseCase(any(), any()) }
             assertEquals(1, uiEvents.size)
             assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
 
@@ -560,7 +566,6 @@ class CreateUserProfileViewModelTest {
     fun `setLearningStyle should show success message when setUserStyleUseCase returns success`() = runTest {
         // Given
         val successMessage = "Style set successfully"
-        val userId = "user123"
 
         val uiEvents = mutableListOf<UIEvent>()
         val job = launch { viewModel.uiEvent.toList(uiEvents) }

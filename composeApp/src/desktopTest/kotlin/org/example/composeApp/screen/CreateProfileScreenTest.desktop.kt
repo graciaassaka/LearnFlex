@@ -305,10 +305,10 @@ class CreateProfileScreenTest {
         }
 
         onNodeWithText(Style.READING.value).performClick()
-        onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_NEXT_BUTTON.tag).performClick()
-
-        verify { viewModel.onQuestionAnswered(any()) }
         onNodeWithText(Style.READING.value).assertIsSelected()
+
+        onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_NEXT_BUTTON.tag).performClick()
+        verify { viewModel.onQuestionAnswered(any()) }
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -385,13 +385,12 @@ class CreateProfileScreenTest {
     }
 
     companion object {
-        private val styleQuestionnaire = StyleQuestionnaire(
-            listOf(
+        private val styleQuestionnaire = listOf(
                 StyleQuestion(
                     listOf(StyleOption(Style.READING.value, Style.READING.value)), "Question 1",
                 )
             )
-        )
+
         private val styleResult = StyleResult(
             dominantStyle = Style.READING.value,
             styleBreakdown = StyleBreakdown(visual = 0, reading = 50, kinesthetic = 50)

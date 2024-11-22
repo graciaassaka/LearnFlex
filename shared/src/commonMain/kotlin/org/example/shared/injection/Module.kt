@@ -13,9 +13,9 @@ import org.example.shared.data.local.dao.LearningStyleDao
 import org.example.shared.data.local.dao.UserProfileDao
 import org.example.shared.data.local.database.LearnFlexDatabase
 import org.example.shared.data.remote.assistant.OpenAIAssistantClient
-import org.example.shared.data.remote.assistant.StyleQuizServiceImpl
-import org.example.shared.data.remote.firebase.FirebaseAuthService
-import org.example.shared.data.remote.firebase.FirebaseStorageService
+import org.example.shared.data.remote.assistant.StyleQuizClientImpl
+import org.example.shared.data.remote.firebase.FirebaseAuthClient
+import org.example.shared.data.remote.firebase.FirebaseStorageClient
 import org.example.shared.data.remote.firestore.LearningStyleRemoteDataSource
 import org.example.shared.data.remote.firestore.UserProfileRemoteDataSource
 import org.example.shared.data.remote.util.HttpClientConfig
@@ -30,9 +30,9 @@ import org.example.shared.domain.model.LearningStyle
 import org.example.shared.domain.model.UserProfile
 import org.example.shared.domain.repository.Repository
 import org.example.shared.domain.service.AIAssistantClient
-import org.example.shared.domain.service.AuthService
-import org.example.shared.domain.service.StorageService
-import org.example.shared.domain.service.StyleQuizService
+import org.example.shared.domain.service.AuthClient
+import org.example.shared.domain.service.StorageClient
+import org.example.shared.domain.service.StyleQuizClient
 import org.example.shared.domain.sync.SyncHandler
 import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.use_case.*
@@ -82,8 +82,8 @@ val commonModule = module {
 
     // Firebase Services
     single<FirebaseFirestore> { Firebase.firestore }
-    single<AuthService> { get<FirebaseAuthService>() }
-    single<StorageService> { get<FirebaseStorageService>() }
+    single<AuthClient> { get<FirebaseAuthClient>() }
+    single<StorageClient> { get<FirebaseStorageClient>() }
 
     // OpenAI Services
     single<AIAssistantClient> {
@@ -98,7 +98,7 @@ val commonModule = module {
     }
 
     // Style Quiz Service
-    single<StyleQuizService> { StyleQuizServiceImpl(assistant = get()) }
+    single<StyleQuizClient> { StyleQuizClientImpl(assistant = get()) }
 
     // Database DAOs
     single<UserProfileDao> { get<LearnFlexDatabase>().userProfileDao() }

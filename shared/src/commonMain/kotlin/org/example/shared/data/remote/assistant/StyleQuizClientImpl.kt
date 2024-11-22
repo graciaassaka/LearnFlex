@@ -1,6 +1,7 @@
 package org.example.shared.data.remote.assistant
 
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.*
 import org.example.shared.data.remote.model.*
 import org.example.shared.data.remote.model.Function
@@ -8,7 +9,7 @@ import org.example.shared.data.util.OpenAIConstants
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.*
 import org.example.shared.domain.service.AIAssistantClient
-import org.example.shared.domain.service.StyleQuizService
+import org.example.shared.domain.service.StyleQuizClient
 
 /**
  * Implementation of the StyleQuizService interface.
@@ -16,42 +17,71 @@ import org.example.shared.domain.service.StyleQuizService
  *
  * @property assistant The OpenAIAssistantClient used to interact with the OpenAI API.
  */
-class StyleQuizServiceImpl(private val assistant: AIAssistantClient) : StyleQuizService {
+class StyleQuizClientImpl(private val assistant: AIAssistantClient) : StyleQuizClient {
+
     /**
-     * Generates a learning style quiz based on the provided learning preferences.
+     * Streams questions for the user based on their learning preferences.
      *
+     * @param preferences The user's learning preferences.
+     * @param number The number of questions to generate.
+     * @return A flow of results containing the generated StyleQuestion.
+     */
+    override fun streamQuestions(preferences: LearningPreferences, number: Int) = with(assistant) {
+        flow<Result<StyleQuestion>> {
+            var thread: Thread? = null
+            try {
+                thread = createThread().getOrThrow()
+                createMessage(thread.id, MessageRequestBody(MessageRole.USER.value, MESSAGE)).getOrThrow()
+
+                var count = 0
+                while (count < number) {
+                    processRun(thread, preferences).onSuccess {
+                        emit(Result.success(it))
+                        count++
+                    }.onFailure {
+                        emit(Result.failure(it))
+                    }
+
+                    if (count < number - 1)
+                        createMessage(thread.id, MessageRequestBody(MessageRole.USER.value, MESSAGE)).getOrThrow()
+                }
+            } catch (e: Exception) {
+                emit(Result.failure(e))
+            } finally {
+                thread?.let { t -> deleteThread(t.id).onFailure { emit(Result.failure(it)) } }
+            }
+        }
+    }
+
+    /**
+     * Processes the run for the given thread.
+     *
+     * @param thread The thread to process.
      * @param preferences The user's learning preferences.
      * @return A Result containing the generated StyleQuestionnaire.
      */
-    override suspend fun generateQuiz(preferences: LearningPreferences) = with(assistant) {
-        var result: Result<StyleQuestionnaire>
-        var thread: Thread? = null
+    private suspend fun processRun(thread: Thread, preferences: LearningPreferences) = with(assistant) {
+        var currentRun = createRun(thread.id).getOrThrow()
 
-        try {
-            thread = createThread().getOrThrow()
-
-            createMessage(thread.id, MessageRequestBody(MessageRole.USER.value, MESSAGE)).onFailure { throw it }
-
-            var run = createRun(thread.id).getOrThrow()
-
-            while (RunStatus.valueOf(run.status.uppercase()).isRunActive()) {
-                run = retrieveRun(thread.id, run.id).getOrThrow().apply {
-                    handleRequiredAction(thread.id, preferences)
+        return@with try {
+            while (RunStatus.valueOf(currentRun.status.uppercase()).isRunActive()) {
+                if (currentRun.status == "requires_action") {
+                    currentRun.handleRequiredAction(thread.id, preferences).onFailure { throw it }
+                    delay(POLLING_INTERVAL)
                 }
 
-                delay(POLLING_INTERVAL)
+                currentRun = retrieveRun(thread.id, currentRun.id).getOrThrow()
             }
 
-            val questionnaire = run.processCompletion(thread.id)
-            result = Result.success(questionnaire)
+            if (currentRun.status == "completed") Result.success(currentRun.processCompletion(thread.id))
+            else throw IllegalStateException("Run ended with unexpected status: ${currentRun.status}")
         } catch (e: Exception) {
-            result = Result.failure(e)
+            Result.failure(e)
         } finally {
-            thread?.let { t -> deleteThread(t.id).onFailure { result = Result.failure(it) } }
+            cancelRun(thread.id, currentRun.id).onFailure { Result.failure<Throwable>(it) }
         }
-
-        return@with result
     }
+
 
     /**
      * Creates a new run for the given thread ID.
@@ -120,19 +150,30 @@ class StyleQuizServiceImpl(private val assistant: AIAssistantClient) : StyleQuiz
      * @param threadId The ID of the thread.
      * @param preferences The user's learning preferences.
      */
-    private suspend fun Run.handleRequiredAction(threadId: String, preferences: LearningPreferences) =
+    private suspend fun Run.handleRequiredAction(threadId: String, preferences: LearningPreferences) = runCatching {
         requiredAction?.let { action ->
             when (RequiredActionType.valueOf(action.type.uppercase())) {
                 RequiredActionType.SUBMIT_TOOL_OUTPUTS -> {
-                    requiredAction
-                        .submitToolOutputs
-                        ?.toolCalls
-                        ?.forEach { call -> submitToolOutput(threadId, id, call.id, preferences) }
-                        ?: throw IllegalStateException("No tool calls to submit")
+                    val toolCalls = requiredAction.submitToolOutputs?.toolCalls
+                        ?: throw IllegalStateException("No tool calls found")
+
+                    val results = toolCalls.map { call ->
+                        submitToolOutput(threadId, id, call.id, preferences)
+                    }
+
+                    results.filter { it.isFailure }
+                        .takeIf { it.isNotEmpty() }
+                        ?.let { failures ->
+                            throw IllegalStateException(
+                                "Failed to submit tool outputs: ${failures.mapNotNull { it.exceptionOrNull()?.message }}"
+                            )
+                        }
+
+                    results.forEach { it.getOrThrow() }
                 }
             }
-        }
-
+        } ?: throw IllegalStateException("No required action found")
+    }
 
     /**
      * Submits the tool output for the given tool call ID.
@@ -151,17 +192,18 @@ class StyleQuizServiceImpl(private val assistant: AIAssistantClient) : StyleQuiz
         threadId = threadId,
         runId = runId,
         requestBody = SubmitToolOutputsRequestBody(
-            listOf(ToolOutput(
-                toolCallId = toolCallId,
-                output = Json.encodeToString(
-                    JsonObject.serializer(),
-                    buildJsonObject {
-                        put("field", JsonPrimitive(preferences.field))
-                        put("level", JsonPrimitive(preferences.level))
-                        put("goal", JsonPrimitive(preferences.goal))
-                    }
-                )
-            ))
+            listOf(
+                ToolOutput(
+                    toolCallId = toolCallId,
+                    output = Json.encodeToString(
+                        JsonObject.serializer(),
+                        buildJsonObject {
+                            put("field", JsonPrimitive(preferences.field))
+                            put("level", JsonPrimitive(preferences.level))
+                            put("goal", JsonPrimitive(preferences.goal))
+                        }
+                    )
+                ))
         ))
 
     /**
@@ -188,10 +230,10 @@ class StyleQuizServiceImpl(private val assistant: AIAssistantClient) : StyleQuiz
      * @return The decoded StyleQuestionnaire.
      */
     private suspend fun getAssistantMessage(threadId: String) = assistant
-        .listMessages(threadId, 5, MessagesOrder.ASC)
+        .listMessages(threadId, 10, MessagesOrder.ASC)
         .getOrThrow().data
         .first { it.role == MessageRole.ASSISTANT.value }
-        .let { Json.decodeFromString<StyleQuestionnaire>((it.content.first() as Content.TextContent).text.value) }
+        .let { Json.decodeFromString<StyleQuestion>((it.content.first() as Content.TextContent).text.value) }
 
     /**
      * Evaluates the responses and calculates the dominant learning style and breakdown.
@@ -214,7 +256,7 @@ class StyleQuizServiceImpl(private val assistant: AIAssistantClient) : StyleQuiz
         }
 
     companion object {
-        private const val MESSAGE = "I want to take a learning style assessment"
+        private const val MESSAGE = "Generate the next question"
         private const val FUN_NAME = "get_user_context"
         private const val FUN_DESC = "Get the user's learning context to generate personalized assessment questions"
         private const val INSTRUCTIONS = "Generate learning style assessment questions based on the user's context"

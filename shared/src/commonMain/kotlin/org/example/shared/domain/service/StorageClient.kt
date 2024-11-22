@@ -5,7 +5,7 @@ import org.example.shared.domain.constant.FileType
 /**
  * Interface for storage service operations.
  */
-interface StorageService {
+interface StorageClient {
     /**
      * Uploads a file to the specified path.
      *
