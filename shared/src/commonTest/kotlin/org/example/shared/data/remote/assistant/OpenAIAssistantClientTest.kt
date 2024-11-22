@@ -712,7 +712,7 @@ class OpenAIAssistantClientTest {
         )
 
         wireMockServer.stubFor(
-            post(urlEqualTo("/v1/threads/$threadId/runs/$runId/tool_outputs"))
+            post(urlEqualTo("/v1/threads/$threadId/runs/$runId/submit_tool_outputs"))
                 .withHeader("Authorization", equalTo("Bearer ${OpenAIConstants.API_KEY}"))
                 .willReturn(
                     aResponse()
@@ -782,9 +782,105 @@ class OpenAIAssistantClientTest {
         val result = openAIAssistantClient.submitToolOutput(threadId, runId, requestBody)
 
         // Assert
-        wireMockServer.verify(1, postRequestedFor(urlEqualTo("/v1/threads/$threadId/runs/$runId/tool_outputs")))
+        wireMockServer.verify(1, postRequestedFor(urlEqualTo("/v1/threads/$threadId/runs/$runId/submit_tool_outputs")))
         assertTrue(result.isSuccess)
         assertEquals(runId, result.getOrNull()?.id)
+    }
+
+    @Test
+    fun `cancelRun should return success when status code is 200`() = runTest {
+        // Arrange
+        val threadId = "thread_abc123"
+        val runId = "run_abc123"
+
+        wireMockServer.stubFor(
+            post(urlEqualTo("/v1/threads/$threadId/runs/$runId/cancel"))
+                .withHeader("Authorization", equalTo("Bearer ${OpenAIConstants.API_KEY}"))
+                .willReturn(
+                    aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{}")
+                )
+        )
+
+        // Act
+        val result = openAIAssistantClient.cancelRun(threadId, runId)
+
+        // Assert
+        wireMockServer.verify(1, postRequestedFor(urlEqualTo("/v1/threads/$threadId/runs/$runId/cancel")))
+        assertTrue(result.isSuccess)
+    }
+
+    @Test
+    fun `cancelRun should return failure when status code is 503`() = runTest {
+        // Arrange
+        val threadId = "thread_abc123"
+        val runId = "run_abc123"
+
+        wireMockServer.stubFor(
+            post(urlEqualTo("/v1/threads/$threadId/runs/$runId/cancel"))
+                .withHeader("Authorization", equalTo("Bearer ${OpenAIConstants.API_KEY}"))
+                .willReturn(
+                    aResponse()
+                        .withStatus(503)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(
+                            """
+                            {
+                                "error": {
+                                    "message": "Network error",
+                                    "type": "NetworkError"
+                                }
+                            }
+                            """.trimIndent()
+                        )
+                )
+        )
+
+        // Act
+        val result = openAIAssistantClient.cancelRun(threadId, runId)
+
+        // Assert
+        wireMockServer.verify(1, postRequestedFor(urlEqualTo("/v1/threads/$threadId/runs/$runId/cancel")))
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is ApiError.NetworkError)
+    }
+
+    @Test
+    fun `cancelRun should return failure when status code is 404`() = runTest {
+        // Arrange
+        val threadId = "thread_abc123"
+        val runId = "run_abc123"
+
+        wireMockServer.stubFor(
+            post(urlEqualTo("/v1/threads/$threadId/runs/$runId/cancel"))
+                .withHeader("Authorization", equalTo("Bearer ${OpenAIConstants.API_KEY}"))
+                .willReturn(
+                    aResponse()
+                        .withStatus(404)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(
+                            """
+                            {
+                                "error": {
+                                    "message": "Run not found",
+                                    "type": "invalid_request_error",
+                                    "code": "run_not_found"
+                                }
+                            }
+                            """.trimIndent()
+                        )
+                )
+        )
+
+        // Act
+        val result = openAIAssistantClient.cancelRun(threadId, runId)
+
+        // Assert
+        wireMockServer.verify(1, postRequestedFor(urlEqualTo("/v1/threads/$threadId/runs/$runId/cancel")))
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is ApiError.NotFound)
     }
 
     @Test
@@ -802,7 +898,7 @@ class OpenAIAssistantClientTest {
         )
 
         wireMockServer.stubFor(
-            post(urlEqualTo("/v1/threads/$threadId/runs/$runId/tool_outputs"))
+            post(urlEqualTo("/v1/threads/$threadId/runs/$runId/submit_tool_outputs"))
                 .withHeader("Authorization", equalTo("Bearer ${OpenAIConstants.API_KEY}"))
                 .willReturn(
                     aResponse()
@@ -826,7 +922,7 @@ class OpenAIAssistantClientTest {
         val result = openAIAssistantClient.submitToolOutput(threadId, runId, requestBody)
 
         // Assert
-        wireMockServer.verify(1, postRequestedFor(urlEqualTo("/v1/threads/$threadId/runs/$runId/tool_outputs")))
+        wireMockServer.verify(1, postRequestedFor(urlEqualTo("/v1/threads/$threadId/runs/$runId/submit_tool_outputs")))
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull() is ApiError.NotFound)
     }

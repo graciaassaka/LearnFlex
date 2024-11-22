@@ -301,7 +301,6 @@ private fun StyleQuestionnaireScreen(
                         onQuestionAnswered(style)
                         if (currentQuestionIndex < styleQuestionnaire.size) currentQuestionIndex++
                     }
-                }
                 },
                 onFinish = onQuestionnaireCompleted,
             )
