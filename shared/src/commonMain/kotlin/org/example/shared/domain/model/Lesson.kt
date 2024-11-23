@@ -15,24 +15,24 @@ import org.example.shared.domain.model.contract.DatabaseRecord
  * @property createdAt The timestamp when the lesson was created.
  * @property lastUpdated The timestamp when the lesson was last updated.
  */
-data class Lesson(
+open class Lesson(
     @SerialName("id")
     override val id: String,
 
     @SerialName("module_id")
-    val moduleId: String,
+    open val moduleId: String,
 
     @SerialName("title")
-    val title: String,
+    open val title: String,
 
     @SerialName("description")
-    val description: String,
+    open val description: String,
 
     @SerialName("index")
-    val index: Int,
+    open val index: Int,
 
     @SerialName("quiz_score")
-    val quizScore: Int,
+    open val quizScore: Int,
 
     @SerialName("created_at")
     override val createdAt: Long,

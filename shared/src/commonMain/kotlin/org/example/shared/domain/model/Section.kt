@@ -17,30 +17,30 @@ import org.example.shared.domain.model.contract.DatabaseRecord
  * @property createdAt The timestamp when the section was created.
  * @property lastUpdated The timestamp when the section was last updated.
  */
-data class Section(
+open class Section(
     @SerialName("id")
     override val id: String,
 
     @SerialName("lesson_id")
-    val lessonId: String,
+    open val lessonId: String,
 
     @SerialName("index")
-    val index: Int,
+    open val index: Int,
 
     @SerialName("title")
-    val title: String,
+    open val title: String,
 
     @SerialName("description")
-    val description: String,
+    open val description: String,
 
     @SerialName("content")
-    val content: String,
+    open val content: String,
 
     @SerialName("image_url")
-    val imageUrl: String,
+    open val imageUrl: String,
 
     @SerialName("quiz_score")
-    val quizScore: Int,
+    open val quizScore: Int,
 
     @SerialName("created_at")
     override val createdAt: Long,

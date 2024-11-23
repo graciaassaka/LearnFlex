@@ -17,24 +17,24 @@ import org.example.shared.domain.model.contract.DatabaseRecord
  * @property lastUpdated The timestamp when the module was last updated.
  */
 @Serializable
-data class Module(
+open class Module(
     @SerialName("id")
     override val id: String,
 
     @SerialName("curriculum_id")
-    val curriculumId: String,
+    open val curriculumId: String,
 
     @SerialName("title")
-    val title: String,
+    open val title: String,
 
     @SerialName("description")
-    val description: String,
+    open val description: String,
 
     @SerialName("index")
-    val index: Int,
+    open val index: Int,
 
     @SerialName("quiz_score")
-    val quizScore: Int,
+    open val quizScore: Int,
 
     @SerialName("created_at")
     override val createdAt: Long,

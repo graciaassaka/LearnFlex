@@ -7,7 +7,6 @@ import org.example.shared.domain.model.LearningPreferences
 import org.example.shared.domain.model.LearningStyle
 import org.example.shared.domain.model.UserProfile
 
-@Entity(tableName = "user_profile")
 /**
  * Entity class representing a user profile in the local database.
  *
@@ -19,6 +18,7 @@ import org.example.shared.domain.model.UserProfile
  * @property createdAt The timestamp when the user profile was created.
  * @property lastUpdated The timestamp when the user profile was last updated.
  */
+@Entity(tableName = "user_profile")
 data class UserProfileEntity(
     @PrimaryKey
     override val id: String,

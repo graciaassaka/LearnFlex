@@ -9,15 +9,15 @@ import org.example.shared.domain.model.contract.DatabaseRecord
  * status information, and timestamps for creation and last update.
  */
 @Serializable
-data class Curriculum(
+open class Curriculum(
     @SerialName("id")
     override val id: String,
 
     @SerialName("syllabus")
-    val syllabus: String,
+    open val syllabus: String,
 
     @SerialName("status")
-    val status: String,
+    open val status: String,
 
     @SerialName("created_at")
     override val createdAt: Long,
