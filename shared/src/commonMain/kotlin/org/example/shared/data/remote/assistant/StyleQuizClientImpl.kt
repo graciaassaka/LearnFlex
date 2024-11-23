@@ -245,7 +245,7 @@ class StyleQuizClientImpl(private val assistant: AIAssistantClient) : StyleQuizC
     override fun evaluateResponses(responses: List<Style>) =
         responses.groupingBy { it.value }.eachCount().runCatching {
             if (responses.isEmpty()) throw IllegalArgumentException("Responses cannot be empty")
-            StyleResult(
+            LearningStyle(
                 dominant = maxBy { it.value }.key,
                 breakdown = StyleBreakdown(
                     visual = getOrDefault(Style.VISUAL.value, 0) * 100 / responses.size,

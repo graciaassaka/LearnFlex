@@ -182,7 +182,7 @@ class CreateUserProfileViewModel(
                     username = value.username,
                     photoUrl = value.photoUrl,
                     preferences = LearningPreferences(value.field.name, value.level.name, value.goal),
-                    learningStyle = StyleResult(),
+                    learningStyle = LearningStyle(),
                     createdAt = System.currentTimeMillis(),
                     lastUpdated = System.currentTimeMillis()
                 )
@@ -207,7 +207,7 @@ class CreateUserProfileViewModel(
                 isLoading = true,
                 styleQuestionnaire = emptyList(),
                 styleResponses = emptyList(),
-                styleResult = null,
+                learningStyle = null,
                 showStyleResultDialog = false
             )
         }
@@ -243,7 +243,7 @@ class CreateUserProfileViewModel(
      */
     fun onQuestionnaireCompleted() = with(_state) {
         getStyleResultUseCase(value.styleResponses)
-            .onSuccess { result -> update { it.copy(styleResult = result, showStyleResultDialog = true) } }
+            .onSuccess { result -> update { it.copy(learningStyle = result, showStyleResultDialog = true) } }
             .onFailure { error -> handleError(error) }
     }
 
@@ -254,7 +254,7 @@ class CreateUserProfileViewModel(
      */
     fun setLearningStyle(successMessage: String) = with(_state) {
         try {
-            require(value.styleResult != null)
+            require(value.learningStyle != null)
 
             update { it.copy(isLoading = true) }
             viewModelScope.launch(dispatcher) {
@@ -265,7 +265,7 @@ class CreateUserProfileViewModel(
                         username = value.username,
                         photoUrl = value.photoUrl,
                         preferences = LearningPreferences(value.field.name, value.level.name, value.goal),
-                        learningStyle = value.styleResult!!,
+                        learningStyle = value.learningStyle!!,
                         createdAt = System.currentTimeMillis(),
                         lastUpdated = System.currentTimeMillis()
                     )

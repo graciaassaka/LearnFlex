@@ -1,5 +1,6 @@
 package org.example.shared.domain.model
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.example.shared.domain.model.contract.DatabaseRecord
 
@@ -17,12 +18,27 @@ import org.example.shared.domain.model.contract.DatabaseRecord
  */
 @Serializable
 open class UserProfile(
+    @SerialName("id")
     override val id: String,
+
+    @SerialName("username")
     open val username: String,
+
+    @SerialName("email")
     open val email: String,
+
+    @SerialName("photo_url")
     open val photoUrl: String,
+
+    @SerialName("preferences")
     open val preferences: LearningPreferences,
-    open val learningStyle: StyleResult,
+
+    @SerialName("learning_style")
+    open val learningStyle: LearningStyle,
+
+    @SerialName("created_at")
     override val createdAt: Long = System.currentTimeMillis(),
+
+    @SerialName("last_updated")
     override val lastUpdated: Long = System.currentTimeMillis()
 ) : DatabaseRecord

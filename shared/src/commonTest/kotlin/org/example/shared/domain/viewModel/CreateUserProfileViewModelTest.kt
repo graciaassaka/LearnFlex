@@ -479,7 +479,7 @@ class CreateUserProfileViewModelTest {
     @Test
     fun `onQuestionnaireCompleted should call getStyleResultUseCase and update state with result`() = runTest {
         // Given
-        val result = mockk<StyleResult>()
+        val result = mockk<LearningStyle>()
 
         coEvery { getStyleResultUseCase(any()) } returns Result.success(result)
 
@@ -489,7 +489,7 @@ class CreateUserProfileViewModelTest {
 
         // Then
         coVerify(exactly = 1) { getStyleResultUseCase(any()) }
-        assertEquals(result, viewModel.state.value.styleResult)
+        assertEquals(result, viewModel.state.value.learningStyle)
     }
 
     @Test
@@ -548,7 +548,7 @@ class CreateUserProfileViewModelTest {
             val successMessage = "Style set successfully"
 
             coEvery { updateUserProfileUseCase(any()) } returns Result.success(Unit)
-            coEvery { getStyleResultUseCase(any()) } returns Result.success(testStyleResult)
+            coEvery { getStyleResultUseCase(any()) } returns Result.success(testLearningStyle)
 
             // When
             viewModel.onQuestionnaireCompleted() // This will set the styleResult
@@ -571,7 +571,7 @@ class CreateUserProfileViewModelTest {
         val job = launch { viewModel.uiEvent.toList(uiEvents) }
 
         coEvery { updateUserProfileUseCase(any()) } returns Result.success(Unit)
-        coEvery { getStyleResultUseCase(any()) } returns Result.success(testStyleResult)
+        coEvery { getStyleResultUseCase(any()) } returns Result.success(testLearningStyle)
 
         // When
         viewModel.onQuestionnaireCompleted() // This will set the styleResult
@@ -597,7 +597,7 @@ class CreateUserProfileViewModelTest {
         val job = launch { viewModel.uiEvent.toList(uiEvents) }
 
         coEvery { updateUserProfileUseCase(any()) } returns Result.failure(Exception(errorMessage))
-        coEvery { getStyleResultUseCase(any()) } returns Result.success(testStyleResult)
+        coEvery { getStyleResultUseCase(any()) } returns Result.success(testLearningStyle)
 
 
         // When
@@ -643,7 +643,7 @@ class CreateUserProfileViewModelTest {
         val successMessage = "Style set successfully"
 
         coEvery { updateUserProfileUseCase(any()) } returns Result.success(Unit)
-        coEvery { getStyleResultUseCase(any()) } returns Result.success(testStyleResult)
+        coEvery { getStyleResultUseCase(any()) } returns Result.success(testLearningStyle)
 
         // When
         viewModel.onQuestionnaireCompleted()
@@ -657,7 +657,7 @@ class CreateUserProfileViewModelTest {
 
     companion object {
         private val testStyleBreakdown = StyleBreakdown(visual = 30, reading = 40, kinesthetic = 30)
-        private val testStyleResult = StyleResult(
+        private val testLearningStyle = LearningStyle(
             dominant = Style.READING.value,
             breakdown = testStyleBreakdown
         )

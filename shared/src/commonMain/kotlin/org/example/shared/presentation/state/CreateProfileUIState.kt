@@ -2,9 +2,9 @@ package org.example.shared.presentation.state
 
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.Field
+import org.example.shared.domain.model.LearningStyle
 import org.example.shared.domain.model.Level
 import org.example.shared.domain.model.StyleQuestion
-import org.example.shared.domain.model.StyleResult
 import org.example.shared.presentation.util.ProfileCreationForm
 
 /**
@@ -23,7 +23,7 @@ import org.example.shared.presentation.util.ProfileCreationForm
  * @property isProfileCreated Indicates whether the profile has been successfully created.
  * @property styleQuestionnaire The style questionnaire containing a list of style questions.
  * @property styleResponses The list of styles selected by the user in the questionnaire.
- * @property styleResult The result of the style questionnaire.
+ * @property learningStyle The result of the style questionnaire.
  * @property showStyleResultDialog Indicates whether to show the style result dialog.
  * @property isLoading Indicates whether the screen is currently in a loading state.
  */
@@ -41,7 +41,7 @@ data class CreateProfileUIState(
     val isProfileCreated: Boolean = false,
     val styleQuestionnaire: List<StyleQuestion> = emptyList(),
     val styleResponses: List<Style> = emptyList(),
-    val styleResult: StyleResult? = null,
+    val learningStyle: LearningStyle? = null,
     val showStyleResultDialog: Boolean = false,
     val isLoading: Boolean = false,
 )

@@ -106,7 +106,7 @@ fun CreateProfileScreen(
                 setLearningStyle = viewModel::setLearningStyle,
                 handleError = viewModel::handleError,
                 showStyleBreakdownDialog = uiState.showStyleResultDialog,
-                styleBreakdown = uiState.styleResult?.breakdown,
+                styleBreakdown = uiState.learningStyle?.breakdown,
                 modifier = Modifier.testTag(TestTags.STYLE_QUESTIONNAIRE.tag)
             )
         }

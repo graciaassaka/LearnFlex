@@ -59,7 +59,7 @@ class DatabaseTest {
                 level = Level.Advanced.name,
                 goal = "test"
             ),
-            learningStyle = StyleResult(
+            learningStyle = LearningStyle(
                 dominant = "Visual",
                 breakdown = StyleBreakdown(
                     visual = 80,
@@ -93,7 +93,7 @@ class DatabaseTest {
                 level = Level.Advanced.name,
                 goal = "test"
             ),
-            learningStyle = StyleResult(
+            learningStyle = LearningStyle(
                 dominant = "Visual",
                 breakdown = StyleBreakdown(
                     visual = 80,
@@ -115,7 +115,7 @@ class DatabaseTest {
                 level = Level.Beginner.name,
                 goal = "updated"
             ),
-            learningStyle = StyleResult(
+            learningStyle = LearningStyle(
                 dominant = "Kinesthetic",
                 breakdown = StyleBreakdown(
                     visual = 10,
@@ -150,7 +150,7 @@ class DatabaseTest {
                 level = Level.Advanced.name,
                 goal = "test"
             ),
-            learningStyle = StyleResult(
+            learningStyle = LearningStyle(
                 dominant = "Visual",
                 breakdown = StyleBreakdown(
                     visual = 80,

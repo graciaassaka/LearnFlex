@@ -4,12 +4,12 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.example.shared.domain.model.StyleResult
+import org.example.shared.domain.model.LearningStyle
 import org.example.shared.domain.service.StyleQuizClient
 import org.junit.Before
 import kotlin.test.Test
 
-class GetStyleResultUseCaseTest {
+class GetLearningStyleUseCaseTest {
     private lateinit var getStyleResultUseCase: GetStyleResultUseCase
     private lateinit var styleQuizClient: StyleQuizClient
 
@@ -31,15 +31,15 @@ class GetStyleResultUseCaseTest {
     @Test
     fun `getStyleResult should return Result#success when styleQuizService#evaluateResponses returns StyleResult`() = runTest {
         // Arrange
-        val styleResult = mockk<StyleResult>()
-        coEvery { styleQuizClient.evaluateResponses(any()) } returns Result.success(styleResult)
+        val learningStyle = mockk<LearningStyle>()
+        coEvery { styleQuizClient.evaluateResponses(any()) } returns Result.success(learningStyle)
 
         // Act
         val result = getStyleResultUseCase(mockk())
 
         // Assert
         assert(result.isSuccess)
-        assert(result.getOrNull() == styleResult)
+        assert(result.getOrNull() == learningStyle)
     }
 
     @Test

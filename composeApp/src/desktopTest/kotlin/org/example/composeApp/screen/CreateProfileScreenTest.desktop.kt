@@ -326,7 +326,7 @@ class CreateProfileScreenTest {
             it.copy(
                 currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
                 styleQuestionnaire = styleQuestionnaire,
-                styleResult = styleResult,
+                learningStyle = learningStyle,
                 showStyleResultDialog = true
             )
         }
@@ -351,7 +351,7 @@ class CreateProfileScreenTest {
             it.copy(
                 currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
                 styleQuestionnaire = styleQuestionnaire,
-                styleResult = styleResult,
+                learningStyle = learningStyle,
                 showStyleResultDialog = true
             )
         }
@@ -375,7 +375,7 @@ class CreateProfileScreenTest {
             it.copy(
                 currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
                 styleQuestionnaire = styleQuestionnaire,
-                styleResult = styleResult,
+                learningStyle = learningStyle,
                 showStyleResultDialog = true
             )
         }
@@ -391,7 +391,7 @@ class CreateProfileScreenTest {
                 )
             )
 
-        private val styleResult = StyleResult(
+        private val learningStyle = LearningStyle(
             dominant = Style.READING.value,
             breakdown = StyleBreakdown(visual = 0, reading = 50, kinesthetic = 50)
         )
