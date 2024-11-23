@@ -315,8 +315,8 @@ class CreateProfileScreenTest {
             )
 
         private val styleResult = StyleResult(
-            dominantStyle = Style.READING.value,
-            styleBreakdown = StyleBreakdown(visual = 0, reading = 50, kinesthetic = 50)
+            dominant = Style.READING.value,
+            breakdown = StyleBreakdown(visual = 0, reading = 50, kinesthetic = 50)
         )
     }
 }

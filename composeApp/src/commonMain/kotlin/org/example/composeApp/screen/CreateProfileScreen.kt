@@ -106,7 +106,7 @@ fun CreateProfileScreen(
                 setLearningStyle = viewModel::setLearningStyle,
                 handleError = viewModel::handleError,
                 showStyleBreakdownDialog = uiState.showStyleResultDialog,
-                styleBreakdown = uiState.styleResult?.styleBreakdown,
+                styleBreakdown = uiState.styleResult?.breakdown,
                 modifier = Modifier.testTag(TestTags.STYLE_QUESTIONNAIRE.tag)
             )
         }
@@ -289,7 +289,7 @@ private fun StyleQuestionnaireScreen(
                 onOptionSelected = { option ->
                     selectedOption = option
                     selectedStyle = try {
-                        Style.valueOf(question.styleOptions.first { it.text == option }.style.uppercase())
+                        Style.valueOf(question.options.first { it.text == option }.style.uppercase())
                     } catch (e: Exception) {
                         handleError(e)
                         null
@@ -336,7 +336,7 @@ private fun QuestionContent(
     horizontalAlignment = Alignment.CenterHorizontally
 ) {
     SelectableCardGroup(
-        options = question.styleOptions.map { it.text },
+        options = question.options.map { it.text },
         onOptionSelected = onOptionSelected,
         selectedOption = selectedOption,
         enabled = enabled,

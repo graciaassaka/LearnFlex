@@ -37,7 +37,7 @@ class CreateUserProfileViewModelTest {
     private lateinit var deleteProfilePictureUseCase: DeleteProfilePictureUseCase
     private lateinit var getStyleQuestionnaireUseCase: GetStyleQuestionnaireUseCase
     private lateinit var getStyleResultUseCase: GetStyleResultUseCase
-    private lateinit var createUserStyleUseCase: CreateUserStyleUseCase
+    private lateinit var updateUserProfileUseCase: UpdateUserProfileUseCase
     private lateinit var testDispatcher: TestDispatcher
     private val syncStatus = MutableStateFlow<SyncStatus>(SyncStatus.Idle)
 
@@ -52,7 +52,7 @@ class CreateUserProfileViewModelTest {
         deleteProfilePictureUseCase = mockk(relaxed = true)
         getStyleQuestionnaireUseCase = mockk(relaxed = true)
         getStyleResultUseCase = mockk(relaxed = true)
-        createUserStyleUseCase = mockk(relaxed = true)
+        updateUserProfileUseCase = mockk(relaxed = true)
         viewModel = CreateUserProfileViewModel(
             getUserDataUseCase,
             createProfileUseCase,
@@ -60,7 +60,7 @@ class CreateUserProfileViewModelTest {
             deleteProfilePictureUseCase,
             getStyleQuestionnaireUseCase,
             getStyleResultUseCase,
-            createUserStyleUseCase,
+            updateUserProfileUseCase,
             syncManager,
             testDispatcher,
             SharingStarted.Eagerly
@@ -547,7 +547,7 @@ class CreateUserProfileViewModelTest {
             // Given
             val successMessage = "Style set successfully"
 
-            coEvery { createUserStyleUseCase(any()) } returns Result.success(Unit)
+            coEvery { updateUserProfileUseCase(any()) } returns Result.success(Unit)
             coEvery { getStyleResultUseCase(any()) } returns Result.success(testStyleResult)
 
             // When
@@ -557,7 +557,7 @@ class CreateUserProfileViewModelTest {
             advanceUntilIdle()
 
             // Then
-            coVerify { createUserStyleUseCase(any()) }
+            coVerify { updateUserProfileUseCase(any()) }
             assertFalse(viewModel.state.value.showStyleResultDialog)
             assertFalse(viewModel.state.value.isLoading)
         }
@@ -570,7 +570,7 @@ class CreateUserProfileViewModelTest {
         val uiEvents = mutableListOf<UIEvent>()
         val job = launch { viewModel.uiEvent.toList(uiEvents) }
 
-        coEvery { createUserStyleUseCase(any()) } returns Result.success(Unit)
+        coEvery { updateUserProfileUseCase(any()) } returns Result.success(Unit)
         coEvery { getStyleResultUseCase(any()) } returns Result.success(testStyleResult)
 
         // When
@@ -596,7 +596,7 @@ class CreateUserProfileViewModelTest {
         val uiEvents = mutableListOf<UIEvent>()
         val job = launch { viewModel.uiEvent.toList(uiEvents) }
 
-        coEvery { createUserStyleUseCase(any()) } returns Result.failure(Exception(errorMessage))
+        coEvery { updateUserProfileUseCase(any()) } returns Result.failure(Exception(errorMessage))
         coEvery { getStyleResultUseCase(any()) } returns Result.success(testStyleResult)
 
 
@@ -628,7 +628,7 @@ class CreateUserProfileViewModelTest {
         advanceUntilIdle()
 
         // Then
-        coVerify(exactly = 0) { createUserStyleUseCase(any()) }
+        coVerify(exactly = 0) { updateUserProfileUseCase(any()) }
         assertEquals(1, uiEvents.size)
         assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
         assertFalse(viewModel.state.value.showStyleResultDialog)
@@ -642,7 +642,7 @@ class CreateUserProfileViewModelTest {
         // Given
         val successMessage = "Style set successfully"
 
-        coEvery { createUserStyleUseCase(any()) } returns Result.success(Unit)
+        coEvery { updateUserProfileUseCase(any()) } returns Result.success(Unit)
         coEvery { getStyleResultUseCase(any()) } returns Result.success(testStyleResult)
 
         // When
@@ -658,8 +658,8 @@ class CreateUserProfileViewModelTest {
     companion object {
         private val testStyleBreakdown = StyleBreakdown(visual = 30, reading = 40, kinesthetic = 30)
         private val testStyleResult = StyleResult(
-            dominantStyle = Style.READING.value,
-            styleBreakdown = testStyleBreakdown
+            dominant = Style.READING.value,
+            breakdown = testStyleBreakdown
         )
         private val user = User(
             localId = "user123",

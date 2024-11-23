@@ -9,24 +9,22 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.SharingStarted
-import org.example.shared.data.local.dao.LearningStyleDao
 import org.example.shared.data.local.dao.UserProfileDao
 import org.example.shared.data.local.database.LearnFlexDatabase
+import org.example.shared.data.local.entity.UserProfileEntity
 import org.example.shared.data.remote.assistant.OpenAIAssistantClient
 import org.example.shared.data.remote.assistant.StyleQuizClientImpl
 import org.example.shared.data.remote.firebase.FirebaseAuthClient
 import org.example.shared.data.remote.firebase.FirebaseStorageClient
-import org.example.shared.data.remote.firestore.LearningStyleRemoteDataSource
-import org.example.shared.data.remote.firestore.UserProfileRemoteDataSource
+import org.example.shared.data.remote.firestore.RemoteDataSourceImpl
+import org.example.shared.data.remote.util.FirestoreCollection
 import org.example.shared.data.remote.util.HttpClientConfig
-import org.example.shared.data.repository.LearningStyleRepository
-import org.example.shared.data.repository.UserRepository
-import org.example.shared.data.sync.handler.LearningStyleSyncHandler
-import org.example.shared.data.sync.handler.UserProfileSyncHandler
+import org.example.shared.data.repository.RepositoryImpl
+import org.example.shared.data.repository.util.ModelMapper
+import org.example.shared.data.sync.handler.SyncHandlerDelegate
 import org.example.shared.data.sync.manager.SyncManagerImpl
 import org.example.shared.data.util.OpenAIConstants
 import org.example.shared.domain.data_source.RemoteDataSource
-import org.example.shared.domain.model.LearningStyle
 import org.example.shared.domain.model.UserProfile
 import org.example.shared.domain.repository.Repository
 import org.example.shared.domain.service.AIAssistantClient
@@ -35,6 +33,7 @@ import org.example.shared.domain.service.StorageClient
 import org.example.shared.domain.service.StyleQuizClient
 import org.example.shared.domain.sync.SyncHandler
 import org.example.shared.domain.sync.SyncManager
+import org.example.shared.domain.sync.SyncOperation
 import org.example.shared.domain.use_case.*
 import org.example.shared.presentation.viewModel.AuthViewModel
 import org.example.shared.presentation.viewModel.BaseViewModel
@@ -54,7 +53,6 @@ expect fun getFirebaseStorageServiceModule(): Module
 
 // Qualifier constants
 private const val USER_PROFILE_SCOPE = "user_profile_scope"
-private const val LEARNING_STYLE_SCOPE = "learning_style_scope"
 
 val commonModule = module {
     // Core Dependencies
@@ -101,30 +99,39 @@ val commonModule = module {
     single<StyleQuizClient> { StyleQuizClientImpl(assistant = get()) }
 
     // Database DAOs
-    single<UserProfileDao> { get<LearnFlexDatabase>().userProfileDao() }
-    single<LearningStyleDao> { get<LearnFlexDatabase>().learningStyleDao() }
+    single<UserProfileDao>(named(USER_PROFILE_SCOPE)) {
+        get<LearnFlexDatabase>().userProfileDao()
+    }
 
     // Remote Data Sources
     single<RemoteDataSource<UserProfile>>(named(USER_PROFILE_SCOPE)) {
-        UserProfileRemoteDataSource(firestore = get())
+        object : RemoteDataSourceImpl<UserProfile>(
+            firestore = get(),
+            collection = FirestoreCollection.USERS,
+            serializer = UserProfile.serializer()
+        ) {}
     }
-    single<RemoteDataSource<LearningStyle>>(named(LEARNING_STYLE_SCOPE)) {
-        LearningStyleRemoteDataSource(firestore = get())
+
+    // Model Mappers
+    single<ModelMapper<UserProfile, UserProfileEntity>>(named(USER_PROFILE_SCOPE)) {
+        object : ModelMapper<UserProfile, UserProfileEntity> {
+            override fun toModel(entity: UserProfileEntity) = with(entity) {
+                UserProfile(id, username, email, photoUrl, preferences, learningStyle, createdAt, lastUpdated)
+            }
+
+            override fun toEntity(model: UserProfile) = with(model) {
+                UserProfileEntity(id, username, email, photoUrl, preferences, learningStyle, createdAt, lastUpdated)
+            }
+        }
     }
 
     // Sync Handlers
     single<SyncHandler<UserProfile>>(named(USER_PROFILE_SCOPE)) {
-        UserProfileSyncHandler(
+        object : SyncHandler<UserProfile> by SyncHandlerDelegate(
             remoteDataSource = get(named(USER_PROFILE_SCOPE)),
-            userProfileDao = get()
-        )
-    }
-
-    single<SyncHandler<LearningStyle>>(named(LEARNING_STYLE_SCOPE)) {
-        LearningStyleSyncHandler(
-            remoteDataSource = get(named(LEARNING_STYLE_SCOPE)),
-            learningStyleDao = get()
-        )
+            dao = get<UserProfileDao>(named(USER_PROFILE_SCOPE)),
+            modelMapper = get(named(USER_PROFILE_SCOPE))
+        ) {}
     }
 
     // Sync Managers
@@ -138,31 +145,15 @@ val commonModule = module {
         }
     }
 
-    single<SyncManager<LearningStyle>>(named(LEARNING_STYLE_SCOPE)) {
-        SyncManagerImpl(
-            syncScope = get(),
-            syncHandler = get<SyncHandler<LearningStyle>>(named(LEARNING_STYLE_SCOPE)),
-            maxRetries = 3
-        ).also { syncManager ->
-            Runtime.getRuntime().addShutdownHook(Thread { syncManager.close() })
-        }
-    }
-
     // Repositories
     single<Repository<UserProfile>>(named(USER_PROFILE_SCOPE)) {
-        UserRepository(
+        object : RepositoryImpl<UserProfile, UserProfileEntity>(
             remoteDataSource = get(named(USER_PROFILE_SCOPE)),
-            userProfileDao = get(),
-            syncManager = get(named(USER_PROFILE_SCOPE))
-        )
-    }
-
-    single<Repository<LearningStyle>>(named(LEARNING_STYLE_SCOPE)) {
-        LearningStyleRepository(
-            remoteDataSource = get(named(LEARNING_STYLE_SCOPE)),
-            learningStyleDao = get(),
-            syncManager = get(named(LEARNING_STYLE_SCOPE))
-        )
+            dao = get<UserProfileDao>(named(USER_PROFILE_SCOPE)),
+            syncManager = get(named(USER_PROFILE_SCOPE)),
+            syncOperationFactory = { type, profile -> SyncOperation(type, profile) },
+            modelMapper = get(named(USER_PROFILE_SCOPE))
+        ) {}
     }
 
     // Use Cases - Auth
@@ -175,19 +166,10 @@ val commonModule = module {
     singleOf(::SendPasswordResetEmailUseCase)
 
     // Use Cases - User Profile
-    single {
-        CreateUserProfileUseCase(repository = get(named(USER_PROFILE_SCOPE)))
-    }
+    single { CreateUserProfileUseCase(repository = get(named(USER_PROFILE_SCOPE))) }
+    single { UpdateUserProfileUseCase(repository = get(named(USER_PROFILE_SCOPE))) }
     singleOf(::UploadProfilePictureUseCase)
     singleOf(::DeleteProfilePictureUseCase)
-
-    // Use Cases - Learning Style
-    single {
-        CreateUserStyleUseCase(repository = get(named(LEARNING_STYLE_SCOPE)))
-    }
-    single {
-        GetUserStyleUseCase(repository = get(named(LEARNING_STYLE_SCOPE)))
-    }
     singleOf(::GetStyleQuestionnaireUseCase)
     singleOf(::GetStyleResultUseCase)
 
@@ -214,7 +196,7 @@ val commonModule = module {
             deleteProfilePictureUseCase = get(),
             getStyleQuestionnaireUseCase = get(),
             getStyleResultUseCase = get(),
-            createUserStyleUseCase = get(),
+            updateUserProfileUseCase = get(),
             syncManager = get(named(USER_PROFILE_SCOPE)),
             dispatcher = get(),
             sharingStarted = get()

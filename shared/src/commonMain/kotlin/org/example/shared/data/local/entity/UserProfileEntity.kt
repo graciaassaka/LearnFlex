@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import org.example.shared.domain.model.LearningPreferences
+import org.example.shared.domain.model.StyleResult
 import org.example.shared.domain.model.UserProfile
 
 @Entity(tableName = "user_profile")
@@ -34,9 +35,12 @@ data class UserProfileEntity(
     @ColumnInfo(name = "preferences")
     override val preferences: LearningPreferences,
 
+    @ColumnInfo(name = "learning_style")
+    override val learningStyle: StyleResult,
+
     @ColumnInfo(name = "created_at")
     override val createdAt: Long,
 
     @ColumnInfo(name = "last_updated")
     override val lastUpdated: Long
-) : UserProfile(id, username, email, photoUrl, preferences, createdAt, lastUpdated)
+) : UserProfile(id, username, email, photoUrl, preferences, learningStyle, createdAt, lastUpdated)

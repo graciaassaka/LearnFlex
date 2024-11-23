@@ -1,18 +1,17 @@
 package org.example.shared.domain.model
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
  * Represents a style question with a list of options and a scenario.
  *
- * @property styleOptions The list of style options.
+ * @property options The list of style options.
  * @property scenario The scenario description.
  */
 @Serializable
 data class StyleQuestion(
-    @SerialName("options") val styleOptions: List<StyleOption>,
-    @SerialName("scenario") val scenario: String
+    val options: List<StyleOption>,
+    val scenario: String
 )
 
 /**
@@ -23,20 +22,20 @@ data class StyleQuestion(
  */
 @Serializable
 data class StyleOption(
-    @SerialName("style") val style: String,
-    @SerialName("text") val text: String
+    val style: String,
+    val text: String
 )
 
 /**
  * Represents the result of a style questionnaire.
  *
- * @property dominantStyle The dominant style identified.
- * @property styleBreakdown The breakdown of styles.
+ * @property dominant The dominant style identified.
+ * @property breakdown The breakdown of styles.
  */
 @Serializable
 data class StyleResult(
-    val dominantStyle: String,
-    val styleBreakdown: StyleBreakdown
+    val dominant: String = "",
+    val breakdown: StyleBreakdown = StyleBreakdown()
 )
 
 /**

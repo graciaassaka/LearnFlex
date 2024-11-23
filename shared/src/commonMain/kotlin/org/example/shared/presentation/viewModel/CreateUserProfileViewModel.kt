@@ -36,7 +36,7 @@ class CreateUserProfileViewModel(
     private val deleteProfilePictureUseCase: DeleteProfilePictureUseCase,
     private val getStyleQuestionnaireUseCase: GetStyleQuestionnaireUseCase,
     private val getStyleResultUseCase: GetStyleResultUseCase,
-    private val createUserStyleUseCase: CreateUserStyleUseCase,
+    private val updateUserProfileUseCase: UpdateUserProfileUseCase,
     private val syncManager: SyncManager<UserProfile>,
     private val dispatcher: CoroutineDispatcher,
     sharingStarted: SharingStarted
@@ -182,6 +182,7 @@ class CreateUserProfileViewModel(
                     username = value.username,
                     photoUrl = value.photoUrl,
                     preferences = LearningPreferences(value.field.name, value.level.name, value.goal),
+                    learningStyle = StyleResult(),
                     createdAt = System.currentTimeMillis(),
                     lastUpdated = System.currentTimeMillis()
                 )
@@ -257,10 +258,14 @@ class CreateUserProfileViewModel(
 
             update { it.copy(isLoading = true) }
             viewModelScope.launch(dispatcher) {
-                createUserStyleUseCase(
-                    LearningStyle(
+                updateUserProfileUseCase(
+                    UserProfile(
                         id = value.userId,
-                        style = value.styleResult!!,
+                        email = value.email,
+                        username = value.username,
+                        photoUrl = value.photoUrl,
+                        preferences = LearningPreferences(value.field.name, value.level.name, value.goal),
+                        learningStyle = value.styleResult!!,
                         createdAt = System.currentTimeMillis(),
                         lastUpdated = System.currentTimeMillis()
                     )

@@ -33,7 +33,7 @@ class StyleQuizClientImplTest {
         val thread = Thread(id = threadId, objectType = "thread", createdAt = 123)
         val messageId = "msg_123"
         val question = StyleQuestion(
-            styleOptions = listOf(
+            options = listOf(
                 StyleOption("visual", "Watch a video"),
                 StyleOption("reading", "Read documentation"),
                 StyleOption("kinesthetic", "Code examples")
@@ -113,10 +113,10 @@ class StyleQuizClientImplTest {
         val result = client.evaluateResponses(responses).getOrNull()
         assertNotNull(result)
 
-        assertEquals(Style.VISUAL.value, result.dominantStyle)
-        assertEquals(50, result.styleBreakdown.visual)
-        assertEquals(25, result.styleBreakdown.reading)
-        assertEquals(25, result.styleBreakdown.kinesthetic)
+        assertEquals(Style.VISUAL.value, result.dominant)
+        assertEquals(50, result.breakdown.visual)
+        assertEquals(25, result.breakdown.reading)
+        assertEquals(25, result.breakdown.kinesthetic)
     }
 
     @Test
@@ -147,7 +147,7 @@ class StyleQuizClientImplTest {
         val runId = "run_123"
         val preferences = LearningPreferences("ComputerScience", "Beginner", "Learn Kotlin")
         val question = StyleQuestion(
-            styleOptions = listOf(
+            options = listOf(
                 StyleOption("visual", "Watch a video")
             ),
             scenario = "Test scenario"

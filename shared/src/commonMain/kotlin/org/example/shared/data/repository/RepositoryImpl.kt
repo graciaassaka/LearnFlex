@@ -22,7 +22,7 @@ import org.example.shared.domain.sync.SyncOperation
  * @param syncOperationFactory A factory function for creating sync operations.
  * @param modelMapper A mapper for converting between models and entities.
  */
-abstract class BaseRepository<Model : DatabaseRecord, Entity>(
+abstract class RepositoryImpl<Model : DatabaseRecord, Entity>(
     private val remoteDataSource: RemoteDataSource<Model>,
     private val dao: BaseDao<Entity>,
     private val syncManager: SyncManager<Model>,

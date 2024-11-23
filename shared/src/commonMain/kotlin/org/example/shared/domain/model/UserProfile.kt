@@ -11,6 +11,7 @@ import org.example.shared.domain.model.contract.DatabaseRecord
  * @property email The email of the user.
  * @property photoUrl The URL of the user's photo.
  * @property preferences The learning preferences of the user.
+ * @property learningStyle The learning style of the user.
  * @property createdAt The timestamp when the user was created.
  * @property lastUpdated The timestamp when the user was last updated.
  */
@@ -21,6 +22,7 @@ open class UserProfile(
     open val email: String,
     open val photoUrl: String,
     open val preferences: LearningPreferences,
+    open val learningStyle: StyleResult,
     override val createdAt: Long = System.currentTimeMillis(),
     override val lastUpdated: Long = System.currentTimeMillis()
 ) : DatabaseRecord
