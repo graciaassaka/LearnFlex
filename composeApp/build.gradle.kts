@@ -54,6 +54,9 @@ kotlin {
                 implementation(libs.kotlinx.serialization.core)
                 implementation(libs.androidx.lifecycle.viewmodel)
                 implementation(libs.compose.window.size)
+                implementation(libs.coil)
+                implementation(libs.coil.compose)
+                implementation(libs.coil.test)
                 implementation(project(":shared"))
             }
         }

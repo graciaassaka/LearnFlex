@@ -15,6 +15,7 @@ androidx-test-orchestrator = "1.5.1"
 androidx-test-rules = "1.6.1"
 androidx-test-runner = "1.6.2"
 androidx-test-junit = "1.2.1"
+coil = "3.0.3"
 compose = "1.7.5"
 compose-plugin = "1.7.0"
 compose-compiler = "1.5.3"
@@ -32,8 +33,7 @@ koin = "4.0.0"
 kotlin = "2.0.21"
 kotlin-serialization = "1.7.1"
 kotlin-serialization-plugin = "1.9.10"
-kotlinx-coroutines-test = "1.8.0"
-kotlinx-parcelize = "2.1.0-Beta2"
+kotlinx-coroutines-test = "1.9.0"
 ksp = "2.0.21-1.0.28"
 ktor = "2.3.12"
 lifecycle-viewmodel = "2.8.3-rc01"
@@ -46,7 +46,7 @@ uiToolingPreviewAndroid = "1.7.5"
 material3Android = "1.3.1"
 slf4j = "2.0.7"
 sqlite = "2.5.0-alpha11"
-swing = "1.8.0"
+swing = "1.9.0"
 room = "2.7.0-alpha11"
 wiremock = "2.35.0"
 
@@ -99,6 +99,11 @@ androidx-compose-animation = { module = "androidx.compose.animation:animation", 
 compose-navigation = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "compose-navigation" }
 compose-window-size = { module = "org.jetbrains.compose.material3:material3-window-size-class", version.ref = "compose-window-size" }
 
+# Coil library
+coil = { group = "io.coil-kt.coil3", name = "coil", version.ref = "coil" }
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil-test = { group = "io.coil-kt.coil3", name = "coil-test", version.ref = "coil" }
+
 # Firebase libraries
 firebase-boom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-boom" }
 firebase-auth = { module = "com.google.firebase:firebase-auth-ktx" }
@@ -137,7 +142,6 @@ sqlite = { group = "androidx.sqlite", name = "sqlite-bundled", version.ref = "sq
 # Room
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room"}
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room"}
-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room"}
 room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room"}
 
 # Other libraries

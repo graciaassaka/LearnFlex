@@ -90,6 +90,7 @@ kotlin {
                 implementation(libs.androidx.lifecycle.viewmodel)
                 implementation(libs.gitlive.firestore)
                 implementation(libs.room.runtime)
+                implementation(libs.coil)
             }
         }
 
