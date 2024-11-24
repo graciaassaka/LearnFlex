@@ -64,16 +64,29 @@ actual class FirebaseAuthClient(
     }
 
     /**
-     * Updates the current user's display name and photo URL.
+     * Updates the username of the currently signed-in user.
      *
-     * @param user The updated user data.
+     * @param username The new username to set.
      * @return A Result containing Unit if successful, or an exception if failed.
      */
-    override suspend fun updateUserData(user: User): Result<Unit> = runCatching {
+    override suspend fun updateUsername(username: String): Result<Unit> = runCatching {
         auth.currentUser?.updateProfile(
             UserProfileChangeRequest.Builder()
-                .setDisplayName(user.displayName)
-                .setPhotoUri(user.photoUrl?.let { Uri.parse(it) })
+                .setDisplayName(username)
+                .build()
+        )?.await()
+    }
+
+    /**
+     * Updates the photo URL of the currently signed-in user.
+     *
+     * @param photoUrl The new photo URL to set.
+     * @return A Result containing Unit if successful, or an exception if failed.
+     */
+    override suspend fun updatePhotoUrl(photoUrl: String): Result<Unit> = runCatching {
+        auth.currentUser?.updateProfile(
+            UserProfileChangeRequest.Builder()
+                .setPhotoUri(Uri.parse(photoUrl))
                 .build()
         )?.await()
     }

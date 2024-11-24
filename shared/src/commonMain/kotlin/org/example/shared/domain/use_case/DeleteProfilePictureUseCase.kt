@@ -23,6 +23,6 @@ class DeleteProfilePictureUseCase(
 
         storageClient.deleteFile("profile_pictures/${user.localId}.jpg").getOrThrow()
 
-        authClient.updateUserData(user.copy(photoUrl = null)).getOrThrow()
+        authClient.updatePhotoUrl("").getOrThrow()
     }
 }

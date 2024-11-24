@@ -167,7 +167,7 @@ val commonModule = module {
     singleOf(::SendPasswordResetEmailUseCase)
 
     // Use Cases - User Profile
-    single { CreateUserProfileUseCase(repository = get(named(USER_PROFILE_SCOPE))) }
+    single { CreateUserProfileUseCase(repository = get(named(USER_PROFILE_SCOPE)), authClient = get()) }
     single { UpdateUserProfileUseCase(repository = get(named(USER_PROFILE_SCOPE))) }
     singleOf(::UploadProfilePictureUseCase)
     singleOf(::DeleteProfilePictureUseCase)

@@ -2,18 +2,27 @@ package org.example.shared.domain.use_case
 
 import org.example.shared.domain.model.UserProfile
 import org.example.shared.domain.repository.Repository
+import org.example.shared.domain.service.AuthClient
 
 /**
  * Use case for creating a user profile.
  *
- * @param repository The repository for user profile operations.
+ * @property repository The repository used to create the user profile.
+ * @property authClient The service used to handle authentication and user data.
  */
-class CreateUserProfileUseCase(private val repository: Repository<UserProfile>) {
+class CreateUserProfileUseCase(
+    private val repository: Repository<UserProfile>,
+    private val authClient: AuthClient
+) {
     /**
      * Invokes the use case to create a new user profile.
      *
      * @param userProfile The user profile to be created.
      * @return A [Result] indicating success or failure of the operation.
      */
-    suspend operator fun invoke(userProfile: UserProfile) = repository.create(userProfile)
+    suspend operator fun invoke(userProfile: UserProfile) = runCatching {
+        repository.create(userProfile).getOrThrow()
+        authClient.updateUsername(userProfile.username).getOrThrow()
+        authClient.updatePhotoUrl(userProfile.photoUrl).getOrThrow()
+    }
 }

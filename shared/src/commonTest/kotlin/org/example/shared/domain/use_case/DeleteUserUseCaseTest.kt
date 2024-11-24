@@ -10,7 +10,7 @@ import org.junit.Before
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
-class DeleteUserProfileUseCaseTest {
+class DeleteUserUseCaseTest {
     private lateinit var deleteUserUseCase: DeleteUserUseCase
     private lateinit var authClient: AuthClient
 

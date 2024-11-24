@@ -26,7 +26,7 @@ class UploadProfilePictureUseCase(
             fileData = image, path = "profile_pictures/${user.localId}.jpg", fileType = FileType.IMAGE
         ).getOrThrow()
 
-        authClient.updateUserData(user.copy(photoUrl = url)).getOrThrow()
+        authClient.updatePhotoUrl(url).getOrThrow()
 
         return@runCatching url
     }

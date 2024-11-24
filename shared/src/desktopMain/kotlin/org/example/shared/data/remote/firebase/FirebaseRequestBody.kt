@@ -55,15 +55,31 @@ data class PasswordResetPayload(
  *
  * @property idToken The ID token of the user making the request.
  * @property displayName The new display name for the user.
+ */
+@Serializable
+data class UsernameUpdatePayload(
+    val idToken: String,
+    val displayName: String
+)
+
+/**
+ * Data class representing the payload for updating a user's photo URL.
+ *
+ * @property idToken The ID token of the user making the request.
  * @property photoUrl The new photo URL for the user.
  */
 @Serializable
-data class ProfileUpdatePayload(
+data class PhotoUrlUpdatePayload(
     val idToken: String,
-    val displayName: String,
     val photoUrl: String,
 )
 
+/**
+ * Data class representing the metadata of a file stored in Firebase Storage.
+ *
+ * @property contentType The content type of the file.
+ * @property name The name of the file.
+ */
 @Serializable
 data class StorageMetadata(
     val contentType: String,

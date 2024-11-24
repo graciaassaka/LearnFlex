@@ -9,7 +9,6 @@ import org.example.shared.FirebaseInit
 import org.example.shared.data.remote.util.ApiError
 import org.example.shared.data.remote.util.ErrorContainer
 import org.example.shared.data.util.FirebaseConstants
-import org.example.shared.domain.model.User
 import org.example.shared.domain.service.AuthClient
 
 /**
@@ -92,15 +91,30 @@ actual class FirebaseAuthClient(
     }
 
     /**
-     * Updates the current user's data.
+     * Updates the current user's username.
      *
-     * @param user The updated user data.
-     * @return Result of the user data update operation.
+     * @param username The new username to set.
+     * @return Result of the username update operation.
      */
-    override suspend fun updateUserData(user: User) = runCatching {
+    override suspend fun updateUsername(username: String) = runCatching {
         client.post {
             setUpAuthRequest("update")
-            setBody(ProfileUpdatePayload(firebaseInit.idToken, user.displayName ?: "", user.photoUrl ?: ""))
+            setBody(UsernameUpdatePayload(firebaseInit.idToken, username))
+        }.run {
+            handleAuthResponse()
+        }
+    }
+
+    /**
+     * Updates the current user's photo URL.
+     *
+     * @param photoUrl The new photo URL to set.
+     * @return Result of the photo URL update operation.
+     */
+    override suspend fun updatePhotoUrl(photoUrl: String) = runCatching {
+        client.post {
+            setUpAuthRequest("update")
+            setBody(PhotoUrlUpdatePayload(firebaseInit.idToken, photoUrl))
         }.run {
             handleAuthResponse()
         }

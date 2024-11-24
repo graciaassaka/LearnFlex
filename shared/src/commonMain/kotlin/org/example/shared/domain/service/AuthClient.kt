@@ -38,11 +38,20 @@ interface AuthClient {
     suspend fun getUserData(): Result<User>
 
     /**
-     * Updates the current user's display name and photo URL.
+     * Updates the current user's username.
      *
+     * @param username The new username to set.
      * @return A [Result] containing [Unit] if successful, or an exception if an error occurs.
      */
-    suspend fun updateUserData(user: User): Result<Unit>
+    suspend fun updateUsername(username: String): Result<Unit>
+
+    /**
+     * Updates the current user's photo URL.
+     *
+     * @param photoUrl The new photo URL to set.
+     * @return A [Result] containing [Unit] if successful, or an exception if an error occurs.
+     */
+    suspend fun updatePhotoUrl(photoUrl: String): Result<Unit>
 
     /**
      * Sends a verification email to the current user.

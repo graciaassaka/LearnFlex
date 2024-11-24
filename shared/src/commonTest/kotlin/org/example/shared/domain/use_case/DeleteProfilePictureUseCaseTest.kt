@@ -38,17 +38,20 @@ class DeleteProfilePictureUseCaseTest {
 
         coEvery { authClient.getUserData() } returns Result.success(user)
         coEvery { storageClient.deleteFile("profile_pictures/${user.localId}.jpg") } returns Result.success(Unit)
-        coEvery { authClient.updateUserData(user.copy(photoUrl = null)) } returns Result.success(Unit)
+        coEvery { authClient.updatePhotoUrl("") } returns Result.success(Unit)
 
         // When
         val result = deleteProfilePictureUseCase.invoke()
 
         // Then
         assertTrue(result.isSuccess)
-        coVerify(exactly = 1) { authClient.getUserData() }
-        coVerify(exactly = 1) { storageClient.deleteFile("profile_pictures/${user.localId}.jpg") }
-        coVerify(exactly = 1) { authClient.updateUserData(user.copy(photoUrl = null)) }
+        coVerify(exactly = 1) {
+            authClient.getUserData()
+            storageClient.deleteFile("profile_pictures/${user.localId}.jpg")
+            authClient.updatePhotoUrl("")
+        }
     }
+
 
     @Test
     fun `invoke should return failure when getUserData fails`() = runTest {
@@ -64,8 +67,10 @@ class DeleteProfilePictureUseCaseTest {
         assertTrue(result.isFailure)
         assertEquals(exception, result.exceptionOrNull())
         coVerify(exactly = 1) { authClient.getUserData() }
-        coVerify(exactly = 0) { storageClient.deleteFile(any()) }
-        coVerify(exactly = 0) { authClient.updateUserData(any()) }
+        coVerify(exactly = 0) {
+            storageClient.deleteFile(any())
+            authClient.updateUsername(any())
+        }
     }
 
     @Test
@@ -91,9 +96,11 @@ class DeleteProfilePictureUseCaseTest {
         // Then
         assertTrue(result.isFailure)
         assertEquals(deleteException, result.exceptionOrNull())
-        coVerify(exactly = 1) { authClient.getUserData() }
-        coVerify(exactly = 1) { storageClient.deleteFile("profile_pictures/${user.localId}.jpg") }
-        coVerify(exactly = 0) { authClient.updateUserData(any()) }
+        coVerify(exactly = 1) {
+            authClient.getUserData()
+            storageClient.deleteFile("profile_pictures/${user.localId}.jpg")
+        }
+        coVerify(exactly = 0) { authClient.updateUsername(any()) }
     }
 
     @Test
@@ -110,7 +117,7 @@ class DeleteProfilePictureUseCaseTest {
 
         coEvery { authClient.getUserData() } returns Result.success(user)
         coEvery { storageClient.deleteFile("profile_pictures/${user.localId}.jpg") } returns Result.success(Unit)
-        coEvery { authClient.updateUserData(user.copy(photoUrl = null)) } returns Result.failure(updateException)
+        coEvery { authClient.updatePhotoUrl("") } returns Result.failure(updateException)
 
         // When
         val result = deleteProfilePictureUseCase.invoke()
@@ -118,8 +125,10 @@ class DeleteProfilePictureUseCaseTest {
         // Then
         assertTrue(result.isFailure)
         assertEquals(updateException, result.exceptionOrNull())
-        coVerify(exactly = 1) { authClient.getUserData() }
-        coVerify(exactly = 1) { storageClient.deleteFile("profile_pictures/${user.localId}.jpg") }
-        coVerify(exactly = 1) { authClient.updateUserData(user.copy(photoUrl = null)) }
+        coVerify(exactly = 1) {
+            authClient.getUserData()
+            storageClient.deleteFile("profile_pictures/${user.localId}.jpg")
+            authClient.updatePhotoUrl("")
+        }
     }
 }
