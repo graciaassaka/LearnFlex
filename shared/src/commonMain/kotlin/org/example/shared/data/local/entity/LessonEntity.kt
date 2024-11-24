@@ -12,6 +12,7 @@ import org.example.shared.domain.model.Lesson
  *
  * @property id The unique identifier of the lesson.
  * @property moduleId The identifier of the module this lesson belongs to.
+ * @property imageUrl The URL of the lesson's image.
  * @property title The title of the lesson.
  * @property description A brief description of the lesson.
  * @property index The index position of the lesson within the module.
@@ -34,8 +35,14 @@ data class LessonEntity(
     @PrimaryKey
     override val id: String,
 
-    @ColumnInfo(name = "module_id")
-    override val moduleId: String,
+    @ColumnInfo(
+        name = "module_id",
+        index = true
+    )
+    val moduleId: String,
+
+    @ColumnInfo(name = "image_url")
+    override val imageUrl: String,
 
     @ColumnInfo(name = "title")
     override val title: String,
@@ -54,4 +61,4 @@ data class LessonEntity(
 
     @ColumnInfo(name = "last_updated")
     override val lastUpdated: Long
-) : Lesson(id, moduleId, title, description, index, quizScore, createdAt, lastUpdated)
+) : Lesson(id, imageUrl, title, description, index, quizScore, createdAt, lastUpdated)

@@ -7,7 +7,7 @@ import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
-import org.example.shared.data.local.dao.contract.BaseDao
+import org.example.shared.data.local.dao.BaseDao
 import org.example.shared.data.repository.util.ModelMapper
 import org.example.shared.domain.constant.SyncOperationType
 import org.example.shared.domain.data_source.RemoteDataSource

@@ -6,13 +6,18 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import org.example.shared.data.local.converter.PreferencesConverter
 import org.example.shared.data.local.converter.StyleConverter
-import org.example.shared.data.local.dao.UserProfileDao
-import org.example.shared.data.local.entity.UserProfileEntity
+import org.example.shared.data.local.dao.*
+import org.example.shared.data.local.entity.*
 
 @Database(
     version = DatabaseConfig.DATABASE_VERSION,
     entities = [
-        UserProfileEntity::class
+        UserProfileEntity::class,
+        CurriculumEntity::class,
+        ModuleEntity::class,
+        LessonEntity::class,
+        SectionEntity::class,
+        CachedImageEntity::class
     ]
 )
 @TypeConverters(
@@ -24,5 +29,9 @@ import org.example.shared.data.local.entity.UserProfileEntity
 @ConstructedBy(LearnFlexDatabaseConstructor::class)
 abstract class LearnFlexDatabase : RoomDatabase() {
     abstract fun userProfileDao(): UserProfileDao
+    abstract fun curriculumDao(): CurriculumDao
+    abstract fun moduleDao(): ModuleDao
+    abstract fun lessonDao(): LessonDao
+    abstract fun sectionDao(): SectionDao
+    abstract fun cachedImageDao(): CachedImageDao
 }
-

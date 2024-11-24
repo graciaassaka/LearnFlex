@@ -9,6 +9,7 @@ import org.example.shared.domain.model.Curriculum
  * Entity class representing a curriculum in the local database.
  *
  * @property id The unique identifier of the curriculum.
+ * @property imageUrl The URL of the curriculum's image.
  * @property syllabus The detailed syllabus of the curriculum.
  * @property status The current status of the curriculum.
  * @property createdAt The timestamp when the curriculum was created.
@@ -18,6 +19,9 @@ import org.example.shared.domain.model.Curriculum
 data class CurriculumEntity(
     @PrimaryKey
     override val id: String,
+
+    @ColumnInfo(name = "image_url")
+    override val imageUrl: String,
 
     @ColumnInfo(name = "syllabus")
     override val syllabus: String,
@@ -30,4 +34,4 @@ data class CurriculumEntity(
 
     @ColumnInfo(name = "last_updated")
     override val lastUpdated: Long
-) : Curriculum(id, syllabus, status, createdAt, lastUpdated)
+) : Curriculum(id, imageUrl, syllabus, status, createdAt, lastUpdated)

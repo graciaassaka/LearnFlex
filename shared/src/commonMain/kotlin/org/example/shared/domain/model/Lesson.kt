@@ -7,7 +7,7 @@ import org.example.shared.domain.model.contract.DatabaseRecord
  * Lesson represents a single unit of learning content.
  *
  * @property id The unique identifier of the lesson.
- * @property moduleId The identifier of the module this lesson belongs to.
+ * @property imageUrl URL to an image associated with the lesson.
  * @property title The title of the lesson.
  * @property description A brief description of the lesson.
  * @property index The index position of the lesson within the module.
@@ -19,8 +19,8 @@ open class Lesson(
     @SerialName("id")
     override val id: String,
 
-    @SerialName("module_id")
-    open val moduleId: String,
+    @SerialName("image_url")
+    open val imageUrl: String,
 
     @SerialName("title")
     open val title: String,

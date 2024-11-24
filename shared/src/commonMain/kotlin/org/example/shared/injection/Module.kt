@@ -150,6 +150,7 @@ val commonModule = module {
         object : RepositoryImpl<UserProfile, UserProfileEntity>(
             remoteDataSource = get(named(USER_PROFILE_SCOPE)),
             dao = get<UserProfileDao>(named(USER_PROFILE_SCOPE)),
+            getStrategy = { id -> get<UserProfileDao>(named(USER_PROFILE_SCOPE)).get(id) },
             syncManager = get(named(USER_PROFILE_SCOPE)),
             syncOperationFactory = { type, profile -> SyncOperation(type, profile) },
             modelMapper = get(named(USER_PROFILE_SCOPE))

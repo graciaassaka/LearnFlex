@@ -21,8 +21,8 @@ open class Section(
     @SerialName("id")
     override val id: String,
 
-    @SerialName("lesson_id")
-    open val lessonId: String,
+    @SerialName("image_url")
+    open val imageUrl: String,
 
     @SerialName("index")
     open val index: Int,
@@ -35,9 +35,6 @@ open class Section(
 
     @SerialName("content")
     open val content: String,
-
-    @SerialName("image_url")
-    open val imageUrl: String,
 
     @SerialName("quiz_score")
     open val quizScore: Int,

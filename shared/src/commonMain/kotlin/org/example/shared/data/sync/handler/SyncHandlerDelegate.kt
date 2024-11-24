@@ -1,6 +1,6 @@
 package org.example.shared.data.sync.handler
 
-import org.example.shared.data.local.dao.contract.BaseDao
+import org.example.shared.data.local.dao.BaseDao
 import org.example.shared.data.repository.util.ModelMapper
 import org.example.shared.domain.constant.SyncOperationType
 import org.example.shared.domain.data_source.RemoteDataSource

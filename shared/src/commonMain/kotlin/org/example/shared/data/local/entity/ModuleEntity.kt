@@ -12,6 +12,7 @@ import org.example.shared.domain.model.Module
  *
  * @property id The unique identifier of the module.
  * @property curriculumId The identifier of the curriculum this module belongs to.
+ * @property imageUrl The URL of the module's image.
  * @property title The title of the module.
  * @property description A brief description of the module.
  * @property index The index position of the module within the curriculum.
@@ -34,8 +35,14 @@ data class ModuleEntity(
     @PrimaryKey
     override val id: String,
 
-    @ColumnInfo(name = "curriculum_id")
-    override val curriculumId: String,
+    @ColumnInfo(
+        name = "curriculum_id",
+        index = true
+    )
+    val curriculumId: String,
+
+    @ColumnInfo(name = "image_url")
+    override val imageUrl: String,
 
     @ColumnInfo(name = "title")
     override val title: String,
@@ -54,4 +61,4 @@ data class ModuleEntity(
 
     @ColumnInfo(name = "last_updated")
     override val lastUpdated: Long
-) : Module(id, curriculumId, title, description, index, quizScore, createdAt, lastUpdated)
+) : Module(id, imageUrl, title, description, index, quizScore, createdAt, lastUpdated)

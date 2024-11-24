@@ -1,7 +1,7 @@
 package org.example.shared.data.repository
 
 import kotlinx.coroutines.flow.flow
-import org.example.shared.data.local.dao.contract.BaseDao
+import org.example.shared.data.local.dao.BaseDao
 import org.example.shared.data.repository.util.ModelMapper
 import org.example.shared.domain.constant.SyncOperationType
 import org.example.shared.domain.data_source.RemoteDataSource
@@ -25,6 +25,7 @@ import org.example.shared.domain.sync.SyncOperation
 abstract class RepositoryImpl<Model : DatabaseRecord, Entity>(
     private val remoteDataSource: RemoteDataSource<Model>,
     private val dao: BaseDao<Entity>,
+    private val getStrategy: suspend (String) -> Entity?,
     private val syncManager: SyncManager<Model>,
     private val syncOperationFactory: (SyncOperationType, Model) -> SyncOperation<Model>,
     private val modelMapper: ModelMapper<Model, Entity>
@@ -59,7 +60,7 @@ abstract class RepositoryImpl<Model : DatabaseRecord, Entity>(
      */
     override fun get(id: String) = flow {
         try {
-            val entity = dao.get(id)
+            val entity = getStrategy(id)
 
             if (entity != null) {
                 val model = modelMapper.toModel(entity)

@@ -4,23 +4,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.example.shared.domain.model.contract.DatabaseRecord
 
-/**
- * Data class representing a curriculum, which includes a syllabus,
- * status information, and timestamps for creation and last update.
- */
 @Serializable
-open class Curriculum(
+data class ImageMetadata(
     @SerialName("id")
     override val id: String,
 
-    @SerialName("image_url")
-    open val imageUrl: String,
-
-    @SerialName("syllabus")
-    open val syllabus: String,
-
-    @SerialName("status")
-    open val status: String,
+    @SerialName("url")
+    val url: String,
 
     @SerialName("created_at")
     override val createdAt: Long,

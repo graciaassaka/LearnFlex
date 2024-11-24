@@ -5,7 +5,7 @@ import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
-import org.example.shared.data.local.dao.contract.BaseDao
+import org.example.shared.data.local.dao.BaseDao
 import org.example.shared.data.repository.util.ModelMapper
 import org.example.shared.domain.data_source.RemoteDataSource
 import org.example.shared.domain.model.contract.DatabaseRecord
@@ -20,7 +20,7 @@ import kotlin.test.assertTrue
 class RepositoryImplTest {
     private lateinit var repository: Repository<TestModel>
     private lateinit var remoteDataSource: RemoteDataSource<TestModel>
-    private lateinit var dao: BaseDao<TestModel>
+    private lateinit var dao: TestDao
     private lateinit var syncManager: SyncManager<TestModel>
 
     @Before
@@ -32,10 +32,13 @@ class RepositoryImplTest {
         repository = object : RepositoryImpl<TestModel, TestModel>(
             remoteDataSource = remoteDataSource,
             dao = dao,
+            getStrategy = { id -> dao.get(id) },
             syncManager = syncManager,
             syncOperationFactory = { type, model -> SyncOperation(type, model) },
             modelMapper = TestModelMapper
-        ) {}
+        ) {
+
+        }
     }
 
     @Test
@@ -161,4 +164,8 @@ private data class TestModel(
 private object TestModelMapper : ModelMapper<TestModel, TestModel> {
     override fun toEntity(model: TestModel) = model
     override fun toModel(entity: TestModel) = entity
+}
+
+private abstract class TestDao : BaseDao<TestModel>() {
+    abstract suspend fun get(id: String): TestModel?
 }

@@ -8,7 +8,6 @@ import org.example.shared.domain.model.contract.DatabaseRecord
  * Module represents a part of a curriculum, including details like title, description, and quiz score.
  *
  * @property id The unique identifier of the module.
- * @property curriculumId The identifier of the curriculum this module belongs to.
  * @property title The title of the module.
  * @property description A brief description of the module.
  * @property index The index position of the module within the curriculum.
@@ -21,8 +20,8 @@ open class Module(
     @SerialName("id")
     override val id: String,
 
-    @SerialName("curriculum_id")
-    open val curriculumId: String,
+    @SerialName("image_url")
+    open val imageUrl: String,
 
     @SerialName("title")
     open val title: String,
