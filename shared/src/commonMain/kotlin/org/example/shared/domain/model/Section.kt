@@ -7,7 +7,6 @@ import org.example.shared.domain.model.contract.DatabaseRecord
  * Section represents a part of a lesson with various attributes like title, description, content, etc.
  *
  * @property id The unique identifier of the section.
- * @property lessonId The identifier of the lesson this section belongs to.
  * @property index The index position of the section within the lesson.
  * @property title The title of the section.
  * @property description A brief description of the section.

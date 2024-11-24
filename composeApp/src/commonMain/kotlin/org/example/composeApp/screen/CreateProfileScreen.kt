@@ -12,6 +12,8 @@ import androidx.compose.material.icons.filled.SportsFootball
 import androidx.compose.material3.*
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -266,8 +268,12 @@ private fun StyleQuestionnaireScreen(
 ) {
     var currentQuestionIndex by remember { mutableIntStateOf(0) }
     val currentQuestion = styleQuestionnaire.getOrNull(currentQuestionIndex)
-    var selectedOption by remember(currentQuestion) { mutableStateOf("") }
-    var selectedStyle by remember(currentQuestion) { mutableStateOf<Style?>(null) }
+    var selectedOption by rememberSaveable(currentQuestion) { mutableStateOf("") }
+    val styleSaver = Saver<Style?, String>(
+        save = { it?.value },
+        restore = { savedValue -> savedValue.let { Style.valueOf(it.uppercase()) } }
+    )
+    var selectedStyle by rememberSaveable(currentQuestion, stateSaver = styleSaver) { mutableStateOf(null) }
 
     val successMessage = stringResource(Res.string.set_learning_style_success)
 
