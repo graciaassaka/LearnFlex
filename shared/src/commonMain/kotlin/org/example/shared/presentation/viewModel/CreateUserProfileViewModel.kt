@@ -9,6 +9,7 @@ import org.example.shared.domain.constant.SyncStatus
 import org.example.shared.domain.model.*
 import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.use_case.*
+import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.state.CreateProfileUIState
 import org.example.shared.presentation.util.ProfileCreationForm
 import org.example.shared.presentation.util.SnackbarType
@@ -43,6 +44,7 @@ class CreateUserProfileViewModel(
 ) : BaseViewModel(dispatcher) {
     // The number of questions to be fetched in the style questionnaire
     val questionCount = 5
+
     // Mutable state flow to manage the UI state of the profile creation screen
     private val _state = MutableStateFlow(CreateProfileUIState())
     val state = _state
@@ -271,6 +273,7 @@ class CreateUserProfileViewModel(
                     )
                 ).onSuccess {
                     showSnackbar(successMessage, SnackbarType.Success)
+                    navigate(Route.Dashboard, true)
                 }.onFailure { error ->
                     handleError(error)
                 }

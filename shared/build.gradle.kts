@@ -82,6 +82,7 @@ kotlin {
                 implementation(libs.koin.compose)
                 implementation(libs.koin.compose.viewmodel)
                 implementation(libs.koin.compose.viewmodel.navigation)
+                implementation(libs.ktor.client.plugins)
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.okhttp)
                 implementation(libs.ktor.content.negotiation)
@@ -118,6 +119,7 @@ kotlin {
                 implementation(project.dependencies.platform(libs.firebase.boom))
                 implementation(libs.firebase.auth)
                 implementation(libs.firebase.storage)
+                implementation(libs.ktor.client.android)
             }
         }
 
@@ -140,7 +142,6 @@ kotlin {
                 implementation(libs.androidx.test.rules)
                 implementation(libs.mockk.android)
                 implementation(libs.robolectric)
-                implementation(libs.room.testing)
             }
         }
 
@@ -150,6 +151,7 @@ kotlin {
                 implementation(libs.ktor.client.okhttp.jvm)
                 implementation(libs.gitlive.java)
                 implementation(libs.sqlite)
+                implementation(libs.ktor.client.jvm)
             }
         }
 
@@ -175,15 +177,10 @@ android {
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments += mapOf(
-                    "room.schemaLocation" to "$projectDir/schemas",
-                    "room.incremental" to "true",
-                    "room.expandProjection" to "true"
-                )
-            }
-        }
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments += mapOf(
+            "clearPackageData" to "true"
+        )
     }
     room {
         schemaDirectory("$projectDir/schemas")
@@ -216,8 +213,7 @@ dependencies {
     add("kspCommonMainMetadata", libs.room.compiler)
     add("kspAndroid", libs.room.compiler)
     add("kspDesktop", libs.room.compiler)
-    add("kspAndroidTest", libs.room.compiler)
-    add("kspDesktopTest", libs.room.compiler)
+    androidTestImplementation(libs.room.testing)
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {

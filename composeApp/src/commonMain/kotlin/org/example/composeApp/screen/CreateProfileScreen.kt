@@ -337,7 +337,9 @@ private fun QuestionContent(
     onFinish: () -> Unit,
     modifier: Modifier = Modifier
 ) = Column(
-    modifier = modifier.fillMaxSize(),
+    modifier = modifier
+        .fillMaxSize()
+        .verticalScroll(rememberScrollState()),
     verticalArrangement = Arrangement.Center,
     horizontalAlignment = Alignment.CenterHorizontally
 ) {
@@ -348,7 +350,6 @@ private fun QuestionContent(
         enabled = enabled,
         modifier = Modifier.testTag(TestTags.STYLE_QUESTIONNAIRE_OPTIONS_GROUP.tag)
     )
-
     Button(
         onClick = if (isQuizFinished) onFinish else onNextClicked,
         enabled = enabled && selectedOption.isNotBlank(),

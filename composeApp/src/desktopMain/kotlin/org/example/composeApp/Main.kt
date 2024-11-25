@@ -18,7 +18,12 @@ fun main() {
 
     application {
         Window(onCloseRequest = ::exitApplication, title = stringResource(Res.string.app_name)) {
-            App(windowSizeClass = calculateWindowSizeClass())
+            App(
+                windowSizeClass = calculateWindowSizeClass(),
+                cacheDir = File(System.getProperty("user.home"), ".learnflex/cache/images").apply {
+                    mkdirs()
+                }
+            )
         }
     }
 }

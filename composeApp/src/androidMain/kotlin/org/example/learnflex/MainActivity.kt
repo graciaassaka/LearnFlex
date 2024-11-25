@@ -24,6 +24,11 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         enableEdgeToEdge()
 
-        setContent { App(windowSizeClass = calculateWindowSizeClass(this)) }
+        setContent {
+            App(
+                windowSizeClass = calculateWindowSizeClass(this),
+                cacheDir = cacheDir.resolve("image_cache")
+            )
+        }
     }
 }

@@ -57,6 +57,7 @@ kotlin {
                 implementation(libs.coil)
                 implementation(libs.coil.compose)
                 implementation(libs.coil.test)
+                implementation(libs.coil.network.ktor)
                 implementation(project(":shared"))
             }
         }

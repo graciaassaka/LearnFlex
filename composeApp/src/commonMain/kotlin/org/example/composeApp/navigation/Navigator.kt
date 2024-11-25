@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import org.example.composeApp.screen.AuthScreen
 import org.example.composeApp.screen.CreateProfileScreen
+import org.example.composeApp.screen.DashboardScreen
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.viewModel.AuthViewModel
 import org.example.shared.presentation.viewModel.CreateUserProfileViewModel
@@ -42,6 +43,10 @@ fun Navigator(
                 navController = navController,
                 viewModel = viewModel
             )
+        }
+
+        composable<Route.Dashboard> {
+            DashboardScreen()
         }
     }
 }
