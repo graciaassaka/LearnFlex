@@ -131,7 +131,7 @@ actual class FirebaseStorageClient(
             }
         }
 
-        if (response.status.isSuccess()) response.readBytes()
+        if (response.status.isSuccess()) response.readRawBytes()
         else throw StorageException.DownloadFailure(response.bodyAsText())
     }.fold(
         onSuccess = { Result.success(it) },

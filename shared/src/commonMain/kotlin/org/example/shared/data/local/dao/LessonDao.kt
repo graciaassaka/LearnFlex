@@ -9,6 +9,14 @@ abstract class LessonDao : ExtendedDao<LessonEntity>() {
     @Query(
         """
             SELECT * FROM lesson
+            WHERE id = :id
+        """
+    )
+    abstract suspend fun get(id: String): LessonEntity?
+
+    @Query(
+        """
+            SELECT * FROM lesson
             WHERE module_id = :moduleId
         """
     )

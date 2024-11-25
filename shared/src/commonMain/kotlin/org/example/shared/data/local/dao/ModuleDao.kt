@@ -10,6 +10,14 @@ abstract class ModuleDao : ExtendedDao<ModuleEntity>() {
     @Query(
         """
             SELECT * FROM module
+            WHERE id = :id
+        """
+    )
+    abstract suspend fun get(id: String): ModuleEntity?
+
+    @Query(
+        """
+            SELECT * FROM module
             WHERE curriculum_id = :curriculumId
         """
     )

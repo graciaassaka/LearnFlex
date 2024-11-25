@@ -9,6 +9,14 @@ abstract class SectionDao : ExtendedDao<SectionEntity>() {
     @Query(
         """
             SELECT * FROM section
+            WHERE id = :id
+        """
+    )
+    abstract suspend fun get(id: String): SectionEntity?
+
+    @Query(
+        """
+            SELECT * FROM section
             WHERE lesson_id = :lessonId
             ORDER BY `index`
        """

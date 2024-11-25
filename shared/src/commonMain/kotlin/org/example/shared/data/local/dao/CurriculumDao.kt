@@ -9,6 +9,14 @@ abstract class CurriculumDao : ExtendedDao<CurriculumEntity>() {
     @Query(
         """
             SELECT * FROM curriculum
+            WHERE id = :id
+        """
+    )
+    abstract suspend fun get(id: String): CurriculumEntity?
+
+    @Query(
+        """
+            SELECT * FROM curriculum
             WHERE status = :status
         """
     )
