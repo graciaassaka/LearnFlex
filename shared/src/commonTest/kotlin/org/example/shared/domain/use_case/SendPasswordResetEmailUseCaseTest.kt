@@ -6,7 +6,7 @@ import io.mockk.mockk
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.example.shared.domain.service.AuthClient
+import org.example.shared.domain.client.AuthClient
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals

@@ -7,7 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import org.example.shared.data.local.database.DatabaseProvider
 import org.example.shared.data.remote.firebase.FirebaseAuthClient
 import org.example.shared.data.remote.firebase.FirebaseStorageClient
-import org.example.shared.domain.service.AuthClient
+import org.example.shared.domain.client.AuthClient
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
 import org.koin.dsl.module

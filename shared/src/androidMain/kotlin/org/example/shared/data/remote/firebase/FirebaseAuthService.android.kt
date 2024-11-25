@@ -4,8 +4,8 @@ import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.tasks.await
+import org.example.shared.domain.client.AuthClient
 import org.example.shared.domain.model.User
-import org.example.shared.domain.service.AuthClient
 
 /**
  * Service class for Firebase Authentication.

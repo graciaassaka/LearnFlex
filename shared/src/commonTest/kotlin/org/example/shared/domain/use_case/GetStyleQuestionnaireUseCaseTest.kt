@@ -5,9 +5,9 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import org.example.shared.domain.client.StyleQuizClient
 import org.example.shared.domain.model.LearningPreferences
 import org.example.shared.domain.model.StyleQuestion
-import org.example.shared.domain.service.StyleQuizClient
 import org.junit.Before
 import org.junit.Test
 

@@ -34,6 +34,11 @@ tasks.register("generateConstants") {
                 const val API_KEY = "${getLocalProperty("OPENAI_API_KEY")}"
                 const val STYLE_ASSISTANT_ID = "${getLocalProperty("OPENAI_STYLE_ASSISTANT_ID")}"
             }
+            
+            object GoogleConstants {
+                const val CUSTOM_SEARCH_API_KEY = "${getLocalProperty("GOOGLE_CUSTOM_SEARCH_API_KEY")}"
+                const val CUSTOM_IMAGES_SEARCH_ENGINE_ID = "${getLocalProperty("GOOGLE_CUSTOM_IMAGES_SEARCH_ENGINE_ID")}"
+            }
         """.trimIndent()
 
         val outputDir = project.layout.buildDirectory.get().asFile

@@ -1,4 +1,4 @@
-package org.example.shared.domain.service
+package org.example.shared.domain.client
 
 import org.example.shared.domain.constant.FileType
 

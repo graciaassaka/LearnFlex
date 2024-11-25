@@ -3,13 +3,12 @@ package org.example.shared.data.remote.firebase
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import org.example.shared.FirebaseInit
-import org.example.shared.data.remote.util.ApiError
-import org.example.shared.data.remote.util.ErrorContainer
+import org.example.shared.data.remote.util.HttpResponseHandler
 import org.example.shared.data.util.FirebaseConstants
-import org.example.shared.domain.service.AuthClient
+import org.example.shared.domain.client.AuthClient
+import org.example.shared.domain.model.User
 
 /**
  * Service for handling Firebase authentication.
@@ -36,7 +35,7 @@ actual class FirebaseAuthClient(
             setUpAuthRequest("signUp")
             setBody(Credentials(email, password))
         }.run {
-            handleAuthResponse {
+            HttpResponseHandler<Unit>(this).invoke {
                 with(body<AuthResponse>()) {
                     firebaseInit.idToken = idToken
                     firebaseInit.refreshToken = refreshToken
@@ -58,7 +57,7 @@ actual class FirebaseAuthClient(
             setUpAuthRequest("signInWithPassword")
             setBody(Credentials(email, password))
         }.run {
-            handleAuthResponse {
+            HttpResponseHandler<Unit>(this).invoke {
                 with(body<AuthResponse>()) {
                     firebaseInit.idToken = idToken
                     firebaseInit.refreshToken = refreshToken
@@ -85,8 +84,9 @@ actual class FirebaseAuthClient(
             setUpAuthRequest("lookup")
             setBody(AuthToken(firebaseInit.idToken))
         }.run {
-            handleAuthResponse()
-            return@run body<GetUserDataResponse>().users.first()
+            HttpResponseHandler<User>(this).invoke {
+                body<GetUserDataResponse>().users.first()
+            }
         }
     }
 
@@ -101,7 +101,7 @@ actual class FirebaseAuthClient(
             setUpAuthRequest("update")
             setBody(UsernameUpdatePayload(firebaseInit.idToken, username))
         }.run {
-            handleAuthResponse()
+            HttpResponseHandler<Unit>(this).invoke { }
         }
     }
 
@@ -116,7 +116,7 @@ actual class FirebaseAuthClient(
             setUpAuthRequest("update")
             setBody(PhotoUrlUpdatePayload(firebaseInit.idToken, photoUrl))
         }.run {
-            handleAuthResponse()
+            HttpResponseHandler<Unit>(this).invoke { }
         }
     }
 
@@ -130,7 +130,7 @@ actual class FirebaseAuthClient(
             setUpAuthRequest("sendOobCode")
             setBody(VerificationPayload(RequestType.VERIFY_EMAIL.name, firebaseInit.idToken))
         }.run {
-            handleAuthResponse()
+            HttpResponseHandler<Unit>(this).invoke { }
         }
     }
 
@@ -145,7 +145,7 @@ actual class FirebaseAuthClient(
             setUpAuthRequest("sendOobCode")
             setBody(PasswordResetPayload(RequestType.PASSWORD_RESET.name, email))
         }.run {
-            handleAuthResponse()
+            HttpResponseHandler<Unit>(this).invoke { }
         }
     }
 
@@ -159,7 +159,7 @@ actual class FirebaseAuthClient(
             setUpAuthRequest("delete")
             setBody(AuthToken(firebaseInit.idToken))
         }.run {
-            handleAuthResponse()
+            HttpResponseHandler<Unit>(this).invoke { }
         }
     }
 
@@ -183,25 +183,5 @@ actual class FirebaseAuthClient(
         }
         parameter("key", FirebaseConstants.API_KEY)
         contentType(ContentType.Application.Json)
-    }
-
-    /**
-     * Handles the authentication response.
-     *
-     * @param handleSuccess Optional success handler.
-     * @throws ApiError If the response indicates an error.
-     */
-    private suspend fun HttpResponse.handleAuthResponse(handleSuccess: (suspend () -> Unit)? = null) {
-        val errorContent = if (!status.isSuccess()) body<ErrorContainer>() else null
-        when (status.value) {
-            200 -> handleSuccess?.invoke() ?: Unit
-            400 -> throw ApiError.BadRequest(requestPath = request.url.encodedPath, errorContainer = errorContent)
-            401 -> throw ApiError.Unauthorized(requestPath = request.url.encodedPath, errorContainer = errorContent)
-            403 -> throw ApiError.Forbidden(requestPath = request.url.encodedPath, errorContainer = errorContent)
-            404 -> throw ApiError.NotFound(requestPath = request.url.encodedPath, errorContainer = errorContent)
-            429 -> throw ApiError.RateLimitExceeded(requestPath = request.url.encodedPath, errorContainer = errorContent)
-            503 -> throw ApiError.NetworkError(requestPath = request.url.encodedPath, errorContainer = errorContent)
-            else -> throw ApiError.ServerError(requestPath = request.url.encodedPath, status.value, errorContainer = errorContent)
-        }
     }
 }

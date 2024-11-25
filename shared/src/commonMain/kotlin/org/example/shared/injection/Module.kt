@@ -14,6 +14,7 @@ import org.example.shared.data.local.database.LearnFlexDatabase
 import org.example.shared.data.local.entity.UserProfileEntity
 import org.example.shared.data.remote.assistant.OpenAIAssistantClient
 import org.example.shared.data.remote.assistant.StyleQuizClientImpl
+import org.example.shared.data.remote.custom_search.GoogleImageSearchClient
 import org.example.shared.data.remote.firebase.FirebaseAuthClient
 import org.example.shared.data.remote.firebase.FirebaseStorageClient
 import org.example.shared.data.remote.firestore.RemoteDataSourceImpl
@@ -23,14 +24,12 @@ import org.example.shared.data.repository.RepositoryImpl
 import org.example.shared.data.repository.util.ModelMapper
 import org.example.shared.data.sync.handler.SyncHandlerDelegate
 import org.example.shared.data.sync.manager.SyncManagerImpl
+import org.example.shared.data.util.GoogleConstants
 import org.example.shared.data.util.OpenAIConstants
+import org.example.shared.domain.client.*
 import org.example.shared.domain.data_source.RemoteDataSource
 import org.example.shared.domain.model.UserProfile
 import org.example.shared.domain.repository.Repository
-import org.example.shared.domain.service.AIAssistantClient
-import org.example.shared.domain.service.AuthClient
-import org.example.shared.domain.service.StorageClient
-import org.example.shared.domain.service.StyleQuizClient
 import org.example.shared.domain.sync.SyncHandler
 import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.sync.SyncOperation
@@ -78,12 +77,12 @@ val commonModule = module {
         }
     }
 
-    // Firebase Services
+    // Firebase Clients
     single<FirebaseFirestore> { Firebase.firestore }
     single<AuthClient> { get<FirebaseAuthClient>() }
     single<StorageClient> { get<FirebaseStorageClient>() }
 
-    // OpenAI Services
+    // OpenAI Client
     single<AIAssistantClient> {
         OpenAIAssistantClient(
             httpClient = get(),
@@ -92,6 +91,20 @@ val commonModule = module {
                 host = "api.openai.com"
             ).build(),
             apiKey = OpenAIConstants.API_KEY
+        )
+    }
+
+    // Google Image Search Client
+    single<ImageSearchClient> {
+        GoogleImageSearchClient(
+            httpClient = get(),
+            baseUrl = URLBuilder(
+                protocol = URLProtocol.HTTPS,
+                host = "www.googleapis.com",
+                pathSegments = listOf("customsearch", "v1")
+            ).build(),
+            apiKey = GoogleConstants.CUSTOM_SEARCH_API_KEY,
+            searchEngineId = GoogleConstants.CUSTOM_IMAGES_SEARCH_ENGINE_ID
         )
     }
 

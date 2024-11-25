@@ -3,8 +3,8 @@ package org.example.shared.data.remote.firebase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import org.example.shared.data.remote.util.StorageException
+import org.example.shared.domain.client.StorageClient
 import org.example.shared.domain.constant.FileType
-import org.example.shared.domain.service.StorageClient
 
 /**
  * Service class for handling Firebase Storage operations.

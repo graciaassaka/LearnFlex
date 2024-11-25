@@ -1,5 +1,5 @@
 package org.example.shared.data.remote.firebase
 
-import org.example.shared.domain.service.StorageClient
+import org.example.shared.domain.client.StorageClient
 
 expect class FirebaseStorageClient : StorageClient

@@ -1,8 +1,8 @@
 package org.example.shared.domain.use_case
 
+import org.example.shared.domain.client.AuthClient
+import org.example.shared.domain.client.StorageClient
 import org.example.shared.domain.constant.FileType
-import org.example.shared.domain.service.AuthClient
-import org.example.shared.domain.service.StorageClient
 
 /**
  * Use case for uploading a profile picture.

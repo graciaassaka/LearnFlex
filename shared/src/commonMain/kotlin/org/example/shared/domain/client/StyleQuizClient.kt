@@ -1,4 +1,4 @@
-package org.example.shared.domain.service
+package org.example.shared.domain.client
 
 import kotlinx.coroutines.flow.Flow
 import org.example.shared.domain.constant.Style

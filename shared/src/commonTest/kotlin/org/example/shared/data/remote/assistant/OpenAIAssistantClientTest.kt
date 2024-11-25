@@ -33,8 +33,7 @@ class OpenAIAssistantClientTest {
     private lateinit var baseUrl: Url
 
     @Before
-    fun setUp()
-    {
+    fun setUp() {
         wireMockServer = WireMockServer(WireMockConfiguration.options().port(9099))
         wireMockServer.start()
         configureFor(wireMockServer.port())
@@ -76,8 +75,7 @@ class OpenAIAssistantClientTest {
     }
 
     @After
-    fun tearDown()
-    {
+    fun tearDown() {
         wireMockServer.stop()
         httpClient.close()
     }

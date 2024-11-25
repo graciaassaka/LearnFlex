@@ -6,10 +6,10 @@ import kotlinx.serialization.json.*
 import org.example.shared.data.remote.model.*
 import org.example.shared.data.remote.model.Function
 import org.example.shared.data.util.OpenAIConstants
+import org.example.shared.domain.client.AIAssistantClient
+import org.example.shared.domain.client.StyleQuizClient
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.*
-import org.example.shared.domain.service.AIAssistantClient
-import org.example.shared.domain.service.StyleQuizClient
 
 /**
  * Implementation of the StyleQuizService interface.

@@ -308,11 +308,11 @@ class AuthViewModel(
      * @param form The authentication form to display.
      */
     fun displayAuthForm(form: AuthForm) = when (form) {
-        AuthForm.SignIn -> _state.update {
+        AuthForm.SignIn      -> _state.update {
             AuthUIState().copy(currentForm = AuthForm.SignIn)
         }
 
-        AuthForm.SignUp -> _state.update {
+        AuthForm.SignUp      -> _state.update {
             AuthUIState().copy(currentForm = AuthForm.SignUp)
         }
 

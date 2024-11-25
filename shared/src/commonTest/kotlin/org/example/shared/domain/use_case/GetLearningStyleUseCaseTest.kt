@@ -4,8 +4,8 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
+import org.example.shared.domain.client.StyleQuizClient
 import org.example.shared.domain.model.LearningStyle
-import org.example.shared.domain.service.StyleQuizClient
 import org.junit.Before
 import kotlin.test.Test
 

@@ -1,7 +1,7 @@
 package org.example.shared.domain.use_case
 
-import org.example.shared.domain.service.AuthClient
-import org.example.shared.domain.service.StorageClient
+import org.example.shared.domain.client.AuthClient
+import org.example.shared.domain.client.StorageClient
 
 /**
  * Use case for deleting a user's profile picture.

@@ -7,11 +7,11 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.example.shared.data.remote.model.*
+import org.example.shared.domain.client.AIAssistantClient
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.LearningPreferences
 import org.example.shared.domain.model.StyleOption
 import org.example.shared.domain.model.StyleQuestion
-import org.example.shared.domain.service.AIAssistantClient
 import kotlin.test.*
 
 class StyleQuizClientImplTest {

@@ -3,12 +3,10 @@ package org.example.shared.data.remote.assistant
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import org.example.shared.data.remote.model.*
-import org.example.shared.data.remote.util.ApiError
-import org.example.shared.data.remote.util.ErrorContainer
-import org.example.shared.domain.service.AIAssistantClient
+import org.example.shared.data.remote.util.HttpResponseHandler
+import org.example.shared.domain.client.AIAssistantClient
 
 /**
  * Client for interacting with the OpenAI Assistant API.
@@ -30,7 +28,7 @@ class OpenAIAssistantClient(
         httpClient.post {
             setUpAssistantRequest("/v1/threads")
         }.run {
-            handleAssistantResponse { body<Thread>() }
+            HttpResponseHandler<Thread>(this).invoke { body<Thread>() }
         }
     }
 
@@ -44,7 +42,7 @@ class OpenAIAssistantClient(
         httpClient.get {
             setUpAssistantRequest("/v1/threads/$threadId")
         }.run {
-            handleAssistantResponse { body<Thread>() }
+            HttpResponseHandler<Thread>(this).invoke { body<Thread>() }
         }
     }
 
@@ -58,7 +56,7 @@ class OpenAIAssistantClient(
         httpClient.delete {
             setUpAssistantRequest("/v1/threads/$threadId")
         }.run {
-            handleAssistantResponse { }
+            HttpResponseHandler<Unit>(this).invoke { }
         }
     }
 
@@ -74,7 +72,7 @@ class OpenAIAssistantClient(
             setUpAssistantRequest("/v1/threads/$threadId/messages")
             setBody(requestBody)
         }.run {
-            handleAssistantResponse { body<Message>() }
+            HttpResponseHandler<Message>(this).invoke { body<Message>() }
         }
     }
 
@@ -92,7 +90,7 @@ class OpenAIAssistantClient(
             parameter("limit", limit)
             parameter("order", order.value)
         }.run {
-            handleAssistantResponse { body<ListMessagesResponse>() }
+            HttpResponseHandler<ListMessagesResponse>(this).invoke { body<ListMessagesResponse>() }
         }
     }
 
@@ -108,7 +106,7 @@ class OpenAIAssistantClient(
             setUpAssistantRequest("/v1/threads/$threadId/runs")
             setBody(requestBody)
         }.run {
-            handleAssistantResponse { body<Run>() }
+            HttpResponseHandler<Run>(this).invoke { body<Run>() }
         }
     }
 
@@ -123,7 +121,7 @@ class OpenAIAssistantClient(
         httpClient.get {
             setUpAssistantRequest("/v1/threads/$threadId/runs/$runId")
         }.run {
-            handleAssistantResponse { body<Run>() }
+            HttpResponseHandler<Run>(this).invoke { body<Run>() }
         }
     }
 
@@ -138,7 +136,7 @@ class OpenAIAssistantClient(
         httpClient.post {
             setUpAssistantRequest("/v1/threads/$threadId/runs/$runId/cancel")
         }.run {
-            handleAssistantResponse { }
+            HttpResponseHandler<Unit>(this).invoke { }
         }
     }
 
@@ -156,7 +154,7 @@ class OpenAIAssistantClient(
                 setUpAssistantRequest("/v1/threads/$threadId/runs/$runId/submit_tool_outputs")
                 setBody(requestBody)
             }.run {
-                handleAssistantResponse { body<Run>() }
+                HttpResponseHandler<Run>(this).invoke { body<Run>() }
             }
         }
 
@@ -178,23 +176,4 @@ class OpenAIAssistantClient(
         }
         contentType(ContentType.Application.Json)
     }
-
-    /**
-     * Handles the response from the OpenAI Assistant API.
-     *
-     * @param handleSuccess The lambda to execute if the request is successful.
-     */
-    private suspend fun <T> HttpResponse.handleAssistantResponse(handleSuccess: (suspend () -> T)): T {
-        val errorContainer = if (status.isSuccess()) null else body<ErrorContainer>()
-        return when (status.value) {
-                200  -> handleSuccess()
-                400  -> throw ApiError.BadRequest(requestPath = request.url.encodedPath, errorContainer = errorContainer)
-                401  -> throw ApiError.Unauthorized(requestPath = request.url.encodedPath, errorContainer = errorContainer)
-                403  -> throw ApiError.Forbidden(requestPath = request.url.encodedPath,errorContainer = errorContainer)
-                404  -> throw ApiError.NotFound(requestPath = request.url.encodedPath, errorContainer = errorContainer)
-                429  -> throw ApiError.RateLimitExceeded(requestPath = request.url.encodedPath, errorContainer = errorContainer)
-                503  -> throw ApiError.NetworkError(requestPath = request.url.encodedPath, errorContainer = errorContainer)
-                else -> throw ApiError.ServerError(requestPath = request.url.encodedPath, errorCode = status.value, errorContainer = errorContainer)
-            }
-        }
 }

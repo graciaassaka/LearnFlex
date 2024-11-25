@@ -1,6 +1,6 @@
 package org.example.shared.domain.use_case
 
-import org.example.shared.domain.service.AuthClient
+import org.example.shared.domain.client.AuthClient
 
 /**
  * Use case class for fetching user data.

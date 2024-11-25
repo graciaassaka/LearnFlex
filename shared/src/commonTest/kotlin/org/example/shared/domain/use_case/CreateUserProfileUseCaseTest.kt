@@ -5,9 +5,9 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import org.example.shared.domain.client.AuthClient
 import org.example.shared.domain.model.UserProfile
 import org.example.shared.domain.repository.Repository
-import org.example.shared.domain.service.AuthClient
 import org.junit.Before
 import org.junit.Test
 

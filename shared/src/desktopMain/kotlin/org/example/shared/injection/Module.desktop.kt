@@ -6,7 +6,7 @@ import org.example.shared.data.local.database.DatabaseProvider
 import org.example.shared.data.remote.firebase.FirebaseAuthClient
 import org.example.shared.data.remote.firebase.FirebaseConfig
 import org.example.shared.data.remote.firebase.FirebaseStorageClient
-import org.example.shared.domain.service.AuthClient
+import org.example.shared.domain.client.AuthClient
 import org.koin.core.context.startKoin
 import org.koin.core.qualifier.named
 import org.koin.dsl.module

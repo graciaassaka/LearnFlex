@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import org.example.shared.data.remote.util.ApiError
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.util.SnackbarType
 import org.example.shared.presentation.util.UIEvent
@@ -59,8 +60,15 @@ open class BaseViewModel(
      *
      * @param error The error to handle.
      */
-    fun handleError(error: Throwable) {
-        showSnackbar(error.message ?: "An error occurred", SnackbarType.Error)
+    open fun handleError(error: Throwable) {
+        val message = when (error) {
+            is ApiError -> error.errorContainer?.error?.message ?: error.message
+            else        -> error.message
+        }
+        showSnackbar(
+            message = message ?: "An error occurred",
+            type = SnackbarType.Error
+        )
     }
 
     /**

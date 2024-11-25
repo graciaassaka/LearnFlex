@@ -9,8 +9,8 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.example.shared.FirebaseInit
 import org.example.shared.data.remote.util.StorageException
+import org.example.shared.domain.client.StorageClient
 import org.example.shared.domain.constant.FileType
-import org.example.shared.domain.service.StorageClient
 import java.net.URLEncoder
 
 /**
