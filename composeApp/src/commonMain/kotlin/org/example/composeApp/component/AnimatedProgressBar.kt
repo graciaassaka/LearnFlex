@@ -8,7 +8,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import org.example.composeApp.dimension.Dimension
 
 /**
@@ -42,31 +41,15 @@ fun AnimatedProgressBar(
         label = "progressFloatAnimation"
     )
 
-    val colors = listOf(
-        0.3f to Color.Red,
-        0.6f to Color.Yellow,
-        1.0f to Color.Green
-    )
-
     val progressColor = remember(animatedProgress) {
-        when {
-            animatedProgress <= colors.first().first -> colors.first().second
-            animatedProgress >= colors.last().first -> colors.last().second
-            else -> {
-                val (colorStart, colorEnd) = colors.zipWithNext().first { (start, end) ->
-                    animatedProgress in start.first..end.first
-                }
-
-                val segmentSize = colorEnd.first - colorStart.first
-                val segmentProgress = (animatedProgress - colorStart.first) / segmentSize
-
-                lerp(
-                    start = colorStart.second,
-                    stop = colorEnd.second,
-                    fraction = segmentProgress
-                )
-            }
-        }
+        getProgressColor(
+            animatedProgress = animatedProgress,
+            colors = listOf(
+                0.3f to Color.Red,
+                0.6f to Color.Yellow,
+                1.0f to Color.Green
+            )
+        )
     }
 
     LinearProgressIndicator(

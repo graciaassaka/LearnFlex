@@ -28,6 +28,7 @@ enum class Dimension(val dp: Dp) {
     CORNER_RADIUS_XLARGE(64.dp),
     AUTH_BUTTON_HEIGHT(54.dp),
     PROGRESS_BAR_HEIGHT(8.dp),
+    SCROLL_BAR_WIDTH(4.dp),
 }
 
 /**
@@ -53,4 +54,16 @@ enum class Spacing(val dp: Dp) {
     MEDIUM(16.dp),
     LARGE(32.dp),
     XLARGE(64.dp)
+}
+
+/**
+ * Enum class representing different elevation sizes in density-independent pixels (dp).
+ *
+ * @property dp The elevation size in dp.
+ */
+enum class Elevation(val dp: Dp) {
+    SMALL(4.dp),
+    MEDIUM(8.dp),
+    LARGE(16.dp),
+    XLARGE(24.dp)
 }

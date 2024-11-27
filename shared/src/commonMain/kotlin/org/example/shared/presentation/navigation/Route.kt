@@ -18,4 +18,19 @@ sealed class Route {
 
     @Serializable
     data object Dashboard : Route()
+
+    @Serializable
+    data object Library : Route()
+
+    @Serializable
+    data object Study : Route()
+
+    @Serializable
+    data object Community : Route()
+
+    @Serializable
+    data object Progress : Route()
+
+    @Serializable
+    data object Profile : Route()
 }

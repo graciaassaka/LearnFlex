@@ -24,6 +24,8 @@
     <string name="try_again_button_label">Try Again</string>
     <string name="finish_button_label">Finish</string>
     <string name="next_button_label">Next</string>
+    <string name="show_less_button_label">Show Less</string>
+    <string name="show_more_button_label">Show More</string>
 
     <!-- Form Labels -->
     <string name="email_label">Email</string>
@@ -57,7 +59,17 @@
     <string name="file_not_found_error">File not found</string>
     <string name="file_unknown_error">Unknown error</string>
 
+    <!-- Welcome Messages -->
+    <string name="welcome_to">Welcome to</string>
+    <string name="welcome_back">Welcome back,</string>
+    <string name="welcome_message">Transform any learning material into an interactive, personalized experience.
+    </string>
+
     <!-- Other -->
+    <string name="weekly_activity">Weekly Activity</string>
+    <string name="best_quiz_score">Best Quiz Score:</string>
+    <string name="curriculum_progress">Curriculum Progress</string>
+    <string name="completed_curricula">Completed Curricula</string>
     <string name="upload_photo_text">Upload Profile Photo</string>
     <string name="style_result_dialog_title">Your Learning Style</string>
 </resources>

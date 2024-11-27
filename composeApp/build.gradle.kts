@@ -46,6 +46,7 @@ kotlin {
                 implementation(compose.components.resources)
                 implementation(compose.components.uiToolingPreview)
                 implementation(libs.compose.navigation)
+                implementation(libs.compose.adaptive.navigation)
                 implementation(libs.koin.core)
                 implementation(libs.koin.compose)
                 implementation(libs.koin.compose.viewmodel)
@@ -90,6 +91,7 @@ kotlin {
             resources.srcDirs(commonMain.resources.srcDirs)
             dependencies {
                 implementation(compose.desktop.currentOs)
+                implementation(libs.androidx.foundation.desktop)
             }
         }
 

@@ -46,7 +46,7 @@ fun Navigator(
         }
 
         composable<Route.Dashboard> {
-            DashboardScreen()
+            DashboardScreen(windowSizeClass)
         }
     }
 }

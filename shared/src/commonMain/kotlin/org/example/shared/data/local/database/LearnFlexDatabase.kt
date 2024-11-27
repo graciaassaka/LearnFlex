@@ -16,7 +16,8 @@ import org.example.shared.data.local.entity.*
         CurriculumEntity::class,
         ModuleEntity::class,
         LessonEntity::class,
-        SectionEntity::class
+        SectionEntity::class,
+        SessionEntity::class
     ]
 )
 @TypeConverters(
@@ -32,4 +33,5 @@ abstract class LearnFlexDatabase : RoomDatabase() {
     abstract fun moduleDao(): ModuleDao
     abstract fun lessonDao(): LessonDao
     abstract fun sectionDao(): SectionDao
+    abstract fun sessionDao(): SessionDao
 }

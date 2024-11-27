@@ -19,6 +19,9 @@ open class Curriculum(
     @SerialName("syllabus")
     open val syllabus: String,
 
+    @SerialName("description")
+    open val description: String,
+
     @SerialName("status")
     open val status: String,
 

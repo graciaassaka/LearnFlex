@@ -26,6 +26,9 @@ data class CurriculumEntity(
     @ColumnInfo(name = "syllabus")
     override val syllabus: String,
 
+    @ColumnInfo(name = "description")
+    override val description: String,
+
     @ColumnInfo(name = "status")
     override val status: String,
 
@@ -34,4 +37,4 @@ data class CurriculumEntity(
 
     @ColumnInfo(name = "last_updated")
     override val lastUpdated: Long
-) : Curriculum(id, imageUrl, syllabus, status, createdAt, lastUpdated)
+) : Curriculum(id, imageUrl, syllabus, description, status, createdAt, lastUpdated)

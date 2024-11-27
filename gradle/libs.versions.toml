@@ -1,5 +1,6 @@
 [versions]
 agp = "8.5.2"
+adaptive-navigation = "1.3.1"
 android-compileSdk = "34"
 android-minSdk = "33"
 android-targetSdk = "34"
@@ -49,6 +50,7 @@ sqlite = "2.5.0-alpha11"
 swing = "1.9.0"
 room = "2.7.0-alpha11"
 wiremock = "2.35.0"
+foundationDesktop = "1.7.0"
 
 [libraries]
 # Testing libraries
@@ -98,6 +100,8 @@ androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling
 androidx-compose-animation = { module = "androidx.compose.animation:animation", version.ref = "compose" }
 compose-navigation = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "compose-navigation" }
 compose-window-size = { module = "org.jetbrains.compose.material3:material3-window-size-class", version.ref = "compose-window-size" }
+compose-adaptive-navigation = { module = "androidx.compose.material3:material3-adaptive-navigation-suite", version.ref = "adaptive-navigation" }
+androidx-foundation-desktop = { group = "androidx.compose.foundation", name = "foundation-desktop", version.ref = "foundationDesktop" }
 
 # Coil library
 coil = { group = "io.coil-kt.coil3", name = "coil", version.ref = "coil" }

@@ -30,6 +30,7 @@ class DatabaseTest {
     private lateinit var moduleDao: ModuleDao
     private lateinit var lessonDao: LessonDao
     private lateinit var sectionDao: SectionDao
+    private lateinit var sessionDao: SessionDao
 
     @Before
     fun setup() {
@@ -45,6 +46,7 @@ class DatabaseTest {
         lessonDao = database.lessonDao()
         moduleDao = database.moduleDao()
         sectionDao = database.sectionDao()
+        sessionDao = database.sessionDao()
     }
 
     @After
@@ -286,6 +288,40 @@ class DatabaseTest {
         )
     }
 
+    @Test
+    fun insertAndRetrieveSession() = runTest {
+        // Given
+        curriculumDao.insert(curricula.first())
+        moduleDao.insert(modules.first())
+        lessonDao.insert(lessons.first())
+
+        // Then
+        sectionDao.insert(sections.first())
+        sessionDao.insert(sessions.first())
+        val retrieved = sessionDao.get(sessions.first().id)
+
+        // Assert
+        assertNotNull(retrieved)
+        assertEquals(retrieved, sessions.first())
+    }
+
+    @Test
+    fun getSessionsByDateRange() = runTest {
+        // Given
+        curriculumDao.insertAll(*curricula)
+        moduleDao.insertAll(*modules)
+        lessonDao.insertAll(*lessons)
+        sessionDao.insertAll(*sessions)
+
+        // Then
+        val start = System.currentTimeMillis()
+        val end = start + 7200000
+        val retrieved = sessionDao.getSessionsByDateRange(start, end)
+
+        // Assert
+        assertEquals(retrieved, sessions.filter { it.startTimeMs in start..end })
+    }
+
     companion object {
         private val userProfile = UserProfileEntity(
             id = "test_id",
@@ -314,6 +350,7 @@ class DatabaseTest {
                 id = "curriculum_test_id",
                 imageUrl = "test_image_url.jpg",
                 syllabus = "Test Syllabus",
+                description = "Test Description",
                 status = "active",
                 createdAt = System.currentTimeMillis(),
                 lastUpdated = System.currentTimeMillis()
@@ -322,6 +359,7 @@ class DatabaseTest {
                 id = "curriculum_test_id_2",
                 imageUrl = "test_image_url_2.jpg",
                 syllabus = "Test Syllabus 2",
+                description = "Test Description 2",
                 status = "inactive",
                 createdAt = System.currentTimeMillis(),
                 lastUpdated = System.currentTimeMillis()
@@ -399,6 +437,27 @@ class DatabaseTest {
                 description = "Section 2 Description",
                 content = "Section 2 Content",
                 quizScore = 90,
+                createdAt = System.currentTimeMillis(),
+                lastUpdated = System.currentTimeMillis()
+            )
+        )
+
+        private val sessions = arrayOf(
+            SessionEntity(
+                id = "session1",
+                lessonId = lessons.first().id,
+                startTimeMs = System.currentTimeMillis(),
+                endTimeMs = System.currentTimeMillis() + 3600000,
+                durationMinutes = 60,
+                createdAt = System.currentTimeMillis(),
+                lastUpdated = System.currentTimeMillis()
+            ),
+            SessionEntity(
+                id = "session2",
+                lessonId = lessons.last().id,
+                startTimeMs = System.currentTimeMillis(),
+                endTimeMs = System.currentTimeMillis() + 7200000,
+                durationMinutes = 120,
                 createdAt = System.currentTimeMillis(),
                 lastUpdated = System.currentTimeMillis()
             )
