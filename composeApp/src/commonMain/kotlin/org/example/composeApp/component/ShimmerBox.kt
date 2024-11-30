@@ -21,6 +21,15 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 
+/**
+ * A box that displays a shimmer effect when loading data.
+ *
+ * @param isLoading Whether the data is loading.
+ * @param height The height of the box.
+ * @param width The width of the box.
+ * @param modifier The modifier to apply to the box.
+ * @param content The content to display when the data is loaded.
+ */
 @Composable
 fun ShimmerBox(
     isLoading: Boolean,
@@ -38,6 +47,9 @@ fun ShimmerBox(
     else content()
 }
 
+/**
+ * A modifier that applies a shimmer effect to a composable.
+ */
 @Composable
 fun Modifier.shimmerEffect() = composed {
     val size = remember { mutableStateOf(IntSize.Zero) }

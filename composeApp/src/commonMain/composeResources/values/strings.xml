@@ -65,11 +65,20 @@
     <string name="welcome_message">Transform any learning material into an interactive, personalized experience.
     </string>
 
+    <!-- Curriculum -->
+    <string name="curriculum_progress">Curriculum Progress</string>
+    <string name="completed_curricula">Completed Curricula</string>
+    <string name="modules">Modules</string>
+
+    <!-- Weekly Activity -->
+    <string name="total_minutes">Minutes</string>
+    <string name="average_daily_minutes">Average Minutes</string>
+    <string name="activity_summary">Activity Summary</string>
+    <string name="sessions">Sessions</string>
+
     <!-- Other -->
     <string name="weekly_activity">Weekly Activity</string>
     <string name="best_quiz_score">Best Quiz Score:</string>
-    <string name="curriculum_progress">Curriculum Progress</string>
-    <string name="completed_curricula">Completed Curricula</string>
     <string name="upload_photo_text">Upload Profile Photo</string>
     <string name="style_result_dialog_title">Your Learning Style</string>
 </resources>

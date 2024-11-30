@@ -319,7 +319,7 @@ class DatabaseTest {
         val retrieved = sessionDao.getSessionsByDateRange(start, end)
 
         // Assert
-        assertEquals(retrieved, sessions.filter { it.startTimeMs in start..end })
+        assertEquals(retrieved, sessions.filter { it.createdAt in start..end })
     }
 
     companion object {
@@ -446,7 +446,6 @@ class DatabaseTest {
             SessionEntity(
                 id = "session1",
                 lessonId = lessons.first().id,
-                startTimeMs = System.currentTimeMillis(),
                 endTimeMs = System.currentTimeMillis() + 3600000,
                 durationMinutes = 60,
                 createdAt = System.currentTimeMillis(),
@@ -455,7 +454,6 @@ class DatabaseTest {
             SessionEntity(
                 id = "session2",
                 lessonId = lessons.last().id,
-                startTimeMs = System.currentTimeMillis(),
                 endTimeMs = System.currentTimeMillis() + 7200000,
                 durationMinutes = 120,
                 createdAt = System.currentTimeMillis(),

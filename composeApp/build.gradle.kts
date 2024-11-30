@@ -91,7 +91,9 @@ kotlin {
             resources.srcDirs(commonMain.resources.srcDirs)
             dependencies {
                 implementation(compose.desktop.currentOs)
-                implementation(libs.androidx.foundation.desktop)
+                implementation(libs.androidx.foundation.desktop.get().toString()) {
+                    exclude(group = "androidx.compose.foundation", module = "foundation")
+                }
             }
         }
 

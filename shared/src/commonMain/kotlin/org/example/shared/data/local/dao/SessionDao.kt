@@ -17,7 +17,7 @@ abstract class SessionDao : ExtendedDao<SessionEntity>() {
     @Query(
         """
         SELECT * FROM session
-        WHERE start_time_ms >= :startDate AND end_time_ms <= :endDate
+        WHERE created_at >= :startDate AND end_time_ms <= :endDate
         """
     )
     abstract suspend fun getSessionsByDateRange(

@@ -7,6 +7,16 @@ import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
 import org.example.shared.domain.model.Session
 
+/**
+ * Entity class representing a session in the local database.
+ *
+ * @property id The unique identifier of the session.
+ * @property lessonId The identifier of the lesson this session belongs to.
+ * @property endTimeMs The timestamp when the session ended.
+ * @property durationMinutes The duration of the session in minutes.
+ * @property createdAt The timestamp when the session was created.
+ * @property lastUpdated The timestamp when the session was last updated.
+ */
 @Entity(
     tableName = "session",
     foreignKeys = [
@@ -25,18 +35,15 @@ data class SessionEntity(
     @ColumnInfo(name = "lesson_id", index = true)
     override val lessonId: String,
 
-    @ColumnInfo(name = "start_time_ms")
-    override val startTimeMs: Long,
-
     @ColumnInfo(name = "end_time_ms")
     override val endTimeMs: Long,
 
     @ColumnInfo(name = "duration_minutes")
     override val durationMinutes: Long,
 
-    @ColumnInfo(name = "completed")
+    @ColumnInfo(name = "created_at")
     override val createdAt: Long,
 
     @ColumnInfo(name = "last_updated")
     override val lastUpdated: Long
-) : Session(id, lessonId, startTimeMs, endTimeMs, durationMinutes, createdAt, lastUpdated)
+) : Session(id, lessonId, endTimeMs, durationMinutes, createdAt, lastUpdated)

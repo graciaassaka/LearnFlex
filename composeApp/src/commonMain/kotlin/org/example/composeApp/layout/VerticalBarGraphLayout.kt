@@ -5,29 +5,32 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import org.example.composeApp.component.getProgressColor
-import org.example.composeApp.dimension.Dimension
 
 /**
- * A composable to display a vertical bar graph with color transitions based on progress.
+ * A layout that displays a vertical bar graph.
  *
- * @param data The list of data pairs with labels and values.
- * @param modifier Modifier to be applied to the vertical bar graph.
- * @param animationDuration The duration of the progress bar animation in milliseconds.
- * @param animationDelay The delay before the animation starts in milliseconds.
- * @param onBarClicked The callback when a bar is clicked.
+ * @param data The data to display in the bar graph.
+ * @param modifier The modifier to apply to the layout.
+ * @param animationDuration The duration of the bar graph's animation.
+ * @param animationDelay The delay before the bar graph's animation starts.
+ * @param onBarClicked The callback to invoke when a bar is clicked.
  */
 @Composable
-fun VerticalBarGraph(
+fun VerticalBarGraphLayout(
     data: List<Pair<String, Float>>,
     modifier: Modifier = Modifier,
     animationDuration: Int = 1000,
@@ -36,17 +39,20 @@ fun VerticalBarGraph(
 ) {
     val maxValue = data.maxOf { it.second }
 
-    BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
-        val barWidth = maxWidth / data.size
+    BoxWithConstraints(modifier = modifier.wrapContentWidth()) {
+        val totalWidth = 24.dp * data.size + 12.dp * (data.size - 1)
+        val barWidth = totalWidth / data.size
         val maxBarHeight = maxHeight * 0.9f
 
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.Bottom,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.wrapContentSize()
         ) {
             data.forEachIndexed { i, (label, value) ->
                 var progress by remember(i) { mutableStateOf(0f) }
+                val interactionSource = remember(i) { MutableInteractionSource() }
+                val isHovered by interactionSource.collectIsHoveredAsState()
 
                 LaunchedEffect(value) {
                     progress = value
@@ -82,15 +88,24 @@ fun VerticalBarGraph(
                         .width(barWidth)
                         .height(this@BoxWithConstraints.maxHeight)
                 ) {
+                    if (isHovered) Text(
+                        text = value.toString(),
+                        modifier = Modifier.width(barWidth),
+                        color = Color.Black,
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Center
+                    )
+
                     Box(
                         modifier = Modifier
-                            .width(barWidth * 0.75f)
+                            .width(barWidth)
                             .height(maxBarHeight * (animatedProgress / maxValue))
                             .background(
                                 color = progressColor,
-                                shape = RoundedCornerShape(Dimension.CORNER_RADIUS_SMALL.dp)
+                                shape = RectangleShape,
                             )
                             .clickable { onBarClicked(label) }
+                            .hoverable(interactionSource = interactionSource)
                     )
 
                     Text(
@@ -101,6 +116,8 @@ fun VerticalBarGraph(
                         textAlign = TextAlign.Center
                     )
                 }
+
+                if (i < data.size - 1) Spacer(modifier = Modifier.width(12.dp))
             }
         }
     }

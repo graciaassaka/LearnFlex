@@ -3,7 +3,12 @@ package org.example.composeApp.component
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,19 +23,23 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * A composable to display a circular progress indicator with color transitions based on progress.
+ * A custom circular progress indicator that displays the progress of a task.
  *
- * @param progress The current progress value ranging from 0.0 to 1.0.
- * @param modifier Modifier to be applied to the progress bar.
- * @param size The size of the circular progress indicator.
- * @param strokeWidth The width of the circular progress indicator.
- * @param animationDuration The duration of the progress bar animation in milliseconds.
- * @param animationDelay The delay before the animation starts in milliseconds.
- * @param backgroundColor The color of the circular progress indicator background.
- * @param textStyle The style of the text displayed in the center of the circular progress indicator.
+ * @param label The label to display below the progress value.
+ * @param progress The progress value to display.
+ * @param modifier The modifier to apply to the progress indicator.
+ * @param size The size of the progress indicator.
+ * @param strokeWidth The width of the progress indicator's stroke.
+ * @param animationDuration The duration of the progress indicator's animation.
+ * @param animationDelay The delay before the progress indicator's animation starts.
+ * @param backgroundColor The color of the progress indicator's background.
+ * @param onProgressColorChange The callback to invoke when the progress color changes.
+ * @param progressValueTextStyle The style to apply to the progress value text.
+ * @param progressValuesTextColor The color of the progress value text.
  */
 @Composable
 fun CustomCircularProgressIndicator(
+    label: String,
     progress: Float,
     modifier: Modifier = Modifier,
     size: Dp = 100.dp,
@@ -38,9 +47,13 @@ fun CustomCircularProgressIndicator(
     animationDuration: Int = 1000,
     animationDelay: Int = 100,
     backgroundColor: Color = Color.LightGray,
-    textStyle: TextStyle = MaterialTheme.typography.bodyMedium
+    onProgressColorChange: (Color) -> Unit = {},
+    progressValueTextStyle: TextStyle = MaterialTheme.typography.bodyMedium,
+    progressValuesTextColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
     var currentProgress by remember { mutableStateOf(0f) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val hovered by interactionSource.collectIsHoveredAsState()
 
     LaunchedEffect(progress) {
         currentProgress = progress
@@ -74,7 +87,12 @@ fun CustomCircularProgressIndicator(
             backgroundColor to 360f,
             progressColor to (animatedProgress * 360)
         ).forEach { (color, sweepAngle) ->
-            Canvas(modifier = Modifier.size(size)) {
+            onProgressColorChange(color)
+            Canvas(
+                modifier = Modifier
+                    .size(size)
+                    .hoverable(interactionSource = interactionSource)
+            ) {
                 drawArc(
                     color = color,
                     startAngle = -90f,
@@ -86,12 +104,21 @@ fun CustomCircularProgressIndicator(
                     )
                 )
             }
-
         }
-        Text(
-            text = "${(animatedProgress * 100).toInt()}%",
-            style = textStyle,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        if (hovered) Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "${(animatedProgress * 100).toInt()}%",
+                style = progressValueTextStyle,
+                color = progressValuesTextColor
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
     }
 }
