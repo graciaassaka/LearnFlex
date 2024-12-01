@@ -34,11 +34,9 @@ class RepositoryImplTest {
             dao = dao,
             getStrategy = { id -> dao.get(id) },
             syncManager = syncManager,
-            syncOperationFactory = { type, model -> SyncOperation(type, model) },
+            syncOperationFactory = { type, path, model -> SyncOperation(type, path, model) },
             modelMapper = TestModelMapper
-        ) {
-
-        }
+        ) {}
     }
 
     @Test
@@ -48,7 +46,7 @@ class RepositoryImplTest {
         coEvery { syncManager.queueOperation(any()) } just runs
 
         // When
-        repository.create(testModel)
+        repository.create(TEST_COLLECTION_PATH, testModel)
 
         // Then
         coVerify {
@@ -64,7 +62,7 @@ class RepositoryImplTest {
         coEvery { syncManager.queueOperation(any()) } just runs
 
         // When
-        repository.update(testModel)
+        repository.update(TEST_COLLECTION_PATH, testModel)
 
         // Then
         coVerify {
@@ -80,7 +78,7 @@ class RepositoryImplTest {
         coEvery { syncManager.queueOperation(any()) } just runs
 
         // When
-        val result = repository.get(testModel.id).single()
+        val result = repository.get(TEST_COLLECTION_PATH, testModel.id).single()
 
         // Then
         coVerify {
@@ -96,16 +94,16 @@ class RepositoryImplTest {
         // Given
         val updatedModel = testModel.copy(name = "New name", lastUpdated = 1234567891)
         coEvery { dao.get(any()) } returns null
-        coEvery { remoteDataSource.fetch(any()) } returns Result.success(updatedModel)
+        coEvery { remoteDataSource.fetch(any(), any()) } returns Result.success(updatedModel)
         coEvery { dao.insert(any()) } just runs
 
         // When
-        val result = repository.get(testModel.id).single()
+        val result = repository.get(TEST_COLLECTION_PATH, testModel.id).single()
 
         // Then
         coVerify {
             dao.get(any())
-            remoteDataSource.fetch(any())
+            remoteDataSource.fetch(any(), any())
             dao.insert(any())
         }
         assertTrue(result.isSuccess)
@@ -119,7 +117,7 @@ class RepositoryImplTest {
         coEvery { dao.get(any()) } throws exception
 
         // When
-        val result = repository.get(testModel.id).single()
+        val result = repository.get(TEST_COLLECTION_PATH, testModel.id).single()
 
         // Then
         coVerify { dao.get(any()) }
@@ -134,7 +132,7 @@ class RepositoryImplTest {
         coEvery { syncManager.queueOperation(any()) } just runs
 
         // When
-        repository.delete(testModel)
+        repository.delete(TEST_COLLECTION_PATH, testModel)
 
         // Then
         coVerify {
@@ -145,20 +143,16 @@ class RepositoryImplTest {
 
     companion object {
         private val testModel = TestModel(
-            id = "test123",
-            name = "Test Model",
-            createdAt = 1234567890,
-            lastUpdated = 1234567890
+            id = "test123", name = "Test Model", createdAt = 1234567890, lastUpdated = 1234567890
         )
+
+        private const val TEST_COLLECTION_PATH = "testCollection"
     }
 }
 
 @Serializable
 private data class TestModel(
-    override val id: String,
-    val name: String,
-    override val createdAt: Long,
-    override val lastUpdated: Long
+    override val id: String, val name: String, override val createdAt: Long, override val lastUpdated: Long
 ) : DatabaseRecord
 
 private object TestModelMapper : ModelMapper<TestModel, TestModel> {

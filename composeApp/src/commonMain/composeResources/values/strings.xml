@@ -72,8 +72,8 @@
 
     <!-- Weekly Activity -->
     <string name="total_minutes">Minutes</string>
-    <string name="average_daily_minutes">Average Minutes</string>
-    <string name="activity_summary">Activity Summary</string>
+    <string name="average_daily_minutes">Average</string>
+    <string name="activity_summary">Summary</string>
     <string name="sessions">Sessions</string>
 
     <!-- Other -->

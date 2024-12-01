@@ -9,3 +9,8 @@ enum class FirestoreCollection(val value: String) {
     LEARNING_STYLES("learningStyles"),
     USERS("users")
 }
+
+enum class FirestoreSubCollection(val value: String) {
+    SECTIONS("sections"),
+    QUIZZES("quizzes")
+}

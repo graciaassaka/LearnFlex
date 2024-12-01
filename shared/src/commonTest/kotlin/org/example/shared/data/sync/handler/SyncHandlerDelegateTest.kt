@@ -32,43 +32,43 @@ class SyncHandlerDelegateTest {
     @Test
     fun `handleSync creates model in remote when operation type is CREATE`() = runTest {
         // Given
-        val operation = SyncOperation(SyncOperationType.CREATE, testModel)
+        val operation = SyncOperation(SyncOperationType.CREATE, TEST_PATH, testModel)
 
-        coEvery { remoteDataSource.create(testModel) } returns Result.success(Unit)
+        coEvery { remoteDataSource.create(any(), any()) } returns Result.success(Unit)
 
         // When
         syncHandler.handleSync(operation)
 
         // Then
-        coVerify { remoteDataSource.create(testModel) }
+        coVerify { remoteDataSource.create(any(), any()) }
     }
 
     @Test
     fun `handleSync updates model in remote when operation type is UPDATE`() = runTest {
         // Given
-        val operation = SyncOperation(SyncOperationType.UPDATE, testModel)
+        val operation = SyncOperation(SyncOperationType.UPDATE, TEST_PATH, testModel)
 
-        coEvery { remoteDataSource.create(testModel) } returns Result.success(Unit)
+        coEvery { remoteDataSource.update(any(), any()) } returns Result.success(Unit)
 
         // When
         syncHandler.handleSync(operation)
 
         // Then
-        coVerify { remoteDataSource.create(testModel) }
+        coVerify { remoteDataSource.update(any(), any()) }
     }
 
     @Test
     fun `handleSync deletes model from remote when operation type is DELETE`() = runTest {
         // Given
-        val operation = SyncOperation(SyncOperationType.DELETE, testModel)
+        val operation = SyncOperation(SyncOperationType.DELETE, TEST_PATH, testModel)
 
-        coEvery { remoteDataSource.delete(any()) } returns Result.success(Unit)
+        coEvery { remoteDataSource.delete(any(), any()) } returns Result.success(Unit)
 
         // When
         syncHandler.handleSync(operation)
 
         // Then
-        coVerify { remoteDataSource.delete(any()) }
+        coVerify { remoteDataSource.delete(any(), any()) }
     }
 
     @Test
@@ -79,9 +79,9 @@ class SyncHandlerDelegateTest {
             createdAt = testModel.createdAt,
             lastUpdated = testModel.lastUpdated + 1
         )
-        val operation = SyncOperation(SyncOperationType.SYNC, testModel)
+        val operation = SyncOperation(SyncOperationType.SYNC, TEST_PATH, testModel)
 
-        coEvery { remoteDataSource.fetch(any()) } returns Result.success(remoteModel)
+        coEvery { remoteDataSource.fetch(any(), any()) } returns Result.success(remoteModel)
         coEvery { dao.update(any()) } returns Unit
 
         // When
@@ -89,11 +89,11 @@ class SyncHandlerDelegateTest {
 
         // Then
         coVerify(exactly = 1) {
-            remoteDataSource.fetch(any())
+            remoteDataSource.fetch(any(), any())
             dao.update(any())
         }
         coVerify(exactly = 0) {
-            remoteDataSource.create(any())
+            remoteDataSource.create(any(), any())
         }
     }
 
@@ -105,18 +105,18 @@ class SyncHandlerDelegateTest {
             createdAt = testModel.createdAt,
             lastUpdated = testModel.lastUpdated - 1
         )
-        val operation = SyncOperation(SyncOperationType.SYNC, testModel)
+        val operation = SyncOperation(SyncOperationType.SYNC, TEST_PATH, testModel)
 
-        coEvery { remoteDataSource.fetch(any()) } returns Result.success(remoteModel)
-        coEvery { remoteDataSource.create(any()) } returns Result.success(Unit)
+        coEvery { remoteDataSource.fetch(any(), any()) } returns Result.success(remoteModel)
+        coEvery { remoteDataSource.create(any(), any()) } returns Result.success(Unit)
 
         // When
         syncHandler.handleSync(operation)
 
         // Then
         coVerify(exactly = 1) {
-            remoteDataSource.fetch(any())
-            remoteDataSource.create(any())
+            remoteDataSource.fetch(any(), any())
+            remoteDataSource.create(any(), any())
         }
         coVerify(exactly = 0) {
             dao.update(any())
@@ -126,10 +126,10 @@ class SyncHandlerDelegateTest {
     @Test
     fun `handleSync propagates errors from remote data source`() = runTest {
         // Given
-        val operation = SyncOperation(SyncOperationType.CREATE, testModel)
+        val operation = SyncOperation(SyncOperationType.CREATE, TEST_PATH, testModel)
         val exception = Exception("Test exception")
 
-        coEvery { remoteDataSource.create(any()) } returns Result.failure(exception)
+        coEvery { remoteDataSource.create(any(), any()) } returns Result.failure(exception)
 
         // When
         val result = runCatching { syncHandler.handleSync(operation) }
@@ -145,6 +145,7 @@ class SyncHandlerDelegateTest {
             createdAt = 1234567890L,
             lastUpdated = 1234567890L
         )
+        private const val TEST_PATH = "test/path"
     }
 }
 

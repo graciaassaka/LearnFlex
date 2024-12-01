@@ -24,27 +24,28 @@ class SyncHandlerDelegate<Model : DatabaseRecord, Entity : DatabaseRecord>(
      *
      * @param operation The synchronization operation to be handled.
      */
-    override suspend fun handleSync(operation: SyncOperation<Model>) {
-        when (operation.type) {
-            SyncOperationType.CREATE,
-            SyncOperationType.UPDATE -> remoteDataSource.create(operation.data).getOrThrow()
+    override suspend fun handleSync(operation: SyncOperation<Model>) = with(operation) {
+        when (type) {
+            SyncOperationType.CREATE -> remoteDataSource.create(path, data).getOrThrow()
 
-            SyncOperationType.DELETE -> remoteDataSource.delete(operation.data.id).getOrThrow()
+            SyncOperationType.UPDATE -> remoteDataSource.update(path, data).getOrThrow()
 
-            SyncOperationType.SYNC   -> operation.data.sync()
+            SyncOperationType.DELETE -> remoteDataSource.delete(path, data.id).getOrThrow()
+
+            SyncOperationType.SYNC   -> operation.data.sync(path)
         }
     }
 
     /**
      * Synchronizes the model data with the remote data source.
      */
-    private suspend fun Model.sync() {
-        val remote = remoteDataSource.fetch(id).getOrThrow()
+    private suspend fun Model.sync(path: String) {
+        val remote = remoteDataSource.fetch(path, id).getOrThrow()
 
         if (lastUpdated < remote.lastUpdated) {
             dao.update(modelMapper.toEntity(remote))
         } else {
-            remoteDataSource.create(this).getOrThrow()
+            remoteDataSource.create(path, this).getOrThrow()
         }
     }
 }

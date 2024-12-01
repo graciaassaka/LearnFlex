@@ -17,8 +17,8 @@ import org.example.shared.data.remote.assistant.StyleQuizClientImpl
 import org.example.shared.data.remote.custom_search.GoogleImageSearchClient
 import org.example.shared.data.remote.firebase.FirebaseAuthClient
 import org.example.shared.data.remote.firebase.FirebaseStorageClient
+import org.example.shared.data.remote.firestore.FirestorePathBuilder
 import org.example.shared.data.remote.firestore.RemoteDataSourceImpl
-import org.example.shared.data.remote.util.FirestoreCollection
 import org.example.shared.data.remote.util.HttpClientConfig
 import org.example.shared.data.repository.RepositoryImpl
 import org.example.shared.data.repository.util.ModelMapper
@@ -27,6 +27,7 @@ import org.example.shared.data.sync.manager.SyncManagerImpl
 import org.example.shared.data.util.GoogleConstants
 import org.example.shared.data.util.OpenAIConstants
 import org.example.shared.domain.client.*
+import org.example.shared.domain.data_source.PathBuilder
 import org.example.shared.domain.data_source.RemoteDataSource
 import org.example.shared.domain.model.UserProfile
 import org.example.shared.domain.repository.Repository
@@ -111,6 +112,9 @@ val commonModule = module {
     // Style Quiz Service
     single<StyleQuizClient> { StyleQuizClientImpl(assistant = get()) }
 
+    // Path Builder
+    single<PathBuilder> { FirestorePathBuilder() }
+
     // Database DAOs
     single<UserProfileDao>(named(USER_PROFILE_SCOPE)) {
         get<LearnFlexDatabase>().userProfileDao()
@@ -120,7 +124,6 @@ val commonModule = module {
     single<RemoteDataSource<UserProfile>>(named(USER_PROFILE_SCOPE)) {
         object : RemoteDataSourceImpl<UserProfile>(
             firestore = get(),
-            collection = FirestoreCollection.USERS,
             serializer = UserProfile.serializer()
         ) {}
     }
@@ -165,7 +168,7 @@ val commonModule = module {
             dao = get<UserProfileDao>(named(USER_PROFILE_SCOPE)),
             getStrategy = { id -> get<UserProfileDao>(named(USER_PROFILE_SCOPE)).get(id) },
             syncManager = get(named(USER_PROFILE_SCOPE)),
-            syncOperationFactory = { type, profile -> SyncOperation(type, profile) },
+            syncOperationFactory = { type, path, profile -> SyncOperation(type, path, profile) },
             modelMapper = get(named(USER_PROFILE_SCOPE))
         ) {}
     }
@@ -180,8 +183,20 @@ val commonModule = module {
     singleOf(::SendPasswordResetEmailUseCase)
 
     // Use Cases - User Profile
-    single { CreateUserProfileUseCase(repository = get(named(USER_PROFILE_SCOPE)), authClient = get()) }
-    single { UpdateUserProfileUseCase(repository = get(named(USER_PROFILE_SCOPE))) }
+    single {
+        CreateUserProfileUseCase(
+            repository = get(named(USER_PROFILE_SCOPE)),
+            authClient = get(),
+            pathBuilder = get()
+        )
+    }
+    single {
+        UpdateUserProfileUseCase(
+            repository = get(named(USER_PROFILE_SCOPE)),
+            authClient = get(),
+            pathBuilder = get()
+        )
+    }
     singleOf(::UploadProfilePictureUseCase)
     singleOf(::DeleteProfilePictureUseCase)
     singleOf(::GetStyleQuestionnaireUseCase)

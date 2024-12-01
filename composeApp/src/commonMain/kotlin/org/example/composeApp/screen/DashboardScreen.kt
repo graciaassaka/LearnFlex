@@ -45,15 +45,13 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import kotlinx.coroutines.delay
 import learnflex.composeapp.generated.resources.*
-import org.example.composeApp.component.CustomCircularProgressIndicator
-import org.example.composeApp.component.CustomLazyListVerticalScrollbar
-import org.example.composeApp.component.ShimmerBox
-import org.example.composeApp.component.shimmerEffect
+import org.example.composeApp.component.*
 import org.example.composeApp.dimension.Dimension
 import org.example.composeApp.dimension.Elevation
 import org.example.composeApp.dimension.Padding
 import org.example.composeApp.dimension.Spacing
 import org.example.composeApp.layout.VerticalBarGraphLayout
+import org.example.composeApp.navigation.AppDestination
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
 import org.jetbrains.compose.resources.painterResource
@@ -189,99 +187,106 @@ fun DashboardScreen(
         isLoading = false
     }
 
-    Row(
-        modifier = Modifier.fillMaxSize(),
-        horizontalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
-        verticalAlignment = Alignment.Top
+    CustomScaffold(
+        currentDestination = AppDestination.Dashboard,
+        onDestinationSelected = { },
+        snackbarHostState = remember { SnackbarHostState() },
+        enabled = !isLoading
     ) {
-        Box(
-            modifier = Modifier
-                .weight(2f)
-                .fillMaxHeight()
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
+            verticalAlignment = Alignment.Top
         ) {
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(200.dp),
-                contentPadding = PaddingValues(Padding.MEDIUM.dp)
+            Box(
+                modifier = Modifier
+                    .weight(2f)
+                    .fillMaxHeight()
             ) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    WelcomeSection(
-                        username = username,
-                        isLoading = isLoading,
-                        isVisible = true
-                    )
-                }
-
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
-                }
-
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    ShimmerBox(
-                        isLoading = isLoading,
-                        height = 32.dp,
-                        width = 100.dp
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.weekly_activity),
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.titleMedium,
-                            textAlign = TextAlign.Start,
-                            modifier = Modifier.fillMaxWidth()
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(200.dp),
+                    contentPadding = PaddingValues(Padding.MEDIUM.dp)
+                ) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        WelcomeSection(
+                            username = username,
+                            isLoading = isLoading,
+                            isVisible = true
                         )
                     }
-                }
 
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    WeeklyActivitiesSection(
-                        isLoading = isLoading,
-                        windowSizeClass = windowSizeClass,
-                        weeklyActivities = weeklyActivities,
-                        totalMinutes = 300,
-                        averageMinutes = 45
-                    )
-                }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
+                    }
 
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
-                }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        ShimmerBox(
+                            isLoading = isLoading,
+                            height = 32.dp,
+                            width = 100.dp
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.weekly_activity),
+                                color = MaterialTheme.colorScheme.primary,
+                                style = MaterialTheme.typography.titleMedium,
+                                textAlign = TextAlign.Start,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
 
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    ShimmerBox(
-                        isLoading = isLoading,
-                        height = 32.dp,
-                        width = 100.dp
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.modules),
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.titleMedium,
-                            textAlign = TextAlign.Start,
-                            modifier = Modifier.fillMaxWidth()
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        WeeklyActivitiesSection(
+                            isLoading = isLoading,
+                            windowSizeClass = windowSizeClass,
+                            weeklyActivities = weeklyActivities,
+                            totalMinutes = 300,
+                            averageMinutes = 45
                         )
                     }
-                }
 
-                items(modules) { module ->
-                    ModuleCard(
-                        isLoading = isLoading,
-                        module = module,
-                        modifier = Modifier.padding(Padding.SMALL.dp),
-                        onModuleClicked = { moduleId -> }
-                    )
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
+                    }
+
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        ShimmerBox(
+                            isLoading = isLoading,
+                            height = 32.dp,
+                            width = 100.dp
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.modules),
+                                color = MaterialTheme.colorScheme.primary,
+                                style = MaterialTheme.typography.titleMedium,
+                                textAlign = TextAlign.Start,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+
+                    items(modules) { module ->
+                        ModuleCard(
+                            isLoading = isLoading,
+                            module = module,
+                            modifier = Modifier.padding(Padding.SMALL.dp),
+                            onModuleClicked = { moduleId -> }
+                        )
+                    }
                 }
             }
-        }
-        if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded) Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
-        ) {
-            CurriculumSection(
-                isLoading = isLoading,
-                curricula = curricula,
-                itemCompletions = itemsCompletion,
-                onCurriculumClicked = { curriculumId -> }
-            )
+            if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded) Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+            ) {
+                CurriculumSection(
+                    isLoading = isLoading,
+                    curricula = curricula,
+                    itemCompletions = itemsCompletion,
+                    onCurriculumClicked = { curriculumId -> }
+                )
+            }
         }
     }
 }
@@ -346,7 +351,7 @@ private fun TitleSection(
 } else {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(Spacing.X_SMALL.dp),
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start
     ) {
         Text(
@@ -358,7 +363,7 @@ private fun TitleSection(
             text = stringResource(Res.string.app_name),
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold,
-            fontSize = MaterialTheme.typography.displayMedium.fontSize.times(0.7f),
+            fontSize = MaterialTheme.typography.displayMedium.fontSize.times(0.5f),
             style = MaterialTheme.typography.displayMedium,
             letterSpacing = 0.5.sp
         )
@@ -704,7 +709,7 @@ private fun CurriculumContent(
 ) = LazyColumn(
     modifier = modifier
         .fillMaxSize()
-        .padding(Padding.MEDIUM.dp),
+        .padding(horizontal = Padding.MEDIUM.dp),
     state = lazyState,
     verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
     horizontalAlignment = Alignment.CenterHorizontally

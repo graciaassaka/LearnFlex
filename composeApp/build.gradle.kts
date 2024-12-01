@@ -46,7 +46,6 @@ kotlin {
                 implementation(compose.components.resources)
                 implementation(compose.components.uiToolingPreview)
                 implementation(libs.compose.navigation)
-                implementation(libs.compose.adaptive.navigation)
                 implementation(libs.koin.core)
                 implementation(libs.koin.compose)
                 implementation(libs.koin.compose.viewmodel)
@@ -84,6 +83,10 @@ kotlin {
                 implementation(libs.androidx.compose.materialIconsExtended)
                 implementation(libs.androidx.compose.animation)
                 implementation(libs.androidx.splash.screen)
+                implementation(libs.compose.adaptive)
+                implementation(libs.compose.adaptive.layout)
+                implementation(libs.compose.adaptive.navigation)
+                implementation(libs.compose.adaptive.navigation.suite)
             }
         }
 
@@ -91,9 +94,6 @@ kotlin {
             resources.srcDirs(commonMain.resources.srcDirs)
             dependencies {
                 implementation(compose.desktop.currentOs)
-                implementation(libs.androidx.foundation.desktop.get().toString()) {
-                    exclude(group = "androidx.compose.foundation", module = "foundation")
-                }
             }
         }
 

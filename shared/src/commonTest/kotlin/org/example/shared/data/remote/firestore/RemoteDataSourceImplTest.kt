@@ -10,7 +10,6 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
-import org.example.shared.data.remote.util.FirestoreCollection
 import org.example.shared.domain.data_source.RemoteDataSource
 import org.example.shared.domain.model.contract.DatabaseRecord
 import org.junit.Assert.assertEquals
@@ -24,7 +23,7 @@ class RemoteDataSourceImplTest {
     private lateinit var documentRef: DocumentReference
     private lateinit var remoteDataSource: RemoteDataSource<TestModel>
 
-    private val testCollection = FirestoreCollection.USERS
+    private val testCollectionPath = "test-collection"
     private val testModel = TestModel(
         id = "test123",
         name = "Test Item"
@@ -36,16 +35,15 @@ class RemoteDataSourceImplTest {
         collectionRef = mockk()
         documentRef = mockk()
 
-        every { firestore.collection(testCollection.value) } returns collectionRef
+        every { firestore.collection(testCollectionPath) } returns collectionRef
         every { collectionRef.document(testModel.id) } returns documentRef
-        every { collectionRef.path } returns testCollection.value
-        every { documentRef.path } returns "${testCollection.value}/${testModel.id}"
+        every { collectionRef.path } returns testCollectionPath
+        every { documentRef.path } returns "${testCollectionPath}/${testModel.id}"
         every { documentRef.parent } returns collectionRef
         every { documentRef.id } returns testModel.id
 
         remoteDataSource = object : RemoteDataSourceImpl<TestModel>(
             firestore = firestore,
-            collection = testCollection,
             serializer = TestModel.serializer()
         ) {}
     }
@@ -56,7 +54,7 @@ class RemoteDataSourceImplTest {
         coEvery { documentRef.set(TestModel.serializer(), testModel) { encodeDefaults = true } } returns Unit
 
         // Act
-        val result = remoteDataSource.create(testModel)
+        val result = remoteDataSource.create(testCollectionPath, testModel)
 
         // Assert
         assertTrue(result.isSuccess)
@@ -70,7 +68,7 @@ class RemoteDataSourceImplTest {
         coEvery { documentRef.set(TestModel.serializer(), testModel) { encodeDefaults = true } } throws exception
 
         // Act
-        val result = remoteDataSource.create(testModel)
+        val result = remoteDataSource.create(testCollectionPath, testModel)
 
         // Assert
         assertTrue(result.isFailure)
@@ -85,7 +83,7 @@ class RemoteDataSourceImplTest {
         coEvery { documentSnapshot.data(TestModel.serializer()) } returns testModel
 
         // Act
-        val result = remoteDataSource.fetch(testModel.id)
+        val result = remoteDataSource.fetch(testCollectionPath, testModel.id)
 
         // Assert
         assertTrue(result.isSuccess)
@@ -99,7 +97,7 @@ class RemoteDataSourceImplTest {
         coEvery { documentRef.get() } throws exception
 
         // Act
-        val result = remoteDataSource.fetch(testModel.id)
+        val result = remoteDataSource.fetch(testCollectionPath, testModel.id)
 
         // Assert
         assertTrue(result.isFailure)
@@ -112,7 +110,7 @@ class RemoteDataSourceImplTest {
         coEvery { documentRef.delete() } returns Unit
 
         // Act
-        val result = remoteDataSource.delete(testModel.id)
+        val result = remoteDataSource.delete(testCollectionPath, testModel.id)
 
         // Assert
         assertTrue(result.isSuccess)
@@ -126,7 +124,7 @@ class RemoteDataSourceImplTest {
         coEvery { documentRef.delete() } throws exception
 
         // Act
-        val result = remoteDataSource.delete(testModel.id)
+        val result = remoteDataSource.delete(testCollectionPath, testModel.id)
 
         // Assert
         assertTrue(result.isFailure)

@@ -1,5 +1,6 @@
 package org.example.composeApp
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
@@ -23,6 +24,7 @@ private fun DesktopDefaultPreview() {
         CustomScaffold(
             currentDestination = AppDestination.Dashboard,
             onDestinationSelected = {},
+            snackbarHostState = SnackbarHostState(),
             enabled = true
         ) {
             DashboardScreen(WindowSizeClass.calculateFromSize(DpSize(1920.dp, 1080.dp)))
@@ -42,6 +44,7 @@ private fun TabletDefaultPreview() {
         CustomScaffold(
             currentDestination = AppDestination.Dashboard,
             onDestinationSelected = {},
+            snackbarHostState = SnackbarHostState(),
             enabled = true
         ) {
             DashboardScreen(WindowSizeClass.calculateFromSize(DpSize(800.dp, 1280.dp)))
@@ -61,6 +64,7 @@ private fun PhoneDefaultPreview() {
         CustomScaffold(
             currentDestination = AppDestination.Dashboard,
             onDestinationSelected = {},
+            snackbarHostState = SnackbarHostState(),
             enabled = true
         ) {
             DashboardScreen(WindowSizeClass.calculateFromSize(DpSize(400.dp, 800.dp)))
