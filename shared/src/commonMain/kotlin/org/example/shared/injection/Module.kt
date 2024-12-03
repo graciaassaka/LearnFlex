@@ -10,9 +10,11 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.SharingStarted
 import org.example.shared.data.local.dao.CurriculumLocalDao
+import org.example.shared.data.local.dao.LessonLocalDao
 import org.example.shared.data.local.dao.UserProfileDao
 import org.example.shared.data.local.database.LearnFlexDatabase
 import org.example.shared.data.local.entity.CurriculumEntity
+import org.example.shared.data.local.entity.LessonEntity
 import org.example.shared.data.local.entity.UserProfileEntity
 import org.example.shared.data.remote.assistant.OpenAIAssistantClient
 import org.example.shared.data.remote.assistant.StyleQuizClientImpl
@@ -25,6 +27,7 @@ import org.example.shared.data.remote.firestore.FirestorePathBuilder
 import org.example.shared.data.remote.util.HttpClientConfig
 import org.example.shared.data.repository.component.BatchRepositoryComponent
 import org.example.shared.data.repository.component.CrudRepositoryComponent
+import org.example.shared.data.repository.component.QueryByScoreRepositoryComponent
 import org.example.shared.data.repository.component.QueryByStatusRepositoryComponent
 import org.example.shared.data.repository.util.QueryStrategies
 import org.example.shared.data.repository.util.RepositoryConfig
@@ -35,14 +38,17 @@ import org.example.shared.data.util.OpenAIConstants
 import org.example.shared.domain.client.*
 import org.example.shared.domain.dao.ExtendedRemoteDao
 import org.example.shared.domain.dao.RemoteDao
-import org.example.shared.domain.data_source.PathBuilder
+import org.example.shared.domain.dao.util.PathBuilder
 import org.example.shared.domain.model.Curriculum
+import org.example.shared.domain.model.Lesson
 import org.example.shared.domain.model.UserProfile
 import org.example.shared.domain.repository.CurriculumRepository
+import org.example.shared.domain.repository.LessonRepository
 import org.example.shared.domain.repository.UserProfileRepository
 import org.example.shared.domain.repository.util.ModelMapper
 import org.example.shared.domain.storage_operations.BatchOperations
 import org.example.shared.domain.storage_operations.CrudOperations
+import org.example.shared.domain.storage_operations.QueryByScoreOperation
 import org.example.shared.domain.storage_operations.QueryByStatusOperation
 import org.example.shared.domain.sync.SyncHandler
 import org.example.shared.domain.sync.SyncManager
@@ -65,8 +71,8 @@ expect fun getFirebaseStorageServiceModule(): Module
 
 // Qualifier constants
 private const val USER_PROFILE_SCOPE = "user_profile_scope"
-
 private const val CURRICULUM_SCOPE = "curriculum_scope"
+private const val LESSON_SCOPE = "lesson_scope"
 
 val commonModule = module {
     // Core Dependencies
@@ -138,6 +144,10 @@ val commonModule = module {
         get<LearnFlexDatabase>().curriculumDao()
     }
 
+    single<LessonLocalDao>(named(LESSON_SCOPE)) {
+        get<LearnFlexDatabase>().lessonDao()
+    }
+
     // Remote DAOs
     single<RemoteDao<UserProfile>> {
         object : FirestoreBaseDao<UserProfile>(
@@ -150,6 +160,13 @@ val commonModule = module {
         object : FirestoreExtendedDao<Curriculum>(
             firestore = get(),
             serializer = Curriculum.serializer()
+        ) {}
+    }
+
+    single<ExtendedRemoteDao<Lesson>>(named(LESSON_SCOPE)) {
+        object : FirestoreExtendedDao<Lesson>(
+            firestore = get(),
+            serializer = Lesson.serializer()
         ) {}
     }
 
@@ -179,6 +196,19 @@ val commonModule = module {
         }
     }
 
+    single<ModelMapper<Lesson, LessonEntity>>(named(LESSON_SCOPE)) {
+        object : ModelMapper<Lesson, LessonEntity> {
+            override fun toModel(entity: LessonEntity) = with(entity) {
+                Lesson(id, imageUrl, title, description, index, quizScore, createdAt, lastUpdated)
+            }
+
+            override fun toEntity(model: Lesson, parentId: String?) = with(model) {
+                require(parentId != null) { "Parent ID must not be null for LessonEntity" }
+                LessonEntity(id, parentId, imageUrl, title, description, index, quizScore, createdAt, lastUpdated)
+            }
+        }
+    }
+
     // Sync Handlers
     single<SyncHandler<UserProfile>>(named(USER_PROFILE_SCOPE)) {
         object : SyncHandler<UserProfile> by SyncHandlerDelegate(
@@ -193,6 +223,14 @@ val commonModule = module {
             remoteDao = get(named(CURRICULUM_SCOPE)),
             localDao = get<CurriculumLocalDao>(named(CURRICULUM_SCOPE)),
             modelMapper = get(named(CURRICULUM_SCOPE))
+        ) {}
+    }
+
+    single<SyncHandler<Lesson>>(named(LESSON_SCOPE)) {
+        object : SyncHandler<Lesson> by SyncHandlerDelegate(
+            remoteDao = get(named(LESSON_SCOPE)),
+            localDao = get<LessonLocalDao>(named(LESSON_SCOPE)),
+            modelMapper = get(named(LESSON_SCOPE))
         ) {}
     }
 
@@ -211,6 +249,16 @@ val commonModule = module {
         SyncManagerImpl(
             syncScope = get(),
             syncHandler = get<SyncHandler<Curriculum>>(named(CURRICULUM_SCOPE)),
+            maxRetries = 3
+        ).also { syncManager ->
+            Runtime.getRuntime().addShutdownHook(Thread { syncManager.close() })
+        }
+    }
+
+    single<SyncManager<Lesson>>(named(LESSON_SCOPE)) {
+        SyncManagerImpl(
+            syncScope = get(),
+            syncHandler = get<SyncHandler<Lesson>>(named(LESSON_SCOPE)),
             maxRetries = 3
         ).also { syncManager ->
             Runtime.getRuntime().addShutdownHook(Thread { syncManager.close() })
@@ -254,6 +302,30 @@ val commonModule = module {
         )
     }
 
+    single<RepositoryConfig<Lesson, LessonEntity>>(named(LESSON_SCOPE)) {
+        RepositoryConfig(
+            remoteDao = get(named(LESSON_SCOPE)),
+            localDao = get<LessonLocalDao>(named(LESSON_SCOPE)),
+            modelMapper = get(named(LESSON_SCOPE)),
+            syncManager = get(named(LESSON_SCOPE)),
+            queryStrategies = QueryStrategies<LessonEntity>().apply {
+                withGetById { id ->
+                    get<LessonLocalDao>(named(LESSON_SCOPE)).get(id)
+                }
+                withGetAll { moduleId ->
+                    requireNotNull(moduleId) { "Module ID must not be null for LessonEntity" }
+                    get<LessonLocalDao>(named(LESSON_SCOPE)).getLessonsByModuleId(moduleId)
+                }
+                withCustomQuery(
+                    QueryByScoreRepositoryComponent.SCORE_STRATEGY_KEY,
+                    QueryByScoreRepositoryComponent.ScoreQueryStrategy { moduleId, score ->
+                        get<LessonLocalDao>(named(LESSON_SCOPE)).getLessonIdsByMinQuizScore(moduleId, score)
+                    }
+                )
+            }
+        )
+    }
+
     // Repositories
     single<UserProfileRepository>(named(USER_PROFILE_SCOPE)) {
         object :
@@ -274,6 +346,20 @@ val commonModule = module {
             ),
             BatchOperations<Curriculum> by BatchRepositoryComponent(
                 get<RepositoryConfig<Curriculum, CurriculumEntity>>((named(CURRICULUM_SCOPE)))
+            ) {}
+    }
+
+    single<LessonRepository>(named(LESSON_SCOPE)) {
+        object :
+            LessonRepository,
+            CrudOperations<Lesson> by CrudRepositoryComponent(
+                get<RepositoryConfig<Lesson, LessonEntity>>((named(LESSON_SCOPE)))
+            ),
+            QueryByScoreOperation<Lesson> by QueryByScoreRepositoryComponent(
+                get<RepositoryConfig<Lesson, LessonEntity>>((named(LESSON_SCOPE)))
+            ),
+            BatchOperations<Lesson> by BatchRepositoryComponent(
+                get<RepositoryConfig<Lesson, LessonEntity>>((named(LESSON_SCOPE)))
             ) {}
     }
 
@@ -303,6 +389,14 @@ val commonModule = module {
     singleOf(::DeleteProfilePictureUseCase)
     singleOf(::GetStyleQuestionnaireUseCase)
     singleOf(::GetStyleResultUseCase)
+
+    // Use Cases - Curriculum
+    singleOf(::UploadCurriculumUseCase)
+    singleOf(::UpdateCurriculumUseCase)
+    singleOf(::DeleteCurriculumUseCase)
+    singleOf(::GetCurriculumUseCase)
+    singleOf(::GetAllCurriculaUseCase)
+    singleOf(::GetCurriculaByStatusUseCase)
 
     // ViewModels
     viewModel { BaseViewModel(dispatcher = get()) }

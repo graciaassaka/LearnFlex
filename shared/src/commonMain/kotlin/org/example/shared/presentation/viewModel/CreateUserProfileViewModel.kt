@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.constant.SyncStatus
-import org.example.shared.domain.data_source.PathBuilder
+import org.example.shared.domain.dao.util.PathBuilder
 import org.example.shared.domain.model.*
 import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.use_case.*

@@ -6,4 +6,5 @@ import org.example.shared.domain.storage_operations.CrudOperations
 /**
  * Repository for user profiles.
  */
-interface UserProfileRepository : CrudOperations<UserProfile>
+interface UserProfileRepository :
+    CrudOperations<UserProfile>

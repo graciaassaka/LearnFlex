@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.constant.SyncStatus
-import org.example.shared.domain.data_source.PathBuilder
+import org.example.shared.domain.dao.util.PathBuilder
 import org.example.shared.domain.model.*
 import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.use_case.*
@@ -363,7 +363,6 @@ class CreateUserProfileViewModelTest {
     fun `onCreateProfile should show successMessage when createUserProfile returns success`() = runTest {
         // Given
         val successMessage = "Profile created successfully"
-        val path = "users/test-path"
         val uiEvents = mutableListOf<UIEvent>()
         val job = launch {
             viewModel.uiEvent.toList(uiEvents)
@@ -388,7 +387,6 @@ class CreateUserProfileViewModelTest {
     fun `onCreateProfile should show error message when createUserProfile returns failure`() = runTest {
         // Given
         val errorMessage = "Failed to create profile"
-        val path = "users/test-path"
         val uiEvents = mutableListOf<UIEvent>()
         val job = launch {
             viewModel.uiEvent.toList(uiEvents)
