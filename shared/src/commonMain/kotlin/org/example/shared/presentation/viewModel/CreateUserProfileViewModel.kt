@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.constant.SyncStatus
+import org.example.shared.domain.data_source.PathBuilder
 import org.example.shared.domain.model.*
 import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.use_case.*
@@ -26,6 +27,7 @@ import org.example.shared.presentation.util.validation.ValidationResult
  * @param getStyleQuestionnaireUseCase The use case to get the style questionnaire.
  * @param getStyleResultUseCase The use case to get the style result.
  * @param createUserStyleUseCase The use case to set the user style.
+ * @param pathBuilder The path builder for user profiles.
  * @param syncManager The sync manager for user profiles.
  * @param dispatcher The coroutine dispatcher to run the use cases on.
  * @param sharingStarted The sharing strategy for the state flow.
@@ -38,6 +40,7 @@ class CreateUserProfileViewModel(
     private val getStyleQuestionnaireUseCase: GetStyleQuestionnaireUseCase,
     private val getStyleResultUseCase: GetStyleResultUseCase,
     private val updateUserProfileUseCase: UpdateUserProfileUseCase,
+    private val pathBuilder: PathBuilder,
     private val syncManager: SyncManager<UserProfile>,
     private val dispatcher: CoroutineDispatcher,
     sharingStarted: SharingStarted
@@ -178,7 +181,7 @@ class CreateUserProfileViewModel(
 
         if (value.usernameError.isNullOrBlank()) viewModelScope.launch(dispatcher) {
             createUserProfileUseCase(
-                UserProfile(
+                userProfile = UserProfile(
                     id = value.userId,
                     email = value.email,
                     username = value.username,
@@ -187,7 +190,8 @@ class CreateUserProfileViewModel(
                     learningStyle = LearningStyle(),
                     createdAt = System.currentTimeMillis(),
                     lastUpdated = System.currentTimeMillis()
-                )
+                ),
+                path = pathBuilder.buildUserPath()
             ).onSuccess {
                 showSnackbar(successMessage, SnackbarType.Success)
                 update { it.copy(isProfileCreated = true) }
@@ -261,7 +265,7 @@ class CreateUserProfileViewModel(
             update { it.copy(isLoading = true) }
             viewModelScope.launch(dispatcher) {
                 updateUserProfileUseCase(
-                    UserProfile(
+                    userProfile = UserProfile(
                         id = value.userId,
                         email = value.email,
                         username = value.username,
@@ -270,7 +274,8 @@ class CreateUserProfileViewModel(
                         learningStyle = value.learningStyle!!,
                         createdAt = System.currentTimeMillis(),
                         lastUpdated = System.currentTimeMillis()
-                    )
+                    ),
+                    path = pathBuilder.buildUserPath()
                 ).onSuccess {
                     showSnackbar(successMessage, SnackbarType.Success)
                     navigate(Route.Dashboard, true)

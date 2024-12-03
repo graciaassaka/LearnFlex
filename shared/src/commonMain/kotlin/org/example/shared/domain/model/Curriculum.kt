@@ -2,7 +2,8 @@ package org.example.shared.domain.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.example.shared.domain.model.contract.DatabaseRecord
+import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.model.definition.StatusQueryable
 
 /**
  * Data class representing a curriculum, which includes a syllabus,
@@ -23,11 +24,11 @@ open class Curriculum(
     open val description: String,
 
     @SerialName("status")
-    open val status: String,
+    override val status: String,
 
     @SerialName("created_at")
     override val createdAt: Long,
 
     @SerialName("last_updated")
     override val lastUpdated: Long
-) : DatabaseRecord
+) : DatabaseRecord, StatusQueryable

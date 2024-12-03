@@ -2,10 +2,11 @@ package org.example.shared.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 import org.example.shared.data.local.entity.ModuleEntity
 
 @Dao
-abstract class ModuleDao : ExtendedDao<ModuleEntity>() {
+abstract class ModuleLocalDao : ExtendedLocalDao<ModuleEntity>() {
 
     @Query(
         """
@@ -13,7 +14,14 @@ abstract class ModuleDao : ExtendedDao<ModuleEntity>() {
             WHERE id = :id
         """
     )
-    abstract suspend fun get(id: String): ModuleEntity?
+    abstract fun get(id: String): Flow<ModuleEntity?>
+
+    @Query(
+        """
+            SELECT * FROM module
+        """
+    )
+    abstract fun getAll(): Flow<List<ModuleEntity>>
 
     @Query(
         """
@@ -21,7 +29,7 @@ abstract class ModuleDao : ExtendedDao<ModuleEntity>() {
             WHERE curriculum_id = :curriculumId
         """
     )
-    abstract suspend fun getModulesByCurriculumId(curriculumId: String): List<ModuleEntity>
+    abstract fun getModulesByCurriculumId(curriculumId: String): Flow<List<ModuleEntity>>
 
     @Query(
         """
@@ -29,5 +37,5 @@ abstract class ModuleDao : ExtendedDao<ModuleEntity>() {
             WHERE curriculum_id = :curriculumId AND quiz_score >= :minScore
         """
     )
-    abstract suspend fun getModuleIdsByMinQuizScore(curriculumId: String, minScore: Int): List<String>
+    abstract fun getModuleIdsByMinQuizScore(curriculumId: String, minScore: Int): Flow<List<String>>
 }

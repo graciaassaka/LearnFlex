@@ -3,6 +3,7 @@ package org.example.shared.data.local
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.example.shared.data.local.dao.*
 import org.example.shared.data.local.database.LearnFlexDatabase
@@ -26,11 +27,11 @@ import kotlin.test.assertNull
 class DatabaseTest {
     private lateinit var database: LearnFlexDatabase
     private lateinit var userProfileDao: UserProfileDao
-    private lateinit var curriculumDao: CurriculumDao
-    private lateinit var moduleDao: ModuleDao
-    private lateinit var lessonDao: LessonDao
-    private lateinit var sectionDao: SectionDao
-    private lateinit var sessionDao: SessionDao
+    private lateinit var curriculumDao: CurriculumLocalDao
+    private lateinit var moduleDao: ModuleLocalDao
+    private lateinit var lessonDao: LessonLocalDao
+    private lateinit var sectionDao: SectionLocalDao
+    private lateinit var sessionDao: SessionLocalDao
 
     @Before
     fun setup() {
@@ -58,7 +59,7 @@ class DatabaseTest {
     fun insertAndRetrieveUserProfile() = runTest {
         // Then
         userProfileDao.insert(userProfile)
-        val retrieved = userProfileDao.get(userProfile.id)
+        val retrieved = userProfileDao.get(userProfile.id).first()
 
         // Assert
         assertNotNull(retrieved)
@@ -77,7 +78,7 @@ class DatabaseTest {
         // Then
         userProfileDao.insert(userProfile)
         userProfileDao.update(updatedProfile)
-        val retrieved = userProfileDao.get(userProfile.id)
+        val retrieved = userProfileDao.get(userProfile.id).first()
 
         // Assert
         assertNotNull(retrieved)
@@ -89,7 +90,7 @@ class DatabaseTest {
         // Then
         userProfileDao.insert(userProfile)
         userProfileDao.delete(userProfile)
-        val retrieved = userProfileDao.get(userProfile.id)
+        val retrieved = userProfileDao.get(userProfile.id).first()
 
         // Assert
         assertNull(retrieved)
@@ -98,9 +99,10 @@ class DatabaseTest {
     @Test
     fun insertAndRetrieveCurriculumByStatus() = runTest {
         // Then
-        curriculumDao.insertAll(*curricula)
-        val activeRetrieved = curriculumDao.getCurriculumsByStatus("active")
-        val inactiveRetrieved = curriculumDao.getCurriculumsByStatus("inactive")
+        userProfileDao.insert(userProfile)
+        curriculumDao.insertAll(curricula)
+        val activeRetrieved = curriculumDao.getCurriculaByStatus("active").first()
+        val inactiveRetrieved = curriculumDao.getCurriculaByStatus("inactive").first()
 
         // Assert
         assertEquals(activeRetrieved, curricula.filter { it.status == "active" })
@@ -108,20 +110,9 @@ class DatabaseTest {
     }
 
     @Test
-    fun countCurriculaByStatus() = runTest {
-        // Then
-        curriculumDao.insertAll(*curricula)
-        val activeCount = curriculumDao.countCurriculumsByStatus("active")
-        val inactiveCount = curriculumDao.countCurriculumsByStatus("inactive")
-
-        // Assert
-        assertEquals(activeCount, curricula.count { it.status == "active" })
-        assertEquals(inactiveCount, curricula.count { it.status == "inactive" })
-    }
-
-    @Test
     fun deleteAndRetrieveCurriculum() = runTest {
         // Then
+        userProfileDao.insert(userProfile)
         curriculumDao.insert(curricula.first())
         curriculumDao.delete(curricula.first())
         val retrieved = curriculumDao.get(curricula.first().id)
@@ -139,11 +130,12 @@ class DatabaseTest {
             syllabus = "Updated Syllabus",
             status = "inactive",
         )
+        userProfileDao.insert(userProfile)
 
         // Then
         curriculumDao.insert(curricula.first())
         curriculumDao.update(updatedCurriculum)
-        val retrieved = curriculumDao.get(curricula.first().id)
+        val retrieved = curriculumDao.get(curricula.first().id).first()
 
         // Assert
         assertNotNull(retrieved)
@@ -153,11 +145,12 @@ class DatabaseTest {
     @Test
     fun insertAndRetrieveModule() = runTest {
         // Given
+        userProfileDao.insert(userProfile)
         curriculumDao.insert(curricula.first())
 
         // Then
         moduleDao.insert(modules.first())
-        val retrieved = moduleDao.get(modules.first().id)
+        val retrieved = moduleDao.get(modules.first().id).first()
 
         // Assert
         assertNotNull(retrieved)
@@ -167,11 +160,12 @@ class DatabaseTest {
     @Test
     fun getModulesByCurriculumId() = runTest {
         // Given
-        curriculumDao.insertAll(*curricula)
-        moduleDao.insertAll(*modules)
+        userProfileDao.insert(userProfile)
+        curriculumDao.insertAll(curricula)
+        moduleDao.insertAll(modules)
 
         // Then
-        val retrieved = moduleDao.getModulesByCurriculumId(curricula.first().id)
+        val retrieved = moduleDao.getModulesByCurriculumId(curricula.first().id).first()
 
         // Assert
         assertEquals(retrieved, modules.filter { it.curriculumId == curricula.first().id })
@@ -180,27 +174,30 @@ class DatabaseTest {
     @Test
     fun getModuleIdsByMinQuizScore() = runTest {
         // Given
-        curriculumDao.insertAll(*curricula)
-        moduleDao.insertAll(*modules)
+        userProfileDao.insert(userProfile)
+        curriculumDao.insertAll(curricula)
+        moduleDao.insertAll(modules)
 
         // Then
-        val retrieved = moduleDao.getModuleIdsByMinQuizScore(curricula.first().id, 90)
+        val retrieved = moduleDao.getModuleIdsByMinQuizScore(curricula.first().id, 90).first()
 
         // Assert
         assertEquals(
             retrieved,
-            modules.filter { it.curriculumId == curricula.first().id && it.quizScore >= 90 }.map { it.id })
+            modules.filter { it.curriculumId == curricula.first().id && it.quizScore >= 90 }.map { it.id }
+        )
     }
 
     @Test
     fun insertAndRetrieveLesson() = runTest {
         // Given
+        userProfileDao.insert(userProfile)
         curriculumDao.insert(curricula.first())
         moduleDao.insert(modules.first())
 
         // Then
         lessonDao.insert(lessons.first())
-        val retrieved = lessonDao.get(lessons.first().id)
+        val retrieved = lessonDao.get(lessons.first().id).first()
 
         // Assert
         assertNotNull(retrieved)
@@ -210,12 +207,13 @@ class DatabaseTest {
     @Test
     fun getLessonsByModuleId() = runTest {
         // Given
-        curriculumDao.insertAll(*curricula)
-        moduleDao.insertAll(*modules)
-        lessonDao.insertAll(*lessons)
+        userProfileDao.insert(userProfile)
+        curriculumDao.insertAll(curricula)
+        moduleDao.insertAll(modules)
+        lessonDao.insertAll(lessons)
 
         // Then
-        val retrieved = lessonDao.getLessonsByModuleId(modules.first().id)
+        val retrieved = lessonDao.getLessonsByModuleId(modules.first().id).first()
 
         // Assert
         assertEquals(retrieved, lessons.filter { it.moduleId == modules.first().id })
@@ -224,29 +222,32 @@ class DatabaseTest {
     @Test
     fun getLessonIdsByMinQuizScore() = runTest {
         // Given
-        curriculumDao.insertAll(*curricula)
-        moduleDao.insertAll(*modules)
-        lessonDao.insertAll(*lessons)
+        userProfileDao.insert(userProfile)
+        curriculumDao.insertAll(curricula)
+        moduleDao.insertAll(modules)
+        lessonDao.insertAll(lessons)
 
         // Then
-        val retrieved = lessonDao.getLessonIdsByMinQuizScore(modules.first().id, 85)
+        val retrieved = lessonDao.getLessonIdsByMinQuizScore(modules.first().id, 85).first()
 
         // Assert
         assertEquals(
             retrieved,
-            lessons.filter { it.moduleId == modules.first().id && it.quizScore >= 85 }.map { it.id })
+            lessons.filter { it.moduleId == modules.first().id && it.quizScore >= 85 }.map { it.id }
+        )
     }
 
     @Test
     fun insertAndRetrieveSection() = runTest {
         // Given
+        userProfileDao.insert(userProfile)
         curriculumDao.insert(curricula.first())
         moduleDao.insert(modules.first())
         lessonDao.insert(lessons.first())
 
         // Then
         sectionDao.insert(sections.first())
-        val retrieved = sectionDao.get(sections.first().id)
+        val retrieved = sectionDao.get(sections.first().id).first()
 
         // Assert
         assertNotNull(retrieved)
@@ -256,13 +257,14 @@ class DatabaseTest {
     @Test
     fun getSectionsByLessonId() = runTest {
         // Given
-        curriculumDao.insertAll(*curricula)
-        moduleDao.insertAll(*modules)
-        lessonDao.insertAll(*lessons)
-        sectionDao.insertAll(*sections)
+        userProfileDao.insert(userProfile)
+        curriculumDao.insertAll(curricula)
+        moduleDao.insertAll(modules)
+        lessonDao.insertAll(lessons)
+        sectionDao.insertAll(sections)
 
         // Then
-        val retrieved = sectionDao.getSectionsByLessonId(lessons.first().id)
+        val retrieved = sectionDao.getSectionsByLessonId(lessons.first().id).first()
 
         // Assert
         assertEquals(retrieved, sections.filter { it.lessonId == lessons.first().id })
@@ -271,13 +273,14 @@ class DatabaseTest {
     @Test
     fun getSectionIdsByMinQuizScore() = runTest {
         // Given
-        curriculumDao.insertAll(*curricula)
-        moduleDao.insertAll(*modules)
-        lessonDao.insertAll(*lessons)
-        sectionDao.insertAll(*sections)
+        userProfileDao.insert(userProfile)
+        curriculumDao.insertAll(curricula)
+        moduleDao.insertAll(modules)
+        lessonDao.insertAll(lessons)
+        sectionDao.insertAll(sections)
 
         // Then
-        val retrieved = sectionDao.getSectionIdsByMinQuizScore(lessons.first().id, 85)
+        val retrieved = sectionDao.getSectionIdsByMinQuizScore(lessons.first().id, 85).first()
 
         // Assert
         assertEquals(
@@ -291,6 +294,7 @@ class DatabaseTest {
     @Test
     fun insertAndRetrieveSession() = runTest {
         // Given
+        userProfileDao.insert(userProfile)
         curriculumDao.insert(curricula.first())
         moduleDao.insert(modules.first())
         lessonDao.insert(lessons.first())
@@ -298,7 +302,7 @@ class DatabaseTest {
         // Then
         sectionDao.insert(sections.first())
         sessionDao.insert(sessions.first())
-        val retrieved = sessionDao.get(sessions.first().id)
+        val retrieved = sessionDao.get(sessions.first().id).first()
 
         // Assert
         assertNotNull(retrieved)
@@ -308,15 +312,16 @@ class DatabaseTest {
     @Test
     fun getSessionsByDateRange() = runTest {
         // Given
-        curriculumDao.insertAll(*curricula)
-        moduleDao.insertAll(*modules)
-        lessonDao.insertAll(*lessons)
-        sessionDao.insertAll(*sessions)
+        userProfileDao.insert(userProfile)
+        curriculumDao.insertAll(curricula)
+        moduleDao.insertAll(modules)
+        lessonDao.insertAll(lessons)
+        sessionDao.insertAll(sessions)
 
         // Then
         val start = System.currentTimeMillis()
         val end = start + 7200000
-        val retrieved = sessionDao.getSessionsByDateRange(start, end)
+        val retrieved = sessionDao.getSessionsByDateRange(start, end).first()
 
         // Assert
         assertEquals(retrieved, sessions.filter { it.createdAt in start..end })
@@ -345,9 +350,10 @@ class DatabaseTest {
             lastUpdated = System.currentTimeMillis()
         )
 
-        private val curricula = arrayOf(
+        private val curricula = listOf(
             CurriculumEntity(
                 id = "curriculum_test_id",
+                userId = userProfile.id,
                 imageUrl = "test_image_url.jpg",
                 syllabus = "Test Syllabus",
                 description = "Test Description",
@@ -357,6 +363,7 @@ class DatabaseTest {
             ),
             CurriculumEntity(
                 id = "curriculum_test_id_2",
+                userId = userProfile.id,
                 imageUrl = "test_image_url_2.jpg",
                 syllabus = "Test Syllabus 2",
                 description = "Test Description 2",
@@ -365,7 +372,7 @@ class DatabaseTest {
                 lastUpdated = System.currentTimeMillis()
             )
         )
-        private val modules = arrayOf(
+        private val modules = listOf(
             ModuleEntity(
                 id = "module_test_id_1",
                 curriculumId = curricula.first().id,
@@ -390,7 +397,7 @@ class DatabaseTest {
             )
         )
 
-        private val lessons = arrayOf(
+        private val lessons = listOf(
             LessonEntity(
                 id = "lesson1",
                 moduleId = modules.first().id,
@@ -415,7 +422,7 @@ class DatabaseTest {
             )
         )
 
-        private val sections = arrayOf(
+        private val sections = listOf(
             SectionEntity(
                 id = "section1",
                 lessonId = lessons.first().id,
@@ -442,7 +449,7 @@ class DatabaseTest {
             )
         )
 
-        private val sessions = arrayOf(
+        private val sessions = listOf(
             SessionEntity(
                 id = "session1",
                 lessonId = lessons.first().id,

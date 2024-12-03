@@ -2,17 +2,18 @@ package org.example.shared.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 import org.example.shared.data.local.entity.SessionEntity
 
 @Dao
-abstract class SessionDao : ExtendedDao<SessionEntity>() {
+abstract class SessionLocalDao : ExtendedLocalDao<SessionEntity>() {
     @Query(
         """
         SELECT * FROM session
         WHERE id = :id
         """
     )
-    abstract suspend fun get(id: String): SessionEntity?
+    abstract fun get(id: String): Flow<SessionEntity?>
 
     @Query(
         """
@@ -20,8 +21,8 @@ abstract class SessionDao : ExtendedDao<SessionEntity>() {
         WHERE created_at >= :startDate AND end_time_ms <= :endDate
         """
     )
-    abstract suspend fun getSessionsByDateRange(
+    abstract fun getSessionsByDateRange(
         startDate: Long,
         endDate: Long
-    ): List<SessionEntity>
+    ): Flow<List<SessionEntity>>
 }

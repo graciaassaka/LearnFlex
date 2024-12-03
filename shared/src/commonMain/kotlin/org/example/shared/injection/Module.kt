@@ -9,31 +9,43 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.SharingStarted
+import org.example.shared.data.local.dao.CurriculumLocalDao
 import org.example.shared.data.local.dao.UserProfileDao
 import org.example.shared.data.local.database.LearnFlexDatabase
+import org.example.shared.data.local.entity.CurriculumEntity
 import org.example.shared.data.local.entity.UserProfileEntity
 import org.example.shared.data.remote.assistant.OpenAIAssistantClient
 import org.example.shared.data.remote.assistant.StyleQuizClientImpl
 import org.example.shared.data.remote.custom_search.GoogleImageSearchClient
 import org.example.shared.data.remote.firebase.FirebaseAuthClient
 import org.example.shared.data.remote.firebase.FirebaseStorageClient
+import org.example.shared.data.remote.firestore.FirestoreBaseDao
+import org.example.shared.data.remote.firestore.FirestoreExtendedDao
 import org.example.shared.data.remote.firestore.FirestorePathBuilder
-import org.example.shared.data.remote.firestore.RemoteDataSourceImpl
 import org.example.shared.data.remote.util.HttpClientConfig
-import org.example.shared.data.repository.RepositoryImpl
-import org.example.shared.data.repository.util.ModelMapper
+import org.example.shared.data.repository.component.BatchRepositoryComponent
+import org.example.shared.data.repository.component.CrudRepositoryComponent
+import org.example.shared.data.repository.component.QueryByStatusRepositoryComponent
+import org.example.shared.data.repository.util.QueryStrategies
+import org.example.shared.data.repository.util.RepositoryConfig
 import org.example.shared.data.sync.handler.SyncHandlerDelegate
 import org.example.shared.data.sync.manager.SyncManagerImpl
 import org.example.shared.data.util.GoogleConstants
 import org.example.shared.data.util.OpenAIConstants
 import org.example.shared.domain.client.*
+import org.example.shared.domain.dao.ExtendedRemoteDao
+import org.example.shared.domain.dao.RemoteDao
 import org.example.shared.domain.data_source.PathBuilder
-import org.example.shared.domain.data_source.RemoteDataSource
+import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.UserProfile
-import org.example.shared.domain.repository.Repository
+import org.example.shared.domain.repository.CurriculumRepository
+import org.example.shared.domain.repository.UserProfileRepository
+import org.example.shared.domain.repository.util.ModelMapper
+import org.example.shared.domain.storage_operations.BatchOperations
+import org.example.shared.domain.storage_operations.CrudOperations
+import org.example.shared.domain.storage_operations.QueryByStatusOperation
 import org.example.shared.domain.sync.SyncHandler
 import org.example.shared.domain.sync.SyncManager
-import org.example.shared.domain.sync.SyncOperation
 import org.example.shared.domain.use_case.*
 import org.example.shared.presentation.viewModel.AuthViewModel
 import org.example.shared.presentation.viewModel.BaseViewModel
@@ -53,6 +65,8 @@ expect fun getFirebaseStorageServiceModule(): Module
 
 // Qualifier constants
 private const val USER_PROFILE_SCOPE = "user_profile_scope"
+
+private const val CURRICULUM_SCOPE = "curriculum_scope"
 
 val commonModule = module {
     // Core Dependencies
@@ -120,11 +134,22 @@ val commonModule = module {
         get<LearnFlexDatabase>().userProfileDao()
     }
 
-    // Remote Data Sources
-    single<RemoteDataSource<UserProfile>>(named(USER_PROFILE_SCOPE)) {
-        object : RemoteDataSourceImpl<UserProfile>(
+    single<CurriculumLocalDao>(named(CURRICULUM_SCOPE)) {
+        get<LearnFlexDatabase>().curriculumDao()
+    }
+
+    // Remote DAOs
+    single<RemoteDao<UserProfile>> {
+        object : FirestoreBaseDao<UserProfile>(
             firestore = get(),
             serializer = UserProfile.serializer()
+        ) {}
+    }
+
+    single<ExtendedRemoteDao<Curriculum>>(named(CURRICULUM_SCOPE)) {
+        object : FirestoreExtendedDao<Curriculum>(
+            firestore = get(),
+            serializer = Curriculum.serializer()
         ) {}
     }
 
@@ -135,8 +160,21 @@ val commonModule = module {
                 UserProfile(id, username, email, photoUrl, preferences, learningStyle, createdAt, lastUpdated)
             }
 
-            override fun toEntity(model: UserProfile) = with(model) {
+            override fun toEntity(model: UserProfile, parentId: String?) = with(model) {
                 UserProfileEntity(id, username, email, photoUrl, preferences, learningStyle, createdAt, lastUpdated)
+            }
+        }
+    }
+
+    single<ModelMapper<Curriculum, CurriculumEntity>>(named(CURRICULUM_SCOPE)) {
+        object : ModelMapper<Curriculum, CurriculumEntity> {
+            override fun toModel(entity: CurriculumEntity) = with(entity) {
+                Curriculum(id, imageUrl, syllabus, description, status, createdAt, lastUpdated)
+            }
+
+            override fun toEntity(model: Curriculum, parentId: String?) = with(model) {
+                require(parentId != null) { "Parent ID must not be null for CurriculumEntity" }
+                CurriculumEntity(id, parentId, imageUrl, syllabus, description, status, createdAt, lastUpdated)
             }
         }
     }
@@ -144,9 +182,17 @@ val commonModule = module {
     // Sync Handlers
     single<SyncHandler<UserProfile>>(named(USER_PROFILE_SCOPE)) {
         object : SyncHandler<UserProfile> by SyncHandlerDelegate(
-            remoteDataSource = get(named(USER_PROFILE_SCOPE)),
-            dao = get<UserProfileDao>(named(USER_PROFILE_SCOPE)),
+            remoteDao = get(named(USER_PROFILE_SCOPE)),
+            localDao = get<UserProfileDao>(named(USER_PROFILE_SCOPE)),
             modelMapper = get(named(USER_PROFILE_SCOPE))
+        ) {}
+    }
+
+    single<SyncHandler<Curriculum>>(named(CURRICULUM_SCOPE)) {
+        object : SyncHandler<Curriculum> by SyncHandlerDelegate(
+            remoteDao = get(named(CURRICULUM_SCOPE)),
+            localDao = get<CurriculumLocalDao>(named(CURRICULUM_SCOPE)),
+            modelMapper = get(named(CURRICULUM_SCOPE))
         ) {}
     }
 
@@ -161,16 +207,74 @@ val commonModule = module {
         }
     }
 
-    // Repositories
-    single<Repository<UserProfile>>(named(USER_PROFILE_SCOPE)) {
-        object : RepositoryImpl<UserProfile, UserProfileEntity>(
-            remoteDataSource = get(named(USER_PROFILE_SCOPE)),
-            dao = get<UserProfileDao>(named(USER_PROFILE_SCOPE)),
-            getStrategy = { id -> get<UserProfileDao>(named(USER_PROFILE_SCOPE)).get(id) },
+    single<SyncManager<Curriculum>>(named(CURRICULUM_SCOPE)) {
+        SyncManagerImpl(
+            syncScope = get(),
+            syncHandler = get<SyncHandler<Curriculum>>(named(CURRICULUM_SCOPE)),
+            maxRetries = 3
+        ).also { syncManager ->
+            Runtime.getRuntime().addShutdownHook(Thread { syncManager.close() })
+        }
+    }
+
+    // Repository Components Configuration
+    single<RepositoryConfig<UserProfile, UserProfileEntity>>(named(USER_PROFILE_SCOPE)) {
+        RepositoryConfig(
+            remoteDao = get(),
+            localDao = get<UserProfileDao>(named(USER_PROFILE_SCOPE)),
+            modelMapper = get(named(USER_PROFILE_SCOPE)),
             syncManager = get(named(USER_PROFILE_SCOPE)),
-            syncOperationFactory = { type, path, profile -> SyncOperation(type, path, profile) },
-            modelMapper = get(named(USER_PROFILE_SCOPE))
-        ) {}
+            queryStrategies = QueryStrategies<UserProfileEntity>().apply {
+                withGetById { id -> get<UserProfileDao>(named(USER_PROFILE_SCOPE)).get(id) }
+            }
+        )
+    }
+
+    single<RepositoryConfig<Curriculum, CurriculumEntity>>(named(CURRICULUM_SCOPE)) {
+        RepositoryConfig(
+            remoteDao = get(named(CURRICULUM_SCOPE)),
+            localDao = get<CurriculumLocalDao>(named(CURRICULUM_SCOPE)),
+            modelMapper = get(named(CURRICULUM_SCOPE)),
+            syncManager = get(named(CURRICULUM_SCOPE)),
+            queryStrategies = QueryStrategies<CurriculumEntity>().apply {
+                withGetById { id ->
+                    get<CurriculumLocalDao>(named(CURRICULUM_SCOPE)).get(id)
+                }
+                withGetAll {
+                    get<CurriculumLocalDao>(named(CURRICULUM_SCOPE)).getAll()
+                }
+                withCustomQuery(
+                    QueryByStatusRepositoryComponent.STATUS_STRATEGY_KEY,
+                    QueryByStatusRepositoryComponent.StatusQueryStrategy { status ->
+                        get<CurriculumLocalDao>(named(CURRICULUM_SCOPE))
+                            .getCurriculaByStatus(status)
+                    }
+                )
+            }
+        )
+    }
+
+    // Repositories
+    single<UserProfileRepository>(named(USER_PROFILE_SCOPE)) {
+        object :
+            UserProfileRepository,
+            CrudOperations<UserProfile> by CrudRepositoryComponent(
+                get<RepositoryConfig<UserProfile, UserProfileEntity>>((named(USER_PROFILE_SCOPE)))
+            ) {}
+    }
+
+    single<CurriculumRepository>(named(CURRICULUM_SCOPE)) {
+        object :
+            CurriculumRepository,
+            CrudOperations<Curriculum> by CrudRepositoryComponent(
+                get<RepositoryConfig<Curriculum, CurriculumEntity>>((named(CURRICULUM_SCOPE)))
+            ),
+            QueryByStatusOperation<Curriculum> by QueryByStatusRepositoryComponent(
+                get<RepositoryConfig<Curriculum, CurriculumEntity>>((named(CURRICULUM_SCOPE)))
+            ),
+            BatchOperations<Curriculum> by BatchRepositoryComponent(
+                get<RepositoryConfig<Curriculum, CurriculumEntity>>((named(CURRICULUM_SCOPE)))
+            ) {}
     }
 
     // Use Cases - Auth
@@ -186,15 +290,13 @@ val commonModule = module {
     single {
         CreateUserProfileUseCase(
             repository = get(named(USER_PROFILE_SCOPE)),
-            authClient = get(),
-            pathBuilder = get()
+            authClient = get()
         )
     }
     single {
         UpdateUserProfileUseCase(
             repository = get(named(USER_PROFILE_SCOPE)),
-            authClient = get(),
-            pathBuilder = get()
+            authClient = get()
         )
     }
     singleOf(::UploadProfilePictureUseCase)
@@ -226,6 +328,7 @@ val commonModule = module {
             getStyleQuestionnaireUseCase = get(),
             getStyleResultUseCase = get(),
             updateUserProfileUseCase = get(),
+            pathBuilder = get(),
             syncManager = get(named(USER_PROFILE_SCOPE)),
             dispatcher = get(),
             sharingStarted = get()

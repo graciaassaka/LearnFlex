@@ -1,14 +1,14 @@
-package org.example.shared.domain.repository
+package org.example.shared.domain.storage_operations
 
 import kotlinx.coroutines.flow.Flow
-import org.example.shared.domain.model.contract.DatabaseRecord
+import org.example.shared.domain.model.definition.DatabaseRecord
 
 /**
  * A generic repository interface for managing CRUD operations on items of type Model.
  *
  * @param Model The type of the model, which must implement [DatabaseRecord].
  */
-interface Repository<Model : DatabaseRecord> {
+interface CrudOperations<Model : DatabaseRecord> {
 
     /**
      * Creates a new item in the repository.
@@ -17,7 +17,7 @@ interface Repository<Model : DatabaseRecord> {
      * @param item The item to be created.
      * @return A [Result] indicating the success or failure of the operation.
      */
-    suspend fun create(path: String, item: Model): Result<Unit>
+    suspend fun insert(path: String, item: Model): Result<Unit>
 
     /**
      * Updates an existing item in the repository.

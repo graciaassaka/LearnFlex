@@ -2,7 +2,7 @@ package org.example.shared.domain.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.example.shared.domain.model.contract.DatabaseRecord
+import org.example.shared.domain.model.definition.DatabaseRecord
 
 /**
  * Data class representing a session.

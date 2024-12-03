@@ -2,17 +2,18 @@ package org.example.shared.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 import org.example.shared.data.local.entity.LessonEntity
 
 @Dao
-abstract class LessonDao : ExtendedDao<LessonEntity>() {
+abstract class LessonLocalDao : ExtendedLocalDao<LessonEntity>() {
     @Query(
         """
             SELECT * FROM lesson
             WHERE id = :id
         """
     )
-    abstract suspend fun get(id: String): LessonEntity?
+    abstract fun get(id: String): Flow<LessonEntity?>
 
     @Query(
         """
@@ -20,7 +21,7 @@ abstract class LessonDao : ExtendedDao<LessonEntity>() {
             WHERE module_id = :moduleId
         """
     )
-    abstract suspend fun getLessonsByModuleId(moduleId: String): List<LessonEntity>
+    abstract fun getLessonsByModuleId(moduleId: String): Flow<List<LessonEntity>>
 
     @Query(
         """
@@ -28,5 +29,5 @@ abstract class LessonDao : ExtendedDao<LessonEntity>() {
             WHERE module_id = :moduleId AND quiz_score >= :minScore
         """
     )
-    abstract suspend fun getLessonIdsByMinQuizScore(moduleId: String, minScore: Int): List<String>
+    abstract fun getLessonIdsByMinQuizScore(moduleId: String, minScore: Int): Flow<List<String>>
 }

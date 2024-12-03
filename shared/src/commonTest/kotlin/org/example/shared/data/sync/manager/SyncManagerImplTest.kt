@@ -77,7 +77,7 @@ class SyncManagerImplTest {
     fun `multiple operations are processed sequentially`() = testScope.runTest {
         // Given
         val operations = List(3) { index ->
-            SyncOperation(SyncOperationType.CREATE, TEST_PATH, "test data $index")
+            SyncOperation(SyncOperationType.INSERT, TEST_PATH, listOf("test data $index"))
         }
         syncManager = SyncManagerImpl(
             syncScope = backgroundScope,
@@ -168,7 +168,7 @@ class SyncManagerImplTest {
 
     companion object {
         private const val TEST_PATH = "test/path"
-        private val operation = SyncOperation(SyncOperationType.CREATE, TEST_PATH, "test data")
+        private val operation = SyncOperation(SyncOperationType.INSERT, TEST_PATH, listOf("test data"))
     }
 }
 

@@ -18,6 +18,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.example.shared.domain.model.SearchItem
 import org.example.shared.domain.model.SearchResponse
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -61,6 +62,12 @@ class GoogleImageSearchClientTest {
             apiKey = "test_api_key",
             searchEngineId = "test_search_engine_id"
         )
+    }
+
+    @After
+    fun tearDown() {
+        wireMockServer.stop()
+        httpClient.close()
     }
 
     @Test

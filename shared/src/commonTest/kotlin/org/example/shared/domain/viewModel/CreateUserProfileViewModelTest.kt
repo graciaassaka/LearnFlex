@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.constant.SyncStatus
+import org.example.shared.domain.data_source.PathBuilder
 import org.example.shared.domain.model.*
 import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.use_case.*
@@ -38,6 +39,7 @@ class CreateUserProfileViewModelTest {
     private lateinit var getStyleQuestionnaireUseCase: GetStyleQuestionnaireUseCase
     private lateinit var getStyleResultUseCase: GetStyleResultUseCase
     private lateinit var updateUserProfileUseCase: UpdateUserProfileUseCase
+    private lateinit var pathBuilder: PathBuilder
     private lateinit var testDispatcher: TestDispatcher
     private val syncStatus = MutableStateFlow<SyncStatus>(SyncStatus.Idle)
 
@@ -53,6 +55,7 @@ class CreateUserProfileViewModelTest {
         getStyleQuestionnaireUseCase = mockk(relaxed = true)
         getStyleResultUseCase = mockk(relaxed = true)
         updateUserProfileUseCase = mockk(relaxed = true)
+        pathBuilder = mockk(relaxed = true)
         viewModel = CreateUserProfileViewModel(
             getUserDataUseCase,
             createProfileUseCase,
@@ -61,6 +64,7 @@ class CreateUserProfileViewModelTest {
             getStyleQuestionnaireUseCase,
             getStyleResultUseCase,
             updateUserProfileUseCase,
+            pathBuilder,
             syncManager,
             testDispatcher,
             SharingStarted.Eagerly
@@ -328,8 +332,7 @@ class CreateUserProfileViewModelTest {
     fun `onCreateProfile should call createProfileUseCase when username is valid`() = runTest {
         // Given
         val username = "TestUser"
-
-        coEvery { createProfileUseCase(any()) } returns Result.success(Unit)
+        coEvery { createProfileUseCase(any(), any()) } returns Result.success(Unit)
 
         // When
         viewModel.onUsernameChanged(username)
@@ -337,13 +340,15 @@ class CreateUserProfileViewModelTest {
         advanceUntilIdle()
 
         // Then
-        coVerify { createProfileUseCase(any()) }
+        coVerify(exactly = 1) { createProfileUseCase(any(), any()) }
     }
 
     @Test
     fun `onCreateProfile should not call createProfileUseCase when username is invalid`() = runTest {
         // Given
         val username = ""
+        val path = "users/test-path"
+        coEvery { pathBuilder.buildUserPath() } returns path
 
         // When
         viewModel.onUsernameChanged(username)
@@ -351,19 +356,20 @@ class CreateUserProfileViewModelTest {
         advanceUntilIdle()
 
         // Then
-        coVerify(exactly = 0) { createProfileUseCase(any()) }
+        coVerify(exactly = 0) { createProfileUseCase(any(), any()) }
     }
 
     @Test
     fun `onCreateProfile should show successMessage when createUserProfile returns success`() = runTest {
         // Given
         val successMessage = "Profile created successfully"
+        val path = "users/test-path"
         val uiEvents = mutableListOf<UIEvent>()
         val job = launch {
             viewModel.uiEvent.toList(uiEvents)
         }
 
-        coEvery { createProfileUseCase(any()) } returns Result.success(Unit)
+        coEvery { createProfileUseCase(any(), any()) } returns Result.success(Unit)
 
         // When
         viewModel.onUsernameChanged("TestUser")
@@ -371,7 +377,7 @@ class CreateUserProfileViewModelTest {
         advanceUntilIdle()
 
         // Then
-        coVerify { createProfileUseCase(any()) }
+        coVerify { createProfileUseCase(any(), any()) }
         assertEquals(1, uiEvents.size)
         assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
 
@@ -382,12 +388,13 @@ class CreateUserProfileViewModelTest {
     fun `onCreateProfile should show error message when createUserProfile returns failure`() = runTest {
         // Given
         val errorMessage = "Failed to create profile"
+        val path = "users/test-path"
         val uiEvents = mutableListOf<UIEvent>()
         val job = launch {
             viewModel.uiEvent.toList(uiEvents)
         }
 
-        coEvery { createProfileUseCase(any()) } returns Result.failure(Exception(errorMessage))
+        coEvery { createProfileUseCase(any(), any()) } returns Result.failure(Exception(errorMessage))
 
         // When
         viewModel.onUsernameChanged("TestUser")
@@ -395,7 +402,7 @@ class CreateUserProfileViewModelTest {
         advanceUntilIdle()
 
         // Then
-        coVerify { createProfileUseCase(any()) }
+        coVerify { createProfileUseCase(any(), any()) }
         assertEquals(1, uiEvents.size)
         assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
 
@@ -547,7 +554,7 @@ class CreateUserProfileViewModelTest {
             // Given
             val successMessage = "Style set successfully"
 
-            coEvery { updateUserProfileUseCase(any()) } returns Result.success(Unit)
+            coEvery { updateUserProfileUseCase(any(), any()) } returns Result.success(Unit)
             coEvery { getStyleResultUseCase(any()) } returns Result.success(testLearningStyle)
 
             // When
@@ -557,7 +564,7 @@ class CreateUserProfileViewModelTest {
             advanceUntilIdle()
 
             // Then
-            coVerify { updateUserProfileUseCase(any()) }
+            coVerify { updateUserProfileUseCase(any(), any()) }
             assertFalse(viewModel.state.value.showStyleResultDialog)
             assertFalse(viewModel.state.value.isLoading)
         }
@@ -570,7 +577,7 @@ class CreateUserProfileViewModelTest {
         val uiEvents = mutableListOf<UIEvent>()
         val job = launch { viewModel.uiEvent.toList(uiEvents) }
 
-        coEvery { updateUserProfileUseCase(any()) } returns Result.success(Unit)
+        coEvery { updateUserProfileUseCase(any(), any()) } returns Result.success(Unit)
         coEvery { getStyleResultUseCase(any()) } returns Result.success(testLearningStyle)
 
         // When
@@ -596,7 +603,7 @@ class CreateUserProfileViewModelTest {
         val uiEvents = mutableListOf<UIEvent>()
         val job = launch { viewModel.uiEvent.toList(uiEvents) }
 
-        coEvery { updateUserProfileUseCase(any()) } returns Result.failure(Exception(errorMessage))
+        coEvery { updateUserProfileUseCase(any(), any()) } returns Result.failure(Exception(errorMessage))
         coEvery { getStyleResultUseCase(any()) } returns Result.success(testLearningStyle)
 
 
@@ -628,7 +635,7 @@ class CreateUserProfileViewModelTest {
         advanceUntilIdle()
 
         // Then
-        coVerify(exactly = 0) { updateUserProfileUseCase(any()) }
+        coVerify(exactly = 0) { updateUserProfileUseCase(any(), any()) }
         assertEquals(1, uiEvents.size)
         assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
         assertFalse(viewModel.state.value.showStyleResultDialog)
@@ -642,7 +649,7 @@ class CreateUserProfileViewModelTest {
         // Given
         val successMessage = "Style set successfully"
 
-        coEvery { updateUserProfileUseCase(any()) } returns Result.success(Unit)
+        coEvery { updateUserProfileUseCase(any(), any()) } returns Result.success(Unit)
         coEvery { getStyleResultUseCase(any()) } returns Result.success(testLearningStyle)
 
         // When

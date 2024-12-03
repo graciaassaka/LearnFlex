@@ -1,8 +1,14 @@
 package org.example.shared.domain.constant
 
+/**
+ * Enum class representing the type of a sync operation.
+ */
 enum class SyncOperationType {
-    CREATE,
+    INSERT,
     UPDATE,
     DELETE,
-    SYNC
+    SYNC,
+    INSERT_ALL,
+    UPDATE_ALL,
+    DELETE_ALL
 }

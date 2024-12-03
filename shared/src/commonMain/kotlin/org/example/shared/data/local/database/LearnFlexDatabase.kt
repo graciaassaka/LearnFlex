@@ -29,9 +29,9 @@ import org.example.shared.data.local.entity.*
 @ConstructedBy(LearnFlexDatabaseConstructor::class)
 abstract class LearnFlexDatabase : RoomDatabase() {
     abstract fun userProfileDao(): UserProfileDao
-    abstract fun curriculumDao(): CurriculumDao
-    abstract fun moduleDao(): ModuleDao
-    abstract fun lessonDao(): LessonDao
-    abstract fun sectionDao(): SectionDao
-    abstract fun sessionDao(): SessionDao
+    abstract fun curriculumDao(): CurriculumLocalDao
+    abstract fun moduleDao(): ModuleLocalDao
+    abstract fun lessonDao(): LessonLocalDao
+    abstract fun sectionDao(): SectionLocalDao
+    abstract fun sessionDao(): SessionLocalDao
 }

@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
+import org.example.shared.data.local.entity.definition.RoomEntity
 import org.example.shared.domain.model.Session
 
 /**
@@ -46,4 +47,4 @@ data class SessionEntity(
 
     @ColumnInfo(name = "last_updated")
     override val lastUpdated: Long
-) : Session(id, lessonId, endTimeMs, durationMinutes, createdAt, lastUpdated)
+) : Session(id, lessonId, endTimeMs, durationMinutes, createdAt, lastUpdated), RoomEntity

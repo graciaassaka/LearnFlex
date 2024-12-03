@@ -1,10 +1,12 @@
 package org.example.shared.data.sync.handler
 
-import org.example.shared.data.local.dao.BaseDao
-import org.example.shared.data.repository.util.ModelMapper
+import kotlinx.coroutines.flow.first
+import org.example.shared.data.local.dao.LocalDao
 import org.example.shared.domain.constant.SyncOperationType
-import org.example.shared.domain.data_source.RemoteDataSource
-import org.example.shared.domain.model.contract.DatabaseRecord
+import org.example.shared.domain.dao.ExtendedRemoteDao
+import org.example.shared.domain.dao.RemoteDao
+import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.repository.util.ModelMapper
 import org.example.shared.domain.sync.SyncHandler
 import org.example.shared.domain.sync.SyncOperation
 
@@ -15,8 +17,8 @@ import org.example.shared.domain.sync.SyncOperation
  * @param Entity The type of the entity in the local database.
  */
 class SyncHandlerDelegate<Model : DatabaseRecord, Entity : DatabaseRecord>(
-    private val remoteDataSource: RemoteDataSource<Model>,
-    private val dao: BaseDao<Entity>,
+    private val remoteDao: RemoteDao<Model>,
+    private val localDao: LocalDao<Entity>,
     private val modelMapper: ModelMapper<Model, Entity>,
 ) : SyncHandler<Model> {
     /**
@@ -25,14 +27,31 @@ class SyncHandlerDelegate<Model : DatabaseRecord, Entity : DatabaseRecord>(
      * @param operation The synchronization operation to be handled.
      */
     override suspend fun handleSync(operation: SyncOperation<Model>) = with(operation) {
+        require(data.isNotEmpty()) { "Data must not be empty" }
+
+        if (type == SyncOperationType.INSERT_ALL ||
+            type == SyncOperationType.UPDATE_ALL ||
+            type == SyncOperationType.DELETE_ALL
+        ) {
+            require(remoteDao is ExtendedRemoteDao<Model>) {
+                "RemoteDao must be an instance of ExtendedRemoteDao"
+            }
+        }
+
         when (type) {
-            SyncOperationType.CREATE -> remoteDataSource.create(path, data).getOrThrow()
+            SyncOperationType.INSERT     -> remoteDao.insert(path, data.first()).getOrThrow()
 
-            SyncOperationType.UPDATE -> remoteDataSource.update(path, data).getOrThrow()
+            SyncOperationType.UPDATE     -> remoteDao.update(path, data.first()).getOrThrow()
 
-            SyncOperationType.DELETE -> remoteDataSource.delete(path, data.id).getOrThrow()
+            SyncOperationType.DELETE     -> remoteDao.delete(path, data.first()).getOrThrow()
 
-            SyncOperationType.SYNC   -> operation.data.sync(path)
+            SyncOperationType.SYNC       -> data.first().sync(path)
+
+            SyncOperationType.INSERT_ALL -> (remoteDao as ExtendedRemoteDao<Model>).insertAll(path, data).getOrThrow()
+
+            SyncOperationType.UPDATE_ALL -> (remoteDao as ExtendedRemoteDao<Model>).updateAll(path, data).getOrThrow()
+
+            SyncOperationType.DELETE_ALL -> (remoteDao as ExtendedRemoteDao<Model>).deleteAll(path, data).getOrThrow()
         }
     }
 
@@ -40,12 +59,12 @@ class SyncHandlerDelegate<Model : DatabaseRecord, Entity : DatabaseRecord>(
      * Synchronizes the model data with the remote data source.
      */
     private suspend fun Model.sync(path: String) {
-        val remote = remoteDataSource.fetch(path, id).getOrThrow()
+        val remote = remoteDao.get(path, id).first().getOrThrow()
 
         if (lastUpdated < remote.lastUpdated) {
-            dao.update(modelMapper.toEntity(remote))
+            localDao.update(modelMapper.toEntity(remote))
         } else {
-            remoteDataSource.create(path, this).getOrThrow()
+            remoteDao.insert(path, this).getOrThrow()
         }
     }
 }

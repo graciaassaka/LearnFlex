@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.Update
 
 @Dao
-abstract class BaseDao<Entity> {
+abstract class LocalDao<Entity> {
     @Insert
     abstract suspend fun insert(item: Entity)
 

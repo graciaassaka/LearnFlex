@@ -1,4 +1,4 @@
-package org.example.shared.data.repository.util
+package org.example.shared.domain.repository.util
 
 /**
  * Interface for mapping between model and entity objects.
@@ -20,7 +20,8 @@ interface ModelMapper<Model, Entity> {
      * Maps a model object to an entity object.
      *
      * @param model the model object to be mapped
+     * @param parentId the ID of the parent entity
      * @return the mapped entity object
      */
-    fun toEntity(model: Model): Entity
+    fun toEntity(model: Model, parentId: String? = null): Entity
 }

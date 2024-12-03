@@ -1,7 +1,8 @@
 package org.example.shared.domain.model
 
 import kotlinx.serialization.SerialName
-import org.example.shared.domain.model.contract.DatabaseRecord
+import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.model.definition.ScoreQueryable
 
 /**
  * Lesson represents a single unit of learning content.
@@ -32,11 +33,11 @@ open class Lesson(
     open val index: Int,
 
     @SerialName("quiz_score")
-    open val quizScore: Int,
+    override val quizScore: Int,
 
     @SerialName("created_at")
     override val createdAt: Long,
 
     @SerialName("last_updated")
     override val lastUpdated: Long
-) : DatabaseRecord
+) : DatabaseRecord, ScoreQueryable

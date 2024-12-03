@@ -3,6 +3,7 @@ package org.example.shared.data.local.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import org.example.shared.data.local.entity.definition.RoomEntity
 import org.example.shared.domain.model.LearningPreferences
 import org.example.shared.domain.model.LearningStyle
 import org.example.shared.domain.model.UserProfile
@@ -43,4 +44,4 @@ data class UserProfileEntity(
 
     @ColumnInfo(name = "last_updated")
     override val lastUpdated: Long
-) : UserProfile(id, username, email, photoUrl, preferences, learningStyle, createdAt, lastUpdated)
+) : UserProfile(id, username, email, photoUrl, preferences, learningStyle, createdAt, lastUpdated), RoomEntity

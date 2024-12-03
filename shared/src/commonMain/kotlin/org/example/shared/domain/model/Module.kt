@@ -2,7 +2,8 @@ package org.example.shared.domain.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.example.shared.domain.model.contract.DatabaseRecord
+import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.model.definition.ScoreQueryable
 
 /**
  * Module represents a part of a curriculum, including details like title, description, and quiz score.
@@ -33,11 +34,11 @@ open class Module(
     open val index: Int,
 
     @SerialName("quiz_score")
-    open val quizScore: Int,
+    override val quizScore: Int,
 
     @SerialName("created_at")
     override val createdAt: Long,
 
     @SerialName("last_updated")
     override val lastUpdated: Long
-) : DatabaseRecord
+) : DatabaseRecord, ScoreQueryable

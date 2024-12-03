@@ -2,17 +2,25 @@ package org.example.shared.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 import org.example.shared.data.local.entity.CurriculumEntity
 
 @Dao
-abstract class CurriculumDao : ExtendedDao<CurriculumEntity>() {
+abstract class CurriculumLocalDao : ExtendedLocalDao<CurriculumEntity>() {
     @Query(
         """
             SELECT * FROM curriculum
             WHERE id = :id
         """
     )
-    abstract suspend fun get(id: String): CurriculumEntity?
+    abstract fun get(id: String): Flow<CurriculumEntity?>
+
+    @Query(
+        """
+            SELECT * FROM curriculum
+        """
+    )
+    abstract fun getAll(): Flow<List<CurriculumEntity>>
 
     @Query(
         """
@@ -20,13 +28,5 @@ abstract class CurriculumDao : ExtendedDao<CurriculumEntity>() {
             WHERE status = :status
         """
     )
-    abstract suspend fun getCurriculumsByStatus(status: String): List<CurriculumEntity>
-
-    @Query(
-        """
-            SELECT COUNT(*) FROM curriculum
-            WHERE status = :status
-        """
-    )
-    abstract suspend fun countCurriculumsByStatus(status: String): Int
+    abstract fun getCurriculaByStatus(status: String): Flow<List<CurriculumEntity>>
 }
