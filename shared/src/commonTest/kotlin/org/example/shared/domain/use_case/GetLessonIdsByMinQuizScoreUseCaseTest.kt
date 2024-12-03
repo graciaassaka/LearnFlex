@@ -9,14 +9,14 @@ import org.junit.Before
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class GetLessonIdsByMinQuizScoreTest {
-    private lateinit var getLessonIdsByMinQuizScore: GetLessonIdsByMinQuizScore
+class GetLessonIdsByMinQuizScoreUseCaseTest {
+    private lateinit var getLessonIdsByMinQuizScoreUseCase: GetLessonIdsByMinQuizScoreUseCase
     private lateinit var repository: LessonRepository
 
     @Before
     fun setUp() {
         repository = mockk()
-        getLessonIdsByMinQuizScore = GetLessonIdsByMinQuizScore(repository)
+        getLessonIdsByMinQuizScoreUseCase = GetLessonIdsByMinQuizScoreUseCase(repository)
     }
 
     @Test
@@ -27,7 +27,7 @@ class GetLessonIdsByMinQuizScoreTest {
         val idsFlow = flowOf(Result.success(lessonIds))
         every { repository.getIdsByMinScore(path, minScore) } returns idsFlow
 
-        val result = getLessonIdsByMinQuizScore(path, minScore)
+        val result = getLessonIdsByMinQuizScoreUseCase(path, minScore)
 
         verify(exactly = 1) { repository.getIdsByMinScore(path, minScore) }
         assertEquals(idsFlow, result)
@@ -41,7 +41,7 @@ class GetLessonIdsByMinQuizScoreTest {
         val errorFlow = flowOf(Result.failure<Set<String>>(exception))
         every { repository.getIdsByMinScore(path, minScore) } returns errorFlow
 
-        val result = getLessonIdsByMinQuizScore(path, minScore)
+        val result = getLessonIdsByMinQuizScoreUseCase(path, minScore)
 
         verify(exactly = 1) { repository.getIdsByMinScore(path, minScore) }
         assertEquals(errorFlow, result)

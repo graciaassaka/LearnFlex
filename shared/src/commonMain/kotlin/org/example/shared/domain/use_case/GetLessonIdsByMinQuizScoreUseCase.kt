@@ -7,7 +7,7 @@ import org.example.shared.domain.repository.LessonRepository
  *
  * @property repository The repository to fetch lesson data from.
  */
-class GetLessonIdsByMinQuizScore(private val repository: LessonRepository) {
+class GetLessonIdsByMinQuizScoreUseCase(private val repository: LessonRepository) {
 
     /**
      * Invokes the use case to retrieve a set of lesson IDs based on a minimum quiz score.
