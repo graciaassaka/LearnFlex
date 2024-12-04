@@ -452,16 +452,16 @@ class DatabaseTest {
         private val sessions = listOf(
             SessionEntity(
                 id = "session1",
-                lessonId = lessons.first().id,
-                endTimeMs = System.currentTimeMillis() + 3600000,
+                userId = lessons.first().id,
+                endTime = System.currentTimeMillis() + 3600000,
                 durationMinutes = 60,
                 createdAt = System.currentTimeMillis(),
                 lastUpdated = System.currentTimeMillis()
             ),
             SessionEntity(
                 id = "session2",
-                lessonId = lessons.last().id,
-                endTimeMs = System.currentTimeMillis() + 7200000,
+                userId = lessons.last().id,
+                endTime = System.currentTimeMillis() + 7200000,
                 durationMinutes = 120,
                 createdAt = System.currentTimeMillis(),
                 lastUpdated = System.currentTimeMillis()

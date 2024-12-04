@@ -9,16 +9,23 @@ import org.example.shared.data.local.entity.SessionEntity
 abstract class SessionLocalDao : ExtendedLocalDao<SessionEntity>() {
     @Query(
         """
-        SELECT * FROM session
-        WHERE id = :id
+            SELECT * FROM session
+            WHERE id = :id
         """
     )
     abstract fun get(id: String): Flow<SessionEntity?>
 
     @Query(
         """
-        SELECT * FROM session
-        WHERE created_at >= :startDate AND end_time_ms <= :endDate
+            SELECT * FROM session
+        """
+    )
+    abstract fun getAll(): Flow<List<SessionEntity>>
+
+    @Query(
+        """
+            SELECT * FROM session
+            WHERE created_at >= :startDate AND end_time_ms <= :endDate
         """
     )
     abstract fun getSessionsByDateRange(

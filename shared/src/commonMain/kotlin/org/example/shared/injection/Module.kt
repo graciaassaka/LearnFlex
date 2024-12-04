@@ -9,15 +9,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.SharingStarted
-import org.example.shared.data.local.dao.CurriculumLocalDao
-import org.example.shared.data.local.dao.LessonLocalDao
-import org.example.shared.data.local.dao.ModuleLocalDao
-import org.example.shared.data.local.dao.UserProfileDao
+import org.example.shared.data.local.dao.*
 import org.example.shared.data.local.database.LearnFlexDatabase
-import org.example.shared.data.local.entity.CurriculumEntity
-import org.example.shared.data.local.entity.LessonEntity
-import org.example.shared.data.local.entity.ModuleEntity
-import org.example.shared.data.local.entity.UserProfileEntity
+import org.example.shared.data.local.entity.*
 import org.example.shared.data.remote.assistant.OpenAIAssistantClient
 import org.example.shared.data.remote.assistant.StyleQuizClientImpl
 import org.example.shared.data.remote.custom_search.GoogleImageSearchClient
@@ -27,10 +21,7 @@ import org.example.shared.data.remote.firestore.FirestoreBaseDao
 import org.example.shared.data.remote.firestore.FirestoreExtendedDao
 import org.example.shared.data.remote.firestore.FirestorePathBuilder
 import org.example.shared.data.remote.util.HttpClientConfig
-import org.example.shared.data.repository.component.BatchRepositoryComponent
-import org.example.shared.data.repository.component.CrudRepositoryComponent
-import org.example.shared.data.repository.component.QueryByScoreRepositoryComponent
-import org.example.shared.data.repository.component.QueryByStatusRepositoryComponent
+import org.example.shared.data.repository.component.*
 import org.example.shared.data.repository.util.QueryStrategies
 import org.example.shared.data.repository.util.RepositoryConfig
 import org.example.shared.data.sync.handler.SyncHandlerDelegate
@@ -41,18 +32,10 @@ import org.example.shared.domain.client.*
 import org.example.shared.domain.dao.ExtendedRemoteDao
 import org.example.shared.domain.dao.RemoteDao
 import org.example.shared.domain.dao.util.PathBuilder
-import org.example.shared.domain.model.Curriculum
-import org.example.shared.domain.model.Lesson
-import org.example.shared.domain.model.UserProfile
-import org.example.shared.domain.repository.CurriculumRepository
-import org.example.shared.domain.repository.LessonRepository
-import org.example.shared.domain.repository.ModuleRepository
-import org.example.shared.domain.repository.UserProfileRepository
+import org.example.shared.domain.model.*
+import org.example.shared.domain.repository.*
 import org.example.shared.domain.repository.util.ModelMapper
-import org.example.shared.domain.storage_operations.BatchOperations
-import org.example.shared.domain.storage_operations.CrudOperations
-import org.example.shared.domain.storage_operations.QueryByScoreOperation
-import org.example.shared.domain.storage_operations.QueryByStatusOperation
+import org.example.shared.domain.storage_operations.*
 import org.example.shared.domain.sync.SyncHandler
 import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.use_case.*
@@ -78,6 +61,8 @@ private const val USER_PROFILE_SCOPE = "user_profile_scope"
 private const val CURRICULUM_SCOPE = "curriculum_scope"
 private const val MODULE_SCOPE = "module_scope"
 private const val LESSON_SCOPE = "lesson_scope"
+private const val SECTION_SCOPE = "section_scope"
+private const val SESSION_SCOPE = "session_scope"
 
 val commonModule = module {
     // Core Dependencies
@@ -157,6 +142,14 @@ val commonModule = module {
         get<LearnFlexDatabase>().lessonDao()
     }
 
+    single<SectionLocalDao>(named(SECTION_SCOPE)) {
+        get<LearnFlexDatabase>().sectionDao()
+    }
+
+    single<SessionLocalDao>(named(SESSION_SCOPE)) {
+        get<LearnFlexDatabase>().sessionDao()
+    }
+
     // Remote DAOs
     single<RemoteDao<UserProfile>>(named(USER_PROFILE_SCOPE)) {
         object : FirestoreBaseDao<UserProfile>(
@@ -183,6 +176,20 @@ val commonModule = module {
         object : FirestoreExtendedDao<Lesson>(
             firestore = get(),
             serializer = Lesson.serializer()
+        ) {}
+    }
+
+    single<ExtendedRemoteDao<Section>>(named(SECTION_SCOPE)) {
+        object : FirestoreExtendedDao<Section>(
+            firestore = get(),
+            serializer = Section.serializer()
+        ) {}
+    }
+
+    single<ExtendedRemoteDao<Session>>(named(SESSION_SCOPE)) {
+        object : FirestoreExtendedDao<Session>(
+            firestore = get(),
+            serializer = Session.serializer()
         ) {}
     }
 
@@ -238,6 +245,43 @@ val commonModule = module {
         }
     }
 
+    single<ModelMapper<Section, SectionEntity>>(named(SECTION_SCOPE)) {
+        object : ModelMapper<Section, SectionEntity> {
+            override fun toModel(entity: SectionEntity) = with(entity) {
+                Section(id, imageUrl, index, title, description, content, quizScore, createdAt, lastUpdated)
+            }
+
+            override fun toEntity(model: Section, parentId: String?) = with(model) {
+                require(parentId != null) { "Parent ID must not be null for SectionEntity" }
+                SectionEntity(
+                    id,
+                    parentId,
+                    imageUrl,
+                    index,
+                    title,
+                    description,
+                    content,
+                    quizScore,
+                    createdAt,
+                    lastUpdated
+                )
+            }
+        }
+    }
+
+    single<ModelMapper<Session, SessionEntity>>(named(SESSION_SCOPE)) {
+        object : ModelMapper<Session, SessionEntity> {
+            override fun toModel(entity: SessionEntity) = with(entity) {
+                Session(id, userId, endTime, durationMinutes, createdAt, lastUpdated)
+            }
+
+            override fun toEntity(model: Session, parentId: String?) = with(model) {
+                require(parentId != null) { "Parent ID must not be null for SessionEntity" }
+                SessionEntity(id, parentId, endTime, durationMinutes, createdAt, lastUpdated)
+            }
+        }
+    }
+
     // Sync Handlers
     single<SyncHandler<UserProfile>>(named(USER_PROFILE_SCOPE)) {
         object : SyncHandler<UserProfile> by SyncHandlerDelegate(
@@ -268,6 +312,14 @@ val commonModule = module {
             remoteDao = get(named(LESSON_SCOPE)),
             localDao = get<LessonLocalDao>(named(LESSON_SCOPE)),
             modelMapper = get(named(LESSON_SCOPE))
+        ) {}
+    }
+
+    single<SyncHandler<Session>>(named(SESSION_SCOPE)) {
+        object : SyncHandler<Session> by SyncHandlerDelegate(
+            remoteDao = get(named(SESSION_SCOPE)),
+            localDao = get<SessionLocalDao>(named(SESSION_SCOPE)),
+            modelMapper = get(named(SESSION_SCOPE))
         ) {}
     }
 
@@ -306,6 +358,16 @@ val commonModule = module {
         SyncManagerImpl(
             syncScope = get(),
             syncHandler = get<SyncHandler<Lesson>>(named(LESSON_SCOPE)),
+            maxRetries = 3
+        ).also { syncManager ->
+            Runtime.getRuntime().addShutdownHook(Thread { syncManager.close() })
+        }
+    }
+
+    single<SyncManager<Session>>(named(SESSION_SCOPE)) {
+        SyncManagerImpl(
+            syncScope = get(),
+            syncHandler = get<SyncHandler<Session>>(named(SESSION_SCOPE)),
             maxRetries = 3
         ).also { syncManager ->
             Runtime.getRuntime().addShutdownHook(Thread { syncManager.close() })
@@ -397,6 +459,53 @@ val commonModule = module {
         )
     }
 
+    single<RepositoryConfig<Section, SectionEntity>>(named(SECTION_SCOPE)) {
+        RepositoryConfig(
+            remoteDao = get(named(SECTION_SCOPE)),
+            localDao = get<SectionLocalDao>(named(SECTION_SCOPE)),
+            modelMapper = get(named(SECTION_SCOPE)),
+            syncManager = get(named(SECTION_SCOPE)),
+            queryStrategies = QueryStrategies<SectionEntity>().apply {
+                withGetById { id ->
+                    get<SectionLocalDao>(named(SECTION_SCOPE)).get(id)
+                }
+                withGetAll { lessonId ->
+                    requireNotNull(lessonId) { "Lesson ID must not be null for SectionEntity" }
+                    get<SectionLocalDao>(named(SECTION_SCOPE)).getSectionsByLessonId(lessonId)
+                }
+                withCustomQuery(
+                    QueryByScoreRepositoryComponent.SCORE_STRATEGY_KEY,
+                    QueryByScoreRepositoryComponent.ScoreQueryStrategy { lessonId, score ->
+                        get<SectionLocalDao>(named(SECTION_SCOPE)).getSectionIdsByMinQuizScore(lessonId, score)
+                    }
+                )
+            }
+        )
+    }
+
+    single<RepositoryConfig<Session, SessionEntity>>(named(SESSION_SCOPE)) {
+        RepositoryConfig(
+            remoteDao = get(named(SESSION_SCOPE)),
+            localDao = get<SessionLocalDao>(named(SESSION_SCOPE)),
+            modelMapper = get(named(SESSION_SCOPE)),
+            syncManager = get(named(SESSION_SCOPE)),
+            queryStrategies = QueryStrategies<SessionEntity>().apply {
+                withGetById { id ->
+                    get<SessionLocalDao>(named(SESSION_SCOPE)).get(id)
+                }
+                withGetAll {
+                    get<SessionLocalDao>(named(SESSION_SCOPE)).getAll()
+                }
+                withCustomQuery(
+                    QueryByDateRangeRepositoryComponent.DATE_RANGE_QUERY_STRATEGY_KEY,
+                    QueryByDateRangeRepositoryComponent.DateRangeQueryStrategy { startTime, endTime ->
+                        get<SessionLocalDao>(named(SESSION_SCOPE)).getSessionsByDateRange(startTime, endTime)
+                    }
+                )
+            }
+        )
+    }
+
     // Repositories
     single<UserProfileRepository>(named(USER_PROFILE_SCOPE)) {
         object :
@@ -445,6 +554,34 @@ val commonModule = module {
             ),
             QueryByScoreOperation<Lesson> by QueryByScoreRepositoryComponent(
                 get<RepositoryConfig<Lesson, LessonEntity>>((named(LESSON_SCOPE)))
+            ) {}
+    }
+
+    single<SectionRepository>(named(SECTION_SCOPE)) {
+        object :
+            SectionRepository,
+            CrudOperations<Section> by CrudRepositoryComponent(
+                get<RepositoryConfig<Section, SectionEntity>>((named(SECTION_SCOPE)))
+            ),
+            BatchOperations<Section> by BatchRepositoryComponent(
+                get<RepositoryConfig<Section, SectionEntity>>((named(SECTION_SCOPE)))
+            ),
+            QueryByScoreOperation<Section> by QueryByScoreRepositoryComponent(
+                get<RepositoryConfig<Section, SectionEntity>>((named(SECTION_SCOPE)))
+            ) {}
+    }
+
+    single<SessionRepository>(named(SESSION_SCOPE)) {
+        object :
+            SessionRepository,
+            CrudOperations<Session> by CrudRepositoryComponent(
+                get<RepositoryConfig<Session, SessionEntity>>((named(SESSION_SCOPE)))
+            ),
+            BatchOperations<Session> by BatchRepositoryComponent(
+                get<RepositoryConfig<Session, SessionEntity>>((named(SESSION_SCOPE)))
+            ),
+            QueryByDateRangeOperation<Session> by QueryByDateRangeRepositoryComponent(
+                get<RepositoryConfig<Session, SessionEntity>>((named(SESSION_SCOPE)))
             ) {}
     }
 

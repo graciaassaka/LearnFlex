@@ -12,8 +12,8 @@ class GetLessonIdsByMinQuizScoreUseCase(private val repository: LessonRepository
     /**
      * Invokes the use case to retrieve a set of lesson IDs based on a minimum quiz score.
      *
-     * @param path The path where the lessons are located.
+     * @param parentId The ID of the parent entity.
      * @param minQuizScore The minimum quiz score to filter the lesson IDs by.
      */
-    operator fun invoke(path: String, minQuizScore: Int) = repository.getIdsByMinScore(path, minQuizScore)
+    operator fun invoke(parentId: String, minQuizScore: Int) = repository.getIdsByMinScore(parentId, minQuizScore)
 }

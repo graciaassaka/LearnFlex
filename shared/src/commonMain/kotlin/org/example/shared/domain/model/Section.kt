@@ -1,6 +1,7 @@
 package org.example.shared.domain.model
 
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import org.example.shared.domain.model.definition.DatabaseRecord
 import org.example.shared.domain.model.definition.ScoreQueryable
 
@@ -17,6 +18,7 @@ import org.example.shared.domain.model.definition.ScoreQueryable
  * @property createdAt The timestamp when the section was created.
  * @property lastUpdated The timestamp when the section was last updated.
  */
+@Serializable
 open class Section(
     @SerialName("id")
     override val id: String,

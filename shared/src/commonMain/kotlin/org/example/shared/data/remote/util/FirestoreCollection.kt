@@ -6,11 +6,13 @@ package org.example.shared.data.remote.util
  * @property value The name of the Firestore collection.
  */
 enum class FirestoreCollection(val value: String) {
-    LEARNING_STYLES("learningStyles"),
     USERS("users")
 }
 
 enum class FirestoreSubCollection(val value: String) {
+    CURRICULUMS("curriculums"),
+    MODULES("modules"),
+    LESSONS("lessons"),
     SECTIONS("sections"),
-    QUIZZES("quizzes")
+    SESSIONS("sessions")
 }

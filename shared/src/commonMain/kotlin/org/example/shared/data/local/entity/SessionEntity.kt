@@ -12,8 +12,8 @@ import org.example.shared.domain.model.Session
  * Entity class representing a session in the local database.
  *
  * @property id The unique identifier of the session.
- * @property lessonId The identifier of the lesson this session belongs to.
- * @property endTimeMs The timestamp when the session ended.
+ * @property userId The identifier of the lesson this session belongs to.
+ * @property endTime The timestamp when the session ended.
  * @property durationMinutes The duration of the session in minutes.
  * @property createdAt The timestamp when the session was created.
  * @property lastUpdated The timestamp when the session was last updated.
@@ -22,9 +22,9 @@ import org.example.shared.domain.model.Session
     tableName = "session",
     foreignKeys = [
         ForeignKey(
-            entity = LessonEntity::class,
+            entity = UserProfileEntity::class,
             parentColumns = ["id"],
-            childColumns = ["lesson_id"],
+            childColumns = ["user_id"],
             onDelete = CASCADE
         )
     ]
@@ -33,11 +33,11 @@ data class SessionEntity(
     @PrimaryKey
     override val id: String,
 
-    @ColumnInfo(name = "lesson_id", index = true)
-    override val lessonId: String,
+    @ColumnInfo(name = "user_id", index = true)
+    override val userId: String,
 
     @ColumnInfo(name = "end_time_ms")
-    override val endTimeMs: Long,
+    override val endTime: Long,
 
     @ColumnInfo(name = "duration_minutes")
     override val durationMinutes: Long,
@@ -47,4 +47,4 @@ data class SessionEntity(
 
     @ColumnInfo(name = "last_updated")
     override val lastUpdated: Long
-) : Session(id, lessonId, endTimeMs, durationMinutes, createdAt, lastUpdated), RoomEntity
+) : Session(id, userId, endTime, durationMinutes, createdAt, lastUpdated), RoomEntity
