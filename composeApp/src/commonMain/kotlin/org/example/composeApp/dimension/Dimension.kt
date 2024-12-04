@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
  * for UI elements such as logos, corner radii, and button heights.
  */
 enum class Dimension(val dp: Dp) {
+    LOGO_SIZE_SMALL(64.dp),
     LOGO_SIZE_MEDIUM(80.dp),
     LOGO_SIZE_LARGE(160.dp),
     BIRD_SIZE(200.dp),

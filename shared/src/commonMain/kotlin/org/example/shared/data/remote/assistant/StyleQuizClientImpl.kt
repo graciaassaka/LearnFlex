@@ -29,21 +29,24 @@ class StyleQuizClientImpl(private val assistant: AIAssistantClient) : StyleQuizC
     override fun streamQuestions(preferences: LearningPreferences, number: Int) = with(assistant) {
         flow<Result<StyleQuestion>> {
             var thread: Thread? = null
+            val previousScenarios = mutableListOf<String>()
             try {
                 thread = createThread().getOrThrow()
                 createMessage(thread.id, MessageRequestBody(MessageRole.USER.value, MESSAGE)).getOrThrow()
 
                 var count = 0
                 while (count < number) {
-                    processRun(thread, preferences).onSuccess {
+                    processRun(thread, preferences, previousScenarios).onSuccess {
                         emit(Result.success(it))
+                        previousScenarios.add(it.scenario)
                         count++
                     }.onFailure {
                         emit(Result.failure(it))
                     }
 
-                    if (count < number - 1)
+                    if (count < number - 1) {
                         createMessage(thread.id, MessageRequestBody(MessageRole.USER.value, MESSAGE)).getOrThrow()
+                    }
                 }
             } catch (e: Exception) {
                 emit(Result.failure(e))
@@ -54,14 +57,15 @@ class StyleQuizClientImpl(private val assistant: AIAssistantClient) : StyleQuizC
     }
 
     /**
-     * Processes the run for the given thread.
+     * Processes a run for the specified thread, handling any required actions and ensuring completion.
      *
-     * @param thread The thread to process.
-     * @param preferences The user's learning preferences.
-     * @return A Result containing the generated StyleQuestionnaire.
+     * @param thread The thread associated with the run being processed.
+     * @param preferences The user's learning preferences which may influence the run processing.
+     * @param previousScenarios A list of previously processed scenarios to be included in the current run.
      */
-    private suspend fun processRun(thread: Thread, preferences: LearningPreferences) = with(assistant) {
-        var currentRun = createRun(thread.id).getOrThrow()
+    private suspend fun processRun(thread: Thread, preferences: LearningPreferences, previousScenarios: List<String>) =
+        with(assistant) {
+            var currentRun = createRun(thread.id, previousScenarios).getOrThrow()
 
         return@with try {
             while (RunStatus.valueOf(currentRun.status.uppercase()).isRunActive()) {
@@ -84,16 +88,16 @@ class StyleQuizClientImpl(private val assistant: AIAssistantClient) : StyleQuizC
 
 
     /**
-     * Creates a new run for the given thread ID.
+     * Initiates the creation of a new run for a specified thread, incorporating previous scenarios into the run instructions.
      *
-     * @param threadId The ID of the thread.
-     * @return A Result containing the created Run.
+     * @param threadId The ID of the thread in which the run will be created.
+     * @param previousScenarios A list of scenarios that were processed previously and need to be included in the instructions.
      */
-    private suspend fun createRun(threadId: String) = assistant.createRun(
+    private suspend fun createRun(threadId: String, previousScenarios: List<String>) = assistant.createRun(
         threadId = threadId,
         requestBody = RunRequestBody(
             assistantId = OpenAIConstants.STYLE_ASSISTANT_ID,
-            instructions = INSTRUCTIONS,
+            instructions = INSTRUCTIONS + previousScenarios.joinToString(", "),
             tools = listOf(Tool.FunctionTool(constructFunction()))
         )
     )
@@ -230,7 +234,7 @@ class StyleQuizClientImpl(private val assistant: AIAssistantClient) : StyleQuizC
      * @return The decoded StyleQuestionnaire.
      */
     private suspend fun getAssistantMessage(threadId: String) = assistant
-        .listMessages(threadId, 10, MessagesOrder.ASC)
+        .listMessages(threadId, 10, MessagesOrder.DESC)
         .getOrThrow().data
         .first { it.role == MessageRole.ASSISTANT.value }
         .let { Json.decodeFromString<StyleQuestion>((it.content.first() as Content.TextContent).text.value) }
@@ -256,10 +260,13 @@ class StyleQuizClientImpl(private val assistant: AIAssistantClient) : StyleQuizC
         }
 
     companion object {
-        private const val MESSAGE = "Generate the next question"
+        private const val MESSAGE = "Generate the next question."
         private const val FUN_NAME = "get_user_context"
         private const val FUN_DESC = "Get the user's learning context to generate personalized assessment questions"
-        private const val INSTRUCTIONS = "Generate learning style assessment questions based on the user's context"
+        private const val INSTRUCTIONS = """
+                Generate learning style assessment question based on the user's context. 
+                Ensure the new question is completely different from the following scenarios:
+            """
         private const val POLLING_INTERVAL = 1000L
     }
 }

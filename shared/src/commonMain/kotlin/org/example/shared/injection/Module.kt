@@ -158,7 +158,7 @@ val commonModule = module {
     }
 
     // Remote DAOs
-    single<RemoteDao<UserProfile>> {
+    single<RemoteDao<UserProfile>>(named(USER_PROFILE_SCOPE)) {
         object : FirestoreBaseDao<UserProfile>(
             firestore = get(),
             serializer = UserProfile.serializer()
@@ -315,7 +315,7 @@ val commonModule = module {
     // Repository Components Configuration
     single<RepositoryConfig<UserProfile, UserProfileEntity>>(named(USER_PROFILE_SCOPE)) {
         RepositoryConfig(
-            remoteDao = get(),
+            remoteDao = get<RemoteDao<UserProfile>>(named(USER_PROFILE_SCOPE)),
             localDao = get<UserProfileDao>(named(USER_PROFILE_SCOPE)),
             modelMapper = get(named(USER_PROFILE_SCOPE)),
             syncManager = get(named(USER_PROFILE_SCOPE)),
@@ -482,6 +482,14 @@ val commonModule = module {
     singleOf(::GetCurriculumUseCase)
     singleOf(::GetAllCurriculaUseCase)
     singleOf(::GetCurriculaByStatusUseCase)
+
+    // Use Cases - Module
+    singleOf(::UploadModuleUseCase)
+    singleOf(::UpdateModuleUseCase)
+    singleOf(::GetModuleUseCase)
+    singleOf(::GetAllModulesUseCase)
+    singleOf(::GetModuleIdsByMinQuizScoreUseCase)
+    singleOf(::DeleteAllModulesUseCase)
 
     // Use Cases - Lesson
     singleOf(::UploadLessonUseCase)

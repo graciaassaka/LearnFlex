@@ -7,10 +7,10 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaul
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
-import androidx.window.core.layout.WindowWidthSizeClass
 import org.example.composeApp.navigation.AppDestination
 
 /**
@@ -25,6 +25,7 @@ import org.example.composeApp.navigation.AppDestination
  */
 @Composable
 actual fun CustomScaffold(
+    widthSizeClass: WindowWidthSizeClass,
     currentDestination: AppDestination,
     onDestinationSelected: (AppDestination) -> Unit,
     snackbarHostState: SnackbarHostState,
@@ -41,7 +42,7 @@ actual fun CustomScaffold(
     )
 
     val (customNavSuiteType, itemFontSize) = with(currentWindowAdaptiveInfo()) {
-        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
+        if (windowSizeClass.windowWidthSizeClass == androidx.window.core.layout.WindowWidthSizeClass.EXPANDED) {
             Pair(NavigationSuiteType.NavigationDrawer, 16.sp)
         } else {
             Pair(NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(this), 8.sp)

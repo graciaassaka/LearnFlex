@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
@@ -188,6 +189,7 @@ fun DashboardScreen(
     }
 
     CustomScaffold(
+        widthSizeClass = windowSizeClass.widthSizeClass,
         currentDestination = AppDestination.Dashboard,
         onDestinationSelected = { },
         snackbarHostState = remember { SnackbarHostState() },
@@ -532,6 +534,7 @@ private fun DayDetailsPopup(
     onDismiss: () -> Unit
 ) = Popup(
     onDismissRequest = onDismiss,
+    properties = PopupProperties(clippingEnabled = false),
     alignment = Alignment.Center
 ) {
     Column(
