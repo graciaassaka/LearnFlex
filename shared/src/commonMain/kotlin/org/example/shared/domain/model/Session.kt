@@ -20,10 +20,10 @@ open class Session(
     @SerialName("id")
     override val id: String,
 
-    @SerialName("lesson_id")
+    @SerialName("user_id")
     open val userId: String,
 
-    @SerialName("end_time_ms")
+    @SerialName("end_time")
     override val endTime: Long,
 
     @SerialName("duration_minutes")

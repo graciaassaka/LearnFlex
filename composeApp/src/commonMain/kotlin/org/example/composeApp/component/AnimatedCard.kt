@@ -1,4 +1,4 @@
-package org.example.composeApp.component.auth
+package org.example.composeApp.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -14,7 +14,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import org.example.composeApp.component.GradientBackground
 
 /**
  * Displays an animated card for authentication with slide-in/slide-out transitions and gradient background.

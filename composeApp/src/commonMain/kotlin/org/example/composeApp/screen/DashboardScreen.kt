@@ -7,10 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,6 +29,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -46,7 +45,10 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import kotlinx.coroutines.delay
 import learnflex.composeapp.generated.resources.*
-import org.example.composeApp.component.*
+import org.example.composeApp.component.CustomCircularProgressIndicator
+import org.example.composeApp.component.CustomScaffold
+import org.example.composeApp.component.CustomVerticalScrollbar
+import org.example.composeApp.component.shimmerEffect
 import org.example.composeApp.dimension.Dimension
 import org.example.composeApp.dimension.Elevation
 import org.example.composeApp.dimension.Padding
@@ -57,6 +59,14 @@ import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+
+private enum class Dimensions(val dp: Dp) {
+    MIN_GRID_CELL_SIZE(200.dp),
+    WELCOME_SECTION_HEIGHT(200.dp),
+    WEEKLY_ACTIVITY_SECTION_HEIGHT(200.dp),
+    MODULE_CARD_HEIGHT(250.dp),
+    PROGRESS_INDICATOR_STROKE_WIDTH(12.dp),
+}
 
 @Composable
 fun DashboardScreen(
@@ -182,6 +192,7 @@ fun DashboardScreen(
     )
 
     var isLoading by remember { mutableStateOf(true) }
+    val lazyGridState = rememberLazyGridState()
 
     LaunchedEffect(Unit) {
         delay(5000)
@@ -189,10 +200,8 @@ fun DashboardScreen(
     }
 
     CustomScaffold(
-        widthSizeClass = windowSizeClass.widthSizeClass,
         currentDestination = AppDestination.Dashboard,
         onDestinationSelected = { },
-        snackbarHostState = remember { SnackbarHostState() },
         enabled = !isLoading
     ) {
         Row(
@@ -205,9 +214,14 @@ fun DashboardScreen(
                     .weight(2f)
                     .fillMaxHeight()
             ) {
+                CustomVerticalScrollbar(
+                    lazyGridState = lazyGridState,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
                 LazyVerticalGrid(
-                    columns = GridCells.Adaptive(200.dp),
-                    contentPadding = PaddingValues(Padding.MEDIUM.dp)
+                    columns = GridCells.Adaptive(Dimensions.MIN_GRID_CELL_SIZE.dp),
+                    contentPadding = PaddingValues(Padding.MEDIUM.dp),
+                    state = lazyGridState
                 ) {
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         WelcomeSection(
@@ -222,19 +236,17 @@ fun DashboardScreen(
                     }
 
                     item(span = { GridItemSpan(maxLineSpan) }) {
-                        ShimmerBox(
-                            isLoading = isLoading,
-                            height = 32.dp,
-                            width = 100.dp
-                        ) {
-                            Text(
-                                text = stringResource(Res.string.weekly_activity),
-                                color = MaterialTheme.colorScheme.primary,
-                                style = MaterialTheme.typography.titleMedium,
-                                textAlign = TextAlign.Start,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
+                        Text(
+                            text = stringResource(Res.string.weekly_activity),
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.titleMedium,
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Spacer(modifier = Modifier.height(Spacing.MEDIUM.dp))
                     }
 
                     item(span = { GridItemSpan(maxLineSpan) }) {
@@ -252,19 +264,17 @@ fun DashboardScreen(
                     }
 
                     item(span = { GridItemSpan(maxLineSpan) }) {
-                        ShimmerBox(
-                            isLoading = isLoading,
-                            height = 32.dp,
-                            width = 100.dp
-                        ) {
-                            Text(
-                                text = stringResource(Res.string.modules),
-                                color = MaterialTheme.colorScheme.primary,
-                                style = MaterialTheme.typography.titleMedium,
-                                textAlign = TextAlign.Start,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
+                        Text(
+                            text = stringResource(Res.string.modules),
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.titleMedium,
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Spacer(modifier = Modifier.height(Spacing.MEDIUM.dp))
                     }
 
                     items(modules) { module ->
@@ -311,7 +321,7 @@ private fun WelcomeSection(
     ) {
         BoxWithConstraints(
             modifier = modifier
-                .height(200.dp)
+                .height(Dimensions.WELCOME_SECTION_HEIGHT.dp)
                 .fillMaxWidth()
         ) {
             Column(
@@ -428,7 +438,7 @@ private fun WeeklyActivitiesSection(
 ) = if (isLoading) {
     Box(
         modifier = modifier
-            .height(200.dp)
+            .height(Dimensions.WEEKLY_ACTIVITY_SECTION_HEIGHT.dp)
             .shadow(elevation = Elevation.MEDIUM.dp)
             .fillMaxWidth()
             .shimmerEffect()
@@ -471,7 +481,7 @@ private fun BackgroundContainer(
     )
     Box(
         modifier = modifier
-            .height(200.dp)
+            .height(Dimensions.WEEKLY_ACTIVITY_SECTION_HEIGHT.dp)
             .shadow(elevation = Elevation.MEDIUM.dp)
             .fillMaxWidth()
     ) {
@@ -596,9 +606,9 @@ private fun ModuleCard(
     onModuleClicked: (String) -> Unit,
     modifier: Modifier = Modifier
 ) = if (isLoading) {
-    Box(modifier = modifier.height(250.dp).shimmerEffect())
+    Box(modifier = modifier.height(Dimensions.MODULE_CARD_HEIGHT.dp).shimmerEffect())
 } else {
-    Box(modifier = modifier.height(250.dp)) {
+    Box(modifier = modifier.height(Dimensions.MODULE_CARD_HEIGHT.dp)) {
         Card(
             onClick = { onModuleClicked(module.id) },
             shape = RectangleShape,
@@ -670,13 +680,12 @@ private fun CurriculumSection(
     Box(modifier = modifier.fillMaxSize()) {
         AnimatedBackground(brushColors, offset)
         CurriculumContent(curricula, itemCompletions, onCurriculumClicked, lazyState)
-        CustomLazyListVerticalScrollbar(
+        CustomVerticalScrollbar(
             lazyListState = lazyState,
-            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight()
+            modifier = Modifier.align(Alignment.CenterEnd)
         )
     }
 }
-
 
 @Composable
 private fun AnimatedBackground(
@@ -701,7 +710,6 @@ private fun AnimatedBackground(
         }
 )
 
-
 @Composable
 private fun CurriculumContent(
     curricula: List<Curriculum>,
@@ -721,7 +729,7 @@ private fun CurriculumContent(
         Text(
             text = stringResource(Res.string.curriculum_progress),
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
             textAlign = TextAlign.Start,
             modifier = Modifier.fillMaxWidth()
         )
@@ -730,7 +738,7 @@ private fun CurriculumContent(
     item {
         Text(
             text = stringResource(Res.string.completed_curricula),
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
             style = MaterialTheme.typography.titleMedium,
             textAlign = TextAlign.Start,
             modifier = Modifier.fillMaxWidth()
@@ -748,49 +756,55 @@ private fun CurriculumContent(
 private fun CompletionCard(
     itemCompletions: List<Triple<String, Int, Int>>,
     modifier: Modifier = Modifier
-) = Card(
-    modifier = modifier.fillMaxWidth(),
-    colors = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.background,
-        contentColor = MaterialTheme.colorScheme.onBackground
-    ),
-    shape = RoundedCornerShape(Dimension.CORNER_RADIUS_MEDIUM.dp),
-    elevation = CardDefaults.cardElevation(Elevation.MEDIUM.dp)
 ) {
-    Column(
-        modifier = Modifier
-            .padding(Padding.MEDIUM.dp)
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    val barColors = MutableList(itemCompletions.size) { i -> remember(i) { mutableStateOf(Color.Gray) } }
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.onBackground
+        ),
+        shape = RoundedCornerShape(Dimension.CORNER_RADIUS_MEDIUM.dp),
+        elevation = CardDefaults.cardElevation(Elevation.MEDIUM.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier
+                .padding(Padding.MEDIUM.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            itemCompletions.forEach { (label, completed, total) ->
-                Box(modifier = Modifier.weight(1f)) {
-                    CompletionStatus(
-                        label = label,
-                        completed = completed,
-                        total = total,
-                        textColor = Color.Black
-                    )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                itemCompletions.forEachIndexed { i, (label, completed, total) ->
+                    Box(modifier = Modifier.weight(1f)) {
+                        CompletionStatus(
+                            label = label,
+                            completed = completed,
+                            total = total,
+                            textColor = MaterialTheme.colorScheme.onBackground,
+                            barColor = barColors[i].value
+                        )
+                    }
                 }
             }
-        }
-        Box {
-            itemCompletions.forEachIndexed { i, (label, completed, total) ->
-                CustomCircularProgressIndicator(
-                    label = label,
-                    progress = completed.toFloat() / total,
-                    modifier = Modifier.align(Alignment.Center),
-                    size = (200 - i * 40).dp,
-                    strokeWidth = 12.dp,
-                    progressValueTextStyle = MaterialTheme.typography.displayMedium,
-                    progressValuesTextColor = MaterialTheme.colorScheme.primary
-                )
+            Box {
+                itemCompletions.forEachIndexed { i, (label, completed, total) ->
+                    CustomCircularProgressIndicator(
+                        label = label,
+                        progress = completed.toFloat() / total,
+                        modifier = Modifier.align(Alignment.Center),
+                        size = (200 - i * 40).dp,
+                        strokeWidth = Dimensions.PROGRESS_INDICATOR_STROKE_WIDTH.dp,
+                        progressValueTextStyle = MaterialTheme.typography.displayMedium,
+                        progressValuesTextColor = MaterialTheme.colorScheme.primary,
+                        onProgressColorChange = { color -> barColors[i].value = color }
+                    )
+                }
             }
         }
     }
@@ -802,28 +816,78 @@ private fun CompletionStatus(
     completed: Int,
     total: Int,
     textColor: Color,
+    barColor: Color,
     modifier: Modifier = Modifier
 ) = Row(
     modifier = modifier,
     horizontalArrangement = Arrangement.spacedBy(Spacing.SMALL.dp),
     verticalAlignment = Alignment.CenterVertically
 ) {
-    Column(
-        modifier = Modifier.weight(0.8f),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "$completed/$total",
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold
+    Layout(
+        content = {
+            Box(
+                modifier = Modifier
+                    .width(Padding.SMALL.dp)
+                    .background(
+                        color = barColor,
+                        shape = RoundedCornerShape(Dimension.CORNER_RADIUS_SMALL.dp)
+                    )
+                    .layoutId("bar")
+            )
+            Column(
+                modifier = Modifier.layoutId("text"),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "$completed/$total",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold,
+                    color = textColor
+                )
+            }
+        }
+    ) { measurables, constraints ->
+        val barMeasurable = measurables.find { it.layoutId == "bar" }!!
+        val textMeasurable = measurables.find { it.layoutId == "text" }!!
+
+        val totalWeight = 1f
+        val barWeight = 0.2f
+        val textWeight = 0.8f
+
+        val textPlaceable = textMeasurable.measure(
+            constraints.copy(
+                maxWidth = (constraints.maxWidth * (textWeight / totalWeight)).toInt()
+            )
         )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.Bold,
-            color = textColor
+
+        val barPlaceable = barMeasurable.measure(
+            constraints.copy(
+                maxWidth = (constraints.maxWidth * (barWeight / totalWeight)).toInt(),
+                minHeight = textPlaceable.height,
+                maxHeight = textPlaceable.height
+            )
         )
+
+        val totalWidth = barPlaceable.width + textPlaceable.width
+        val totalHeight = textPlaceable.height
+
+        layout(totalWidth, totalHeight) {
+            barPlaceable.placeRelative(
+                x = 0,
+                y = 0
+            )
+
+            textPlaceable.placeRelative(
+                x = barPlaceable.width + Spacing.SMALL.dp.roundToPx(),
+                y = 0
+            )
+        }
     }
 }
 

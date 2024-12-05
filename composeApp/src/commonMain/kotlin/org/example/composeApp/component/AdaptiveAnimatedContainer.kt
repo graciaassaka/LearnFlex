@@ -7,7 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.example.composeApp.component.auth.AnimatedBottomSheet
-import org.example.composeApp.component.auth.AnimatedCard
 import org.example.composeApp.util.Orientation
 
 /**

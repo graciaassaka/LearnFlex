@@ -36,7 +36,7 @@ data class SessionEntity(
     @ColumnInfo(name = "user_id", index = true)
     override val userId: String,
 
-    @ColumnInfo(name = "end_time_ms")
+    @ColumnInfo(name = "end_time")
     override val endTime: Long,
 
     @ColumnInfo(name = "duration_minutes")

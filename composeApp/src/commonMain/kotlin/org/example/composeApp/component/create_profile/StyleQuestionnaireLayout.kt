@@ -9,8 +9,8 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import org.example.composeApp.component.AnimatedCard
 import org.example.composeApp.component.CustomSnackbar
-import org.example.composeApp.component.auth.AnimatedCard
 import org.example.composeApp.dimension.Dimension
 import org.example.composeApp.dimension.Padding
 import org.example.composeApp.layout.CreateProfileLayout

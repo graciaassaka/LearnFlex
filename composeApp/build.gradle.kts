@@ -45,6 +45,10 @@ kotlin {
                 implementation(compose.ui)
                 implementation(compose.components.resources)
                 implementation(compose.components.uiToolingPreview)
+                implementation(compose.material3AdaptiveNavigationSuite)
+                implementation(libs.compose.adaptive)
+                implementation(libs.compose.adaptive.layout)
+                implementation(libs.compose.adaptive.navigation)
                 implementation(libs.compose.navigation)
                 implementation(libs.koin.core)
                 implementation(libs.koin.compose)
@@ -83,10 +87,6 @@ kotlin {
                 implementation(libs.androidx.compose.materialIconsExtended)
                 implementation(libs.androidx.compose.animation)
                 implementation(libs.androidx.splash.screen)
-                implementation(libs.compose.adaptive)
-                implementation(libs.compose.adaptive.layout)
-                implementation(libs.compose.adaptive.navigation)
-                implementation(libs.compose.adaptive.navigation.suite)
             }
         }
 

@@ -20,14 +20,12 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.navigation.NavController
 import learnflex.composeapp.generated.resources.*
-import org.example.composeApp.component.EnumDropdown
-import org.example.composeApp.component.HandleUIEvents
-import org.example.composeApp.component.ImageUpload
-import org.example.composeApp.component.SelectableCardGroup
+import org.example.composeApp.component.*
 import org.example.composeApp.component.create_profile.PersonalInfoForm
 import org.example.composeApp.component.create_profile.StyleQuestionnaireForm
 import org.example.composeApp.dimension.Dimension
 import org.example.composeApp.dimension.Padding
+import org.example.composeApp.dimension.Spacing
 import org.example.composeApp.layout.AlignedLabeledBarsLayout
 import org.example.composeApp.layout.EnumScrollablePickerLayout
 import org.example.composeApp.util.TestTags
@@ -144,6 +142,7 @@ private fun PersonalInfoScreen(
     var isFormVisible by remember { mutableStateOf(true) }
     var currentDestination by remember { mutableStateOf<ProfileCreationForm?>(null) }
     var goalCharCount by remember { mutableIntStateOf(0) }
+    val scrollState = rememberScrollState()
 
     val maxGoalLen = 80
     val createProfileSuccessMsg = stringResource(Res.string.create_profile_success)
@@ -168,81 +167,89 @@ private fun PersonalInfoScreen(
         onAnimationFinished = { currentDestination?.let { displayForm(it) } },
         modifier = modifier
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(vertical = Padding.LARGE.dp, horizontal = Padding.MEDIUM.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(Padding.MEDIUM.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            ImageUpload(
-                enabled = enabled,
-                onImageSelected = { onUploadProfilePicture(it, uploadPhotoSuccessMsg) },
-                onImageDeleted = { onProfilePictureDeleted(deletePhotoSuccessMsg) },
-                handleError = handleError,
-                modifier = Modifier.testTag(TestTags.PERSONAL_INFO_IMAGE_UPLOAD.tag),
-                isUploaded = photoUrl.isBlank().not()
+        Box(modifier = modifier.fillMaxSize()) {
+            CustomVerticalScrollbar(
+                scrollState = scrollState,
+                modifier = Modifier.align(Alignment.CenterEnd)
             )
-            TextField(
-                value = username,
-                onValueChange = onUsernameChanged,
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag(TestTags.PERSONAL_INFO_USERNAME_TEXT_FIELD.tag),
-                enabled = enabled,
-                label = { Text(stringResource(Res.string.username_label)) },
-                leadingIcon = { Icon(Icons.Default.AccountCircle, null) },
-                supportingText = { usernameError?.let { Text(it) } },
-                isError = usernameError != null,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-            )
-            TextField(
-                value = goal,
-                onValueChange = {
-                    if (it.length < maxGoalLen) onGoalChanged(it)
-                    goalCharCount = it.length
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag(TestTags.PERSONAL_INFO_GOAL_TEXT_FIELD.tag),
-                enabled = enabled,
-                label = { Text(stringResource(Res.string.goals_label)) },
-                leadingIcon = { Icon(Icons.Default.SportsFootball, null) },
-                supportingText = {
-                    Text(
-                        text = "$goalCharCount/$maxGoalLen",
-                        modifier = Modifier.testTag(TestTags.PERSONAL_INFO_GOAL_CHAR_COUNTER.tag)
-                    )
-                },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                singleLine = false
-            )
-            EnumDropdown<Level>(
-                label = stringResource(Res.string.level_label),
-                selected = level,
-                isDropDownVisible = isLevelDropdownVisible,
-                onDropDownVisibilityChanged = toggleLevelDropdownVisibility,
-                onSelected = onLevelChanged,
-                enabled = enabled,
-                modifier = Modifier.testTag(TestTags.PERSONAL_INFO_LEVEL_DROPDOWN.tag)
-            )
-            EnumScrollablePickerLayout<Field>(
-                label = stringResource(Res.string.field_label),
-                onChange = onFieldChanged,
-                enabled = enabled,
-                modifier = Modifier.testTag(TestTags.PERSONAL_INFO_FIELD_PICKER.tag)
-            )
-            Button(
-                onClick = { onCreateProfile(createProfileSuccessMsg) },
-                enabled = enabled && usernameError.isNullOrBlank(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
-                    .testTag(TestTags.PERSONAL_INFO_CREATE_PROFILE_BUTTON.tag),
-                shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
-                content = { Text(stringResource(Res.string.create_profile_button_label)) }
-            )
+                    .fillMaxSize()
+                    .padding(horizontal = Padding.MEDIUM.dp)
+                    .verticalScroll(scrollState),
+                verticalArrangement = Arrangement.spacedBy(Padding.MEDIUM.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
+                ImageUpload(
+                    enabled = enabled,
+                    onImageSelected = { onUploadProfilePicture(it, uploadPhotoSuccessMsg) },
+                    onImageDeleted = { onProfilePictureDeleted(deletePhotoSuccessMsg) },
+                    handleError = handleError,
+                    modifier = Modifier.testTag(TestTags.PERSONAL_INFO_IMAGE_UPLOAD.tag),
+                    isUploaded = photoUrl.isBlank().not()
+                )
+                TextField(
+                    value = username,
+                    onValueChange = onUsernameChanged,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(TestTags.PERSONAL_INFO_USERNAME_TEXT_FIELD.tag),
+                    enabled = enabled,
+                    label = { Text(stringResource(Res.string.username_label)) },
+                    leadingIcon = { Icon(Icons.Default.AccountCircle, null) },
+                    supportingText = { usernameError?.let { Text(it) } },
+                    isError = usernameError != null,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                )
+                TextField(
+                    value = goal,
+                    onValueChange = {
+                        if (it.length < maxGoalLen) onGoalChanged(it)
+                        goalCharCount = it.length
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(TestTags.PERSONAL_INFO_GOAL_TEXT_FIELD.tag),
+                    enabled = enabled,
+                    label = { Text(stringResource(Res.string.goals_label)) },
+                    leadingIcon = { Icon(Icons.Default.SportsFootball, null) },
+                    supportingText = {
+                        Text(
+                            text = "$goalCharCount/$maxGoalLen",
+                            modifier = Modifier.testTag(TestTags.PERSONAL_INFO_GOAL_CHAR_COUNTER.tag)
+                        )
+                    },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    singleLine = false
+                )
+                EnumDropdown<Level>(
+                    label = stringResource(Res.string.level_label),
+                    selected = level,
+                    isDropDownVisible = isLevelDropdownVisible,
+                    onDropDownVisibilityChanged = toggleLevelDropdownVisibility,
+                    onSelected = onLevelChanged,
+                    enabled = enabled,
+                    modifier = Modifier.testTag(TestTags.PERSONAL_INFO_LEVEL_DROPDOWN.tag)
+                )
+                EnumScrollablePickerLayout<Field>(
+                    label = stringResource(Res.string.field_label),
+                    onChange = onFieldChanged,
+                    enabled = enabled,
+                    modifier = Modifier.testTag(TestTags.PERSONAL_INFO_FIELD_PICKER.tag)
+                )
+                Button(
+                    onClick = { onCreateProfile(createProfileSuccessMsg) },
+                    enabled = enabled && usernameError.isNullOrBlank(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
+                        .testTag(TestTags.PERSONAL_INFO_CREATE_PROFILE_BUTTON.tag),
+                    shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
+                    content = { Text(stringResource(Res.string.create_profile_button_label)) }
+                )
+                Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
+            }
         }
     }
 }
@@ -288,6 +295,8 @@ private fun StyleQuestionnaireScreen(
         modifier = modifier
     ) {
         currentQuestion?.let { question ->
+            val scrollState = rememberScrollState()
+
             QuestionContent(
                 question = question,
                 selectedOption = selectedOption,
@@ -308,7 +317,7 @@ private fun StyleQuestionnaireScreen(
                         if (currentQuestionIndex < styleQuestionnaire.size) currentQuestionIndex++
                     }
                 },
-                onFinish = onQuestionnaireCompleted,
+                onFinish = onQuestionnaireCompleted
             )
         }
     }
@@ -336,31 +345,41 @@ private fun QuestionContent(
     onNextClicked: () -> Unit,
     onFinish: () -> Unit,
     modifier: Modifier = Modifier
-) = Column(
-    modifier = modifier
-        .fillMaxSize()
-        .verticalScroll(rememberScrollState()),
-    verticalArrangement = Arrangement.Center,
-    horizontalAlignment = Alignment.CenterHorizontally
 ) {
-    SelectableCardGroup(
-        options = question.options.map { it.text },
-        onOptionSelected = onOptionSelected,
-        selectedOption = selectedOption,
-        enabled = enabled,
-        modifier = Modifier.testTag(TestTags.STYLE_QUESTIONNAIRE_OPTIONS_GROUP.tag)
-    )
-    Button(
-        onClick = if (isQuizFinished) onFinish else onNextClicked,
-        enabled = enabled && selectedOption.isNotBlank(),
-        modifier = Modifier
-            .align(Alignment.End)
-            .testTag(TestTags.STYLE_QUESTIONNAIRE_NEXT_BUTTON.tag),
-    ) {
-        Text(
-            if (isQuizFinished) stringResource(Res.string.finish_button_label)
-            else stringResource(Res.string.next_button_label)
+    val scrollState = rememberScrollState()
+
+    Box(modifier = modifier.fillMaxSize()) {
+        CustomVerticalScrollbar(
+            scrollState = scrollState,
+            modifier = Modifier.align(Alignment.CenterEnd)
         )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            SelectableCardGroup(
+                options = question.options.map { it.text },
+                onOptionSelected = onOptionSelected,
+                selectedOption = selectedOption,
+                enabled = enabled,
+                modifier = Modifier.testTag(TestTags.STYLE_QUESTIONNAIRE_OPTIONS_GROUP.tag)
+            )
+            Button(
+                onClick = if (isQuizFinished) onFinish else onNextClicked,
+                enabled = enabled && selectedOption.isNotBlank(),
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .testTag(TestTags.STYLE_QUESTIONNAIRE_NEXT_BUTTON.tag),
+            ) {
+                Text(
+                    if (isQuizFinished) stringResource(Res.string.finish_button_label)
+                    else stringResource(Res.string.next_button_label)
+                )
+            }
+        }
     }
 }
 

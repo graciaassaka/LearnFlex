@@ -275,7 +275,7 @@ fun LearnFlexTheme(
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) = MaterialTheme(
-    colorScheme = getPlatformColorScheme(false, dynamicColor),
+    colorScheme = getPlatformColorScheme(darkTheme, dynamicColor),
     shapes = getPlatformShape(),
     content = content
 )

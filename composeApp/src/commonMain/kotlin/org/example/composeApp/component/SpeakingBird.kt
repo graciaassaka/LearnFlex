@@ -2,6 +2,12 @@ package org.example.composeApp.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,9 +35,14 @@ fun SpeakingBird(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val scrollState = rememberScrollState()
     val (height, bubbleAlignment, birdAlignment) = when (orientation) {
         Orientation.Vertical -> Triple(Dimension.SPEAKING_BIRD_HEIGHT_VER.dp, Alignment.TopEnd, Alignment.BottomStart)
-        Orientation.Horizontal -> Triple(Dimension.SPEAKING_BIRD_HEIGHT_HOR.dp, Alignment.TopCenter, Alignment.BottomCenter)
+        Orientation.Horizontal -> Triple(
+            Dimension.SPEAKING_BIRD_HEIGHT_HOR.dp,
+            Alignment.TopCenter,
+            Alignment.BottomCenter
+        )
     }
     Box(
         modifier = modifier
@@ -39,7 +50,7 @@ fun SpeakingBird(
             .height(height)
             .padding(Padding.MEDIUM.dp),
     ) {
-        SpeechBubble(
+        Card(
             modifier = Modifier
                 .align(bubbleAlignment)
                 .padding(end = Padding.SMALL.dp)
@@ -49,14 +60,30 @@ fun SpeakingBird(
                     maxHeight = Dimension.SPEECH_BUBBLE_MAX_HEIGHT.dp,
                     minWidth = Dimension.SPEECH_BUBBLE_MIN_WIDTH.dp,
                     minHeight = Dimension.SPEECH_BUBBLE_MIN_HEIGHT.dp
-                )
-        ) {
-            Column(
-                modifier = Modifier.padding(Padding.MEDIUM.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                content = { if (!enabled) TypingIndicator(modifier = Modifier.padding(Padding.MEDIUM.dp)) else content() }
+                ),
+            shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             )
+        ) {
+            Box(modifier = Modifier.wrapContentSize()) {
+                if (scrollState.maxValue > 0) CustomVerticalScrollbar(
+                    scrollState = scrollState,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
+                Column(
+                    modifier = Modifier
+                        .padding(Padding.MEDIUM.dp)
+                        .verticalScroll(
+                            state = scrollState,
+                            enabled = enabled
+                        ),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    content = { if (!enabled) TypingIndicator(modifier = Modifier.padding(Padding.MEDIUM.dp)) else content() }
+                )
+            }
         }
         Image(
             painter = painterResource(Res.drawable.learnflexbird),

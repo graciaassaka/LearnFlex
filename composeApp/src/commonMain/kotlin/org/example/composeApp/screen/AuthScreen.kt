@@ -23,16 +23,17 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import learnflex.composeapp.generated.resources.*
 import org.example.composeApp.component.AnimatedOutlinedTextField
+import org.example.composeApp.component.CustomVerticalScrollbar
 import org.example.composeApp.component.HandleUIEvents
 import org.example.composeApp.component.PulsingImage
 import org.example.composeApp.dimension.Dimension
 import org.example.composeApp.dimension.Padding
 import org.example.composeApp.dimension.Spacing
 import org.example.composeApp.layout.AuthLayout
+import org.example.composeApp.util.TestTags
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.util.AuthForm
 import org.example.shared.presentation.util.SnackbarType
-import org.example.composeApp.util.TestTags
 import org.example.shared.presentation.viewModel.AuthViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -161,6 +162,7 @@ private fun SignInForm(
     val signInSuccessMessage = stringResource(Res.string.sign_in_success)
     var isFormVisible by remember { mutableStateOf(true) }
     var currentDestination by remember { mutableStateOf<AuthForm?>(null) }
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(isScreenVisible) { isFormVisible = isScreenVisible }
 
@@ -175,67 +177,75 @@ private fun SignInForm(
             else currentDestination?.let(displayAuthForm)
         }
     ) {
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(Padding.MEDIUM.dp, Padding.LARGE.dp),
-            verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = stringResource(Res.string.sign_in_screen_title),
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.testTag(TestTags.SIGN_IN_SCREEN_TITLE.tag)
+        Box(modifier = modifier.fillMaxSize()) {
+            CustomVerticalScrollbar(
+                scrollState = scrollState,
+                modifier = Modifier.align(Alignment.CenterEnd)
             )
-            EmailInputField(
-                email = email,
-                onEmailChanged = onEmailChanged,
-                emailError = emailError,
-                enabled = enabled,
-                modifier = Modifier.testTag(TestTags.SIGN_IN_EMAIL_FIELD.tag)
-            )
-            PasswordInputField(
-                password = password,
-                onPasswordChanged = onPasswordChanged,
-                passwordError = passwordError,
-                enabled = enabled,
-                onPasswordVisibilityToggled = onPasswordVisibilityToggled,
-                passwordVisibility = passwordVisibility,
-                modifier = Modifier.testTag(TestTags.SIGN_IN_PASSWORD_FIELD.tag),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                keyboardActions = KeyboardActions { onSignInClicked(signInSuccessMessage) },
-            )
-            Button(
-                onClick = { onSignInClicked(signInSuccessMessage) },
-                enabled = enabled && emailError.isNullOrBlank() && passwordError.isNullOrBlank(),
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
-                    .testTag(TestTags.SIGN_IN_BUTTON.tag),
-                shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
-                content = { Text(stringResource(Res.string.sign_in_button_label)) }
-            )
-            TextButton(
-                onClick = {
-                    isFormVisible = false
-                    currentDestination = AuthForm.ResetPassword
-                },
-                enabled = enabled,
-                modifier = Modifier.testTag(TestTags.SIGN_IN_FORGOT_PASSWORD_BUTTON.tag),
-                content = { Text(stringResource(Res.string.forgot_password_button_label)) }
-            )
-            AuthDivider()
-            TextButton(
-                onClick = {
-                    isFormVisible = false
-                    currentDestination = AuthForm.SignUp
-                },
-                enabled = enabled,
-                modifier = Modifier.testTag(TestTags.SIGN_IN_CREATE_ACCOUNT_BUTTON.tag),
-                content = { Text(stringResource(Res.string.create_account_button_label)) }
-            )
+                    .fillMaxSize()
+                    .padding(horizontal = Padding.MEDIUM.dp)
+                    .verticalScroll(scrollState),
+                verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
+                Text(
+                    text = stringResource(Res.string.sign_in_screen_title),
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.testTag(TestTags.SIGN_IN_SCREEN_TITLE.tag)
+                )
+                EmailInputField(
+                    email = email,
+                    onEmailChanged = onEmailChanged,
+                    emailError = emailError,
+                    enabled = enabled,
+                    modifier = Modifier.testTag(TestTags.SIGN_IN_EMAIL_FIELD.tag)
+                )
+                PasswordInputField(
+                    password = password,
+                    onPasswordChanged = onPasswordChanged,
+                    passwordError = passwordError,
+                    enabled = enabled,
+                    onPasswordVisibilityToggled = onPasswordVisibilityToggled,
+                    passwordVisibility = passwordVisibility,
+                    modifier = Modifier.testTag(TestTags.SIGN_IN_PASSWORD_FIELD.tag),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                    keyboardActions = KeyboardActions { onSignInClicked(signInSuccessMessage) },
+                )
+                Button(
+                    onClick = { onSignInClicked(signInSuccessMessage) },
+                    enabled = enabled && emailError.isNullOrBlank() && passwordError.isNullOrBlank(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
+                        .testTag(TestTags.SIGN_IN_BUTTON.tag),
+                    shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
+                    content = { Text(stringResource(Res.string.sign_in_button_label)) }
+                )
+                TextButton(
+                    onClick = {
+                        isFormVisible = false
+                        currentDestination = AuthForm.ResetPassword
+                    },
+                    enabled = enabled,
+                    modifier = Modifier.testTag(TestTags.SIGN_IN_FORGOT_PASSWORD_BUTTON.tag),
+                    content = { Text(stringResource(Res.string.forgot_password_button_label)) }
+                )
+                AuthDivider()
+                TextButton(
+                    onClick = {
+                        isFormVisible = false
+                        currentDestination = AuthForm.SignUp
+                    },
+                    enabled = enabled,
+                    modifier = Modifier.testTag(TestTags.SIGN_IN_CREATE_ACCOUNT_BUTTON.tag),
+                    content = { Text(stringResource(Res.string.create_account_button_label)) }
+                )
+                Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
+            }
         }
     }
 }
@@ -267,6 +277,7 @@ private fun SignUpForm(
     val signUpSuccessMessage = stringResource(Res.string.sign_up_success)
     var isFormVisible by remember { mutableStateOf(true) }
     var currentDestination by remember { mutableStateOf<AuthForm?>(null) }
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(isScreenVisible) { isFormVisible = isScreenVisible }
 
@@ -288,65 +299,73 @@ private fun SignUpForm(
             else currentDestination?.let(displayAuthForm)
         }
     ) {
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(Padding.MEDIUM.dp, Padding.LARGE.dp),
-            verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = stringResource(Res.string.sign_up_screen_title),
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.testTag(TestTags.SIGN_UP_SCREEN_TITLE.tag)
+        Box(modifier = modifier.fillMaxSize()) {
+            CustomVerticalScrollbar(
+                scrollState = scrollState,
+                modifier = Modifier.align(Alignment.CenterEnd)
             )
-            EmailInputField(
-                email = email,
-                onEmailChanged = onEmailChanged,
-                emailError = emailError,
-                enabled = enabled,
-                modifier = Modifier.testTag(TestTags.SIGN_UP_EMAIL_FIELD.tag)
-            )
-            PasswordInputField(
-                password = password,
-                onPasswordChanged = onPasswordChanged,
-                passwordError = passwordError,
-                enabled = enabled,
-                passwordVisibility = passwordVisibility,
-                onPasswordVisibilityToggled = onPasswordVisibilityToggled,
-                modifier = Modifier.testTag(TestTags.SIGN_UP_PASSWORD_FIELD.tag)
-            )
-            ConfirmPasswordInputField(
-                password = confirmedPassword,
-                onPasswordChanged = onConfirmedPasswordChanged,
-                passwordError = confirmedPasswordError,
-                enabled = enabled,
-                modifier = Modifier.testTag(TestTags.SIGN_UP_CONFIRM_PASSWORD_FIELD.tag),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                keyboardActions = KeyboardActions { onSignUpClicked(signUpSuccessMessage) },
-            )
-            Button(
-                onClick = { onSignUpClicked(signUpSuccessMessage) },
-                enabled = enabled && emailError.isNullOrBlank() && passwordError.isNullOrBlank() && confirmedPasswordError.isNullOrBlank(),
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
-                    .testTag(TestTags.SIGN_UP_BUTTON.tag),
-                shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
-                content = { Text(stringResource(Res.string.sign_up_button_label)) }
-            )
-            AuthDivider()
-            TextButton(
-                onClick = {
-                    isFormVisible = false
-                    currentDestination = AuthForm.SignIn
-                },
-                enabled = enabled,
-                modifier = Modifier.testTag(TestTags.SIGN_UP_SIGN_IN_BUTTON.tag),
-                content = { Text(stringResource(Res.string.already_have_account_button_label)) }
-            )
+                    .fillMaxSize()
+                    .padding(horizontal = Padding.MEDIUM.dp)
+                    .verticalScroll(scrollState),
+                verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
+                Text(
+                    text = stringResource(Res.string.sign_up_screen_title),
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.testTag(TestTags.SIGN_UP_SCREEN_TITLE.tag)
+                )
+                EmailInputField(
+                    email = email,
+                    onEmailChanged = onEmailChanged,
+                    emailError = emailError,
+                    enabled = enabled,
+                    modifier = Modifier.testTag(TestTags.SIGN_UP_EMAIL_FIELD.tag)
+                )
+                PasswordInputField(
+                    password = password,
+                    onPasswordChanged = onPasswordChanged,
+                    passwordError = passwordError,
+                    enabled = enabled,
+                    passwordVisibility = passwordVisibility,
+                    onPasswordVisibilityToggled = onPasswordVisibilityToggled,
+                    modifier = Modifier.testTag(TestTags.SIGN_UP_PASSWORD_FIELD.tag)
+                )
+                ConfirmPasswordInputField(
+                    password = confirmedPassword,
+                    onPasswordChanged = onConfirmedPasswordChanged,
+                    passwordError = confirmedPasswordError,
+                    enabled = enabled,
+                    modifier = Modifier.testTag(TestTags.SIGN_UP_CONFIRM_PASSWORD_FIELD.tag),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                    keyboardActions = KeyboardActions { onSignUpClicked(signUpSuccessMessage) },
+                )
+                Button(
+                    onClick = { onSignUpClicked(signUpSuccessMessage) },
+                    enabled = enabled && emailError.isNullOrBlank() && passwordError.isNullOrBlank() && confirmedPasswordError.isNullOrBlank(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
+                        .testTag(TestTags.SIGN_UP_BUTTON.tag),
+                    shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
+                    content = { Text(stringResource(Res.string.sign_up_button_label)) }
+                )
+                AuthDivider()
+                TextButton(
+                    onClick = {
+                        isFormVisible = false
+                        currentDestination = AuthForm.SignIn
+                    },
+                    enabled = enabled,
+                    modifier = Modifier.testTag(TestTags.SIGN_UP_SIGN_IN_BUTTON.tag),
+                    content = { Text(stringResource(Res.string.already_have_account_button_label)) }
+                )
+                Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
+            }
         }
     }
 }
@@ -370,6 +389,7 @@ private fun VerificationForm(
     val deleteUserSuccessMessage = stringResource(Res.string.del_user_success)
     var isFormVisible by remember { mutableStateOf(true) }
     var currentDestination by remember { mutableStateOf<AuthForm?>(null) }
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(isScreenVisible) { isFormVisible = isScreenVisible }
 
@@ -384,78 +404,86 @@ private fun VerificationForm(
             else currentDestination?.let(displayAuthForm)
         }
     ) {
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(Padding.MEDIUM.dp, Padding.LARGE.dp),
-            verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = stringResource(Res.string.verify_email_screen_title),
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_SCREEN_TITLE.tag)
+        Box(modifier = modifier.fillMaxSize()) {
+            CustomVerticalScrollbar(
+                scrollState = scrollState,
+                modifier = Modifier.align(Alignment.CenterEnd)
             )
-            Text(
-                text = stringResource(Res.string.verify_email_screen_description),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_SCREEN_DESCRIPTION.tag)
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = Padding.MEDIUM.dp)
+                    .verticalScroll(scrollState),
+                verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
                 Text(
-                    text = email,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
+                    text = stringResource(Res.string.verify_email_screen_title),
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_SCREEN_EMAIL.tag)
+                    modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_SCREEN_TITLE.tag)
                 )
-                IconButton(
-                    onClick = {
-                        isFormVisible = false
-                        deleteUser(deleteUserSuccessMessage)
-                        currentDestination = AuthForm.SignUp
-                    },
-                    modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_SCREEN_EDIT_EMAIL_BUTTON.tag),
-                    enabled = enabled
+                Text(
+                    text = stringResource(Res.string.verify_email_screen_description),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_SCREEN_DESCRIPTION.tag)
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = stringResource(Res.string.email_label),
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    Text(
+                        text = email,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_SCREEN_EMAIL.tag)
                     )
+                    IconButton(
+                        onClick = {
+                            isFormVisible = false
+                            deleteUser(deleteUserSuccessMessage)
+                            currentDestination = AuthForm.SignUp
+                        },
+                        modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_SCREEN_EDIT_EMAIL_BUTTON.tag),
+                        enabled = enabled
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = stringResource(Res.string.email_label),
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                    }
                 }
+                PulsingImage(image = Res.drawable.ic_envelop, size = 150.dp)
+                Button(
+                    onClick = onVerifyEmailClicked,
+                    enabled = enabled,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
+                        .testTag(TestTags.VERIFY_EMAIL_SCREEN_VERIFY_EMAIL_BUTTON.tag),
+                    shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
+                    content = { Text(stringResource(Res.string.verify_email_button_label)) }
+                )
+                OutlinedButton(
+                    onClick = { onResendVerificationEmailClicked(resendEmailSuccessMessage) },
+                    enabled = enabled,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
+                        .testTag(TestTags.VERIFY_EMAIL_RESEND_EMAIL_BUTTON.tag),
+                    shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
+                    content = { Text(stringResource(Res.string.resend_email_button_label)) }
+                )
+                Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
             }
-            PulsingImage(image = Res.drawable.ic_envelop, size = 150.dp)
-            Button(
-                onClick = onVerifyEmailClicked,
-                enabled = enabled,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
-                    .testTag(TestTags.VERIFY_EMAIL_SCREEN_VERIFY_EMAIL_BUTTON.tag),
-                shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
-                content = { Text(stringResource(Res.string.verify_email_button_label)) }
-            )
-            OutlinedButton(
-                onClick = { onResendVerificationEmailClicked(resendEmailSuccessMessage) },
-                enabled = enabled,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
-                    .testTag(TestTags.VERIFY_EMAIL_RESEND_EMAIL_BUTTON.tag),
-                shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
-                content = { Text(stringResource(Res.string.resend_email_button_label)) }
-            )
         }
     }
 }
@@ -478,6 +506,7 @@ private fun PasswordResetForm(
     val resetSuccessMessage = stringResource(Res.string.password_reset_success)
     var isFormVisible by remember { mutableStateOf(true) }
     var currentDestination by remember { mutableStateOf<AuthForm?>(null) }
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(isScreenVisible) { isFormVisible = isScreenVisible }
 
@@ -492,49 +521,57 @@ private fun PasswordResetForm(
             else currentDestination?.let(displayAuthForm)
         }
     ) {
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(Padding.MEDIUM.dp, Padding.LARGE.dp),
-            verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = stringResource(Res.string.password_reset_screen_title),
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.testTag(TestTags.RESET_PASSWORD_SCREEN_TITLE.tag)
+        Box(modifier = modifier.fillMaxSize()) {
+            CustomVerticalScrollbar(
+                scrollState = scrollState,
+                modifier = Modifier.align(Alignment.CenterEnd)
             )
-            EmailInputField(
-                email = email,
-                onEmailChanged = onEmailChanged,
-                emailError = emailError,
-                enabled = enabled,
-                modifier = Modifier.testTag(TestTags.RESET_PASSWORD_EMAIL_FIELD.tag),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                keyboardActions = KeyboardActions { onResetPasswordClicked(resetSuccessMessage) }
-            )
-            Button(
-                onClick = { onResetPasswordClicked(resetSuccessMessage) },
-                enabled = enabled && emailError.isNullOrBlank(),
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
-                  .testTag(TestTags.RESET_PASSWORD_BUTTON.tag),
-                shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
-                content = { Text(stringResource(Res.string.send_reset_password_email_button_label)) }
-            )
-            AuthDivider()
-            TextButton(
-                onClick = {
-                    isFormVisible = false
-                    currentDestination = AuthForm.SignIn
-                },
-                enabled = enabled,
-                modifier = Modifier.testTag(TestTags.RESET_PASSWORD_SIGN_IN_BUTTON.tag),
-                content = { Text(stringResource(Res.string.back_to_sign_in_button_label)) }
-            )
+                    .fillMaxSize()
+                    .padding(horizontal = Padding.MEDIUM.dp)
+                    .verticalScroll(scrollState),
+                verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
+                Text(
+                    text = stringResource(Res.string.password_reset_screen_title),
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.testTag(TestTags.RESET_PASSWORD_SCREEN_TITLE.tag)
+                )
+                EmailInputField(
+                    email = email,
+                    onEmailChanged = onEmailChanged,
+                    emailError = emailError,
+                    enabled = enabled,
+                    modifier = Modifier.testTag(TestTags.RESET_PASSWORD_EMAIL_FIELD.tag),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                    keyboardActions = KeyboardActions { onResetPasswordClicked(resetSuccessMessage) }
+                )
+                Button(
+                    onClick = { onResetPasswordClicked(resetSuccessMessage) },
+                    enabled = enabled && emailError.isNullOrBlank(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
+                        .testTag(TestTags.RESET_PASSWORD_BUTTON.tag),
+                    shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
+                    content = { Text(stringResource(Res.string.send_reset_password_email_button_label)) }
+                )
+                AuthDivider()
+                TextButton(
+                    onClick = {
+                        isFormVisible = false
+                        currentDestination = AuthForm.SignIn
+                    },
+                    enabled = enabled,
+                    modifier = Modifier.testTag(TestTags.RESET_PASSWORD_SIGN_IN_BUTTON.tag),
+                    content = { Text(stringResource(Res.string.back_to_sign_in_button_label)) }
+                )
+                Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
+            }
         }
     }
 }
