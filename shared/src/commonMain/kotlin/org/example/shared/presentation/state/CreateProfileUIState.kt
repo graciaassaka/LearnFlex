@@ -43,5 +43,5 @@ data class CreateProfileUIState(
     val styleResponses: List<Style> = emptyList(),
     val learningStyle: LearningStyle? = null,
     val showStyleResultDialog: Boolean = false,
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = false
 )

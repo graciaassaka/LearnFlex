@@ -1,9 +1,10 @@
 package org.example.shared.data.remote.firestore
 
 import dev.gitlive.firebase.firestore.FirebaseFirestore
+import dev.gitlive.firebase.firestore.WriteBatch
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.KSerializer
-import org.example.shared.domain.dao.RemoteDao
+import org.example.shared.domain.dao.Dao
 import org.example.shared.domain.model.definition.DatabaseRecord
 
 /**
@@ -16,20 +17,19 @@ import org.example.shared.domain.model.definition.DatabaseRecord
 open class FirestoreBaseDao<Model : DatabaseRecord>(
     private val firestore: FirebaseFirestore,
     private val serializer: KSerializer<Model>
-) : RemoteDao<Model> {
+) : Dao<Model> {
 
     /**
      * Creates a new item in the Firestore collection.
      *
      * @param item The item to be created.
+     * @param timestamp The timestamp to associate with the operation.
      * @return A [Result] indicating success or failure.
      */
-    override suspend fun insert(path: String, item: Model) = item.runCatching {
-        firestore.collection(path)
-            .document(id)
-            .set(serializer, this) {
-                encodeDefaults = true
-            }
+    override suspend fun insert(path: String, item: Model, timestamp: Long) = firestore.batch().runCatching {
+        set(firestore.collection(path).document(item.id), serializer, item) { encodeDefaults = true }
+        updateTimestamps(path + item.id, timestamp)
+        commit()
     }
 
     /**
@@ -43,6 +43,7 @@ open class FirestoreBaseDao<Model : DatabaseRecord>(
         .snapshots()
         .map { snap ->
             try {
+                require(snap.exists) { "Document not found" }
                 Result.success(snap.data(serializer))
             } catch (e: Exception) {
                 Result.failure(e)
@@ -54,25 +55,42 @@ open class FirestoreBaseDao<Model : DatabaseRecord>(
      * Updates an item in the Firestore collection.
      *
      * @param item The item to be updated.
+     * @param timestamp The timestamp to associate with the operation.
      * @return A [Result] indicating success or failure.
      */
-    override suspend fun update(path: String, item: Model) = item.runCatching {
-        firestore.collection(path)
-            .document(id)
-            .set(serializer, this) {
-                encodeDefaults = true
-            }
+    override suspend fun update(path: String, item: Model, timestamp: Long) = firestore.batch().runCatching {
+        update(firestore.collection(path).document(item.id), serializer, item) { encodeDefaults = true }
+        updateTimestamps(path + item.id, timestamp)
+        commit()
     }
 
     /**
      * Deletes an item from the Firestore collection by its ID.
      *
-     * @param id The ID of the item to be deleted.
+     * @param item The item to be deleted.
+     * @param timestamp The timestamp to associate with the operation.
      * @return A [Result] indicating success or failure.
      */
-    override suspend fun delete(path: String, item: Model) = item.runCatching {
-        firestore.collection(path)
-            .document(id)
-            .delete()
+    override suspend fun delete(path: String, item: Model, timestamp: Long) = firestore.batch().runCatching {
+        updateTimestamps(path + item.id, timestamp)
+        delete(firestore.collection(path).document(item.id))
+        commit()
+    }
+
+    /**
+     * Updates the lastUpdated timestamp of all parent documents in the path.
+     *
+     * @param path The path of the document to update.
+     * @param timestamp The timestamp to associate with the operation.
+     */
+    protected fun WriteBatch.updateTimestamps(path: String, timestamp: Long) {
+        val segments = path.split("/")
+
+        if (segments.size > 1) for (endIndex in segments.size downTo 0 step 2) {
+            val parentPath = segments.take(endIndex).joinToString("/")
+            val parentRef = firestore.document(parentPath)
+
+            update(parentRef, mapOf("lastUpdated" to timestamp))
+        }
     }
 }

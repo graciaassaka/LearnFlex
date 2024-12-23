@@ -4,6 +4,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.example.shared.domain.model.definition.DatabaseRecord
 import org.example.shared.domain.model.definition.ScoreQueryable
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /**
  * Lesson represents a single unit of learning content.
@@ -14,32 +16,37 @@ import org.example.shared.domain.model.definition.ScoreQueryable
  * @property description A brief description of the lesson.
  * @property index The index position of the lesson within the module.
  * @property quizScore The score of the quiz associated with the lesson.
+ * @property quizScoreMax The maximum score of the quiz associated with the lesson.
  * @property createdAt The timestamp when the lesson was created.
  * @property lastUpdated The timestamp when the lesson was last updated.
  */
+@OptIn(ExperimentalUuidApi::class)
 @Serializable
-open class Lesson(
+data class Lesson(
     @SerialName("id")
-    override val id: String,
+    override val id: String = Uuid.random().toString(),
 
     @SerialName("image_url")
-    open val imageUrl: String,
+    val imageUrl: String,
 
     @SerialName("title")
-    open val title: String,
+    val title: String,
 
     @SerialName("description")
-    open val description: String,
+    val description: String,
 
     @SerialName("index")
-    open val index: Int,
+    val index: Int,
 
     @SerialName("quiz_score")
     override val quizScore: Int,
 
+    @SerialName("quiz_score_max")
+    override val quizScoreMax: Int,
+
     @SerialName("created_at")
-    override val createdAt: Long,
+    override val createdAt: Long = System.currentTimeMillis(),
 
     @SerialName("last_updated")
-    override val lastUpdated: Long
+    override val lastUpdated: Long = System.currentTimeMillis()
 ) : DatabaseRecord, ScoreQueryable

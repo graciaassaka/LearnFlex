@@ -1,12 +1,15 @@
 package org.example.shared.data.repository.component
 
+import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 import org.example.shared.data.local.entity.definition.RoomEntity
 import org.example.shared.data.repository.util.QueryStrategies
 import org.example.shared.data.repository.util.RepositoryConfig
+import org.example.shared.domain.constant.DataCollection
 import org.example.shared.domain.model.definition.DatabaseRecord
 import org.example.shared.domain.model.definition.ScoreQueryable
 import org.example.shared.domain.repository.util.ModelMapper
@@ -23,7 +26,8 @@ class ScoreQueryByScoreRepositoryComponentTest {
         val name: String,
         override val createdAt: Long,
         override val lastUpdated: Long,
-        override val quizScore: Int
+        override val quizScore: Int,
+        override val quizScoreMax: Int
     ) : DatabaseRecord, ScoreQueryable
 
     private data class TestEntity(
@@ -50,11 +54,12 @@ class ScoreQueryByScoreRepositoryComponentTest {
         queryStrategies.withCustomQuery(
             QueryByScoreRepositoryComponent.SCORE_STRATEGY_KEY,
             QueryByScoreRepositoryComponent.ScoreQueryStrategy { _, _ ->
-                flowOf(listOf(testModel.id))
+                flowOf(listOf(testEntity))
             }
         )
 
         config = RepositoryConfig(
+            dataCollection = DataCollection.TEST,
             remoteDao = mockk(),
             localDao = mockk(),
             modelMapper = modelMapper,
@@ -62,112 +67,67 @@ class ScoreQueryByScoreRepositoryComponentTest {
             queryStrategies = queryStrategies
         )
 
+        every { modelMapper.toModel(any()) } returns testModel
+
         component = QueryByScoreRepositoryComponent(config)
     }
 
     @Test
-    fun `getIdsByMinScore should return ids when score meets criteria`() = runTest {
+    fun `getByMinScore should return ids when score meets criteria`() = runTest {
         // Given
-        val expectedIds = setOf(testModel.id)
+        val expected = listOf(testModel)
         queryStrategies.withCustomQuery(
             QueryByScoreRepositoryComponent.SCORE_STRATEGY_KEY,
             QueryByScoreRepositoryComponent.ScoreQueryStrategy { parentId, minScore ->
                 assertEquals(TEST_PARENT_ID, parentId)
                 assertEquals(TEST_MIN_SCORE, minScore)
-                flowOf(expectedIds.toList())
+                flowOf(listOf(testEntity))
             }
         )
 
         // When
-        val result = component.getIdsByMinScore(TEST_PARENT_ID, TEST_MIN_SCORE).first()
+        val result = component.getByMinScore(TEST_PARENT_ID, TEST_MIN_SCORE)
 
         // Then
         assertTrue(result.isSuccess)
-        assertEquals(expectedIds, result.getOrNull())
+        assertEquals(expected, result.getOrNull())
     }
 
     @Test
-    fun `getIdsByMinScore should return empty set when no ids meet criteria`() = runTest {
+    fun `getByMinScore should return empty set when no ids meet criteria`() = runTest {
         // Given
         queryStrategies.withCustomQuery(
             QueryByScoreRepositoryComponent.SCORE_STRATEGY_KEY,
             QueryByScoreRepositoryComponent.ScoreQueryStrategy { _, _ ->
-                flowOf(emptyList())
+                flowOf(emptyList<TestEntity>())
             }
         )
 
         // When
-        val result = component.getIdsByMinScore(TEST_PARENT_ID, TEST_MIN_SCORE).first()
+        val result = component.getByMinScore(TEST_PARENT_ID, TEST_MIN_SCORE)
 
         // Then
         assertTrue(result.isSuccess)
-        assertEquals(emptySet(), result.getOrNull())
+        assertEquals(emptyList(), result.getOrNull())
     }
 
     @Test
-    fun `getIdsByMinScore should propagate errors from query strategy`() = runTest {
+    fun `getByMinScore should propagate errors from query strategy`() = runTest {
         // Given
         val expectedException = RuntimeException("Query strategy error")
         queryStrategies.withCustomQuery(
             QueryByScoreRepositoryComponent.SCORE_STRATEGY_KEY,
             QueryByScoreRepositoryComponent.ScoreQueryStrategy { _, _ ->
-                flow { throw expectedException }
+                flow<List<TestEntity>> { throw expectedException }
             }
         )
 
         // When
-        val result = component.getIdsByMinScore(TEST_PARENT_ID, TEST_MIN_SCORE).first()
+        val result = component.getByMinScore(TEST_PARENT_ID, TEST_MIN_SCORE)
 
         // Then
         assertTrue(result.isFailure)
         assertEquals(expectedException, result.exceptionOrNull())
-    }
-
-    @Test
-    fun `getIdsByMinScore should handle multiple emissions`() = runTest {
-        // Given
-        val firstEmission = listOf(testModel.id)
-        val secondEmission = listOf(testModel.id, "id2")
-
-        queryStrategies.withCustomQuery(
-            QueryByScoreRepositoryComponent.SCORE_STRATEGY_KEY,
-            QueryByScoreRepositoryComponent.ScoreQueryStrategy { _, _ ->
-                flow {
-                    emit(firstEmission)
-                    emit(secondEmission)
-                }
-            }
-        )
-
-        // When
-        val results = component.getIdsByMinScore(TEST_PARENT_ID, TEST_MIN_SCORE)
-            .take(2)
-            .toList()
-
-        // Then
-        assertEquals(2, results.size)
-        assertTrue(results.all { it.isSuccess })
-        assertEquals(firstEmission.toSet(), results[0].getOrNull())
-        assertEquals(secondEmission.toSet(), results[1].getOrNull())
-    }
-
-    @Test
-    fun `getIdsByMinScore should deduplicate ids in single emission`() = runTest {
-        // Given
-        val duplicateIds = listOf(testModel.id, testModel.id, "id2", "id2")
-        queryStrategies.withCustomQuery(
-            QueryByScoreRepositoryComponent.SCORE_STRATEGY_KEY,
-            QueryByScoreRepositoryComponent.ScoreQueryStrategy { _, _ ->
-                flowOf(duplicateIds)
-            }
-        )
-
-        // When
-        val result = component.getIdsByMinScore(TEST_PARENT_ID, TEST_MIN_SCORE).first()
-
-        // Then
-        assertTrue(result.isSuccess)
-        assertEquals(setOf(testModel.id, "id2"), result.getOrNull())
     }
 
     companion object {
@@ -175,6 +135,15 @@ class ScoreQueryByScoreRepositoryComponentTest {
         private const val TEST_MIN_SCORE = 80
 
         private val testModel = TestModel(
+            id = "test123",
+            name = "Test Model",
+            quizScore = 85,
+            quizScoreMax = 100,
+            createdAt = 1234567890,
+            lastUpdated = 1234567890
+        )
+
+        private val testEntity = TestEntity(
             id = "test123",
             name = "Test Model",
             quizScore = 85,

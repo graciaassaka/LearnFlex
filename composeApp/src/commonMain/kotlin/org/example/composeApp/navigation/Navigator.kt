@@ -11,6 +11,7 @@ import org.example.composeApp.screen.DashboardScreen
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.viewModel.AuthViewModel
 import org.example.shared.presentation.viewModel.CreateUserProfileViewModel
+import org.example.shared.presentation.viewModel.DashboardViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
@@ -46,7 +47,12 @@ fun Navigator(
         }
 
         composable<Route.Dashboard> {
-            DashboardScreen(windowSizeClass)
+            val viewModel = koinViewModel<DashboardViewModel>()
+            DashboardScreen(
+                windowSizeClass = windowSizeClass,
+                navController = navController,
+                viewModel = viewModel
+            )
         }
     }
 }

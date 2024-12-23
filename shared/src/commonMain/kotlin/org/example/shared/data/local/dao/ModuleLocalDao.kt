@@ -7,10 +7,9 @@ import org.example.shared.data.local.entity.ModuleEntity
 
 @Dao
 abstract class ModuleLocalDao : ExtendedLocalDao<ModuleEntity>() {
-
     @Query(
         """
-            SELECT * FROM module
+            SELECT * FROM modules
             WHERE id = :id
         """
     )
@@ -18,24 +17,24 @@ abstract class ModuleLocalDao : ExtendedLocalDao<ModuleEntity>() {
 
     @Query(
         """
-            SELECT * FROM module
+            SELECT * FROM modules
         """
     )
     abstract fun getAll(): Flow<List<ModuleEntity>>
 
     @Query(
         """
-            SELECT * FROM module
+            SELECT * FROM modules
             WHERE curriculum_id = :curriculumId
         """
     )
-    abstract fun getModulesByCurriculumId(curriculumId: String): Flow<List<ModuleEntity>>
+    abstract fun getByCurriculumId(curriculumId: String): Flow<List<ModuleEntity>>
 
     @Query(
         """
-            SELECT id FROM module
+            SELECT * FROM modules
             WHERE curriculum_id = :curriculumId AND quiz_score >= :minScore
         """
     )
-    abstract fun getModuleIdsByMinQuizScore(curriculumId: String, minScore: Int): Flow<List<String>>
+    abstract fun getByMinQuizScore(curriculumId: String, minScore: Int): Flow<List<ModuleEntity>>
 }

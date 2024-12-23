@@ -22,15 +22,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.update
 import org.example.composeApp.theme.LearnFlexTheme
-import org.example.composeApp.util.LocalComposition
 import org.example.composeApp.util.TestTags
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.*
+import org.example.shared.domain.use_case.validation.ValidateUsernameUseCase
+import org.example.shared.domain.use_case.validation.util.ValidationResult
 import org.example.shared.presentation.state.CreateProfileUIState
 import org.example.shared.presentation.util.ProfileCreationForm
 import org.example.shared.presentation.util.UIEvent
-import org.example.shared.presentation.util.validation.InputValidator
-import org.example.shared.presentation.util.validation.ValidationResult
 import org.example.shared.presentation.viewModel.CreateUserProfileViewModel
 import org.junit.Before
 import org.junit.Rule
@@ -45,6 +44,7 @@ class CreateProfileScreenTest {
 
     private lateinit var navController: TestNavHostController
     private lateinit var viewModel: CreateUserProfileViewModel
+    private lateinit var validateUsernameUseCase: ValidateUsernameUseCase
     private lateinit var uiState: MutableStateFlow<CreateProfileUIState>
     private lateinit var uiEventFlow: MutableSharedFlow<UIEvent>
     private lateinit var windowSizeClass: WindowSizeClass
@@ -55,6 +55,7 @@ class CreateProfileScreenTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         navController = TestNavHostController(context)
         viewModel = mockk(relaxed = true)
+        validateUsernameUseCase = ValidateUsernameUseCase()
         uiState = MutableStateFlow(CreateProfileUIState())
         uiEventFlow = MutableSharedFlow()
         windowSizeClass = WindowSizeClass.calculateFromSize(
@@ -69,7 +70,7 @@ class CreateProfileScreenTest {
 
         composeTestRule.setContent {
             LearnFlexTheme {
-                CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
+                CompositionLocalProvider {
                     CreateProfileScreen(
                         navController = navController,
                         viewModel = viewModel,
@@ -94,15 +95,10 @@ class CreateProfileScreenTest {
     fun usernameTextField_calls_viewModel_onUsernameChanged_whenTextEntered() {
         val username = "TestUser"
         every { viewModel.onUsernameChanged(username) } answers {
-            with(InputValidator.validateUsername(username)) {
+            with(validateUsernameUseCase(username)) {
                 when (this@with) {
                     is ValidationResult.Valid   -> uiState.update { it.copy(username = value, usernameError = null) }
-                    is ValidationResult.Invalid -> uiState.update {
-                        it.copy(
-                            username = username,
-                            usernameError = message
-                        )
-                    }
+                    is ValidationResult.Invalid -> uiState.update { it.copy(username = username, usernameError = message) }
                 }
             }
         }
@@ -116,16 +112,13 @@ class CreateProfileScreenTest {
     @Test
     fun usernameTextField_displaysError_whenInvalidUsernameEntered() {
         val username = "Test User"
-        val errorMessage = (InputValidator.validateUsername(username) as ValidationResult.Invalid).message
+        val errorMessage = (validateUsernameUseCase(username) as ValidationResult.Invalid).message
         every { viewModel.onUsernameChanged(username) } answers {
-            with(InputValidator.validateUsername(username)) {
+            with(validateUsernameUseCase(username)) {
                 when (this@with) {
                     is ValidationResult.Valid   -> uiState.update { it.copy(username = value, usernameError = null) }
                     is ValidationResult.Invalid -> uiState.update {
-                        it.copy(
-                            username = username,
-                            usernameError = message
-                        )
+                        it.copy(username = username, usernameError = message)
                     }
                 }
             }
@@ -316,7 +309,7 @@ class CreateProfileScreenTest {
 
         private val learningStyle = LearningStyle(
             dominant = Style.READING.value,
-            breakdown = StyleBreakdown(visual = 0, reading = 50, kinesthetic = 50)
+            breakdown = LearningStyleBreakdown(visual = 0, reading = 50, kinesthetic = 50)
         )
     }
 }

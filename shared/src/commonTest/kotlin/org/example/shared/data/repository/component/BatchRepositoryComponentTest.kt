@@ -12,7 +12,9 @@ import org.example.shared.data.local.dao.LocalDao
 import org.example.shared.data.local.entity.definition.RoomEntity
 import org.example.shared.data.repository.util.QueryStrategies
 import org.example.shared.data.repository.util.RepositoryConfig
-import org.example.shared.domain.dao.ExtendedRemoteDao
+import org.example.shared.domain.constant.DataCollection
+import org.example.shared.domain.dao.Dao
+import org.example.shared.domain.dao.ExtendedDao
 import org.example.shared.domain.model.definition.DatabaseRecord
 import org.example.shared.domain.repository.util.ModelMapper
 import org.example.shared.domain.sync.SyncManager
@@ -39,7 +41,7 @@ class BatchRepositoryComponentTest {
 
     private lateinit var component: BatchRepositoryComponent<TestModel, TestEntity>
     private lateinit var config: RepositoryConfig<TestModel, TestEntity>
-    private lateinit var remoteDao: ExtendedRemoteDao<TestModel>
+    private lateinit var remoteDao: ExtendedDao<TestModel>
     private lateinit var localDao: ExtendedLocalDao<TestEntity>
     private lateinit var modelMapper: ModelMapper<TestModel, TestEntity>
     private lateinit var syncManager: SyncManager<TestModel>
@@ -53,12 +55,13 @@ class BatchRepositoryComponentTest {
         syncManager = mockk(relaxed = true)
         queryStrategies = QueryStrategies()
 
-        // Configure query strategies
-        queryStrategies.withGetAll { _ ->
-            flowOf(listOf(testEntity))
+        queryStrategies.apply {
+            withGetByParent { _ -> flowOf(listOf(testEntity)) }
+            byParentStrategy?.setParentId("123")
         }
 
         config = RepositoryConfig(
+            dataCollection = DataCollection.TEST,
             remoteDao = remoteDao,
             localDao = localDao,
             modelMapper = modelMapper,
@@ -70,139 +73,166 @@ class BatchRepositoryComponentTest {
     }
 
     @Test
-    fun `insertAll should store models locally and queue sync operation`() = runTest {
-        // Given
+    fun `insertAll success case - should store models with timestamp and queue sync operation`() = runTest {
         every { modelMapper.toEntity(any(), any()) } returns testEntity
-        coEvery { localDao.insertAll(any()) } just runs
+        coEvery {
+            localDao.insertAll(path = any(), items = any(), timestamp = any())
+        } just runs
         coEvery { syncManager.queueOperation(any()) } just runs
 
-        // When
-        val result = component.insertAll(TEST_COLLECTION_PATH, listOf(testModel))
+        val result = component.insertAll(TEST_PATH, listOf(testModel), TIMESTAMP)
 
-        // Then
         assertTrue(result.isSuccess)
         coVerify(exactly = 1) {
-            localDao.insertAll(any())
-            syncManager.queueOperation(any())
+            localDao.insertAll(TEST_PATH, any(), TIMESTAMP)
+            syncManager.queueOperation(match { it.timestamp == TIMESTAMP })
         }
     }
 
     @Test
-    fun `insertAll should fail when LocalDao is not ExtendedLocalDao`() = runTest {
-        // Given
-        val basicLocalDao = mockk<LocalDao<TestEntity>>()
-        val invalidConfig = config.copy(localDao = basicLocalDao)
-        component = BatchRepositoryComponent(invalidConfig)
+    fun `insertAll failure - localDao throws exception`() = runTest {
+        every { modelMapper.toEntity(any(), any()) } returns testEntity
+        val exception = RuntimeException("Local storage error")
+        coEvery {
+            localDao.insertAll(path = any(), items = any(), timestamp = any())
+        } throws exception
 
-        // When
-        val result = component.insertAll(TEST_COLLECTION_PATH, listOf(testModel))
+        val result = component.insertAll(TEST_PATH, listOf(testModel), TIMESTAMP)
 
-        // Then
         assertTrue(result.isFailure)
-        assertTrue(result.exceptionOrNull() is IllegalArgumentException)
+        assertEquals(exception, result.exceptionOrNull())
+        coVerify(exactly = 0) { syncManager.queueOperation(any()) }
     }
 
     @Test
-    fun `updateAll should update models locally and queue sync operation`() = runTest {
-        // Given
+    fun `updateAll success case - should update models with timestamp and queue sync operation`() = runTest {
         every { modelMapper.toEntity(any(), any()) } returns testEntity
-        coEvery { localDao.updateAll(any()) } just runs
+        coEvery {
+            localDao.updateAll(path = any(), items = any(), timestamp = any())
+        } just runs
         coEvery { syncManager.queueOperation(any()) } just runs
 
-        // When
-        val result = component.updateAll(TEST_COLLECTION_PATH, listOf(testModel))
+        val result = component.updateAll(TEST_PATH, listOf(testModel), TIMESTAMP)
 
-        // Then
         assertTrue(result.isSuccess)
         coVerify(exactly = 1) {
-            localDao.updateAll(any())
-            syncManager.queueOperation(any())
+            localDao.updateAll(TEST_PATH, any(), TIMESTAMP)
+            syncManager.queueOperation(match { it.timestamp == TIMESTAMP })
         }
     }
 
     @Test
-    fun `deleteAll should remove models locally and queue sync operation`() = runTest {
-        // Given
+    fun `updateAll failure - localDao throws exception`() = runTest {
         every { modelMapper.toEntity(any(), any()) } returns testEntity
-        coEvery { localDao.deleteAll(any()) } just runs
+        val exception = RuntimeException("Local update error")
+        coEvery {
+            localDao.updateAll(path = any(), items = any(), timestamp = any())
+        } throws exception
+
+        val result = component.updateAll(TEST_PATH, listOf(testModel), TIMESTAMP)
+
+        assertTrue(result.isFailure)
+        assertEquals(exception, result.exceptionOrNull())
+        coVerify(exactly = 0) { syncManager.queueOperation(any()) }
+    }
+
+    @Test
+    fun `deleteAll success case - should delete models with timestamp and queue sync operation`() = runTest {
+        every { modelMapper.toEntity(any(), any()) } returns testEntity
+        coEvery {
+            localDao.deleteAll(path = any(), items = any(), timestamp = any())
+        } just runs
         coEvery { syncManager.queueOperation(any()) } just runs
 
-        // When
-        val result = component.deleteAll(TEST_COLLECTION_PATH, listOf(testModel))
+        val result = component.deleteAll(TEST_PATH, listOf(testModel), TIMESTAMP)
 
-        // Then
         assertTrue(result.isSuccess)
         coVerify(exactly = 1) {
-            localDao.deleteAll(any())
-            syncManager.queueOperation(any())
+            localDao.deleteAll(TEST_PATH, any(), TIMESTAMP)
+            syncManager.queueOperation(match { it.timestamp == TIMESTAMP })
         }
     }
 
     @Test
-    fun `getAll should observe local data and fetch remote data`() = runTest {
-        // Given
+    fun `deleteAll failure - localDao throws exception`() = runTest {
+        every { modelMapper.toEntity(any(), any()) } returns testEntity
+        val exception = RuntimeException("Local delete error")
+        coEvery {
+            localDao.deleteAll(path = any(), items = any(), timestamp = any())
+        } throws exception
+
+        val result = component.deleteAll(TEST_PATH, listOf(testModel), TIMESTAMP)
+
+        assertTrue(result.isFailure)
+        assertEquals(exception.message, result.exceptionOrNull()?.message)
+        coVerify(exactly = 0) { syncManager.queueOperation(any()) }
+    }
+
+    @Test
+    fun `getAll success case - observe local and remote data`() = runTest {
         every { modelMapper.toModel(any()) } returns testModel
         every { modelMapper.toEntity(any(), any()) } returns testEntity
         every { remoteDao.getAll(any()) } returns flowOf(Result.success(listOf(testModel)))
-        coEvery { localDao.upsertAll(any()) } just runs
 
-        // When
-        val result = component.getAll(TEST_COLLECTION_PATH).first()
+        val result = component.getAll(TEST_PATH).first()
 
-        // Then
         assertTrue(result.isSuccess)
         assertEquals(listOf(testModel), result.getOrNull())
+
+        coVerify {
+            queryStrategies.byParentStrategy?.execute()
+            remoteDao.getAll(TEST_PATH)
+            syncManager.queueOperation(any())
+        }
     }
 
     @Test
-    fun `getAll should deduplicate emissions`() = runTest {
-        // Given
+    fun `getAll failure - remote fetch error`() = runTest {
+        val exception = RuntimeException("Remote fetch error")
+        every { remoteDao.getAll(any()) } throws exception
+
+        val result = component.getAll(TEST_PATH).first { it.isFailure }
+
+        assertTrue(result.isFailure)
+        assertEquals(exception.message, result.exceptionOrNull()?.message)
+    }
+
+    @Test
+    fun `getAll prevents duplicate emissions`() = runTest {
         every { modelMapper.toModel(any()) } returns testModel
         every { modelMapper.toEntity(any(), any()) } returns testEntity
         every { remoteDao.getAll(any()) } returns flowOf(Result.success(listOf(testModel)))
+        coEvery {
+            localDao.insertAll(any())
+        } just runs
 
-        // When
-        val results = mutableListOf<Result<List<TestModel>>>()
-        component.getAll(TEST_COLLECTION_PATH)
-            .take(2) // Limit collection to avoid infinite collection
-            .toList(results)
+        val results = component.getAll(TEST_PATH)
+            .take(2)
+            .toList()
 
-        // Then
         assertEquals(1, results.size)
     }
 
     @Test
-    fun `getAll should propagate remote errors`() = runTest {
-        // Given
-        val exception = RuntimeException("Remote error")
-        every { modelMapper.toModel(any()) } returns testModel
-        every { remoteDao.getAll(any()) } returns flowOf(Result.failure(exception))
+    fun `batch operations fail with non-ExtendedLocalDao`() = runTest {
+        val basicLocalDao = mockk<LocalDao<TestEntity>>()
+        config = config.copy(localDao = basicLocalDao)
+        component = BatchRepositoryComponent(config)
 
-        // When
-        val result = component.getAll(TEST_COLLECTION_PATH).first { it.isFailure }
+        val result = component.insertAll(TEST_PATH, listOf(testModel), TIMESTAMP)
 
-        // Then
         assertTrue(result.isFailure)
-        assertEquals(exception, result.exceptionOrNull())
     }
 
     @Test
-    fun `operations should extract parent ID from path correctly`() = runTest {
-        // Given
-        val path = "users/123/items/456"
-        every { modelMapper.toEntity(any(), any()) } answers {
-            val parentId = secondArg<String?>()
-            assertEquals("123", parentId)
-            testEntity
-        }
-        coEvery { localDao.insertAll(any()) } just runs
-        coEvery { syncManager.queueOperation(any()) } just runs
+    fun `get operations fail with non-ExtendedRemoteDao`() = runTest {
+        val basicRemoteDao = mockk<Dao<TestModel>>()
+        config = config.copy(remoteDao = basicRemoteDao)
+        component = BatchRepositoryComponent(config)
 
-        // When
-        component.insertAll(path, listOf(testModel))
+        val result = component.getAll(TEST_PATH).first { it.isFailure }
 
-        // Then
-        verify { modelMapper.toEntity(any(), "123") }
+        assertTrue(result.isFailure)
     }
 
     companion object {
@@ -220,6 +250,7 @@ class BatchRepositoryComponentTest {
             lastUpdated = 1234567890
         )
 
-        private const val TEST_COLLECTION_PATH = "testCollection"
+        private const val TEST_PATH = "profiles/123/items"
+        private const val TIMESTAMP = 1234567890L
     }
 }

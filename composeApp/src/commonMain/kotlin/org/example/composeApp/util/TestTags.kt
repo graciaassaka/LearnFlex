@@ -46,4 +46,10 @@ enum class TestTags(val tag: String) {
     STYLE_QUESTIONNAIRE_NEXT_BUTTON("style_form_next_button"),
     STYLE_QUESTIONNAIRE_BREAKDOWN("style_form_breakdown_button"),
     STYLE_QUESTIONNAIRE_RESTART_BUTTON("style_form_restart_button"),
+    DASHBOARD_WELCOME_SECTION("welcome_section"),
+    DASHBOARD_WEEKLY_ACTIVITY_SECTION("weekly_activity_section"),
+    DASHBOARD_REFRESH_FAB("dashboard_refresh_fab"),
+    DASHBOARD_CURRICULUM_SECTION("curriculum_section"),
+    DASHBOARD_TITLE_SECTION("title_section"),
+    DASHBOARD_WELCOME_CARD("welcome_card"),
 }

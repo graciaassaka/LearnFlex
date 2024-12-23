@@ -12,7 +12,6 @@ import coil3.memory.MemoryCache
 import coil3.request.crossfade
 import org.example.composeApp.navigation.Navigator
 import org.example.composeApp.theme.LearnFlexTheme
-import org.example.composeApp.util.LocalComposition
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import java.io.File
 
@@ -38,9 +37,7 @@ fun App(windowSizeClass: WindowSizeClass, cacheDir: File) {
             .build()
     }
 
-    CompositionLocalProvider(
-        LocalComposition.MaxFileSize provides 10L * 1024 * 1024
-    ) {
+    CompositionLocalProvider {
         LearnFlexTheme {
             Navigator(
                 navController = navHostController,

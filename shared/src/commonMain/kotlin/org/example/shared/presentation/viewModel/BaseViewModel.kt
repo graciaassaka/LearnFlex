@@ -6,6 +6,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.example.shared.data.remote.util.ApiError
+import org.example.shared.domain.constant.SyncStatus
+import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.sync.SyncManager
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.util.SnackbarType
 import org.example.shared.presentation.util.UIEvent
@@ -14,7 +17,8 @@ import org.example.shared.presentation.util.UIEvent
  * Base ViewModel class providing common functionality for all ViewModels.
  */
 open class BaseViewModel(
-    private val dispatcher: CoroutineDispatcher
+    private val dispatcher: CoroutineDispatcher,
+    syncMangers: List<SyncManager<DatabaseRecord>>? = null
 ) : ViewModel() {
     // SharedFlow for emitting UI events.
     private val _uiEvent = MutableSharedFlow<UIEvent>(1)
@@ -26,6 +30,18 @@ open class BaseViewModel(
 
     // Variable to store the navigation destination.
     private var navDestination: Route? = null
+
+    init {
+        syncMangers?.forEach { syncManager ->
+            viewModelScope.launch(dispatcher) {
+                syncManager.syncStatus.collect { status ->
+                    if (status is SyncStatus.Error) {
+                        handleError(status.error)
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * Navigates to the specified destination.
@@ -63,7 +79,7 @@ open class BaseViewModel(
     open fun handleError(error: Throwable) {
         val message = when (error) {
             is ApiError -> error.errorContainer?.error?.message ?: error.message
-            else        -> error.message
+            else -> error.message
         }
         showSnackbar(
             message = message ?: "An error occurred",

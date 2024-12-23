@@ -6,7 +6,9 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
 import org.example.shared.data.local.entity.definition.RoomEntity
-import org.example.shared.domain.model.Module
+import org.example.shared.domain.model.definition.ScoreQueryable
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /**
  * Entity class representing a module in the local database.
@@ -21,8 +23,9 @@ import org.example.shared.domain.model.Module
  * @property createdAt The timestamp when the module was created.
  * @property lastUpdated The timestamp when the module was last updated.
  */
+@OptIn(ExperimentalUuidApi::class)
 @Entity(
-    tableName = "module",
+    tableName = "modules",
     foreignKeys = [
         ForeignKey(
             entity = CurriculumEntity::class,
@@ -34,7 +37,7 @@ import org.example.shared.domain.model.Module
 )
 data class ModuleEntity(
     @PrimaryKey
-    override val id: String,
+    override val id: String = Uuid.random().toString(),
 
     @ColumnInfo(
         name = "curriculum_id",
@@ -43,23 +46,32 @@ data class ModuleEntity(
     val curriculumId: String,
 
     @ColumnInfo(name = "image_url")
-    override val imageUrl: String,
+    val imageUrl: String,
 
     @ColumnInfo(name = "title")
-    override val title: String,
+    val title: String,
 
     @ColumnInfo(name = "description")
-    override val description: String,
+    val description: String,
 
     @ColumnInfo(name = "index")
-    override val index: Int,
+    val index: Int,
 
     @ColumnInfo(name = "quiz_score")
     override val quizScore: Int,
 
-    @ColumnInfo(name = "created_at")
+    @ColumnInfo(name = "quiz_score_max")
+    override val quizScoreMax: Int,
+
+    @ColumnInfo(
+        name = "created_at",
+        defaultValue = "CURRENT_TIMESTAMP"
+    )
     override val createdAt: Long,
 
-    @ColumnInfo(name = "last_updated")
+    @ColumnInfo(
+        name = "last_updated",
+        defaultValue = "CURRENT_TIMESTAMP",
+    )
     override val lastUpdated: Long
-) : Module(id, imageUrl, title, description, index, quizScore, createdAt, lastUpdated), RoomEntity
+) : RoomEntity, ScoreQueryable

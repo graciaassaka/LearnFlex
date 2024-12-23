@@ -6,7 +6,9 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
 import org.example.shared.data.local.entity.definition.RoomEntity
-import org.example.shared.domain.model.Session
+import org.example.shared.domain.model.definition.EndTimeQueryable
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /**
  * Entity class representing a session in the local database.
@@ -14,15 +16,15 @@ import org.example.shared.domain.model.Session
  * @property id The unique identifier of the session.
  * @property userId The identifier of the lesson this session belongs to.
  * @property endTime The timestamp when the session ended.
- * @property durationMinutes The duration of the session in minutes.
  * @property createdAt The timestamp when the session was created.
  * @property lastUpdated The timestamp when the session was last updated.
  */
+@OptIn(ExperimentalUuidApi::class)
 @Entity(
-    tableName = "session",
+    tableName = "sessions",
     foreignKeys = [
         ForeignKey(
-            entity = UserProfileEntity::class,
+            entity = ProfileEntity::class,
             parentColumns = ["id"],
             childColumns = ["user_id"],
             onDelete = CASCADE
@@ -31,20 +33,23 @@ import org.example.shared.domain.model.Session
 )
 data class SessionEntity(
     @PrimaryKey
-    override val id: String,
+    override val id: String = Uuid.random().toString(),
 
     @ColumnInfo(name = "user_id", index = true)
-    override val userId: String,
+    val userId: String,
 
     @ColumnInfo(name = "end_time")
     override val endTime: Long,
 
-    @ColumnInfo(name = "duration_minutes")
-    override val durationMinutes: Long,
-
-    @ColumnInfo(name = "created_at")
+    @ColumnInfo(
+        name = "created_at",
+        defaultValue = "CURRENT_TIMESTAMP"
+    )
     override val createdAt: Long,
 
-    @ColumnInfo(name = "last_updated")
+    @ColumnInfo(
+        name = "last_updated",
+        defaultValue = "CURRENT_TIMESTAMP",
+    )
     override val lastUpdated: Long
-) : Session(id, userId, endTime, durationMinutes, createdAt, lastUpdated), RoomEntity
+) : RoomEntity, EndTimeQueryable

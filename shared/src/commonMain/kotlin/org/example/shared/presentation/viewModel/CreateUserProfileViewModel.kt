@@ -5,46 +5,49 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.example.shared.domain.constant.Style
-import org.example.shared.domain.constant.SyncStatus
-import org.example.shared.domain.dao.util.PathBuilder
 import org.example.shared.domain.model.*
+import org.example.shared.domain.model.definition.DatabaseRecord
 import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.use_case.*
+import org.example.shared.domain.use_case.auth.GetUserDataUseCase
+import org.example.shared.domain.use_case.path.BuildProfilePathUseCase
+import org.example.shared.domain.use_case.profile.*
+import org.example.shared.domain.use_case.validation.ValidateUsernameUseCase
+import org.example.shared.domain.use_case.validation.util.ValidationResult
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.state.CreateProfileUIState
 import org.example.shared.presentation.util.ProfileCreationForm
 import org.example.shared.presentation.util.SnackbarType
-import org.example.shared.presentation.util.validation.InputValidator
-import org.example.shared.presentation.util.validation.ValidationResult
 
 /**
  * ViewModel for the profile creation screen.
  *
  * @param getUserDataUseCase The use case to get the user data.
- * @param createUserProfileUseCase The use case to create a user profile.
+ * @param createProfileUseCase The use case to create a user profile.
  * @param uploadProfilePictureUseCase The use case to upload a profile picture.
  * @param deleteProfilePictureUseCase The use case to delete a profile picture.
  * @param getStyleQuestionnaireUseCase The use case to get the style questionnaire.
  * @param getStyleResultUseCase The use case to get the style result.
  * @param createUserStyleUseCase The use case to set the user style.
- * @param pathBuilder The path builder for user profiles.
- * @param syncManager The sync manager for user profiles.
+ * @param buildProfilePathUseCase The use case to build the profile path.
+ * @param syncManagers The list of sync managers to handle sync operations.
  * @param dispatcher The coroutine dispatcher to run the use cases on.
  * @param sharingStarted The sharing strategy for the state flow.
  */
 class CreateUserProfileViewModel(
     private val getUserDataUseCase: GetUserDataUseCase,
-    private val createUserProfileUseCase: CreateUserProfileUseCase,
+    private val createProfileUseCase: CreateProfileUseCase,
     private val uploadProfilePictureUseCase: UploadProfilePictureUseCase,
     private val deleteProfilePictureUseCase: DeleteProfilePictureUseCase,
     private val getStyleQuestionnaireUseCase: GetStyleQuestionnaireUseCase,
     private val getStyleResultUseCase: GetStyleResultUseCase,
-    private val updateUserProfileUseCase: UpdateUserProfileUseCase,
-    private val pathBuilder: PathBuilder,
-    private val syncManager: SyncManager<UserProfile>,
+    private val updateProfileUseCase: UpdateProfileUseCase,
+    private val validateUsernameUseCase: ValidateUsernameUseCase,
+    private val buildProfilePathUseCase: BuildProfilePathUseCase,
     private val dispatcher: CoroutineDispatcher,
+    syncManagers: List<SyncManager<DatabaseRecord>>,
     sharingStarted: SharingStarted
-) : BaseViewModel(dispatcher) {
+) : BaseViewModel(dispatcher, syncManagers) {
     // The number of questions to be fetched in the style questionnaire
     val questionCount = 5
 
@@ -53,13 +56,6 @@ class CreateUserProfileViewModel(
     val state = _state
         .onStart { getUserData() }
         .stateIn(viewModelScope, sharingStarted, _state.value)
-
-    // Collects sync status updates and handles errors
-    init {
-        viewModelScope.launch {
-            syncManager.syncStatus.collect { if (it is SyncStatus.Error) handleError(it.error) }
-        }
-    }
 
     /**
      * Fetches the user data from the database.
@@ -91,9 +87,9 @@ class CreateUserProfileViewModel(
      * @param username The new username input.
      */
     fun onUsernameChanged(username: String) = _state.update {
-        with(InputValidator.validateUsername(username)) {
+        with(validateUsernameUseCase(username)) {
             when (this@with) {
-                is ValidationResult.Valid   -> it.copy(username = value, usernameError = null)
+                is ValidationResult.Valid -> it.copy(username = value, usernameError = null)
                 is ValidationResult.Invalid -> it.copy(username = username, usernameError = message)
             }
         }
@@ -136,7 +132,7 @@ class CreateUserProfileViewModel(
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
-            uploadProfilePictureUseCase(imageData)
+            uploadProfilePictureUseCase(buildProfilePathUseCase(), imageData)
                 .onSuccess { url ->
                     update { it.copy(photoUrl = url) }
                     showSnackbar(successMessage, SnackbarType.Success)
@@ -157,7 +153,7 @@ class CreateUserProfileViewModel(
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
-            deleteProfilePictureUseCase()
+            deleteProfilePictureUseCase(buildProfilePathUseCase())
                 .onSuccess {
                     update { it.copy(photoUrl = "") }
                     showSnackbar(successMessage, SnackbarType.Success)
@@ -180,8 +176,8 @@ class CreateUserProfileViewModel(
         onUsernameChanged(value.username)
 
         if (value.usernameError.isNullOrBlank()) viewModelScope.launch(dispatcher) {
-            createUserProfileUseCase(
-                userProfile = UserProfile(
+            createProfileUseCase(
+                profile = Profile(
                     id = value.userId,
                     email = value.email,
                     username = value.username,
@@ -191,7 +187,7 @@ class CreateUserProfileViewModel(
                     createdAt = System.currentTimeMillis(),
                     lastUpdated = System.currentTimeMillis()
                 ),
-                path = pathBuilder.buildUserPath()
+                path = buildProfilePathUseCase()
             ).onSuccess {
                 showSnackbar(successMessage, SnackbarType.Success)
                 update { it.copy(isProfileCreated = true) }
@@ -222,18 +218,17 @@ class CreateUserProfileViewModel(
             getStyleQuestionnaireUseCase(
                 LearningPreferences(value.field.name, value.level.name, value.goal),
                 questionCount
-            )
-                .collect { result ->
-                    result.fold(
-                        onSuccess = { question ->
-                            update { state -> state.copy(styleQuestionnaire = state.styleQuestionnaire + question) }
-                        },
-                        onFailure = { error ->
-                            handleError(error)
-                        }
-                    )
-                    update { it.copy(isLoading = false) }
-                }
+            ).collect { result ->
+                result.fold(
+                    onSuccess = { question ->
+                        update { state -> state.copy(styleQuestionnaire = state.styleQuestionnaire + question) }
+                    },
+                    onFailure = { error ->
+                        handleError(error)
+                    }
+                )
+                update { it.copy(isLoading = false) }
+            }
         }
     }
 
@@ -264,8 +259,8 @@ class CreateUserProfileViewModel(
 
             update { it.copy(isLoading = true) }
             viewModelScope.launch(dispatcher) {
-                updateUserProfileUseCase(
-                    userProfile = UserProfile(
+                updateProfileUseCase(
+                    profile = Profile(
                         id = value.userId,
                         email = value.email,
                         username = value.username,
@@ -275,7 +270,7 @@ class CreateUserProfileViewModel(
                         createdAt = System.currentTimeMillis(),
                         lastUpdated = System.currentTimeMillis()
                     ),
-                    path = pathBuilder.buildUserPath()
+                    path = buildProfilePathUseCase()
                 ).onSuccess {
                     showSnackbar(successMessage, SnackbarType.Success)
                     navigate(Route.Dashboard, true)
@@ -297,7 +292,7 @@ class CreateUserProfileViewModel(
      */
     fun displayProfileCreationForm(form: ProfileCreationForm) = _state.update {
         when (form) {
-            ProfileCreationForm.PERSONAL_INFO       -> it.copy(currentForm = ProfileCreationForm.PERSONAL_INFO)
+            ProfileCreationForm.PERSONAL_INFO -> it.copy(currentForm = ProfileCreationForm.PERSONAL_INFO)
             ProfileCreationForm.STYLE_QUESTIONNAIRE -> it.copy(currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE)
         }
     }

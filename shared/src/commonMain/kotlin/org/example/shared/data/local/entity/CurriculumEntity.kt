@@ -6,7 +6,9 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
 import org.example.shared.data.local.entity.definition.RoomEntity
-import org.example.shared.domain.model.Curriculum
+import org.example.shared.domain.model.definition.StatusQueryable
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /**
  * Entity class representing a curriculum in the local database.
@@ -19,11 +21,12 @@ import org.example.shared.domain.model.Curriculum
  * @property createdAt The timestamp when the curriculum was created.
  * @property lastUpdated The timestamp when the curriculum was last updated.
  */
+@OptIn(ExperimentalUuidApi::class)
 @Entity(
-    tableName = "curriculum",
+    tableName = "curricula",
     foreignKeys = [
         ForeignKey(
-            entity = UserProfileEntity::class,
+            entity = ProfileEntity::class,
             parentColumns = ["id"],
             childColumns = ["user_id"],
             onDelete = CASCADE
@@ -32,26 +35,32 @@ import org.example.shared.domain.model.Curriculum
 )
 data class CurriculumEntity(
     @PrimaryKey
-    override val id: String,
+    override val id: String = Uuid.random().toString(),
 
-    @ColumnInfo(name = "user_id")
+    @ColumnInfo(name = "user_id", index = true)
     val userId: String,
 
     @ColumnInfo(name = "image_url")
-    override val imageUrl: String,
+    val imageUrl: String,
 
     @ColumnInfo(name = "syllabus")
-    override val syllabus: String,
+    val syllabus: String,
 
     @ColumnInfo(name = "description")
-    override val description: String,
+    val description: String,
 
     @ColumnInfo(name = "status")
     override val status: String,
 
-    @ColumnInfo(name = "created_at")
+    @ColumnInfo(
+        name = "created_at",
+        defaultValue = "CURRENT_TIMESTAMP"
+    )
     override val createdAt: Long,
 
-    @ColumnInfo(name = "last_updated")
+    @ColumnInfo(
+        name = "last_updated",
+        defaultValue = "CURRENT_TIMESTAMP",
+    )
     override val lastUpdated: Long
-) : Curriculum(id, imageUrl, syllabus, description, status, createdAt, lastUpdated), RoomEntity
+) : RoomEntity, StatusQueryable

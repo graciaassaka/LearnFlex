@@ -5,4 +5,5 @@ package org.example.shared.domain.model.definition
  */
 interface ScoreQueryable {
     val quizScore: Int
+    val quizScoreMax: Int
 }

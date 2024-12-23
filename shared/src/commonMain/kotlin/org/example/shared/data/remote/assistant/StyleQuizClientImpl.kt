@@ -251,7 +251,7 @@ class StyleQuizClientImpl(private val assistant: AIAssistantClient) : StyleQuizC
             if (responses.isEmpty()) throw IllegalArgumentException("Responses cannot be empty")
             LearningStyle(
                 dominant = maxBy { it.value }.key,
-                breakdown = StyleBreakdown(
+                breakdown = LearningStyleBreakdown(
                     visual = getOrDefault(Style.VISUAL.value, 0) * 100 / responses.size,
                     reading = getOrDefault(Style.READING.value, 0) * 100 / responses.size,
                     kinesthetic = getOrDefault(Style.KINESTHETIC.value, 0) * 100 / responses.size

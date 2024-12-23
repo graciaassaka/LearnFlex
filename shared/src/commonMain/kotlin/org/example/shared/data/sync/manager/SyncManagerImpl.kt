@@ -29,13 +29,13 @@ class SyncManagerImpl<Model>(
     override val syncStatus = _syncStatus.asStateFlow()
     private val job = syncScope.launch { for (operation in pendingOperations) processOperation(operation) }
 
+
     /**
      * Queues a synchronization operation to be processed.
      *
      * @param operation The synchronization operation to be queued.
      */
     override suspend fun queueOperation(operation: SyncOperation<Model>) = pendingOperations.send(operation)
-
 
     /**
      * Processes a synchronization operation.

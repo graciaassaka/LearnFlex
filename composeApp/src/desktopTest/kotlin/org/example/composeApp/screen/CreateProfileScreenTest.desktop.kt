@@ -4,7 +4,6 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.*
 import androidx.compose.ui.unit.DpSize
@@ -18,22 +17,23 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.update
 import org.example.composeApp.theme.LearnFlexTheme
-import org.example.composeApp.util.LocalComposition
 import org.example.composeApp.util.TestTags
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.*
+import org.example.shared.domain.use_case.validation.ValidateUsernameUseCase
+import org.example.shared.domain.use_case.validation.util.ValidationResult
 import org.example.shared.presentation.state.CreateProfileUIState
 import org.example.shared.presentation.util.ProfileCreationForm
 import org.example.shared.presentation.util.UIEvent
-import org.example.shared.presentation.util.validation.InputValidator
-import org.example.shared.presentation.util.validation.ValidationResult
 import org.example.shared.presentation.viewModel.CreateUserProfileViewModel
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
+@OptIn(ExperimentalTestApi::class)
 class CreateProfileScreenTest {
     private lateinit var navController: NavController
     private lateinit var viewModel: CreateUserProfileViewModel
+    private lateinit var validateUsernameUseCase: ValidateUsernameUseCase
     private lateinit var uiState: MutableStateFlow<CreateProfileUIState>
     private lateinit var uiEventFlow: MutableSharedFlow<UIEvent>
     private lateinit var windowSizeClass: WindowSizeClass
@@ -43,10 +43,11 @@ class CreateProfileScreenTest {
     fun setUp() {
         navController = mockk(relaxed = true)
         viewModel = mockk(relaxed = true)
+        validateUsernameUseCase = ValidateUsernameUseCase()
         uiState = MutableStateFlow(CreateProfileUIState())
         uiEventFlow = MutableSharedFlow()
         windowSizeClass = WindowSizeClass.calculateFromSize(
-            DpSize(width = 800.dp, height = 800.dp),
+            DpSize(width = 1200.dp, height = 800.dp),
             setOf(WindowWidthSizeClass.Expanded),
             setOf(WindowHeightSizeClass.Expanded)
         )
@@ -56,14 +57,11 @@ class CreateProfileScreenTest {
         every { viewModel.isScreenVisible } returns MutableStateFlow(true)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun createProfileScreenDisplaysCorrectly() = runComposeUiTest {
         setContent {
-            CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
-                LearnFlexTheme {
-                    CreateProfileScreen(windowSizeClass, navController, viewModel)
-                }
+            LearnFlexTheme {
+                CreateProfileScreen(windowSizeClass, navController, viewModel)
             }
         }
         onNodeWithTag(TestTags.PERSONAL_INFO_IMAGE_UPLOAD.tag).assertIsDisplayed()
@@ -74,27 +72,19 @@ class CreateProfileScreenTest {
         onNodeWithTag(TestTags.PERSONAL_INFO_CREATE_PROFILE_BUTTON.tag).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun usernameTextField_calls_viewModel_onUsernameChanged_whenTextEntered() = runComposeUiTest {
         setContent {
-            CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
-                LearnFlexTheme {
-                    CreateProfileScreen(windowSizeClass, navController, viewModel)
-                }
+            LearnFlexTheme {
+                CreateProfileScreen(windowSizeClass, navController, viewModel)
             }
         }
         val username = "TestUser"
         every { viewModel.onUsernameChanged(username) } answers {
-            with(InputValidator.validateUsername(username)) {
+            with(validateUsernameUseCase(username)) {
                 when (this@with) {
                     is ValidationResult.Valid -> uiState.update { it.copy(username = value, usernameError = null) }
-                    is ValidationResult.Invalid -> uiState.update {
-                        it.copy(
-                            username = username,
-                            usernameError = message
-                        )
-                    }
+                    is ValidationResult.Invalid -> uiState.update { it.copy(username = username, usernameError = message) }
                 }
             }
         }
@@ -105,28 +95,20 @@ class CreateProfileScreenTest {
         onNodeWithText(username).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun usernameTextField_displaysError_whenInvalidUsernameEntered() = runComposeUiTest {
         setContent {
-            CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
-                LearnFlexTheme {
-                    CreateProfileScreen(windowSizeClass, navController, viewModel)
-                }
+            LearnFlexTheme {
+                CreateProfileScreen(windowSizeClass, navController, viewModel)
             }
         }
         val username = "Test User"
-        val errorMessage = (InputValidator.validateUsername(username) as ValidationResult.Invalid).message
+        val errorMessage = (validateUsernameUseCase(username) as ValidationResult.Invalid).message
         every { viewModel.onUsernameChanged(username) } answers {
-            with(InputValidator.validateUsername(username)) {
+            with(validateUsernameUseCase(username)) {
                 when (this@with) {
                     is ValidationResult.Valid -> uiState.update { it.copy(username = value, usernameError = null) }
-                    is ValidationResult.Invalid -> uiState.update {
-                        it.copy(
-                            username = username,
-                            usernameError = message
-                        )
-                    }
+                    is ValidationResult.Invalid -> uiState.update { it.copy(username = username, usernameError = message) }
                 }
             }
         }
@@ -137,14 +119,11 @@ class CreateProfileScreenTest {
         onNodeWithText(errorMessage).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun goalTextField_calls_viewModel_onGoalChanged_whenTextEntered() = runComposeUiTest {
         setContent {
-            CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
-                LearnFlexTheme {
-                    CreateProfileScreen(windowSizeClass, navController, viewModel)
-                }
+            LearnFlexTheme {
+                CreateProfileScreen(windowSizeClass, navController, viewModel)
             }
         }
         val goal = "TestGoal"
@@ -158,14 +137,11 @@ class CreateProfileScreenTest {
         onNodeWithText(goal).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun levelDropdown_calls_viewModel_onLevelChanged_whenSelected() = runComposeUiTest {
         setContent {
-            CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
-                LearnFlexTheme {
-                    CreateProfileScreen(windowSizeClass, navController, viewModel)
-                }
+            LearnFlexTheme {
+                CreateProfileScreen(windowSizeClass, navController, viewModel)
             }
         }
         val level = Level.Advanced
@@ -187,34 +163,27 @@ class CreateProfileScreenTest {
         onNodeWithText("Advanced").assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun fieldPicker_calls_viewModel_onFieldChanged_whenScrolled() = runComposeUiTest {
         setContent {
-            CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
-                LearnFlexTheme {
-                    CreateProfileScreen(windowSizeClass, navController, viewModel)
-                }
+            LearnFlexTheme {
+                CreateProfileScreen(windowSizeClass, navController, viewModel)
             }
         }
-        onNodeWithTag("${Field::class.simpleName}_picker")
-            .performTouchInput {
-                down(Offset(10f, 0f))
-                moveTo(Offset(10f, -100f))
-                up()
-            }
+        onNodeWithTag("${Field::class.simpleName}_picker").performTouchInput {
+            down(Offset(10f, 0f))
+            moveTo(Offset(10f, -100f))
+            up()
+        }
 
         verify { viewModel.onFieldChanged(any()) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun createProfileButton_calls_viewModel_onCreateProfile_whenClicked() = runComposeUiTest {
         setContent {
-            CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
-                LearnFlexTheme {
-                    CreateProfileScreen(windowSizeClass, navController, viewModel)
-                }
+            LearnFlexTheme {
+                CreateProfileScreen(windowSizeClass, navController, viewModel)
             }
         }
         onNodeWithTag(TestTags.PERSONAL_INFO_CREATE_PROFILE_BUTTON.tag).performClick()
@@ -222,14 +191,11 @@ class CreateProfileScreenTest {
         verify { viewModel.onCreateProfile(any()) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun personalInfoForm_disables_buttons_and_fields_when_loading() = runComposeUiTest {
         setContent {
-            CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
-                LearnFlexTheme {
-                    CreateProfileScreen(windowSizeClass, navController, viewModel)
-                }
+            LearnFlexTheme {
+                CreateProfileScreen(windowSizeClass, navController, viewModel)
             }
         }
 
@@ -241,68 +207,44 @@ class CreateProfileScreenTest {
         onNodeWithTag(TestTags.PERSONAL_INFO_CREATE_PROFILE_BUTTON.tag).assertIsNotEnabled()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun styleQuestionnaireForm_displays_correctly() = runComposeUiTest {
         setContent {
-            CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
-                LearnFlexTheme {
-                    CreateProfileScreen(windowSizeClass, navController, viewModel)
-                }
+            LearnFlexTheme {
+                CreateProfileScreen(windowSizeClass, navController, viewModel)
             }
         }
 
-        uiState.update {
-            it.copy(
-                currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
-                styleQuestionnaire = styleQuestionnaire
-            )
-        }
+        uiState.update { it.copy(currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE, styleQuestionnaire = styleQuestionnaire) }
 
         onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE.tag).assertIsEnabled()
         onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_OPTIONS_GROUP.tag).assertIsDisplayed()
         onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_NEXT_BUTTON.tag).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun styleQuestionnaireOptionsGroup_selects_option_whenClicked() = runComposeUiTest {
         setContent {
-            CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
-                LearnFlexTheme {
-                    CreateProfileScreen(windowSizeClass, navController, viewModel)
-                }
+            LearnFlexTheme {
+                CreateProfileScreen(windowSizeClass, navController, viewModel)
             }
         }
 
-        uiState.update {
-            it.copy(
-                currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
-                styleQuestionnaire = styleQuestionnaire
-            )
-        }
+        uiState.update { it.copy(currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE, styleQuestionnaire = styleQuestionnaire) }
 
         onNodeWithText(Style.READING.value).performClick()
         onNodeWithText(Style.READING.value).assertIsSelected()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun styleQuestionnaireOptionsGroup_calls_viewModel_onQuestionAnswered_whenNextButtonClicked() = runComposeUiTest {
         setContent {
-            CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
-                LearnFlexTheme {
-                    CreateProfileScreen(windowSizeClass, navController, viewModel)
-                }
+            LearnFlexTheme {
+                CreateProfileScreen(windowSizeClass, navController, viewModel)
             }
         }
 
-        uiState.update {
-            it.copy(
-                currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
-                styleQuestionnaire = styleQuestionnaire
-            )
-        }
+        uiState.update { it.copy(currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE, styleQuestionnaire = styleQuestionnaire) }
 
         onNodeWithText(Style.READING.value).performClick()
         onNodeWithText(Style.READING.value).assertIsSelected()
@@ -311,14 +253,11 @@ class CreateProfileScreenTest {
         verify { viewModel.onQuestionAnswered(any()) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun styleQuestionnaireResultDialog_displays_correctly() = runComposeUiTest {
         setContent {
-            CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
-                LearnFlexTheme {
-                    CreateProfileScreen(windowSizeClass, navController, viewModel)
-                }
+            LearnFlexTheme {
+                CreateProfileScreen(windowSizeClass, navController, viewModel)
             }
         }
 
@@ -336,14 +275,11 @@ class CreateProfileScreenTest {
         onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_BREAKDOWN.tag).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun styleQuestionnaireResultDialog_calls_viewModel_setLearningStyle_whenButtonClicked() = runComposeUiTest {
         setContent {
-            CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
-                LearnFlexTheme {
-                    CreateProfileScreen(windowSizeClass, navController, viewModel)
-                }
+            LearnFlexTheme {
+                CreateProfileScreen(windowSizeClass, navController, viewModel)
             }
         }
 
@@ -360,14 +296,11 @@ class CreateProfileScreenTest {
         verify { viewModel.setLearningStyle(any()) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun styleQuestionnaireResultDialog_calls_viewModel_startStyleQuestionnaire_whenButtonClicked() = runComposeUiTest {
         setContent {
-            CompositionLocalProvider(LocalComposition.MaxFileSize provides 1024L) {
-                LearnFlexTheme {
-                    CreateProfileScreen(windowSizeClass, navController, viewModel)
-                }
+            LearnFlexTheme {
+                CreateProfileScreen(windowSizeClass, navController, viewModel)
             }
         }
 
@@ -386,14 +319,13 @@ class CreateProfileScreenTest {
 
     companion object {
         private val styleQuestionnaire = listOf(
-                StyleQuestion(
-                    listOf(StyleOption(Style.READING.value, Style.READING.value)), "Question 1",
-                )
+            StyleQuestion(
+                listOf(StyleOption(Style.READING.value, Style.READING.value)), "Question 1",
             )
+        )
 
         private val learningStyle = LearningStyle(
-            dominant = Style.READING.value,
-            breakdown = StyleBreakdown(visual = 0, reading = 50, kinesthetic = 50)
+            dominant = Style.READING.value, breakdown = LearningStyleBreakdown(visual = 0, reading = 50, kinesthetic = 50)
         )
     }
 }

@@ -1,7 +1,6 @@
 package org.example.shared.domain.storage_operations
 
-import kotlinx.coroutines.flow.Flow
-import org.example.shared.domain.constant.definition.Status
+import org.example.shared.domain.constant.ContentStatus
 import org.example.shared.domain.model.definition.StatusQueryable
 
 /**
@@ -9,10 +8,10 @@ import org.example.shared.domain.model.definition.StatusQueryable
  */
 interface QueryByStatusOperation<Model : StatusQueryable> {
     /**
-     * Returns a flow of results containing all records with the given status.
+     * Retrieves a list of models that match a specific status from the database.
      *
-     * @param status The status to query by.
-     * @return A flow of results containing all records with the given status.
+     * @param status The [ContentStatus] to filter the models by.
+     * @return A [Result] containing a list of models matching the specified status.
      */
-    fun getByStatus(status: Status): Flow<Result<List<Model>>>
+    suspend fun getByStatus(status: ContentStatus): Result<List<Model>>
 }

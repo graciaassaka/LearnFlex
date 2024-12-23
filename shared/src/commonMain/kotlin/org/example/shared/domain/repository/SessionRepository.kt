@@ -5,6 +5,13 @@ import org.example.shared.domain.storage_operations.BatchOperations
 import org.example.shared.domain.storage_operations.CrudOperations
 import org.example.shared.domain.storage_operations.QueryByDateRangeOperation
 
+
+/**
+ * Repository interface for managing session data.
+ *
+ * Combines multiple operations including CRUD operations, batch processing,
+ * and querying sessions within a specific date range.
+ */
 interface SessionRepository :
     CrudOperations<Session>,
     BatchOperations<Session>,

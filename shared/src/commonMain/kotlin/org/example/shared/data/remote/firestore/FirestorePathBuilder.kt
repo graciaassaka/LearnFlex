@@ -1,8 +1,7 @@
 package org.example.shared.data.remote.firestore
 
-import org.example.shared.data.remote.util.FirestoreCollection
-import org.example.shared.data.remote.util.FirestoreSubCollection
-import org.example.shared.domain.dao.util.PathBuilder
+import org.example.shared.domain.constant.DataCollection
+import org.example.shared.domain.storage_operations.util.PathBuilder
 
 /**
  * FirestorePathBuilder is responsible for constructing paths for various Firestore collections and documents
@@ -11,24 +10,24 @@ import org.example.shared.domain.dao.util.PathBuilder
  */
 class FirestorePathBuilder : PathBuilder {
     /**
-     * Constructs and returns the Firestore path for the users collection.
+     * Constructs and returns the Firestore path for the profiles collection.
      *
-     * @return A string representing the path to the users collection in Firestore.
+     * @return A string representing the path to the profiles collection in Firestore.
      */
-    override fun buildUserPath() = FirestorePathConstructor()
-        .collection(FirestoreCollection.USERS.value)
+    override fun buildProfilePath() = FirestorePathConstructor()
+        .collection(DataCollection.PROFILES.value)
         .build()
 
     /**
      * Constructs a Firestore path to access the curriculums of a specific user.
      *
-     * @param userId The ID of the user whose curriculum path is to be built.
+     * @param profileId The ID of the user whose curriculum path is to be built.
      * @return The constructed Firestore path as a string.
      */
-    override fun buildCurriculumPath(userId: String) = FirestorePathConstructor()
-        .collection(FirestoreCollection.USERS.value)
-        .document(userId)
-        .collection(FirestoreSubCollection.CURRICULUMS.value)
+    override fun buildCurriculumPath(profileId: String) = FirestorePathConstructor()
+        .collection(DataCollection.PROFILES.value)
+        .document(profileId)
+        .collection(DataCollection.CURRICULA.value)
         .build()
 
     /**
@@ -39,11 +38,11 @@ class FirestorePathBuilder : PathBuilder {
      * @return The Firestore path to the modules as a string.
      */
     override fun buildModulePath(userId: String, curriculumId: String) = FirestorePathConstructor()
-        .collection(FirestoreCollection.USERS.value)
+        .collection(DataCollection.PROFILES.value)
         .document(userId)
-        .collection(FirestoreSubCollection.CURRICULUMS.value)
+        .collection(DataCollection.CURRICULA.value)
         .document(curriculumId)
-        .collection(FirestoreSubCollection.MODULES.value)
+        .collection(DataCollection.MODULES.value)
         .build()
 
     /**
@@ -55,13 +54,13 @@ class FirestorePathBuilder : PathBuilder {
      * @return The Firestore path as a string.
      */
     override fun buildLessonPath(userId: String, curriculumId: String, moduleId: String) = FirestorePathConstructor()
-        .collection(FirestoreCollection.USERS.value)
+        .collection(DataCollection.PROFILES.value)
         .document(userId)
-        .collection(FirestoreSubCollection.CURRICULUMS.value)
+        .collection(DataCollection.CURRICULA.value)
         .document(curriculumId)
-        .collection(FirestoreSubCollection.MODULES.value)
+        .collection(DataCollection.MODULES.value)
         .document(moduleId)
-        .collection(FirestoreSubCollection.LESSONS.value)
+        .collection(DataCollection.LESSONS.value)
         .build()
 
     /**
@@ -75,27 +74,27 @@ class FirestorePathBuilder : PathBuilder {
      */
     override fun buildSectionPath(userId: String, curriculumId: String, moduleId: String, lessonId: String) =
         FirestorePathConstructor()
-            .collection(FirestoreCollection.USERS.value)
+            .collection(DataCollection.PROFILES.value)
             .document(userId)
-            .collection(FirestoreSubCollection.CURRICULUMS.value)
+            .collection(DataCollection.CURRICULA.value)
             .document(curriculumId)
-            .collection(FirestoreSubCollection.MODULES.value)
+            .collection(DataCollection.MODULES.value)
             .document(moduleId)
-            .collection(FirestoreSubCollection.LESSONS.value)
+            .collection(DataCollection.LESSONS.value)
             .document(lessonId)
-            .collection(FirestoreSubCollection.SECTIONS.value)
+            .collection(DataCollection.SECTIONS.value)
             .build()
 
     /**
      * Constructs a Firestore path for accessing session documents for a specific user.
      *
-     * @param userId The ID of the user for whom the session path is being built.
+     * @param profileId The ID of the user for whom the session path is being built.
      * @return The complete Firestore path as a string that points to the sessions sub-collection
      *         of the specified user.
      */
-    override fun buildSessionPath(userId: String) = FirestorePathConstructor()
-        .collection(FirestoreCollection.USERS.value)
-        .document(userId)
-        .collection(FirestoreSubCollection.SESSIONS.value)
+    override fun buildSessionPath(profileId: String) = FirestorePathConstructor()
+        .collection(DataCollection.PROFILES.value)
+        .document(profileId)
+        .collection(DataCollection.SESSIONS.value)
         .build()
 }

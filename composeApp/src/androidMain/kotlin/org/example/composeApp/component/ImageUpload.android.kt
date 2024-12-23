@@ -10,7 +10,7 @@ import learnflex.composeapp.generated.resources.Res
 import learnflex.composeapp.generated.resources.file_not_found_error
 import learnflex.composeapp.generated.resources.file_too_large_error
 import learnflex.composeapp.generated.resources.upload_photo_text
-import org.example.composeApp.util.LocalComposition
+import org.example.shared.domain.constant.FileType
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -33,7 +33,6 @@ actual fun ImageUpload(
     isUploaded: Boolean,
 ) {
     val context = LocalContext.current
-    val maxFileSize = LocalComposition.MaxFileSize.current
 
     val fileNotFoundErr = stringResource(Res.string.file_not_found_error)
     val fileTooLargeErr = stringResource(Res.string.file_too_large_error)
@@ -44,7 +43,7 @@ actual fun ImageUpload(
         uri?.let {
             with(context.contentResolver) {
                 openFileDescriptor(uri, "r")?.use { descriptor ->
-                    if (descriptor.statSize > maxFileSize) handleError(Exception(fileTooLargeErr))
+                    if (descriptor.statSize > FileType.IMAGE.maxFileSize) handleError(Exception(fileTooLargeErr))
                     else openInputStream(uri)?.use { onImageSelected(it.readBytes()) } ?: handleError(Exception(fileNotFoundErr))
                 }
             }

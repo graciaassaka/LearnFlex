@@ -7,7 +7,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import learnflex.composeapp.generated.resources.Res
 import learnflex.composeapp.generated.resources.file_too_large_error
-import org.example.composeApp.util.LocalComposition
+import org.example.shared.domain.constant.FileType
 import org.jetbrains.compose.resources.stringResource
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
@@ -33,7 +33,6 @@ actual fun ImageUpload(
     isUploaded: Boolean
 ) {
     var showFileDialog by remember { mutableStateOf(false) }
-    val maxFileSize = LocalComposition.MaxFileSize.current
 
     val fileTooLargeErr = stringResource(Res.string.file_too_large_error)
 
@@ -61,7 +60,7 @@ actual fun ImageUpload(
 
                 val result = fileChooser.showOpenDialog(null)
                 if (result == JFileChooser.APPROVE_OPTION) fileChooser.selectedFile.run {
-                    if (length() > maxFileSize) handleError(Exception(fileTooLargeErr))
+                    if (length() > FileType.IMAGE.maxFileSize) handleError(Exception(fileTooLargeErr))
                     else inputStream().buffered().use { onImageSelected(it.readBytes()) }
                 }
             }

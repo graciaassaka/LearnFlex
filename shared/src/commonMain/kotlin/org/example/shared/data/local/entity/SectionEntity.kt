@@ -6,7 +6,9 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
 import org.example.shared.data.local.entity.definition.RoomEntity
-import org.example.shared.domain.model.Section
+import org.example.shared.domain.model.definition.ScoreQueryable
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /**
  * Entity class representing a section in the local database.
@@ -23,8 +25,9 @@ import org.example.shared.domain.model.Section
  * @property createdAt The timestamp when the section was created.
  * @property lastUpdated The timestamp when the section was last updated.
  */
+@OptIn(ExperimentalUuidApi::class)
 @Entity(
-    tableName = "section",
+    tableName = "sections",
     foreignKeys = [
         ForeignKey(
             entity = LessonEntity::class,
@@ -36,7 +39,7 @@ import org.example.shared.domain.model.Section
 )
 data class SectionEntity(
     @PrimaryKey
-    override val id: String,
+    override val id: String = Uuid.random().toString(),
 
     @ColumnInfo(
         name = "lesson_id",
@@ -45,26 +48,35 @@ data class SectionEntity(
     val lessonId: String,
 
     @ColumnInfo(name = "image_url")
-    override val imageUrl: String,
+    val imageUrl: String,
 
     @ColumnInfo(name = "index")
-    override val index: Int,
+    val index: Int,
 
     @ColumnInfo(name = "title")
-    override val title: String,
+    val title: String,
 
     @ColumnInfo(name = "description")
-    override val description: String,
+    val description: String,
 
     @ColumnInfo(name = "content")
-    override val content: String,
+    val content: String,
 
     @ColumnInfo(name = "quiz_score")
     override val quizScore: Int,
 
-    @ColumnInfo(name = "created_at")
+    @ColumnInfo(name = "quiz_score_max")
+    override val quizScoreMax: Int,
+
+    @ColumnInfo(
+        name = "created_at",
+        defaultValue = "CURRENT_TIMESTAMP"
+    )
     override val createdAt: Long,
 
-    @ColumnInfo(name = "last_updated")
+    @ColumnInfo(
+        name = "last_updated",
+        defaultValue = "CURRENT_TIMESTAMP",
+    )
     override val lastUpdated: Long
-) : Section(id, imageUrl, index, title, description, content, quizScore, createdAt, lastUpdated), RoomEntity
+) : RoomEntity, ScoreQueryable

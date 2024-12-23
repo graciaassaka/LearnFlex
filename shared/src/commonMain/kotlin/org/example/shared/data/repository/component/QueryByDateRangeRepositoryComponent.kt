@@ -1,8 +1,7 @@
 package org.example.shared.data.repository.component
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 import org.example.shared.data.local.entity.definition.RoomEntity
 import org.example.shared.data.repository.util.RepositoryConfig
 import org.example.shared.domain.model.definition.DatabaseRecord
@@ -27,9 +26,9 @@ class QueryByDateRangeRepositoryComponent<Model, Entity : RoomEntity>(
      * @param T The type of the data to be queried.
      * @property strategy The function that performs the query.
      */
-    class DateRangeQueryStrategy<T>(
-        private val strategy: (Long, Long) -> Flow<List<T>>
-    ) : QueryStrategy<List<T>> {
+    class DateRangeQueryStrategy<Entity : RoomEntity>(
+        private val strategy: (Long, Long) -> Flow<List<Entity>>
+    ) : QueryStrategy<List<Entity>> {
         private var start: Long? = null
         private var end: Long? = null
 
@@ -39,9 +38,10 @@ class QueryByDateRangeRepositoryComponent<Model, Entity : RoomEntity>(
          * @param newStart The start time in milliseconds.
          * @param newEnd The end time in milliseconds.
          */
-        fun configure(newStart: Long, newEnd: Long) {
+        fun configure(newStart: Long, newEnd: Long): DateRangeQueryStrategy<Entity> {
             start = newStart
             end = newEnd
+            return this
         }
 
         /**
@@ -50,7 +50,7 @@ class QueryByDateRangeRepositoryComponent<Model, Entity : RoomEntity>(
          * @return A Flow emitting the list of queried data.
          * @throws IllegalArgumentException if start or end times are not set.
          */
-        override fun execute(): Flow<List<T>> {
+        override fun execute(): Flow<List<Entity>> {
             requireNotNull(start) { "Start time must be set before executing query" }
             requireNotNull(end) { "End time must be set before executing query" }
             return strategy(start!!, end!!)
@@ -64,19 +64,17 @@ class QueryByDateRangeRepositoryComponent<Model, Entity : RoomEntity>(
      * @param end The end time in milliseconds.
      * @return A Flow emitting the result of the query.
      */
-    override fun queryByDateRange(start: Long, end: Long) = channelFlow {
-        try {
-            val strategy = config.queryStrategies.getCustomStrategy<List<Entity>>(DATE_RANGE_QUERY_STRATEGY_KEY)
-                    as DateRangeQueryStrategy<Entity>
+    override suspend fun queryByDateRange(start: Long, end: Long) = runCatching {
+        val strategy = config.queryStrategies.getCustomStrategy<List<Entity>>(DATE_RANGE_QUERY_STRATEGY_KEY)
+                as DateRangeQueryStrategy<Entity>
 
-            strategy.configure(start, end)
-            strategy.execute()
-                .map { entities -> entities.map(config.modelMapper::toModel) }
-                .collect { models -> send(Result.success(models)) }
-        } catch (e: Exception) {
-            send(Result.failure(e))
-        }
+        strategy
+            .configure(start, end)
+            .execute()
+            .first()
+            .map(config.modelMapper::toModel)
     }
+
 
     companion object {
         const val DATE_RANGE_QUERY_STRATEGY_KEY = "date_range_query_strategy"

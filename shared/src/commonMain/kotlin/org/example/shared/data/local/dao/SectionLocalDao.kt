@@ -2,6 +2,7 @@ package org.example.shared.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.RewriteQueriesToDropUnusedColumns
 import kotlinx.coroutines.flow.Flow
 import org.example.shared.data.local.entity.SectionEntity
 
@@ -9,7 +10,7 @@ import org.example.shared.data.local.entity.SectionEntity
 abstract class SectionLocalDao : ExtendedLocalDao<SectionEntity>() {
     @Query(
         """
-            SELECT * FROM section
+            SELECT * FROM sections
             WHERE id = :id
         """
     )
@@ -17,18 +18,36 @@ abstract class SectionLocalDao : ExtendedLocalDao<SectionEntity>() {
 
     @Query(
         """
-            SELECT * FROM section
+            SELECT * FROM sections
+        """
+    )
+    abstract fun getAll(): Flow<List<SectionEntity>>
+
+    @Query(
+        """
+            SELECT * FROM sections
             WHERE lesson_id = :lessonId
             ORDER BY `index`
        """
     )
-    abstract fun getSectionsByLessonId(lessonId: String): Flow<List<SectionEntity>>
+    abstract fun getByLessonId(lessonId: String): Flow<List<SectionEntity>>
 
     @Query(
         """
-            SELECT id FROM section 
+            SELECT * FROM sections
+            INNER JOIN lessons ON sections.lesson_id = lessons.id
+            INNER JOIN modules ON lessons.module_id = modules.id
+            WHERE modules.curriculum_id = :curriculumId
+        """
+    )
+    @RewriteQueriesToDropUnusedColumns
+    abstract fun getByCurriculumId(curriculumId: String): Flow<List<SectionEntity>>
+
+    @Query(
+        """
+            SELECT * FROM sections 
             WHERE lesson_id = :lessonId AND quiz_score >= :minScore
         """
     )
-    abstract fun getSectionIdsByMinQuizScore(lessonId: String, minScore: Int): Flow<List<String>>
+    abstract fun getByMinQuizScore(lessonId: String, minScore: Int): Flow<List<SectionEntity>>
 }

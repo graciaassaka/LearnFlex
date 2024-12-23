@@ -10,8 +10,17 @@ import org.example.shared.domain.repository.util.QueryStrategy
  * @param Entity The type of the entity that extends RoomEntity.
  */
 class QueryStrategies<Entity : RoomEntity> {
-    private var byIdStrategy: SingleEntityStrategyHolder<Entity>? = null
-    private var allStrategy: CollectionStrategyHolder<Entity>? = null
+    var byIdStrategy: SingleEntityStrategyHolder<Entity>? = null
+        private set
+        get() {
+            return field ?: error("GetById strategy not configured")
+        }
+    var byParentStrategy: ByParentStrategyHolder<Entity>? = null
+        private set
+        get() {
+            return field ?: error("GetByParent strategy not configured")
+        }
+
     private val customStrategies = mutableMapOf<String, QueryStrategy<*>>()
 
     /**
@@ -27,9 +36,11 @@ class QueryStrategies<Entity : RoomEntity> {
          * Sets the ID for the query.
          *
          * @param newId The new ID to set.
+         * @return The updated SingleEntityStrategyHolder.
          */
-        fun setId(newId: String) {
+        fun setId(newId: String): SingleEntityStrategyHolder<T> {
             id = newId
+            return this
         }
 
         /**
@@ -50,16 +61,18 @@ class QueryStrategies<Entity : RoomEntity> {
      * @param T The type of the entity.
      * @property strategy The query strategy function.
      */
-    class CollectionStrategyHolder<T>(private val strategy: (String?) -> Flow<List<T>>) : QueryStrategy<List<T>> {
+    class ByParentStrategyHolder<T>(private val strategy: (String) -> Flow<List<T>>) : QueryStrategy<List<T>> {
         private var parentId: String? = null
 
         /**
          * Sets the parent ID for the query.
          *
          * @param newParentId The new parent ID to set.
+         * @return The updated ByParentStrategyHolder.
          */
-        fun setParentId(newParentId: String?) {
+        fun setParentId(newParentId: String): ByParentStrategyHolder<T> {
             parentId = newParentId
+            return this
         }
 
         /**
@@ -67,7 +80,10 @@ class QueryStrategies<Entity : RoomEntity> {
          *
          * @return A Flow containing the result of the query.
          */
-        override fun execute(): Flow<List<T>> = strategy(parentId)
+        override fun execute(): Flow<List<T>> {
+            requireNotNull(parentId) { "PARENT_ID must be set before executing query" }
+            return strategy(parentId!!)
+        }
     }
 
     /**
@@ -84,8 +100,8 @@ class QueryStrategies<Entity : RoomEntity> {
      *
      * @param strategy The query strategy function.
      */
-    fun withGetAll(strategy: (String?) -> Flow<List<Entity>>) {
-        allStrategy = CollectionStrategyHolder(strategy)
+    fun withGetByParent(strategy: (String) -> Flow<List<Entity>>) {
+        byParentStrategy = ByParentStrategyHolder(strategy)
     }
 
     /**
@@ -98,24 +114,6 @@ class QueryStrategies<Entity : RoomEntity> {
     fun <T> withCustomQuery(key: String, strategy: QueryStrategy<T>) {
         customStrategies[key] = strategy
     }
-
-    /**
-     * Retrieves the configured strategy for getting an entity by ID.
-     *
-     * @return The SingleEntityStrategyHolder.
-     * @throws IllegalStateException if the strategy is not configured.
-     */
-    fun getByIdStrategy(): SingleEntityStrategyHolder<Entity> =
-        byIdStrategy ?: error("GetById strategy not configured")
-
-    /**
-     * Retrieves the configured strategy for getting all entities.
-     *
-     * @return The CollectionStrategyHolder.
-     * @throws IllegalStateException if the strategy is not configured.
-     */
-    fun getAllStrategy(): CollectionStrategyHolder<Entity> =
-        allStrategy ?: error("GetAll strategy not configured")
 
     /**
      * Retrieves a configured custom query strategy.

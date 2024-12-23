@@ -11,9 +11,9 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class LearningPreferences(
-    val field: String,
-    val level: String,
-    val goal: String
+    val field: String = "",
+    val level: String = "",
+    val goal: String = ""
 )
 
 /**

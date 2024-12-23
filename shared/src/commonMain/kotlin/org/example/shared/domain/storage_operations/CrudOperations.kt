@@ -15,18 +15,20 @@ interface CrudOperations<Model : DatabaseRecord> {
      *
      * @param path The path in the repository where the item should be created.
      * @param item The item to be created.
+     * @param timestamp The timestamp to associate with the operation.
      * @return A [Result] indicating the success or failure of the operation.
      */
-    suspend fun insert(path: String, item: Model): Result<Unit>
+    suspend fun insert(path: String, item: Model, timestamp: Long): Result<Unit>
 
     /**
      * Updates an existing item in the repository.
      *
      * @param path The path in the repository where the item should be updated.
      * @param item The item to be updated.
+     * @param timestamp The timestamp to associate with the operation.
      * @return A [Result] indicating the success or failure of the operation.
      */
-    suspend fun update(path: String, item: Model): Result<Unit>
+    suspend fun update(path: String, item: Model, timestamp: Long): Result<Unit>
 
     /**
      * Retrieves an item from the repository by its ID.
@@ -42,7 +44,8 @@ interface CrudOperations<Model : DatabaseRecord> {
      *
      * @param path The path in the repository where the item should be deleted from.
      * @param item The item to be deleted.
+     * @param timestamp The timestamp to associate with the operation.
      * @return A [Result] indicating the success or failure of the operation.
      */
-    suspend fun delete(path: String, item: Model): Result<Unit>
+    suspend fun delete(path: String, item: Model, timestamp: Long): Result<Unit>
 }

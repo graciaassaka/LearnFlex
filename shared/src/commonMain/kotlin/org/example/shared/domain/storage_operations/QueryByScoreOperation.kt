@@ -1,6 +1,5 @@
 package org.example.shared.domain.storage_operations
 
-import kotlinx.coroutines.flow.Flow
 import org.example.shared.domain.model.definition.ScoreQueryable
 
 /**
@@ -10,11 +9,11 @@ import org.example.shared.domain.model.definition.ScoreQueryable
  */
 interface QueryByScoreOperation<Model : ScoreQueryable> {
     /**
-     * Retrieves a set of IDs that have a score greater than or equal to the given minimum score.
+     * Retrieves a list of models based on the specified minimum score for a given parent entity.
      *
-     * @param parentId The ID of the parent entity.
-     * @param minScore The minimum score to filter by.
-     * @return A Flow containing the result of the query.
+     * @param parentId The ID of the parent entity for which the models will be retrieved.
+     * @param minScore The minimum score threshold to filter the models.
+     * @return A [Result] containing a list of models that meet the minimum score criteria.
      */
-    fun getIdsByMinScore(parentId: String, minScore: Int): Flow<Result<Set<String>>>
+    suspend fun getByMinScore(parentId: String, minScore: Int): Result<List<Model>>
 }

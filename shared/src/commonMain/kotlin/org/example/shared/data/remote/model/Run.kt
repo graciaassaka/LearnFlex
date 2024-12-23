@@ -216,7 +216,6 @@ sealed interface ResponseFormat {
      * Custom serializer for ResponseFormat to handle both string and object cases
      */
     @OptIn(ExperimentalSerializationApi::class)
-    @Serializer(forClass = ResponseFormat::class)
     object ResponseFormatSerializer : KSerializer<ResponseFormat> {
         @OptIn(InternalSerializationApi::class)
         override val descriptor: SerialDescriptor = buildSerialDescriptor("ResponseFormat", SerialKind.CONTEXTUAL) {

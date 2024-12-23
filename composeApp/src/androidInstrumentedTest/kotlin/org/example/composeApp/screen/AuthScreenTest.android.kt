@@ -21,11 +21,13 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.update
 import org.example.composeApp.theme.LearnFlexTheme
 import org.example.composeApp.util.TestTags
+import org.example.shared.domain.use_case.validation.ValidateEmailUseCase
+import org.example.shared.domain.use_case.validation.ValidatePasswordConfirmationUseCase
+import org.example.shared.domain.use_case.validation.ValidatePasswordUseCase
+import org.example.shared.domain.use_case.validation.util.ValidationResult
 import org.example.shared.presentation.state.AuthUIState
 import org.example.shared.presentation.util.AuthForm
 import org.example.shared.presentation.util.UIEvent
-import org.example.shared.presentation.util.validation.InputValidator
-import org.example.shared.presentation.util.validation.ValidationResult
 import org.example.shared.presentation.viewModel.AuthViewModel
 import org.junit.Before
 import org.junit.Rule
@@ -41,6 +43,9 @@ class AuthScreenTest {
 
     private lateinit var navController: TestNavHostController
     private lateinit var viewModel: AuthViewModel
+    private lateinit var validateEmailUseCase: ValidateEmailUseCase
+    private lateinit var validatePasswordUseCase: ValidatePasswordUseCase
+    private lateinit var validatePasswordConfirmationUseCase: ValidatePasswordConfirmationUseCase
     private lateinit var uiState: MutableStateFlow<AuthUIState>
     private lateinit var uiEventFlow: MutableSharedFlow<UIEvent>
     private lateinit var windowSizeClass: WindowSizeClass
@@ -51,6 +56,9 @@ class AuthScreenTest {
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         navController = TestNavHostController(context)
         viewModel = mockk(relaxed = true)
+        validateEmailUseCase = ValidateEmailUseCase()
+        validatePasswordUseCase = ValidatePasswordUseCase()
+        validatePasswordConfirmationUseCase = ValidatePasswordConfirmationUseCase()
         uiState = MutableStateFlow(AuthUIState())
         uiEventFlow = MutableSharedFlow()
         windowSizeClass = WindowSizeClass.calculateFromSize(
@@ -88,7 +96,7 @@ class AuthScreenTest {
     fun signInForm_updateEmailField() {
         // Given
         val email = "test@example.com"
-        val validationResult = InputValidator.validateEmail(email)
+        val validationResult = validateEmailUseCase(email)
         every { viewModel.onSignInEmailChanged(email) } answers {
             uiState.update {
                 when (validationResult) {
@@ -113,7 +121,7 @@ class AuthScreenTest {
     fun signInForm_displaysErrorWhenEmailIsInvalid() {
         // Given
         val email = "test@example"
-        val validationResult = InputValidator.validateEmail(email)
+        val validationResult = validateEmailUseCase(email)
         every { viewModel.onSignInEmailChanged(email) } answers {
             uiState.update {
                 when (validationResult) {
@@ -138,7 +146,7 @@ class AuthScreenTest {
     fun signInForm_updatePasswordField() {
         // Given
         val password = "P@ssw0rd"
-        val validationResult = InputValidator.validatePassword(password)
+        val validationResult = validatePasswordUseCase(password)
         every { viewModel.onSignInPasswordChanged(password) } answers {
             uiState.update {
                 when (validationResult) {
@@ -162,7 +170,7 @@ class AuthScreenTest {
     fun signInForm_displaysErrorWhenPasswordIsInvalid() {
         // Given
         val password = "password"
-        val validationResult = InputValidator.validatePassword(password)
+        val validationResult = validatePasswordUseCase(password)
         every { viewModel.onSignInPasswordChanged(password) } answers {
             uiState.update {
                 when (validationResult) {
@@ -206,8 +214,8 @@ class AuthScreenTest {
         // Given
         val email = "test@example.com"
         val password = "P@ssw0rd"
-        val emailValidationResult = InputValidator.validateEmail(email)
-        val passwordValidationResult = InputValidator.validatePassword(password)
+        val emailValidationResult = validateEmailUseCase(email)
+        val passwordValidationResult = validatePasswordUseCase(password)
 
         every { viewModel.onSignInEmailChanged(email) } answers {
             uiState.update {
@@ -255,7 +263,7 @@ class AuthScreenTest {
         uiState.update { it.copy(signInPassword = password, signInPasswordError = null) }
 
         val email = "test@example"
-        val emailValidationResult = InputValidator.validateEmail(email)
+        val emailValidationResult = validateEmailUseCase(email)
 
         every { viewModel.onSignInEmailChanged(email) } answers {
             uiState.update {
@@ -283,7 +291,7 @@ class AuthScreenTest {
         uiState.update { it.copy(signInEmail = email, signInEmailError = null) }
 
         val password = "password"
-        val passwordValidationResult = InputValidator.validatePassword(password)
+        val passwordValidationResult = validatePasswordUseCase(password)
 
         every { viewModel.onSignInPasswordChanged(password) } answers {
             uiState.update {
@@ -363,7 +371,7 @@ class AuthScreenTest {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
         val email = "test@example.com"
-        val validationResult = InputValidator.validateEmail(email)
+        val validationResult = validateEmailUseCase(email)
         every { viewModel.onSignUpEmailChanged(email) } answers {
             uiState.update {
                 when (validationResult) {
@@ -389,7 +397,7 @@ class AuthScreenTest {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
         val email = "test@example"
-        val validationResult = InputValidator.validateEmail(email)
+        val validationResult = validateEmailUseCase(email)
         every { viewModel.onSignUpEmailChanged(email) } answers {
             uiState.update {
                 when (validationResult) {
@@ -415,7 +423,7 @@ class AuthScreenTest {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
         val password = "P@ssw0rd"
-        val validationResult = InputValidator.validatePassword(password)
+        val validationResult = validatePasswordUseCase(password)
         every { viewModel.onSignUpPasswordChanged(password) } answers {
             uiState.update {
                 when (validationResult) {
@@ -440,7 +448,7 @@ class AuthScreenTest {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
         val password = "password"
-        val validationResult = InputValidator.validatePassword(password)
+        val validationResult = validatePasswordUseCase(password)
         every { viewModel.onSignUpPasswordChanged(password) } answers {
             uiState.update {
                 when (validationResult) {
@@ -466,7 +474,7 @@ class AuthScreenTest {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
         val password = "P@ssw0rd"
-        val validationResult = InputValidator.validatePasswordConfirmation(password, password)
+        val validationResult = validatePasswordConfirmationUseCase(password, password)
         every { viewModel.onSignUpPasswordConfirmationChanged(password) } answers {
             uiState.update {
                 when (validationResult) {
@@ -496,7 +504,7 @@ class AuthScreenTest {
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
         val password = "password"
         val confirmPassword = "password123"
-        val validationResult = InputValidator.validatePasswordConfirmation(password, confirmPassword)
+        val validationResult = validatePasswordConfirmationUseCase(password, confirmPassword)
         every { viewModel.onSignUpPasswordConfirmationChanged(confirmPassword) } answers {
             uiState.update {
                 when (validationResult) {
@@ -528,9 +536,9 @@ class AuthScreenTest {
         val email = "test@example.com"
         val password = "P@ssw0rd"
         val confirmPassword = "P@ssw0rd"
-        val emailValidationResult = InputValidator.validateEmail(email)
-        val passwordValidationResult = InputValidator.validatePassword(password)
-        val confirmPasswordValidationResult = InputValidator.validatePasswordConfirmation(password, confirmPassword)
+        val emailValidationResult = validateEmailUseCase(email)
+        val passwordValidationResult = validatePasswordUseCase(password)
+        val confirmPasswordValidationResult = validatePasswordConfirmationUseCase(password, confirmPassword)
 
         every { viewModel.onSignUpEmailChanged(email) } answers {
             uiState.update {
@@ -605,7 +613,7 @@ class AuthScreenTest {
         }
 
         val email = "test@example"
-        val emailValidationResult = InputValidator.validateEmail(email)
+        val emailValidationResult = validateEmailUseCase(email)
 
         every { viewModel.onSignUpEmailChanged(email) } answers {
             uiState.update {
@@ -642,7 +650,7 @@ class AuthScreenTest {
         }
 
         val password = "password"
-        val passwordValidationResult = InputValidator.validatePassword(password)
+        val passwordValidationResult = validatePasswordUseCase(password)
 
         every { viewModel.onSignUpPasswordChanged(password) } answers {
             uiState.update {
@@ -679,7 +687,7 @@ class AuthScreenTest {
         }
 
         val confirmPassword = "password123"
-        val confirmPasswordValidationResult = InputValidator.validatePasswordConfirmation(password, confirmPassword)
+        val confirmPasswordValidationResult = validatePasswordConfirmationUseCase(password, confirmPassword)
 
         every { viewModel.onSignUpPasswordConfirmationChanged(confirmPassword) } answers {
             uiState.update {
@@ -783,7 +791,7 @@ class AuthScreenTest {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.ResetPassword) }
         val email = "test@example.com"
-        val validationResult = InputValidator.validateEmail(email)
+        val validationResult = validateEmailUseCase(email)
 
         every { viewModel.onPasswordResetEmailChanged(email) } answers {
             uiState.update {
@@ -810,7 +818,7 @@ class AuthScreenTest {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.ResetPassword) }
         val email = "test@example"
-        val validationResult = InputValidator.validateEmail(email)
+        val validationResult = validateEmailUseCase(email)
 
         every { viewModel.onPasswordResetEmailChanged(email) } answers {
             uiState.update {
@@ -864,7 +872,7 @@ class AuthScreenTest {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.ResetPassword) }
         val email = "test@example.com"
-        val emailValidationResult = InputValidator.validateEmail(email)
+        val emailValidationResult = validateEmailUseCase(email)
 
         every { viewModel.onPasswordResetEmailChanged(email) } answers {
             uiState.update {
@@ -897,7 +905,7 @@ class AuthScreenTest {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.ResetPassword) }
         val email = "test@example"
-        val emailValidationResult = InputValidator.validateEmail(email)
+        val emailValidationResult = validateEmailUseCase(email)
 
         every { viewModel.onPasswordResetEmailChanged(email) } answers {
             uiState.update {

@@ -1,14 +1,16 @@
 package org.example.shared.data.repository.component
 
 import io.mockk.mockk
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 import org.example.shared.data.local.entity.definition.RoomEntity
 import org.example.shared.data.repository.component.QueryByStatusRepositoryComponent.Companion.STATUS_STRATEGY_KEY
 import org.example.shared.data.repository.util.QueryStrategies
 import org.example.shared.data.repository.util.RepositoryConfig
-import org.example.shared.domain.constant.definition.Status
+import org.example.shared.domain.constant.ContentStatus
+import org.example.shared.domain.constant.DataCollection
 import org.example.shared.domain.model.definition.DatabaseRecord
 import org.example.shared.domain.model.definition.StatusQueryable
 import org.example.shared.domain.repository.util.ModelMapper
@@ -19,12 +21,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class QueryByStatusRepositoryComponentTest {
-
-    enum class TestStatus(override val value: String) : Status {
-        ACTIVE("active"),
-        INACTIVE("inactive")
-    }
-
     @Serializable
     private data class TestModel(
         override val id: String,
@@ -63,6 +59,7 @@ class QueryByStatusRepositoryComponentTest {
         )
 
         config = RepositoryConfig(
+            dataCollection = DataCollection.TEST,
             remoteDao = mockk(),
             localDao = mockk(),
             modelMapper = modelMapper,
@@ -80,14 +77,14 @@ class QueryByStatusRepositoryComponentTest {
         queryStrategies.withCustomQuery(
             STATUS_STRATEGY_KEY,
             QueryByStatusRepositoryComponent.StatusQueryStrategy { status ->
-                assertEquals(TestStatus.ACTIVE.value, status)
+                assertEquals(ContentStatus.FINISHED.value, status)
                 flowOf(listOf(testEntity))
             }
         )
         io.mockk.every { modelMapper.toModel(testEntity) } returns testModel
 
         // When
-        val result = component.getByStatus(TestStatus.ACTIVE).first()
+        val result = component.getByStatus(ContentStatus.FINISHED)
 
         // Then
         assertTrue(result.isSuccess)
@@ -105,7 +102,7 @@ class QueryByStatusRepositoryComponentTest {
         )
 
         // When
-        val result = component.getByStatus(TestStatus.INACTIVE).first()
+        val result = component.getByStatus(ContentStatus.UNFINISHED)
 
         // Then
         assertTrue(result.isSuccess)
@@ -124,7 +121,7 @@ class QueryByStatusRepositoryComponentTest {
         )
 
         // When
-        val result = component.getByStatus(TestStatus.ACTIVE).first()
+        val result = component.getByStatus(ContentStatus.FINISHED)
 
         // Then
         assertTrue(result.isFailure)
@@ -139,53 +136,20 @@ class QueryByStatusRepositoryComponentTest {
         component = QueryByStatusRepositoryComponent(invalidConfig)
 
         // When
-        val result = component.getByStatus(TestStatus.ACTIVE).first()
+        val result = component.getByStatus(ContentStatus.FINISHED)
 
         // Then
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull()?.message?.contains("strategy '$STATUS_STRATEGY_KEY' not configured") == true)
     }
 
-    @Test
-    fun `getByStatus should handle multiple emissions`() = runTest {
-        // Given
-        val firstEntity = testEntity
-        val secondEntity = testEntity.copy(id = "id2")
-        val firstModel = testModel
-        val secondModel = testModel.copy(id = "id2")
-
-        queryStrategies.withCustomQuery(
-            STATUS_STRATEGY_KEY,
-            QueryByStatusRepositoryComponent.StatusQueryStrategy { _ ->
-                flow {
-                    emit(listOf(firstEntity))
-                    emit(listOf(firstEntity, secondEntity))
-                }
-            }
-        )
-
-        io.mockk.every { modelMapper.toModel(firstEntity) } returns firstModel
-        io.mockk.every { modelMapper.toModel(secondEntity) } returns secondModel
-
-        // When
-        val results = component.getByStatus(TestStatus.ACTIVE)
-            .take(2)
-            .toList()
-
-        // Then
-        assertEquals(2, results.size)
-        assertTrue(results.all { it.isSuccess })
-        assertEquals(listOf(firstModel), results[0].getOrNull())
-        assertEquals(listOf(firstModel, secondModel), results[1].getOrNull())
-    }
-
     companion object {
-        private const val TEST_STATUS = "active"
+        private val testStatus = ContentStatus.FINISHED.value
 
         private val testModel = TestModel(
             id = "test123",
             name = "Test Model",
-            status = TEST_STATUS,
+            status = testStatus,
             createdAt = 1234567890,
             lastUpdated = 1234567890
         )
@@ -193,7 +157,7 @@ class QueryByStatusRepositoryComponentTest {
         private val testEntity = TestEntity(
             id = "test123",
             name = "Test Model",
-            status = TEST_STATUS,
+            status = testStatus,
             createdAt = 1234567890,
             lastUpdated = 1234567890
         )

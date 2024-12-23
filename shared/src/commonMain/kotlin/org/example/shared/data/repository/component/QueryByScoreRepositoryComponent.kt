@@ -1,7 +1,7 @@
 package org.example.shared.data.repository.component
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.example.shared.data.local.entity.definition.RoomEntity
 import org.example.shared.data.repository.util.RepositoryConfig
@@ -24,9 +24,9 @@ class QueryByScoreRepositoryComponent<Model, Entity : RoomEntity>(
     /**
      * A query strategy for retrieving a set of IDs that have a score greater than or equal to the given minimum score.
      */
-    class ScoreQueryStrategy(
-        private val strategy: (String, Int) -> Flow<List<String>>
-    ) : QueryStrategy<List<String>> {
+    class ScoreQueryStrategy<Entity : RoomEntity>(
+        private val strategy: (String, Int) -> Flow<List<Entity>>
+    ) : QueryStrategy<List<Entity>> {
         private var parentId: String? = null
         private var minScore: Int? = null
 
@@ -36,9 +36,10 @@ class QueryByScoreRepositoryComponent<Model, Entity : RoomEntity>(
          * @param newParentId The new parent ID to set.
          * @param newMinScore The new minimum score to set.
          */
-        fun configure(newParentId: String, newMinScore: Int) {
+        fun configure(newParentId: String, newMinScore: Int): ScoreQueryStrategy<Entity> {
             parentId = newParentId
             minScore = newMinScore
+            return this
         }
 
         /**
@@ -47,7 +48,7 @@ class QueryByScoreRepositoryComponent<Model, Entity : RoomEntity>(
          * @return A Flow containing the result of the query.
          * @throws IllegalArgumentException if the parent ID or minimum score is not set.
          */
-        override fun execute(): Flow<List<String>> {
+        override fun execute(): Flow<List<Entity>> {
             requireNotNull(parentId) { "Parent ID must be set before executing query" }
             requireNotNull(minScore) { "Min score must be set before executing query" }
             return strategy(parentId!!, minScore!!)
@@ -61,19 +62,14 @@ class QueryByScoreRepositoryComponent<Model, Entity : RoomEntity>(
      * @param minScore The minimum score to filter by.
      * @return A Flow containing the result of the query.
      */
-    override fun getIdsByMinScore(parentId: String, minScore: Int): Flow<Result<Set<String>>> =
-        channelFlow {
-            try {
-                val scoreStrategy = config.queryStrategies.getCustomStrategy<List<String>>(SCORE_STRATEGY_KEY)
-                        as ScoreQueryStrategy
+    override suspend fun getByMinScore(parentId: String, minScore: Int): Result<List<Model>> = runCatching {
+        val scoreStrategy = config.queryStrategies.getCustomStrategy<List<Entity>>(SCORE_STRATEGY_KEY)
+                as ScoreQueryStrategy
 
-                scoreStrategy.configure(parentId, minScore)
-                scoreStrategy.execute()
-                    .map { ids -> Result.success(ids.toSet()) }
-                    .collect { result -> send(result) }
-            } catch (e: Exception) {
-                send(Result.failure(e))
-            }
+        scoreStrategy.configure(parentId, minScore)
+            .execute()
+            .map { entities -> entities.map(config.modelMapper::toModel) }
+            .first()
         }
 
     companion object {

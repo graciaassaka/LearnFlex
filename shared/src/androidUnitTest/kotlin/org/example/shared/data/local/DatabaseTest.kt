@@ -6,18 +6,24 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.example.shared.data.local.dao.*
+import org.example.shared.data.local.dao.util.TimestampManager
+import org.example.shared.data.local.dao.util.TimestampUpdater
 import org.example.shared.data.local.database.LearnFlexDatabase
 import org.example.shared.data.local.entity.*
+import org.example.shared.domain.constant.DataCollection
 import org.example.shared.domain.model.*
 import org.junit.After
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.GlobalContext.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
 import org.robolectric.annotation.Config
 import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 
 @RunWith(AndroidJUnit4::class)
 @Config(
@@ -26,7 +32,7 @@ import kotlin.test.assertNull
 )
 class DatabaseTest {
     private lateinit var database: LearnFlexDatabase
-    private lateinit var userProfileDao: UserProfileDao
+    private lateinit var profileDao: ProfileDao
     private lateinit var curriculumDao: CurriculumLocalDao
     private lateinit var moduleDao: ModuleLocalDao
     private lateinit var lessonDao: LessonLocalDao
@@ -35,6 +41,28 @@ class DatabaseTest {
 
     @Before
     fun setup() {
+        // Start Koin for testing
+        startKoin {
+            modules(
+                module {
+                    // Create the updaters map
+                    single<Map<DataCollection, TimestampUpdater>> {
+                        mapOf(
+                            DataCollection.PROFILES to database.profileTimestampUpdater(),
+                            DataCollection.CURRICULA to database.curriculumTimestampUpdater(),
+                            DataCollection.MODULES to database.moduleTimestampUpdater(),
+                            DataCollection.LESSONS to database.lessonTimestampUpdater(),
+                            DataCollection.SECTIONS to database.sectionTimestampUpdater(),
+                            DataCollection.SESSIONS to database.sessionTimestampUpdater()
+                        )
+                    }
+
+                    // Provide TimestampManager
+                    single { TimestampManager(get()) }
+                }
+            )
+        }
+
         database = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
             LearnFlexDatabase::class.java
@@ -42,7 +70,7 @@ class DatabaseTest {
             .allowMainThreadQueries()
             .build()
 
-        userProfileDao = database.userProfileDao()
+        profileDao = database.profileDao()
         curriculumDao = database.curriculumDao()
         lessonDao = database.lessonDao()
         moduleDao = database.moduleDao()
@@ -53,282 +81,705 @@ class DatabaseTest {
     @After
     fun cleanup() {
         if (::database.isInitialized) database.close()
+        stopKoin()
     }
 
     @Test
-    fun insertAndRetrieveUserProfile() = runTest {
-        // Then
-        userProfileDao.insert(userProfile)
-        val retrieved = userProfileDao.get(userProfile.id).first()
+    fun `when inserting profile, then profile should be retrievable`() = runTest {
+        // When inserting a profile
+        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+        val retrieved = profileDao.get(userProfile.id).first()
 
-        // Assert
+        // Then profile should be stored correctly
         assertNotNull(retrieved)
-        assertEquals(retrieved.username, userProfile.username)
+        assertEquals(userProfile.username, retrieved.username)
     }
 
     @Test
-    fun updateAndRetrieveUserProfile() = runTest {
-        // Given
-        val updatedProfile = userProfile.copy(
-            username = "updated_user",
-            email = "updated_email@email.com",
-            photoUrl = "updated_photo.jpg",
-        )
+    fun `when inserting curriculum, then curriculum should be retrievable and profile timestamp should update`() =
+        runTest {
+            // Given a profile in the database
+            profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+            val initialProfile = profileDao.get(userProfile.id).first()
+            assertNotNull(initialProfile)
 
-        // Then
-        userProfileDao.insert(userProfile)
-        userProfileDao.update(updatedProfile)
-        val retrieved = userProfileDao.get(userProfile.id).first()
+            // When inserting a curriculum
+            val path = "profiles/${userProfile.id}/curricula"
+            Thread.sleep(1) // Ensure timestamp will be different
+            curriculumDao.insert(path, curricula.first(), System.currentTimeMillis())
 
-        // Assert
-        assertNotNull(retrieved)
-        assertNotEquals(retrieved.username, userProfile.username)
+            // Then curriculum should be stored correctly
+            val retrievedCurriculum = curriculumDao.get(curricula.first().id).first()
+            assertNotNull(retrievedCurriculum)
+            assertEquals(curricula.first().syllabus, retrievedCurriculum.syllabus)
+
+            // And profile timestamp should be updated
+            val updatedProfile = profileDao.get(userProfile.id).first()
+            assertNotNull(updatedProfile)
+            assertTrue(updatedProfile.lastUpdated > initialProfile.lastUpdated)
+        }
+
+    @Test
+    fun `when inserting module, then module should be retrievable and parent timestamps should update`() = runTest {
+        // Given a profile and curriculum in the database
+        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+        val initialProfile = profileDao.get(userProfile.id).first()
+        assertNotNull(initialProfile)
+
+        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
+        val initialCurriculum = curriculumDao.get(curricula.first().id).first()
+        assertNotNull(initialCurriculum)
+
+        // When inserting a module
+        Thread.sleep(1) // Ensure timestamp will be different
+        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
+
+        // Then module should be stored correctly
+        val retrievedModule = moduleDao.get(modules.first().id).first()
+        assertNotNull(retrievedModule)
+        assertEquals(modules.first().title, retrievedModule.title)
+
+        // And parent timestamps should be updated
+        val updatedCurriculum = curriculumDao.get(curricula.first().id).first()
+        assertNotNull(updatedCurriculum)
+        assertTrue(updatedCurriculum.lastUpdated > initialCurriculum.lastUpdated)
+
+        val updatedProfile = profileDao.get(userProfile.id).first()
+        assertNotNull(updatedProfile)
+        assertTrue(updatedProfile.lastUpdated > initialProfile.lastUpdated)
     }
 
     @Test
-    fun deleteAndRetrieveUserProfile() = runTest {
-        // Then
-        userProfileDao.insert(userProfile)
-        userProfileDao.delete(userProfile)
-        val retrieved = userProfileDao.get(userProfile.id).first()
+    fun `when inserting lesson, then lesson should be retrievable and parent timestamps should update`() = runTest {
+        // Given a profile, curriculum, and module in the database
+        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+        val initialProfile = profileDao.get(userProfile.id).first()
+        assertNotNull(initialProfile)
 
-        // Assert
-        assertNull(retrieved)
+        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
+        val initialCurriculum = curriculumDao.get(curricula.first().id).first()
+        assertNotNull(initialCurriculum)
+
+        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
+        val initialModule = moduleDao.get(modules.first().id).first()
+        assertNotNull(initialModule)
+
+        // When inserting a lesson
+        Thread.sleep(1) // Ensure timestamp will be different
+        val lessonPath = "${modulePath}/${modules.first().id}/lessons"
+        lessonDao.insert(lessonPath, lessons.first(), System.currentTimeMillis())
+
+        // Then lesson should be stored correctly
+        val retrievedLesson = lessonDao.get(lessons.first().id).first()
+        assertNotNull(retrievedLesson)
+        assertEquals(lessons.first().title, retrievedLesson.title)
+
+        // And parent timestamps should be updated
+        val updatedModule = moduleDao.get(modules.first().id).first()
+        assertNotNull(updatedModule)
+        assertTrue(updatedModule.lastUpdated > initialModule.lastUpdated)
+
+        val updatedCurriculum = curriculumDao.get(curricula.first().id).first()
+        assertNotNull(updatedCurriculum)
+        assertTrue(updatedCurriculum.lastUpdated > initialCurriculum.lastUpdated)
+
+        val updatedProfile = profileDao.get(userProfile.id).first()
+        assertNotNull(updatedProfile)
+        assertTrue(updatedProfile.lastUpdated > initialProfile.lastUpdated)
     }
 
     @Test
-    fun insertAndRetrieveCurriculumByStatus() = runTest {
-        // Then
-        userProfileDao.insert(userProfile)
-        curriculumDao.insertAll(curricula)
-        val activeRetrieved = curriculumDao.getCurriculaByStatus("active").first()
-        val inactiveRetrieved = curriculumDao.getCurriculaByStatus("inactive").first()
+    fun `when inserting section, then section should be retrievable and parent timestamps should update`() = runTest {
+        // Given a profile, curriculum, module, and lesson in the database
+        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+        val initialProfile = profileDao.get(userProfile.id).first()
+        assertNotNull(initialProfile)
 
-        // Assert
-        assertEquals(activeRetrieved, curricula.filter { it.status == "active" })
-        assertEquals(inactiveRetrieved, curricula.filter { it.status == "inactive" })
+        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
+        val initialCurriculum = curriculumDao.get(curricula.first().id).first()
+        assertNotNull(initialCurriculum)
+
+        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
+        val initialModule = moduleDao.get(modules.first().id).first()
+        assertNotNull(initialModule)
+
+        val lessonPath = "${modulePath}/${modules.first().id}/lessons"
+        lessonDao.insert(lessonPath, lessons.first(), System.currentTimeMillis())
+        val initialLesson = lessonDao.get(lessons.first().id).first()
+        assertNotNull(initialLesson)
+
+        // When inserting a section
+        Thread.sleep(1) // Ensure timestamp will be different
+        val sectionPath = "${lessonPath}/${lessons.first().id}/sections"
+        sectionDao.insert(sectionPath, sections.first(), System.currentTimeMillis())
+
+        // Then section should be stored correctly
+        val retrievedSection = sectionDao.get(sections.first().id).first()
+        assertNotNull(retrievedSection)
+        assertEquals(sections.first().title, retrievedSection.title)
+
+        // And parent timestamps should be updated
+        val updatedLesson = lessonDao.get(lessons.first().id).first()
+        assertNotNull(updatedLesson)
+        assertTrue(updatedLesson.lastUpdated > initialLesson.lastUpdated)
+
+        val updatedModule = moduleDao.get(modules.first().id).first()
+        assertNotNull(updatedModule)
+        assertTrue(updatedModule.lastUpdated > initialModule.lastUpdated)
+
+        val updatedCurriculum = curriculumDao.get(curricula.first().id).first()
+        assertNotNull(updatedCurriculum)
+        assertTrue(updatedCurriculum.lastUpdated > initialCurriculum.lastUpdated)
+
+        val updatedProfile = profileDao.get(userProfile.id).first()
+        assertNotNull(updatedProfile)
+        assertTrue(updatedProfile.lastUpdated > initialProfile.lastUpdated)
     }
 
     @Test
-    fun deleteAndRetrieveCurriculum() = runTest {
-        // Then
-        userProfileDao.insert(userProfile)
-        curriculumDao.insert(curricula.first())
-        curriculumDao.delete(curricula.first())
-        val retrieved = curriculumDao.get(curricula.first().id)
+    fun `when updating curriculum description, then only curriculum and profile timestamps should update`() = runTest {
+        // First, set up our initial state with a profile and curriculum
+        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
 
-        // Assert
-        assertNull(retrieved)
-    }
+        // Capture initial timestamps
+        val initialProfile = profileDao.get(userProfile.id).first()
+        val initialCurriculum = curriculumDao.get(curricula.first().id).first()
+        assertNotNull(initialProfile)
+        assertNotNull(initialCurriculum)
 
-    @Test
-    fun updateAndRetrieveCurriculum() = runTest {
-        // Given
+        // Allow some time to pass to ensure distinct timestamps
+        Thread.sleep(1)
+
+        // Update curriculum description
         val updatedCurriculum = curricula.first().copy(
-            id = "curriculum_test_id",
-            imageUrl = "updated_image_url.jpg",
-            syllabus = "Updated Syllabus",
-            status = "inactive",
+            description = "Updated curriculum description"
         )
-        userProfileDao.insert(userProfile)
+        curriculumDao.update(curriculumPath, updatedCurriculum, System.currentTimeMillis())
 
-        // Then
-        curriculumDao.insert(curricula.first())
-        curriculumDao.update(updatedCurriculum)
-        val retrieved = curriculumDao.get(curricula.first().id).first()
+        // Verify curriculum was updated properly
+        val retrievedCurriculum = curriculumDao.get(curricula.first().id).first()
+        assertNotNull(retrievedCurriculum)
+        assertEquals("Updated curriculum description", retrievedCurriculum.description)
+        assertTrue(retrievedCurriculum.lastUpdated > initialCurriculum.lastUpdated)
 
-        // Assert
-        assertNotNull(retrieved)
-        assertNotEquals(retrieved.syllabus, curricula.first().syllabus)
+        // Verify profile timestamp was updated
+        val updatedProfile = profileDao.get(userProfile.id).first()
+        assertNotNull(updatedProfile)
+        assertTrue(updatedProfile.lastUpdated > initialProfile.lastUpdated)
     }
 
     @Test
-    fun insertAndRetrieveModule() = runTest {
-        // Given
-        userProfileDao.insert(userProfile)
-        curriculumDao.insert(curricula.first())
+    fun `when updating module title, then module and all parent timestamps should update`() = runTest {
+        // Set up our initial hierarchy
+        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
+        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
 
-        // Then
-        moduleDao.insert(modules.first())
-        val retrieved = moduleDao.get(modules.first().id).first()
+        // Capture initial timestamps
+        val initialProfile = profileDao.get(userProfile.id).first()
+        val initialCurriculum = curriculumDao.get(curricula.first().id).first()
+        val initialModule = moduleDao.get(modules.first().id).first()
+        assertNotNull(initialProfile)
+        assertNotNull(initialCurriculum)
+        assertNotNull(initialModule)
 
-        // Assert
-        assertNotNull(retrieved)
-        assertEquals(retrieved, modules.first())
-    }
+        Thread.sleep(1)
 
-    @Test
-    fun getModulesByCurriculumId() = runTest {
-        // Given
-        userProfileDao.insert(userProfile)
-        curriculumDao.insertAll(curricula)
-        moduleDao.insertAll(modules)
-
-        // Then
-        val retrieved = moduleDao.getModulesByCurriculumId(curricula.first().id).first()
-
-        // Assert
-        assertEquals(retrieved, modules.filter { it.curriculumId == curricula.first().id })
-    }
-
-    @Test
-    fun getModuleIdsByMinQuizScore() = runTest {
-        // Given
-        userProfileDao.insert(userProfile)
-        curriculumDao.insertAll(curricula)
-        moduleDao.insertAll(modules)
-
-        // Then
-        val retrieved = moduleDao.getModuleIdsByMinQuizScore(curricula.first().id, 90).first()
-
-        // Assert
-        assertEquals(
-            retrieved,
-            modules.filter { it.curriculumId == curricula.first().id && it.quizScore >= 90 }.map { it.id }
+        // Update module title
+        val updatedModule = modules.first().copy(
+            title = "Updated module title"
         )
+        moduleDao.update(modulePath, updatedModule, System.currentTimeMillis())
+
+        // Verify module was updated properly
+        val retrievedModule = moduleDao.get(modules.first().id).first()
+        assertNotNull(retrievedModule)
+        assertEquals("Updated module title", retrievedModule.title)
+        assertTrue(retrievedModule.lastUpdated > initialModule.lastUpdated)
+
+        // Verify parent timestamps were updated in the correct order
+        val updatedCurriculum = curriculumDao.get(curricula.first().id).first()
+        assertNotNull(updatedCurriculum)
+        assertTrue(updatedCurriculum.lastUpdated > initialCurriculum.lastUpdated)
+
+        val updatedProfile = profileDao.get(userProfile.id).first()
+        assertNotNull(updatedProfile)
+        assertTrue(updatedProfile.lastUpdated > initialProfile.lastUpdated)
     }
 
     @Test
-    fun insertAndRetrieveLesson() = runTest {
-        // Given
-        userProfileDao.insert(userProfile)
-        curriculumDao.insert(curricula.first())
-        moduleDao.insert(modules.first())
+    fun `when updating lesson content, then lesson and all parent timestamps should update`() = runTest {
+        // Set up our initial hierarchy
+        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
+        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
+        val lessonPath = "${modulePath}/${modules.first().id}/lessons"
+        lessonDao.insert(lessonPath, lessons.first(), System.currentTimeMillis())
 
-        // Then
-        lessonDao.insert(lessons.first())
-        val retrieved = lessonDao.get(lessons.first().id).first()
+        // Capture initial timestamps
+        val initialProfile = profileDao.get(userProfile.id).first()
+        val initialCurriculum = curriculumDao.get(curricula.first().id).first()
+        val initialModule = moduleDao.get(modules.first().id).first()
+        val initialLesson = lessonDao.get(lessons.first().id).first()
+        assertNotNull(initialProfile)
+        assertNotNull(initialCurriculum)
+        assertNotNull(initialModule)
+        assertNotNull(initialLesson)
 
-        // Assert
-        assertNotNull(retrieved)
-        assertEquals(retrieved, lessons.first())
-    }
+        Thread.sleep(1)
 
-    @Test
-    fun getLessonsByModuleId() = runTest {
-        // Given
-        userProfileDao.insert(userProfile)
-        curriculumDao.insertAll(curricula)
-        moduleDao.insertAll(modules)
-        lessonDao.insertAll(lessons)
-
-        // Then
-        val retrieved = lessonDao.getLessonsByModuleId(modules.first().id).first()
-
-        // Assert
-        assertEquals(retrieved, lessons.filter { it.moduleId == modules.first().id })
-    }
-
-    @Test
-    fun getLessonIdsByMinQuizScore() = runTest {
-        // Given
-        userProfileDao.insert(userProfile)
-        curriculumDao.insertAll(curricula)
-        moduleDao.insertAll(modules)
-        lessonDao.insertAll(lessons)
-
-        // Then
-        val retrieved = lessonDao.getLessonIdsByMinQuizScore(modules.first().id, 85).first()
-
-        // Assert
-        assertEquals(
-            retrieved,
-            lessons.filter { it.moduleId == modules.first().id && it.quizScore >= 85 }.map { it.id }
+        // Update lesson description
+        val updatedLesson = lessons.first().copy(
+            description = "Updated lesson description"
         )
+        lessonDao.update(lessonPath, updatedLesson, System.currentTimeMillis())
+
+        // Verify lesson was updated properly
+        val retrievedLesson = lessonDao.get(lessons.first().id).first()
+        assertNotNull(retrievedLesson)
+        assertEquals("Updated lesson description", retrievedLesson.description)
+        assertTrue(retrievedLesson.lastUpdated > initialLesson.lastUpdated)
+
+        // Verify parent timestamps were updated in the correct order
+        val updatedModule = moduleDao.get(modules.first().id).first()
+        assertNotNull(updatedModule)
+        assertTrue(updatedModule.lastUpdated > initialModule.lastUpdated)
+
+        val updatedCurriculum = curriculumDao.get(curricula.first().id).first()
+        assertNotNull(updatedCurriculum)
+        assertTrue(updatedCurriculum.lastUpdated > initialCurriculum.lastUpdated)
+
+        val updatedProfile = profileDao.get(userProfile.id).first()
+        assertNotNull(updatedProfile)
+        assertTrue(updatedProfile.lastUpdated > initialProfile.lastUpdated)
     }
 
     @Test
-    fun insertAndRetrieveSection() = runTest {
-        // Given
-        userProfileDao.insert(userProfile)
-        curriculumDao.insert(curricula.first())
-        moduleDao.insert(modules.first())
-        lessonDao.insert(lessons.first())
+    fun `when updating section content, then section and all parent timestamps should update`() = runTest {
+        // Set up our initial hierarchy
+        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
+        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
+        val lessonPath = "${modulePath}/${modules.first().id}/lessons"
+        lessonDao.insert(lessonPath, lessons.first(), System.currentTimeMillis())
+        val sectionPath = "${lessonPath}/${lessons.first().id}/sections"
+        sectionDao.insert(sectionPath, sections.first(), System.currentTimeMillis())
 
-        // Then
-        sectionDao.insert(sections.first())
-        val retrieved = sectionDao.get(sections.first().id).first()
+        // Capture initial timestamps
+        val initialProfile = profileDao.get(userProfile.id).first()
+        val initialCurriculum = curriculumDao.get(curricula.first().id).first()
+        val initialModule = moduleDao.get(modules.first().id).first()
+        val initialLesson = lessonDao.get(lessons.first().id).first()
+        val initialSection = sectionDao.get(sections.first().id).first()
+        assertNotNull(initialProfile)
+        assertNotNull(initialCurriculum)
+        assertNotNull(initialModule)
+        assertNotNull(initialLesson)
+        assertNotNull(initialSection)
 
-        // Assert
-        assertNotNull(retrieved)
-        assertEquals(retrieved, sections.first())
-    }
+        Thread.sleep(1)
 
-    @Test
-    fun getSectionsByLessonId() = runTest {
-        // Given
-        userProfileDao.insert(userProfile)
-        curriculumDao.insertAll(curricula)
-        moduleDao.insertAll(modules)
-        lessonDao.insertAll(lessons)
-        sectionDao.insertAll(sections)
-
-        // Then
-        val retrieved = sectionDao.getSectionsByLessonId(lessons.first().id).first()
-
-        // Assert
-        assertEquals(retrieved, sections.filter { it.lessonId == lessons.first().id })
-    }
-
-    @Test
-    fun getSectionIdsByMinQuizScore() = runTest {
-        // Given
-        userProfileDao.insert(userProfile)
-        curriculumDao.insertAll(curricula)
-        moduleDao.insertAll(modules)
-        lessonDao.insertAll(lessons)
-        sectionDao.insertAll(sections)
-
-        // Then
-        val retrieved = sectionDao.getSectionIdsByMinQuizScore(lessons.first().id, 85).first()
-
-        // Assert
-        assertEquals(
-            retrieved,
-            sections
-                .filter { it.lessonId == lessons.first().id && it.quizScore >= 85 }
-                .map { it.id }
+        // Update section content
+        val updatedSection = sections.first().copy(
+            content = "Updated section content"
         )
+        sectionDao.update(sectionPath, updatedSection, System.currentTimeMillis())
+
+        // Verify section was updated properly
+        val retrievedSection = sectionDao.get(sections.first().id).first()
+        assertNotNull(retrievedSection)
+        assertEquals("Updated section content", retrievedSection.content)
+        assertTrue(retrievedSection.lastUpdated > initialSection.lastUpdated)
+
+        // Verify parent timestamps were updated in the correct order
+        val updatedLesson = lessonDao.get(lessons.first().id).first()
+        assertNotNull(updatedLesson)
+        assertTrue(updatedLesson.lastUpdated > initialLesson.lastUpdated)
+
+        val updatedModule = moduleDao.get(modules.first().id).first()
+        assertNotNull(updatedModule)
+        assertTrue(updatedModule.lastUpdated > initialModule.lastUpdated)
+
+        val updatedCurriculum = curriculumDao.get(curricula.first().id).first()
+        assertNotNull(updatedCurriculum)
+        assertTrue(updatedCurriculum.lastUpdated > initialCurriculum.lastUpdated)
+
+        val updatedProfile = profileDao.get(userProfile.id).first()
+        assertNotNull(updatedProfile)
+        assertTrue(updatedProfile.lastUpdated > initialProfile.lastUpdated)
     }
 
     @Test
-    fun insertAndRetrieveSession() = runTest {
-        // Given
-        userProfileDao.insert(userProfile)
-        curriculumDao.insert(curricula.first())
-        moduleDao.insert(modules.first())
-        lessonDao.insert(lessons.first())
+    fun `when deleting curriculum, then curriculum should be removed and profile timestamp should update`() = runTest {
+        // First, set up our initial state with a profile and curriculum
+        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
 
-        // Then
-        sectionDao.insert(sections.first())
-        sessionDao.insert(sessions.first())
-        val retrieved = sessionDao.get(sessions.first().id).first()
+        // Capture the initial profile timestamp
+        val initialProfile = profileDao.get(userProfile.id).first()
+        assertNotNull(initialProfile)
 
-        // Assert
-        assertNotNull(retrieved)
-        assertEquals(retrieved, sessions.first())
+        // Allow some time to pass to ensure distinct timestamps
+        Thread.sleep(1)
+
+        // Delete the curriculum
+        curriculumDao.delete(curriculumPath, curricula.first(), System.currentTimeMillis())
+
+        // Verify curriculum was deleted
+        val retrievedCurriculum = curriculumDao.get(curricula.first().id).first()
+        assertNull(retrievedCurriculum)
+
+        // Verify profile timestamp was updated to reflect the deletion
+        val updatedProfile = profileDao.get(userProfile.id).first()
+        assertNotNull(updatedProfile)
+        assertTrue(updatedProfile.lastUpdated > initialProfile.lastUpdated)
     }
 
     @Test
-    fun getSessionsByDateRange() = runTest {
-        // Given
-        userProfileDao.insert(userProfile)
-        curriculumDao.insertAll(curricula)
-        moduleDao.insertAll(modules)
-        lessonDao.insertAll(lessons)
-        sessionDao.insertAll(sessions)
+    fun `when deleting module, then module should be removed and parent timestamps should update`() = runTest {
+        // Set up our initial hierarchy
+        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
+        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
 
-        // Then
-        val start = System.currentTimeMillis()
-        val end = start + 7200000
-        val retrieved = sessionDao.getSessionsByDateRange(start, end).first()
+        // Capture initial timestamps
+        val initialProfile = profileDao.get(userProfile.id).first()
+        val initialCurriculum = curriculumDao.get(curricula.first().id).first()
+        assertNotNull(initialProfile)
+        assertNotNull(initialCurriculum)
 
-        // Assert
-        assertEquals(retrieved, sessions.filter { it.createdAt in start..end })
+        Thread.sleep(1)
+
+        // Delete the module
+        moduleDao.delete(modulePath, modules.first(), System.currentTimeMillis())
+
+        // Verify module was deleted
+        val retrievedModule = moduleDao.get(modules.first().id).first()
+        assertNull(retrievedModule)
+
+        // Verify parent timestamps were updated to reflect the deletion
+        val updatedCurriculum = curriculumDao.get(curricula.first().id).first()
+        assertNotNull(updatedCurriculum)
+        assertTrue(updatedCurriculum.lastUpdated > initialCurriculum.lastUpdated)
+
+        val updatedProfile = profileDao.get(userProfile.id).first()
+        assertNotNull(updatedProfile)
+        assertTrue(updatedProfile.lastUpdated > initialProfile.lastUpdated)
+    }
+
+    @Test
+    fun `when deleting lesson, then lesson should be removed and parent timestamps should update`() = runTest {
+        // Set up our initial hierarchy
+        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
+        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
+        val lessonPath = "${modulePath}/${modules.first().id}/lessons"
+        lessonDao.insert(lessonPath, lessons.first(), System.currentTimeMillis())
+
+        // Capture initial timestamps
+        val initialProfile = profileDao.get(userProfile.id).first()
+        val initialCurriculum = curriculumDao.get(curricula.first().id).first()
+        val initialModule = moduleDao.get(modules.first().id).first()
+        assertNotNull(initialProfile)
+        assertNotNull(initialCurriculum)
+        assertNotNull(initialModule)
+
+        Thread.sleep(1)
+
+        // Delete the lesson
+        lessonDao.delete(lessonPath, lessons.first(), System.currentTimeMillis())
+
+        // Verify lesson was deleted
+        val retrievedLesson = lessonDao.get(lessons.first().id).first()
+        assertNull(retrievedLesson)
+
+        // Verify parent timestamps were updated in the correct order
+        val updatedModule = moduleDao.get(modules.first().id).first()
+        assertNotNull(updatedModule)
+        assertTrue(updatedModule.lastUpdated > initialModule.lastUpdated)
+
+        val updatedCurriculum = curriculumDao.get(curricula.first().id).first()
+        assertNotNull(updatedCurriculum)
+        assertTrue(updatedCurriculum.lastUpdated > initialCurriculum.lastUpdated)
+
+        val updatedProfile = profileDao.get(userProfile.id).first()
+        assertNotNull(updatedProfile)
+        assertTrue(updatedProfile.lastUpdated > initialProfile.lastUpdated)
+    }
+
+    @Test
+    fun `when deleting section, then section should be removed and parent timestamps should update`() = runTest {
+        // Set up our initial hierarchy
+        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
+        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
+        val lessonPath = "${modulePath}/${modules.first().id}/lessons"
+        lessonDao.insert(lessonPath, lessons.first(), System.currentTimeMillis())
+        val sectionPath = "${lessonPath}/${lessons.first().id}/sections"
+        sectionDao.insert(sectionPath, sections.first(), System.currentTimeMillis())
+
+        // Capture initial timestamps
+        val initialProfile = profileDao.get(userProfile.id).first()
+        val initialCurriculum = curriculumDao.get(curricula.first().id).first()
+        val initialModule = moduleDao.get(modules.first().id).first()
+        val initialLesson = lessonDao.get(lessons.first().id).first()
+        assertNotNull(initialProfile)
+        assertNotNull(initialCurriculum)
+        assertNotNull(initialModule)
+        assertNotNull(initialLesson)
+
+        Thread.sleep(1)
+
+        // Delete the section
+        sectionDao.delete(sectionPath, sections.first(), System.currentTimeMillis())
+
+        // Verify section was deleted
+        val retrievedSection = sectionDao.get(sections.first().id).first()
+        assertNull(retrievedSection)
+
+        // Verify parent timestamps were updated in the correct order
+        val updatedLesson = lessonDao.get(lessons.first().id).first()
+        assertNotNull(updatedLesson)
+        assertTrue(updatedLesson.lastUpdated > initialLesson.lastUpdated)
+
+        val updatedModule = moduleDao.get(modules.first().id).first()
+        assertNotNull(updatedModule)
+        assertTrue(updatedModule.lastUpdated > initialModule.lastUpdated)
+
+        val updatedCurriculum = curriculumDao.get(curricula.first().id).first()
+        assertNotNull(updatedCurriculum)
+        assertTrue(updatedCurriculum.lastUpdated > initialCurriculum.lastUpdated)
+
+        val updatedProfile = profileDao.get(userProfile.id).first()
+        assertNotNull(updatedProfile)
+        assertTrue(updatedProfile.lastUpdated > initialProfile.lastUpdated)
+    }
+
+    @Test
+    fun `when inserting multiple sessions, then all sessions should be stored and profile timestamp should update`() =
+        runTest {
+            // First, let's set up our initial state with just a profile
+            profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+            val initialProfile = profileDao.get(userProfile.id).first()
+            assertNotNull(initialProfile)
+
+            // Create multiple sessions spanning different time periods
+            val sessionsToInsert = listOf(
+                sessions.first().copy(
+                    id = "batch_session_1",
+                    endTime = System.currentTimeMillis() + 3600000  // 1 hour session
+                ),
+                sessions.first().copy(
+                    id = "batch_session_2",
+                    endTime = System.currentTimeMillis() + 7200000  // 2 hour session
+                ),
+                sessions.first().copy(
+                    id = "batch_session_3",
+                    endTime = System.currentTimeMillis() + 10800000 // 3 hour session
+                )
+            )
+
+            Thread.sleep(1) // Ensure distinct timestamps
+
+            // Insert all sessions in a single transaction
+            val sessionsPath = "profiles/${userProfile.id}/sessions"
+            sessionDao.insertAll(sessionsPath, sessionsToInsert, System.currentTimeMillis())
+
+            // Verify all sessions were stored correctly
+            sessionsToInsert.forEach { session ->
+                val retrievedSession = sessionDao.get(session.id).first()
+                assertNotNull(retrievedSession)
+                assertEquals(session.endTime, retrievedSession.endTime)
+            }
+
+            // Verify profile timestamp was updated
+            val updatedProfile = profileDao.get(userProfile.id).first()
+            assertNotNull(updatedProfile)
+            assertTrue(updatedProfile.lastUpdated > initialProfile.lastUpdated)
+        }
+
+    @Test
+    fun `when updating multiple sessions end times, then all updates should be applied and profile timestamp should update`() =
+        runTest {
+            // Set up initial state with profile and sessions
+            profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+            val sessionsPath = "profiles/${userProfile.id}/sessions"
+            val initialSessions = listOf(
+                sessions.first().copy(id = "update_session_1"),
+                sessions.first().copy(id = "update_session_2"),
+                sessions.first().copy(id = "update_session_3")
+            )
+            sessionDao.insertAll(sessionsPath, initialSessions, System.currentTimeMillis())
+
+            val initialProfile = profileDao.get(userProfile.id).first()
+            assertNotNull(initialProfile)
+
+            // Create updated versions of all sessions with extended end times
+            val updatedSessions = initialSessions.map { session ->
+                session.copy(endTime = session.endTime + 1800000) // Extend each session by 30 minutes
+            }
+
+            Thread.sleep(1)
+
+            // Update all sessions in a single transaction
+            sessionDao.updateAll(sessionsPath, updatedSessions, System.currentTimeMillis())
+
+            // Verify all sessions were updated correctly
+            updatedSessions.forEach { session ->
+                val retrievedSession = sessionDao.get(session.id).first()
+                assertNotNull(retrievedSession)
+                assertEquals(session.endTime, retrievedSession.endTime)
+            }
+
+            // Verify profile timestamp was updated exactly once despite multiple sessions being updated
+            val updatedProfile = profileDao.get(userProfile.id).first()
+            assertNotNull(updatedProfile)
+            assertTrue(updatedProfile.lastUpdated > initialProfile.lastUpdated)
+        }
+
+    @Test
+    fun `when deleting multiple sessions, then all sessions should be removed and profile timestamp should update`() =
+        runTest {
+            // Set up initial state with profile and multiple sessions
+            profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+            val sessionsPath = "profiles/${userProfile.id}/sessions"
+            val sessionsToDelete = listOf(
+                sessions.first().copy(id = "delete_session_1"),
+                sessions.first().copy(id = "delete_session_2"),
+                sessions.first().copy(id = "delete_session_3")
+            )
+            sessionDao.insertAll(sessionsPath, sessionsToDelete, System.currentTimeMillis())
+
+            // Verify sessions were initially inserted
+            sessionsToDelete.forEach { session ->
+                val retrievedSession = sessionDao.get(session.id).first()
+                assertNotNull(retrievedSession)
+            }
+
+            val initialProfile = profileDao.get(userProfile.id).first()
+            assertNotNull(initialProfile)
+
+            Thread.sleep(1)
+
+            // Delete all sessions in a single transaction
+            sessionDao.deleteAll(sessionsPath, sessionsToDelete, System.currentTimeMillis())
+
+            // Verify all sessions were removed
+            sessionsToDelete.forEach { session ->
+                val retrievedSession = sessionDao.get(session.id).first()
+                assertNull(retrievedSession)
+            }
+
+            // Verify profile timestamp was updated exactly once despite multiple deletions
+            val updatedProfile = profileDao.get(userProfile.id).first()
+            assertNotNull(updatedProfile)
+            assertTrue(updatedProfile.lastUpdated > initialProfile.lastUpdated)
+        }
+
+    @Test
+    fun `when inserting multiple sessions, then all sessions should be retrievable`() = runTest {
+        // Given a profile in the database
+        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+        val initialProfile = profileDao.get(userProfile.id).first()
+        assertNotNull(initialProfile)
+
+        // Create multiple sessions to insert
+        val sessionsToInsert = listOf(
+            sessions.first().copy(id = "session_test_1"),
+            sessions.first().copy(id = "session_test_2"),
+            sessions.first().copy(id = "session_test_3")
+        )
+
+        // Insert all sessions
+        sessionDao.insertAll(sessionsToInsert)
+
+        // Verify all sessions were stored correctly
+        sessionsToInsert.forEach { session ->
+            val retrievedSession = sessionDao.get(session.id).first()
+            assertNotNull(retrievedSession)
+            assertEquals(session.endTime, retrievedSession.endTime)
+        }
+    }
+
+    @Test
+    fun `when getting lessons by curriculum ID, then correct lessons should be retrieved`() = runTest {
+        // Given a profile, curriculum in the database, and mo
+        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
+
+        // Insert lessons associated with the curriculum
+        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
+        val lessonPath = "${modulePath}/${modules.first().id}/lessons"
+        lessons.forEach { lesson ->
+            lessonDao.insert(lessonPath, lesson.copy(moduleId = modules.first().id), System.currentTimeMillis())
+        }
+
+        // When getting lessons by curriculum ID
+        val retrievedLessons = lessonDao.getByCurriculumId(curricula.first().id).first()
+
+        // Then the correct lessons should be retrieved
+        assertNotNull(retrievedLessons)
+        assertEquals(lessons.size, retrievedLessons.size)
+        lessons.forEach { lesson ->
+            assertTrue(retrievedLessons.any { it.id == lesson.id })
+        }
+    }
+
+    @Test
+    fun `when getting sections by curriculum ID, then correct sections should be retrieved`() = runTest {
+        // Given a profile, curriculum, module, and lesson in the database
+        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
+
+        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
+
+        val lessonPath = "${modulePath}/${modules.first().id}/lessons"
+        lessonDao.insert(lessonPath, lessons.first(), System.currentTimeMillis())
+
+        // Insert sections associated with the lesson
+        val sectionPath = "${lessonPath}/${lessons.first().id}/sections"
+        sections.forEach { section ->
+            sectionDao.insert(sectionPath, section.copy(lessonId = lessons.first().id), System.currentTimeMillis())
+        }
+
+        // When getting sections by curriculum ID
+        val retrievedSections = sectionDao.getByCurriculumId(curricula.first().id).first()
+
+        // Then the correct sections should be retrieved
+        assertNotNull(retrievedSections)
+        assertEquals(sections.size, retrievedSections.size)
+        sections.forEach { section ->
+            assertTrue(retrievedSections.any { it.id == section.id })
+        }
     }
 
     companion object {
-        private val userProfile = UserProfileEntity(
+        private val userProfile = ProfileEntity(
             id = "test_id",
             username = "test_user",
             email = "test@email.com",
@@ -340,7 +791,7 @@ class DatabaseTest {
             ),
             learningStyle = LearningStyle(
                 dominant = "Visual",
-                breakdown = StyleBreakdown(
+                breakdown = LearningStyleBreakdown(
                     visual = 80,
                     reading = 10,
                     kinesthetic = 10
@@ -381,6 +832,7 @@ class DatabaseTest {
                 description = "Test Module Description 1",
                 index = 1,
                 quizScore = 90,
+                quizScoreMax = 100,
                 createdAt = System.currentTimeMillis(),
                 lastUpdated = System.currentTimeMillis()
             ),
@@ -392,6 +844,7 @@ class DatabaseTest {
                 description = "Test Module Description 2",
                 index = 2,
                 quizScore = 85,
+                quizScoreMax = 100,
                 createdAt = System.currentTimeMillis(),
                 lastUpdated = System.currentTimeMillis()
             )
@@ -406,6 +859,7 @@ class DatabaseTest {
                 description = "Lesson 1 Description",
                 index = 1,
                 quizScore = 80,
+                quizScoreMax = 100,
                 createdAt = System.currentTimeMillis(),
                 lastUpdated = System.currentTimeMillis()
             ),
@@ -417,6 +871,7 @@ class DatabaseTest {
                 description = "Lesson 2 Description",
                 index = 2,
                 quizScore = 85,
+                quizScoreMax = 100,
                 createdAt = System.currentTimeMillis(),
                 lastUpdated = System.currentTimeMillis()
             )
@@ -432,6 +887,7 @@ class DatabaseTest {
                 description = "Section 1 Description",
                 content = "Section 1 Content",
                 quizScore = 85,
+                quizScoreMax = 100,
                 createdAt = System.currentTimeMillis(),
                 lastUpdated = System.currentTimeMillis()
             ),
@@ -444,6 +900,7 @@ class DatabaseTest {
                 description = "Section 2 Description",
                 content = "Section 2 Content",
                 quizScore = 90,
+                quizScoreMax = 100,
                 createdAt = System.currentTimeMillis(),
                 lastUpdated = System.currentTimeMillis()
             )
@@ -452,17 +909,15 @@ class DatabaseTest {
         private val sessions = listOf(
             SessionEntity(
                 id = "session1",
-                userId = lessons.first().id,
+                userId = userProfile.id,
                 endTime = System.currentTimeMillis() + 3600000,
-                durationMinutes = 60,
                 createdAt = System.currentTimeMillis(),
                 lastUpdated = System.currentTimeMillis()
             ),
             SessionEntity(
                 id = "session2",
-                userId = lessons.last().id,
+                userId = userProfile.id,
                 endTime = System.currentTimeMillis() + 7200000,
-                durationMinutes = 120,
                 createdAt = System.currentTimeMillis(),
                 lastUpdated = System.currentTimeMillis()
             )

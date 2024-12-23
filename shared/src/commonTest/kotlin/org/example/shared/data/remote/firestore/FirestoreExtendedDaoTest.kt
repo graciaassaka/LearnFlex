@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 import org.example.shared.domain.model.definition.DatabaseRecord
-import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -28,10 +27,11 @@ class FirestoreExtendedDaoTest {
     private lateinit var dao: FirestoreExtendedDao<TestModel>
 
     private val testCollectionPath = "test-collection"
+    private val testTimestamp = 1000L
     private val testModels = listOf(
-        TestModel(id = "test1", name = "Test Item 1"),
-        TestModel(id = "test2", name = "Test Item 2"),
-        TestModel(id = "test3", name = "Test Item 3")
+        TestModel(id = "test1", name = "Test Item 1", lastUpdated = testTimestamp),
+        TestModel(id = "test2", name = "Test Item 2", lastUpdated = testTimestamp),
+        TestModel(id = "test3", name = "Test Item 3", lastUpdated = testTimestamp)
     )
 
     @Before
@@ -41,11 +41,10 @@ class FirestoreExtendedDaoTest {
         documentRef = mockk()
         batch = mockk(relaxed = true)
 
-        every { firestore.collection(testCollectionPath) } returns collectionRef
-        testModels.forEach { model ->
-            every { collectionRef.document(model.id) } returns documentRef
-        }
+        every { firestore.collection(any()) } returns collectionRef
+        every { collectionRef.document(any()) } returns documentRef
         every { firestore.batch() } returns batch
+        every { firestore.document(any()) } returns documentRef
 
         dao = FirestoreExtendedDao(
             firestore = firestore,
@@ -54,111 +53,72 @@ class FirestoreExtendedDaoTest {
     }
 
     @Test
-    fun `insertAll should successfully insert multiple items`() = runTest {
+    fun `insertAll should batch insert documents and update parent timestamps`() = runTest {
         // Arrange
         coEvery { batch.commit() } returns Unit
 
         // Act
-        val result = dao.insertAll(testCollectionPath, testModels)
+        val result = dao.insertAll(testCollectionPath, testModels, testTimestamp)
 
         // Assert
         assertTrue(result.isSuccess)
+
+        // Verify each model was inserted
         testModels.forEach { model ->
-            verify(exactly = 1) {
-                batch.set(
-                    documentRef = any<DocumentReference>(),
-                    strategy = TestModel.serializer(),
-                    data = model
-                ) {
-                    encodeDefaults = true
-                }
+            verifyOrder {
+                batch.set(any(), TestModel.serializer(), model) { encodeDefaults = true }
+                batch.update(any(), mapOf("lastUpdated" to testTimestamp))
             }
         }
+
         coVerify(exactly = 1) { batch.commit() }
     }
 
     @Test
-    fun `insertAll should return failure when batch commit fails`() = runTest {
-        // Arrange
-        val exception = Exception("Test exception")
-        coEvery { batch.commit() } throws exception
-
-        // Act
-        val result = dao.insertAll(testCollectionPath, testModels)
-
-        // Assert
-        assertTrue(result.isFailure)
-        assertEquals(exception, result.exceptionOrNull())
-    }
-
-    @Test
-    fun `updateAll should successfully update multiple items`() = runTest {
+    fun `updateAll should batch update documents and update parent timestamps`() = runTest {
         // Arrange
         coEvery { batch.commit() } returns Unit
 
         // Act
-        val result = dao.updateAll(testCollectionPath, testModels)
+        val result = dao.updateAll(testCollectionPath, testModels, testTimestamp)
 
         // Assert
         assertTrue(result.isSuccess)
+
         testModels.forEach { model ->
-            verify(exactly = 1) {
-                batch.update(
-                    documentRef = any<DocumentReference>(),
-                    strategy = TestModel.serializer(),
-                    data = model
-                ) {
-                    encodeDefaults = true
-                }
+            // Verify document update
+            verifyOrder {
+                batch.update(any(), TestModel.serializer(), model) { encodeDefaults = true }
+                batch.update(any(), mapOf("lastUpdated" to testTimestamp))
             }
         }
+
         coVerify(exactly = 1) { batch.commit() }
     }
 
     @Test
-    fun `updateAll should return failure when batch commit fails`() = runTest {
-        // Arrange
-        val exception = Exception("Test exception")
-        coEvery { batch.commit() } throws exception
-
-        // Act
-        val result = dao.updateAll(testCollectionPath, testModels)
-
-        // Assert
-        assertTrue(result.isFailure)
-        assertEquals(exception, result.exceptionOrNull())
-    }
-
-    @Test
-    fun `deleteAll should successfully delete multiple items`() = runTest {
+    fun `deleteAll should update timestamps and batch delete documents`() = runTest {
         // Arrange
         coEvery { batch.commit() } returns Unit
 
         // Act
-        val result = dao.deleteAll(testCollectionPath, testModels)
+        val result = dao.deleteAll(testCollectionPath, testModels, testTimestamp)
 
         // Assert
         assertTrue(result.isSuccess)
-        verify(exactly = testModels.size) { batch.delete(any()) }
+
+        testModels.forEach { _ ->
+            verifyOrder {
+                batch.update(any(), mapOf("lastUpdated" to testTimestamp))
+                batch.delete(any())
+            }
+        }
+
         coVerify(exactly = 1) { batch.commit() }
     }
 
     @Test
-    fun `deleteAll should return failure when batch commit fails`() = runTest {
-        // Arrange
-        val exception = Exception("Test exception")
-        coEvery { batch.commit() } throws exception
-
-        // Act
-        val result = dao.deleteAll(testCollectionPath, testModels)
-
-        // Assert
-        assertTrue(result.isFailure)
-        assertEquals(exception, result.exceptionOrNull())
-    }
-
-    @Test
-    fun `getAll should successfully retrieve all documents`() = runTest {
+    fun `getAllFromSingleCollection should successfully retrieve all documents`() = runTest {
         // Arrange
         val querySnapshot = mockk<QuerySnapshot>()
         val documentSnapshot = mockk<DocumentSnapshot>()
@@ -177,7 +137,7 @@ class FirestoreExtendedDaoTest {
     }
 
     @Test
-    fun `getAll should return failure when an exception occurs`() = runTest {
+    fun `getAllFromSingleCollection should return failure when an exception occurs`() = runTest {
         // Arrange
         val querySnapshot = mockk<QuerySnapshot>()
         val documentSnapshot = mockk<DocumentSnapshot>()

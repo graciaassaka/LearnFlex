@@ -6,19 +6,28 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.example.shared.domain.use_case.*
+import org.example.shared.domain.use_case.auth.*
+import org.example.shared.domain.use_case.validation.ValidateEmailUseCase
+import org.example.shared.domain.use_case.validation.ValidatePasswordConfirmationUseCase
+import org.example.shared.domain.use_case.validation.ValidatePasswordUseCase
+import org.example.shared.domain.use_case.validation.util.ValidationResult
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.state.AuthUIState
 import org.example.shared.presentation.util.AuthForm
 import org.example.shared.presentation.util.SnackbarType
-import org.example.shared.presentation.util.validation.InputValidator
-import org.example.shared.presentation.util.validation.ValidationResult
 
 /**
  * ViewModel class for handling authentication-related operations.
  *
  * @property signUpUseCase The use case for signing up a user.
  * @property signInUseCase The use case for signing in a user.
+ * @property sendVerificationEmailUseCase The use case for sending a verification email.
+ * @property verifyEmailUseCase The use case for verifying a user's email.
+ * @property deleteUserUseCase The use case for deleting a user.
+ * @property sendPasswordResetEmailUseCase The use case for sending a password reset email.
+ * @property validateEmailUseCase The use case for validating an email.
+ * @property validatePasswordUseCase The use case for validating a password.
+ * @property validatePasswordConfirmationUseCase The use case for validating a password confirmation.
  * @property dispatcher The coroutine dispatcher used for asynchronous operations.
  */
 class AuthViewModel(
@@ -28,6 +37,9 @@ class AuthViewModel(
     private val verifyEmailUseCase: VerifyEmailUseCase,
     private val deleteUserUseCase: DeleteUserUseCase,
     private val sendPasswordResetEmailUseCase: SendPasswordResetEmailUseCase,
+    private val validateEmailUseCase: ValidateEmailUseCase,
+    private val validatePasswordUseCase: ValidatePasswordUseCase,
+    private val validatePasswordConfirmationUseCase: ValidatePasswordConfirmationUseCase,
     private val dispatcher: CoroutineDispatcher,
 ) : BaseViewModel(dispatcher) {
 
@@ -40,7 +52,7 @@ class AuthViewModel(
      *
      * @param email The new email to validate and update.
      */
-    fun onSignInEmailChanged(email: String) = with(InputValidator.validateEmail(email)) {
+    fun onSignInEmailChanged(email: String) = with(validateEmailUseCase(email)) {
         when (this@with) {
             is ValidationResult.Valid -> _state.update { it.copy(signInEmail = email, signInEmailError = null) }
             is ValidationResult.Invalid -> _state.update { it.copy(signInEmail = email, signInEmailError = message) }
@@ -52,7 +64,7 @@ class AuthViewModel(
      *
      * @param password The new password to validate and update.
      */
-    fun onSignInPasswordChanged(password: String) = with(InputValidator.validatePassword(password)) {
+    fun onSignInPasswordChanged(password: String) = with(validatePasswordUseCase(password)) {
         when (this@with) {
             is ValidationResult.Valid -> _state.update {
                 it.copy(
@@ -107,7 +119,7 @@ class AuthViewModel(
      *
      * @param email The new email to validate and update.
      */
-    fun onSignUpEmailChanged(email: String) = with(InputValidator.validateEmail(email)) {
+    fun onSignUpEmailChanged(email: String) = with(validateEmailUseCase(email)) {
         when (this@with) {
             is ValidationResult.Valid -> _state.update { it.copy(signUpEmail = email, signUpEmailError = null) }
             is ValidationResult.Invalid -> _state.update { it.copy(signUpEmail = email, signUpEmailError = message) }
@@ -119,7 +131,7 @@ class AuthViewModel(
      *
      * @param password The new password to validate and update.
      */
-    fun onSignUpPasswordChanged(password: String) = with(InputValidator.validatePassword(password)) {
+    fun onSignUpPasswordChanged(password: String) = with(validatePasswordUseCase(password)) {
         when (this@with) {
             is ValidationResult.Valid -> _state.update {
                 it.copy(
@@ -149,7 +161,7 @@ class AuthViewModel(
      * @param password The new password confirmation to validate and update.
      */
     fun onSignUpPasswordConfirmationChanged(password: String) =
-        with(InputValidator.validatePasswordConfirmation(_state.value.signUpPassword, password)) {
+        with(validatePasswordConfirmationUseCase(_state.value.signUpPassword, password)) {
             when (this@with) {
                 is ValidationResult.Valid ->
                     _state.update {
@@ -260,7 +272,7 @@ class AuthViewModel(
      *
      * @param email The new email to validate and update.
      */
-    fun onPasswordResetEmailChanged(email: String) = with(InputValidator.validateEmail(email)) {
+    fun onPasswordResetEmailChanged(email: String) = with(validateEmailUseCase(email)) {
         when (this@with) {
             is ValidationResult.Valid -> _state.update {
                 it.copy(

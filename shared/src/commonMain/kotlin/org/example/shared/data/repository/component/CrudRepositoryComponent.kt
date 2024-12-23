@@ -27,11 +27,12 @@ class CrudRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      *
      * @param path The path in the repository where the item should be created.
      * @param item The model to be created.
+     * @param timestamp The timestamp to associate with the operation.
      * @return A [Result] indicating success or failure.
      */
-    override suspend fun insert(path: String, item: Model): Result<Unit> = config.runCatching {
-        localDao.insert(modelMapper.toEntity(item))
-        syncManager.queueOperation(createSyncOperation(SyncOperationType.INSERT, path, listOf(item)))
+    override suspend fun insert(path: String, item: Model, timestamp: Long): Result<Unit> = config.runCatching {
+        localDao.insert(path, modelMapper.toEntity(item), timestamp)
+        syncManager.queueOperation(createSyncOperation(SyncOperationType.INSERT, path, listOf(item), timestamp))
     }
 
     /**
@@ -39,11 +40,12 @@ class CrudRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      *
      * @param path The path in the repository where the item should be updated.
      * @param item The model to be updated.
+     * @param timestamp The timestamp to associate with the operation.
      * @return A [Result] indicating success or failure.
      */
-    override suspend fun update(path: String, item: Model): Result<Unit> = config.runCatching {
-        localDao.update(modelMapper.toEntity(item))
-        syncManager.queueOperation(createSyncOperation(SyncOperationType.UPDATE, path, listOf(item)))
+    override suspend fun update(path: String, item: Model, timestamp: Long): Result<Unit> = config.runCatching {
+        localDao.update(path, modelMapper.toEntity(item), timestamp)
+        syncManager.queueOperation(createSyncOperation(SyncOperationType.UPDATE, path, listOf(item), timestamp))
     }
 
     /**
@@ -65,18 +67,19 @@ class CrudRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      * @param id The ID of the item to be retrieved.
      */
     private suspend fun ProducerScope<Result<Model>>.observeLocalData(path: String, id: String) {
-        config.queryStrategies.getByIdStrategy().apply {
-            this@apply.setId(id)
-
-            this@apply.execute().collect { entity ->
-                entity?.let {
-                    val model = config.modelMapper.toModel(it)
-                    send(Result.success(model))
-                    config.syncManager.queueOperation(
-                        createSyncOperation(SyncOperationType.SYNC, path, listOf(model))
-                    )
+        config.queryStrategies.byIdStrategy.apply {
+            this@apply
+                ?.setId(id)
+                ?.execute()
+                ?.collect { entity ->
+                    entity?.let {
+                        val model = config.modelMapper.toModel(it)
+                        send(Result.success(model))
+                        config.syncManager.queueOperation(
+                            createSyncOperation(SyncOperationType.SYNC, path, listOf(model), System.currentTimeMillis())
+                        )
+                    }
                 }
-            }
         }
     }
 
@@ -87,17 +90,19 @@ class CrudRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      * @param id The ID of the item to be retrieved.
      */
     private suspend fun ProducerScope<Result<Model>>.fetchRemoteDataIfNeeded(path: String, id: String) {
-        val localEntity = config.queryStrategies.getByIdStrategy().run {
-            this@run.setId(id)
-            this@run.execute().first()
+        val localEntity = config.queryStrategies.byIdStrategy.run {
+            this@run?.setId(id)
+            this@run?.execute()?.first()
         }
 
         if (localEntity == null) try {
             config.remoteDao.get(path, id).collect { result ->
                 result
                     .onSuccess { model ->
-                        config.localDao.insert(config.modelMapper.toEntity(model))
                         send(Result.success(model))
+                        config.syncManager.queueOperation(
+                            createSyncOperation(SyncOperationType.SYNC, path, listOf(model), System.currentTimeMillis())
+                        )
                     }.onFailure { error ->
                         send(Result.failure(error))
                     }
@@ -112,11 +117,12 @@ class CrudRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      *
      * @param path The path in the repository where the item should be deleted from.
      * @param item The model to be deleted.
+     * @param timestamp The timestamp to associate with the operation.
      * @return A [Result] indicating success or failure.
      */
-    override suspend fun delete(path: String, item: Model): Result<Unit> = config.runCatching {
-        localDao.delete(modelMapper.toEntity(item))
-        syncManager.queueOperation(createSyncOperation(SyncOperationType.DELETE, path, listOf(item)))
+    override suspend fun delete(path: String, item: Model, timestamp: Long): Result<Unit> = config.runCatching {
+        localDao.delete(path, modelMapper.toEntity(item), timestamp)
+        syncManager.queueOperation(createSyncOperation(SyncOperationType.DELETE, path, listOf(item), timestamp))
     }
 
     /**
@@ -125,8 +131,9 @@ class CrudRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      * @param type The type of the sync operation.
      * @param path The path of the operation.
      * @param items The items to be synced.
+     * @param timestamp The timestamp to associate with the operation.
      * @return The created sync operation.
      */
-    private fun createSyncOperation(type: SyncOperationType, path: String, items: List<Model>) =
-        SyncOperation(type, path, items)
+    private fun createSyncOperation(type: SyncOperationType, path: String, items: List<Model>, timestamp: Long) =
+        SyncOperation(type, path, items, timestamp)
 }

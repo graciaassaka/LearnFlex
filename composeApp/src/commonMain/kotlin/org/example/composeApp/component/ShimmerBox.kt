@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -63,9 +64,9 @@ fun Modifier.shimmerEffect() = composed {
     background(
         brush = Brush.linearGradient(
             colors = listOf(
+                MaterialTheme.colorScheme.surface,
                 Color.LightGray,
-                Color.Gray,
-                Color.LightGray,
+                MaterialTheme.colorScheme.surface,
             ),
             start = Offset(startOffsetX, 0f),
             end = Offset(startOffsetX + size.value.width.toFloat(), size.value.height.toFloat()),

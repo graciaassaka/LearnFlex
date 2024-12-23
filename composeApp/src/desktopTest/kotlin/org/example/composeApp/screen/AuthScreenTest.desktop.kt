@@ -16,18 +16,24 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.update
 import org.example.composeApp.util.TestTags
+import org.example.shared.domain.use_case.validation.ValidateEmailUseCase
+import org.example.shared.domain.use_case.validation.ValidatePasswordConfirmationUseCase
+import org.example.shared.domain.use_case.validation.ValidatePasswordUseCase
+import org.example.shared.domain.use_case.validation.util.ValidationResult
 import org.example.shared.presentation.state.AuthUIState
 import org.example.shared.presentation.util.AuthForm
 import org.example.shared.presentation.util.UIEvent
-import org.example.shared.presentation.util.validation.InputValidator
-import org.example.shared.presentation.util.validation.ValidationResult
 import org.example.shared.presentation.viewModel.AuthViewModel
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
+@OptIn(ExperimentalTestApi::class)
 class AuthScreenTest {
     private lateinit var navController: NavController
     private lateinit var viewModel: AuthViewModel
+    private lateinit var validateEmailUseCase: ValidateEmailUseCase
+    private lateinit var validatePasswordUseCase: ValidatePasswordUseCase
+    private lateinit var validatePasswordConfirmationUseCase: ValidatePasswordConfirmationUseCase
     private lateinit var uiState: MutableStateFlow<AuthUIState>
     private lateinit var uiEventFlow: MutableSharedFlow<UIEvent>
     private lateinit var windowSizeClass: WindowSizeClass
@@ -37,6 +43,9 @@ class AuthScreenTest {
     fun setUp() {
         navController = mockk(relaxed = true)
         viewModel = mockk(relaxed = true)
+        validateEmailUseCase = ValidateEmailUseCase()
+        validatePasswordUseCase = ValidatePasswordUseCase()
+        validatePasswordConfirmationUseCase = ValidatePasswordConfirmationUseCase()
         uiState = MutableStateFlow(AuthUIState())
         uiEventFlow = MutableSharedFlow()
         windowSizeClass = WindowSizeClass.calculateFromSize(
@@ -50,7 +59,6 @@ class AuthScreenTest {
         every { viewModel.isScreenVisible } returns MutableStateFlow(true)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signInForm_displaysCorrectly() = runComposeUiTest {
         setContent {
@@ -66,12 +74,11 @@ class AuthScreenTest {
         onNodeWithTag(TestTags.SIGN_IN_CREATE_ACCOUNT_BUTTON.tag).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signInForm_updateEmailField() = runComposeUiTest {
         // Given
         val email = "test@example.com"
-        val validationResult = InputValidator.validateEmail(email)
+        val validationResult = validateEmailUseCase(email)
         every { viewModel.onSignInEmailChanged(email) } answers {
             uiState.update {
                 when (validationResult) {
@@ -97,12 +104,11 @@ class AuthScreenTest {
         onNodeWithText(email).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signInForm_displaysErrorWhenEmailIsInvalid() = runComposeUiTest {
         // Given
         val email = "test@example"
-        val validationResult = InputValidator.validateEmail(email)
+        val validationResult = validateEmailUseCase(email)
         every { viewModel.onSignInEmailChanged(email) } answers {
             uiState.update {
                 when (validationResult) {
@@ -128,12 +134,11 @@ class AuthScreenTest {
         onNodeWithText((validationResult as ValidationResult.Invalid).message).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signInForm_updatePasswordField() = runComposeUiTest {
         // Given
         val password = "P@ssw0rd"
-        val validationResult = InputValidator.validatePassword(password)
+        val validationResult = validatePasswordUseCase(password)
         every { viewModel.onSignInPasswordChanged(password) } answers {
             uiState.update {
                 when (validationResult) {
@@ -158,12 +163,11 @@ class AuthScreenTest {
         verify { viewModel.onSignInPasswordChanged(password) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signInForm_displaysErrorWhenPasswordIsInvalid() = runComposeUiTest {
         // Given
         val password = "password"
-        val validationResult = InputValidator.validatePassword(password)
+        val validationResult = validatePasswordUseCase(password)
         every { viewModel.onSignInPasswordChanged(password) } answers {
             uiState.update {
                 when (validationResult) {
@@ -189,7 +193,6 @@ class AuthScreenTest {
         onNodeWithText((validationResult as ValidationResult.Invalid).message).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signInForm_togglePasswordVisibility() = runComposeUiTest {
         // Given
@@ -213,14 +216,13 @@ class AuthScreenTest {
         verify { viewModel.toggleSignInPasswordVisibility() }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signInForm_signInWhenEmailAndPasswordAreValid() = runComposeUiTest {
         // Given
         val email = "test@example.com"
         val password = "P@ssw0rd"
-        val emailValidationResult = InputValidator.validateEmail(email)
-        val passwordValidationResult = InputValidator.validatePassword(password)
+        val emailValidationResult = validateEmailUseCase(email)
+        val passwordValidationResult = validatePasswordUseCase(password)
 
         every { viewModel.onSignInEmailChanged(email) } answers {
             uiState.update {
@@ -266,7 +268,6 @@ class AuthScreenTest {
         verify { viewModel.signIn(any()) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signInFrom_disablesSignInButtonWhenEmailIsInvalid() = runComposeUiTest {
         // Given
@@ -274,7 +275,7 @@ class AuthScreenTest {
         uiState.update { it.copy(signInPassword = password, signInPasswordError = null) }
 
         val email = "test@example"
-        val emailValidationResult = InputValidator.validateEmail(email)
+        val emailValidationResult = validateEmailUseCase(email)
 
         every { viewModel.onSignInEmailChanged(email) } answers {
             uiState.update {
@@ -300,7 +301,6 @@ class AuthScreenTest {
         onNodeWithTag(TestTags.SIGN_IN_BUTTON.tag).assertIsNotEnabled()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signInForm_disablesSignInButtonWhenPasswordIsInvalid() = runComposeUiTest {
         // Given
@@ -308,7 +308,7 @@ class AuthScreenTest {
         uiState.update { it.copy(signInEmail = email, signInEmailError = null) }
 
         val password = "password"
-        val passwordValidationResult = InputValidator.validatePassword(password)
+        val passwordValidationResult = validatePasswordUseCase(password)
 
         every { viewModel.onSignInPasswordChanged(password) } answers {
             uiState.update {
@@ -334,7 +334,6 @@ class AuthScreenTest {
         onNodeWithTag(TestTags.SIGN_IN_BUTTON.tag).assertIsNotEnabled()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signInForm_disableButtonsWhenUIStateIsLoading() = runComposeUiTest {
         // Given
@@ -353,7 +352,6 @@ class AuthScreenTest {
         onNodeWithTag(TestTags.SIGN_IN_CREATE_ACCOUNT_BUTTON.tag).assertIsNotEnabled()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signInForm_navigatesToForgotPasswordForm() = runComposeUiTest {
         // Given
@@ -374,7 +372,6 @@ class AuthScreenTest {
         verify { viewModel.displayAuthForm(AuthForm.ResetPassword) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signInForm_navigatesToSignUpForm() = runComposeUiTest {
         // Given
@@ -396,7 +393,6 @@ class AuthScreenTest {
         onNodeWithTag(TestTags.SIGN_UP_FORM.tag).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signUpForm_displaysCorrectly() = runComposeUiTest {
         setContent {
@@ -413,13 +409,12 @@ class AuthScreenTest {
         onNodeWithTag(TestTags.SIGN_UP_SIGN_IN_BUTTON.tag).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signUpForm_updateEmailField() = runComposeUiTest {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
         val email = "test@example.com"
-        val validationResult = InputValidator.validateEmail(email)
+        val validationResult = validateEmailUseCase(email)
         every { viewModel.onSignUpEmailChanged(email) } answers {
             uiState.update {
                 when (validationResult) {
@@ -445,13 +440,12 @@ class AuthScreenTest {
         onNodeWithText(email).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signUpForm_displaysErrorWhenEmailIsInvalid() = runComposeUiTest {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
         val email = "test@example"
-        val validationResult = InputValidator.validateEmail(email)
+        val validationResult = validateEmailUseCase(email)
         every { viewModel.onSignUpEmailChanged(email) } answers {
             uiState.update {
                 when (validationResult) {
@@ -477,13 +471,12 @@ class AuthScreenTest {
         onNodeWithText((validationResult as ValidationResult.Invalid).message).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signUpForm_updatePasswordField() = runComposeUiTest {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
         val password = "P@ssw0rd"
-        val validationResult = InputValidator.validatePassword(password)
+        val validationResult = validatePasswordUseCase(password)
         every { viewModel.onSignUpPasswordChanged(password) } answers {
             uiState.update {
                 when (validationResult) {
@@ -508,13 +501,12 @@ class AuthScreenTest {
         verify { viewModel.onSignUpPasswordChanged(password) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signUpForm_displaysErrorWhenPasswordIsInvalid() = runComposeUiTest {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
         val password = "password"
-        val validationResult = InputValidator.validatePassword(password)
+        val validationResult = validatePasswordUseCase(password)
         every { viewModel.onSignUpPasswordChanged(password) } answers {
             uiState.update {
                 when (validationResult) {
@@ -540,13 +532,12 @@ class AuthScreenTest {
         onNodeWithText((validationResult as ValidationResult.Invalid).message).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signUpForm_updateConfirmPasswordField() = runComposeUiTest {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
         val password = "P@ssw0rd"
-        val validationResult = InputValidator.validatePasswordConfirmation(password, password)
+        val validationResult = validatePasswordConfirmationUseCase(password, password)
         every { viewModel.onSignUpPasswordConfirmationChanged(password) } answers {
             uiState.update {
                 when (validationResult) {
@@ -575,14 +566,13 @@ class AuthScreenTest {
         verify { viewModel.onSignUpPasswordConfirmationChanged(password) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signUpForm_displaysErrorWhenConfirmPasswordIsInvalid() = runComposeUiTest {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
         val password = "password"
         val confirmPassword = "password123"
-        val validationResult = InputValidator.validatePasswordConfirmation(password, confirmPassword)
+        val validationResult = validatePasswordConfirmationUseCase(password, confirmPassword)
         every { viewModel.onSignUpPasswordConfirmationChanged(confirmPassword) } answers {
             uiState.update {
                 when (validationResult) {
@@ -612,7 +602,6 @@ class AuthScreenTest {
         onNodeWithText((validationResult as ValidationResult.Invalid).message).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signUpForm_displayVerifyEmailFormWhenEmailAndPasswordAreValid() = runComposeUiTest {
         // Given
@@ -620,9 +609,9 @@ class AuthScreenTest {
         val email = "test@example.com"
         val password = "P@ssw0rd"
         val confirmPassword = "P@ssw0rd"
-        val emailValidationResult = InputValidator.validateEmail(email)
-        val passwordValidationResult = InputValidator.validatePassword(password)
-        val confirmPasswordValidationResult = InputValidator.validatePasswordConfirmation(password, confirmPassword)
+        val emailValidationResult = validateEmailUseCase(email)
+        val passwordValidationResult = validatePasswordUseCase(password)
+        val confirmPasswordValidationResult = validatePasswordConfirmationUseCase(password, confirmPassword)
 
         every { viewModel.onSignUpEmailChanged(email) } answers {
             uiState.update {
@@ -686,7 +675,6 @@ class AuthScreenTest {
         verify { viewModel.signUp(any()) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signUpForm_disablesSignUpButtonWhenEmailIsInvalid() = runComposeUiTest {
         // Given
@@ -703,7 +691,7 @@ class AuthScreenTest {
         }
 
         val email = "test@example"
-        val emailValidationResult = InputValidator.validateEmail(email)
+        val emailValidationResult = validateEmailUseCase(email)
 
         every { viewModel.onSignUpEmailChanged(email) } answers {
             uiState.update {
@@ -729,7 +717,6 @@ class AuthScreenTest {
         onNodeWithTag(TestTags.SIGN_UP_BUTTON.tag).assertIsNotEnabled()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signUpForm_disablesSignUpButtonWhenPasswordIsInvalid() = runComposeUiTest {
         // Given
@@ -746,7 +733,7 @@ class AuthScreenTest {
         }
 
         val password = "password"
-        val passwordValidationResult = InputValidator.validatePassword(password)
+        val passwordValidationResult = validatePasswordUseCase(password)
 
         every { viewModel.onSignUpPasswordChanged(password) } answers {
             uiState.update {
@@ -772,7 +759,6 @@ class AuthScreenTest {
         onNodeWithTag(TestTags.SIGN_UP_BUTTON.tag).assertIsNotEnabled()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signUpForm_disablesSignUpButtonWhenConfirmPasswordIsInvalid() = runComposeUiTest {
         // Given
@@ -789,7 +775,7 @@ class AuthScreenTest {
         }
 
         val confirmPassword = "password123"
-        val confirmPasswordValidationResult = InputValidator.validatePasswordConfirmation(password, confirmPassword)
+        val confirmPasswordValidationResult = validatePasswordConfirmationUseCase(password, confirmPassword)
 
         every { viewModel.onSignUpPasswordConfirmationChanged(confirmPassword) } answers {
             uiState.update {
@@ -819,7 +805,6 @@ class AuthScreenTest {
         onNodeWithTag(TestTags.SIGN_UP_BUTTON.tag).assertIsNotEnabled()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signUpForm_disableButtonsWhenUIStateIsLoading() = runComposeUiTest {
         // Given
@@ -837,7 +822,6 @@ class AuthScreenTest {
         onNodeWithTag(TestTags.SIGN_UP_SIGN_IN_BUTTON.tag).assertIsNotEnabled()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun signUpForm_navigatesToSignInForm() = runComposeUiTest {
         // Given
@@ -860,7 +844,6 @@ class AuthScreenTest {
         onNodeWithTag(TestTags.SIGN_IN_FORM.tag).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun verifyEmailForm_displaysCorrectly() = runComposeUiTest {
         setContent {
@@ -877,7 +860,6 @@ class AuthScreenTest {
         onNodeWithTag(TestTags.VERIFY_EMAIL_RESEND_EMAIL_BUTTON.tag).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun verifyEmailForm_navigatesToSignUpForm() = runComposeUiTest {
         // Given
@@ -901,7 +883,6 @@ class AuthScreenTest {
         onNodeWithTag(TestTags.SIGN_UP_FORM.tag).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun verifyEmailForm_disableButtonsWhenUIStateIsLoading() = runComposeUiTest {
         // Given
@@ -919,7 +900,6 @@ class AuthScreenTest {
         onNodeWithTag(TestTags.VERIFY_EMAIL_RESEND_EMAIL_BUTTON.tag).assertIsNotEnabled()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun passwordResetForm_displaysCorrectly() = runComposeUiTest {
         // Given
@@ -939,13 +919,12 @@ class AuthScreenTest {
         onNodeWithTag(TestTags.RESET_PASSWORD_SIGN_IN_BUTTON.tag).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun passwordResetForm_updateEmailField() = runComposeUiTest {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.ResetPassword) }
         val email = "test@example.com"
-        val validationResult = InputValidator.validateEmail(email)
+        val validationResult = validateEmailUseCase(email)
 
         every { viewModel.onPasswordResetEmailChanged(email) } answers {
             uiState.update {
@@ -972,13 +951,12 @@ class AuthScreenTest {
         onNodeWithText(email).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun passwordResetForm_displaysErrorWhenEmailIsInvalid() = runComposeUiTest {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.ResetPassword) }
         val email = "test@example"
-        val validationResult = InputValidator.validateEmail(email)
+        val validationResult = validateEmailUseCase(email)
 
         every { viewModel.onPasswordResetEmailChanged(email) } answers {
             uiState.update {
@@ -1005,7 +983,6 @@ class AuthScreenTest {
         onNodeWithText((validationResult as ValidationResult.Invalid).message).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun passwordResetForm_disableButtonsWhenUIStateIsLoading() = runComposeUiTest {
         // Given
@@ -1023,7 +1000,6 @@ class AuthScreenTest {
         onNodeWithTag(TestTags.RESET_PASSWORD_SIGN_IN_BUTTON.tag).assertIsNotEnabled()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun passwordResetForm_navigatesToSignInForm() = runComposeUiTest {
         // Given
@@ -1046,13 +1022,12 @@ class AuthScreenTest {
         onNodeWithTag(TestTags.SIGN_IN_FORM.tag).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun passwordResetForm_callsSendPasswordResetEmailWhenEmailIsValid() = runComposeUiTest {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.ResetPassword) }
         val email = "test@example.com"
-        val emailValidationResult = InputValidator.validateEmail(email)
+        val emailValidationResult = validateEmailUseCase(email)
 
         every { viewModel.onPasswordResetEmailChanged(email) } answers {
             uiState.update {
@@ -1085,13 +1060,12 @@ class AuthScreenTest {
         verify { viewModel.sendPasswordResetEmail(any()) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun passwordResetForm_disablesResetButtonWhenEmailIsInvalid() = runComposeUiTest {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.ResetPassword) }
         val email = "test@example"
-        val emailValidationResult = InputValidator.validateEmail(email)
+        val emailValidationResult = validateEmailUseCase(email)
 
         every { viewModel.onPasswordResetEmailChanged(email) } answers {
             uiState.update {

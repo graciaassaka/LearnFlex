@@ -18,7 +18,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import learnflex.composeapp.generated.resources.Res
+import learnflex.composeapp.generated.resources.no_data_available_error
 import org.example.composeApp.component.getProgressColor
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * A layout that displays a vertical bar graph.
@@ -37,87 +40,99 @@ fun VerticalBarGraphLayout(
     animationDelay: Int = 100,
     onBarClicked: (String) -> Unit = {}
 ) {
-    val maxValue = data.maxOf { it.second }
-
-    BoxWithConstraints(modifier = modifier.wrapContentWidth()) {
-        val totalWidth = 24.dp * data.size + 12.dp * (data.size - 1)
-        val barWidth = totalWidth / data.size
-        val maxBarHeight = maxHeight * 0.9f
-
-        Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.Bottom,
-            modifier = Modifier.wrapContentSize()
+    if (data.isEmpty()) {
+        Box(
+            modifier = modifier.wrapContentSize(),
+            contentAlignment = Alignment.Center
         ) {
-            data.forEachIndexed { i, (label, value) ->
-                var progress by remember(i) { mutableStateOf(0f) }
-                val interactionSource = remember(i) { MutableInteractionSource() }
-                val isHovered by interactionSource.collectIsHoveredAsState()
+            Text(
+                text = stringResource(Res.string.no_data_available_error),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
 
-                LaunchedEffect(value) {
-                    progress = value
-                }
+    } else {
+        val maxValue = data.maxOf { it.second }
 
-                val animatedProgress by animateFloatAsState(
-                    targetValue = progress,
-                    animationSpec = tween(
-                        durationMillis = animationDuration,
-                        delayMillis = animationDelay,
-                        easing = FastOutLinearInEasing
-                    ),
-                    label = "${label}ProgressFloatAnimation"
-                )
+        BoxWithConstraints(modifier = modifier.wrapContentWidth()) {
+            val totalWidth = 24.dp * data.size + 12.dp * (data.size - 1)
+            val barWidth = totalWidth / data.size
+            val maxBarHeight = maxHeight * 0.75f
 
-                val normalizedProgress = animatedProgress / maxValue
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.Bottom,
+                modifier = Modifier.wrapContentSize()
+            ) {
+                data.forEachIndexed { i, (label, value) ->
+                    var progress by remember(i) { mutableStateOf(0f) }
+                    val interactionSource = remember(i) { MutableInteractionSource() }
+                    val isHovered by interactionSource.collectIsHoveredAsState()
+                    var showValue by remember(i) { mutableStateOf(false) }
 
-                val progressColor = remember(normalizedProgress) {
-                    getProgressColor(
-                        animatedProgress = normalizedProgress,
-                        colors = listOf(
-                            0.3f to Color.Red,
-                            0.6f to Color.Yellow,
-                            1.0f to Color.Green
+                    LaunchedEffect(value) {
+                        progress = value
+                    }
+                    val animatedProgress by animateFloatAsState(
+                        targetValue = progress,
+                        animationSpec = tween(
+                            durationMillis = animationDuration,
+                            delayMillis = animationDelay,
+                            easing = FastOutLinearInEasing
+                        ),
+                        label = "${label}ProgressFloatAnimation"
+                    )
+                    val normalizedProgress = animatedProgress / maxValue
+
+                    val progressColor = remember(normalizedProgress) {
+                        getProgressColor(
+                            animatedProgress = normalizedProgress,
+                            colors = listOf(
+                                0.3f to Color.Red,
+                                0.6f to Color.Yellow,
+                                1.0f to Color.Green
+                            )
                         )
-                    )
-                }
-
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Bottom,
-                    modifier = Modifier
-                        .width(barWidth)
-                        .height(this@BoxWithConstraints.maxHeight)
-                ) {
-                    if (isHovered) Text(
-                        text = value.toString(),
-                        modifier = Modifier.width(barWidth),
-                        color = Color.Black,
-                        style = MaterialTheme.typography.bodySmall,
-                        textAlign = TextAlign.Center
-                    )
-
-                    Box(
+                    }
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Bottom,
                         modifier = Modifier
                             .width(barWidth)
-                            .height(maxBarHeight * (animatedProgress / maxValue))
-                            .background(
-                                color = progressColor,
-                                shape = RectangleShape,
-                            )
-                            .clickable { onBarClicked(label) }
-                            .hoverable(interactionSource = interactionSource)
-                    )
+                            .height(this@BoxWithConstraints.maxHeight)
+                    ) {
+                        if (isHovered || showValue) Text(
+                            text = value.toString(),
+                            modifier = Modifier.width(barWidth),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = TextAlign.Center
+                        )
+                        Box(
+                            modifier = Modifier
+                                .width(barWidth)
+                                .height(maxBarHeight * (animatedProgress / maxValue))
+                                .background(
+                                    color = progressColor,
+                                    shape = RectangleShape,
+                                )
+                                .clickable {
+                                    onBarClicked(label)
+                                    showValue = !showValue
+                                }.hoverable(interactionSource = interactionSource)
+                        )
+                        Text(
+                            text = label,
+                            modifier = Modifier.width(barWidth),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = TextAlign.Center
+                        )
+                    }
 
-                    Text(
-                        text = label,
-                        modifier = Modifier.width(barWidth),
-                        color = Color.Black,
-                        style = MaterialTheme.typography.bodySmall,
-                        textAlign = TextAlign.Center
-                    )
+                    if (i < data.size - 1) Spacer(modifier = Modifier.width(12.dp))
                 }
-
-                if (i < data.size - 1) Spacer(modifier = Modifier.width(12.dp))
             }
         }
     }

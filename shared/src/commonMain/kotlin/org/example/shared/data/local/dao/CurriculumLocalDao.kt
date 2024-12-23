@@ -9,7 +9,7 @@ import org.example.shared.data.local.entity.CurriculumEntity
 abstract class CurriculumLocalDao : ExtendedLocalDao<CurriculumEntity>() {
     @Query(
         """
-            SELECT * FROM curriculum
+            SELECT * FROM curricula
             WHERE id = :id
         """
     )
@@ -17,16 +17,24 @@ abstract class CurriculumLocalDao : ExtendedLocalDao<CurriculumEntity>() {
 
     @Query(
         """
-            SELECT * FROM curriculum
+            SELECT * FROM curricula
         """
     )
     abstract fun getAll(): Flow<List<CurriculumEntity>>
 
     @Query(
         """
-            SELECT * FROM curriculum
+            SELECT * FROM curricula
+            WHERE user_id = :userId
+        """
+    )
+    abstract fun getByUserId(userId: String): Flow<List<CurriculumEntity>>
+
+    @Query(
+        """
+            SELECT * FROM curricula
             WHERE status = :status
         """
     )
-    abstract fun getCurriculaByStatus(status: String): Flow<List<CurriculumEntity>>
+    abstract fun getByStatus(status: String): Flow<List<CurriculumEntity>>
 }

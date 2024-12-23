@@ -1,19 +1,18 @@
 package org.example.composeApp.component
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
+import androidx.window.core.layout.WindowWidthSizeClass
+import org.example.composeApp.dimension.Padding
 import org.example.composeApp.navigation.AppDestination
+import org.example.shared.presentation.util.SnackbarType
 
 /**
  * Custom scaffold composable function.
@@ -26,6 +25,8 @@ import org.example.composeApp.navigation.AppDestination
  */
 @Composable
 fun CustomScaffold(
+    snackbarHostState: SnackbarHostState,
+    snackbarType: SnackbarType,
     currentDestination: AppDestination,
     onDestinationSelected: (AppDestination) -> Unit,
     enabled: Boolean,
@@ -40,12 +41,8 @@ fun CustomScaffold(
         )
     )
 
-    val (customNavSuiteType, itemFontSize) = with(currentWindowAdaptiveInfo()) {
-        if (windowSizeClass.windowWidthSizeClass == androidx.window.core.layout.WindowWidthSizeClass.EXPANDED) {
-            Pair(NavigationSuiteType.NavigationDrawer, 16.sp)
-        } else {
-            Pair(NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(this), 8.sp)
-        }
+    val itemFontSize = with(currentWindowAdaptiveInfo()) {
+        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) 16.sp else 8.sp
     }
 
     NavigationSuiteScaffold(
@@ -69,7 +66,6 @@ fun CustomScaffold(
             }
         },
         modifier = modifier,
-        layoutType = customNavSuiteType,
         navigationSuiteColors = NavigationSuiteDefaults.colors(
             navigationBarContentColor = MaterialTheme.colorScheme.onSurface,
             navigationRailContentColor = MaterialTheme.colorScheme.onSurface,
@@ -80,7 +76,21 @@ fun CustomScaffold(
         ),
         containerColor = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface,
-        content = { content(PaddingValues.Absolute()) }
-    )
+    ) {
+        Box(modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
+            content(
+                PaddingValues.Absolute(
+                    left = Padding.MEDIUM.dp,
+                    right = Padding.MEDIUM.dp
+                )
+            )
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.align(Alignment.BottomCenter),
+            ) {
+                CustomSnackbar(it, snackbarType)
+            }
+        }
+    }
 }
 

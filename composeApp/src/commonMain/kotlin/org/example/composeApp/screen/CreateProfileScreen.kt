@@ -31,8 +31,8 @@ import org.example.composeApp.layout.EnumScrollablePickerLayout
 import org.example.composeApp.util.TestTags
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.Field
+import org.example.shared.domain.model.LearningStyleBreakdown
 import org.example.shared.domain.model.Level
-import org.example.shared.domain.model.StyleBreakdown
 import org.example.shared.domain.model.StyleQuestion
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.util.ProfileCreationForm
@@ -106,7 +106,7 @@ fun CreateProfileScreen(
                 setLearningStyle = viewModel::setLearningStyle,
                 handleError = viewModel::handleError,
                 showStyleBreakdownDialog = uiState.showStyleResultDialog,
-                styleBreakdown = uiState.learningStyle?.breakdown,
+                learningStyleBreakdown = uiState.learningStyle?.breakdown,
                 modifier = Modifier.testTag(TestTags.STYLE_QUESTIONNAIRE.tag)
             )
         }
@@ -270,7 +270,7 @@ private fun StyleQuestionnaireScreen(
     setLearningStyle: (String) -> Unit,
     handleError: (Throwable) -> Unit,
     showStyleBreakdownDialog: Boolean,
-    styleBreakdown: StyleBreakdown?,
+    learningStyleBreakdown: LearningStyleBreakdown?,
     modifier: Modifier = Modifier
 ) {
     var currentQuestionIndex by remember { mutableIntStateOf(0) }
@@ -295,8 +295,6 @@ private fun StyleQuestionnaireScreen(
         modifier = modifier
     ) {
         currentQuestion?.let { question ->
-            val scrollState = rememberScrollState()
-
             QuestionContent(
                 question = question,
                 selectedOption = selectedOption,
@@ -322,10 +320,10 @@ private fun StyleQuestionnaireScreen(
         }
     }
 
-    if (showStyleBreakdownDialog && styleBreakdown != null) {
+    if (showStyleBreakdownDialog && learningStyleBreakdown != null) {
         StyleBreakdownDialog(
             enabled = enabled,
-            styleBreakdown = styleBreakdown,
+            learningStyleBreakdown = learningStyleBreakdown,
             onConfirm = { setLearningStyle(successMessage) },
             onDismiss = {
                 currentQuestionIndex = 0
@@ -386,7 +384,7 @@ private fun QuestionContent(
 @Composable
 private fun StyleBreakdownDialog(
     enabled: Boolean,
-    styleBreakdown: StyleBreakdown,
+    learningStyleBreakdown: LearningStyleBreakdown,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
@@ -420,11 +418,11 @@ private fun StyleBreakdownDialog(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val labels = remember { Style.entries.map { it.value } }
-            val bars = remember(styleBreakdown) {
+            val bars = remember(learningStyleBreakdown) {
                 listOf(
-                    styleBreakdown.visual / 100f,
-                    styleBreakdown.reading / 100f,
-                    styleBreakdown.kinesthetic / 100f
+                    learningStyleBreakdown.visual / 100f,
+                    learningStyleBreakdown.reading / 100f,
+                    learningStyleBreakdown.kinesthetic / 100f
                 )
             }
             AlignedLabeledBarsLayout(

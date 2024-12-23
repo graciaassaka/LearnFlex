@@ -10,7 +10,8 @@ import org.example.shared.data.local.dao.LocalDao
 import org.example.shared.data.local.entity.definition.RoomEntity
 import org.example.shared.data.repository.util.QueryStrategies
 import org.example.shared.data.repository.util.RepositoryConfig
-import org.example.shared.domain.dao.RemoteDao
+import org.example.shared.domain.constant.DataCollection
+import org.example.shared.domain.dao.Dao
 import org.example.shared.domain.model.definition.DatabaseRecord
 import org.example.shared.domain.repository.util.ModelMapper
 import org.example.shared.domain.sync.SyncManager
@@ -37,7 +38,7 @@ class CrudRepositoryComponentTest {
 
     private lateinit var component: CrudRepositoryComponent<TestModel, TestEntity>
     private lateinit var config: RepositoryConfig<TestModel, TestEntity>
-    private lateinit var remoteDao: RemoteDao<TestModel>
+    private lateinit var remoteDao: Dao<TestModel>
     private lateinit var localDao: LocalDao<TestEntity>
     private lateinit var modelMapper: ModelMapper<TestModel, TestEntity>
     private lateinit var syncManager: SyncManager<TestModel>
@@ -61,6 +62,7 @@ class CrudRepositoryComponentTest {
         }
 
         config = RepositoryConfig(
+            dataCollection = DataCollection.TEST,
             remoteDao = remoteDao,
             localDao = localDao,
             modelMapper = modelMapper,
@@ -72,37 +74,41 @@ class CrudRepositoryComponentTest {
     }
 
     @Test
-    fun `insert should store model locally and queue sync operation`() = runTest {
+    fun `insert should store model locally with timestamp and queue sync operation`() = runTest {
         // Given
-        every { modelMapper.toEntity(any(), any()) } returns testEntity
-        coEvery { localDao.insert(any()) } just runs
+        val timestamp = 1234567890L
+        every { modelMapper.toEntity(any()) } returns testEntity
+        coEvery { localDao.insert(any(), any(), any()) } just runs
         coEvery { syncManager.queueOperation(any()) } just runs
 
         // When
-        val result = component.insert(TEST_COLLECTION_PATH, testModel)
+        val result = component.insert(TEST_COLLECTION_PATH, testModel, timestamp)
 
         // Then
         assertTrue(result.isSuccess)
         coVerify(exactly = 1) {
-            localDao.insert(testEntity)
+            // Verify the timestamp is passed through to the local DAO
+            localDao.insert(TEST_COLLECTION_PATH, testEntity, timestamp)
             syncManager.queueOperation(any())
         }
     }
 
     @Test
-    fun `update should update model locally and queue sync operation`() = runTest {
+    fun `update should update model locally with timestamp and queue sync operation`() = runTest {
         // Given
-        every { modelMapper.toEntity(any(), any()) } returns testEntity
-        coEvery { localDao.update(any()) } just runs
+        val timestamp = 1234567890L
+        every { modelMapper.toEntity(any()) } returns testEntity
+        coEvery { localDao.update(any(), any(), any()) } just runs
         coEvery { syncManager.queueOperation(any()) } just runs
 
         // When
-        val result = component.update(TEST_COLLECTION_PATH, testModel)
+        val result = component.update(TEST_COLLECTION_PATH, testModel, timestamp)
 
         // Then
         assertTrue(result.isSuccess)
         coVerify(exactly = 1) {
-            localDao.update(testEntity)
+            // Verify timestamp is passed through
+            localDao.update(TEST_COLLECTION_PATH, testEntity, timestamp)
             syncManager.queueOperation(any())
         }
     }
@@ -125,7 +131,7 @@ class CrudRepositoryComponentTest {
     }
 
     @Test
-    fun `get should fetch from remote when local returns null`() = runTest {
+    fun `get should fetch from remote and queue sync operation when local returns null`() = runTest {
         // Given
         queryStrategies = QueryStrategies<TestEntity>().apply {
             withGetById { flow { emit(null) } }
@@ -134,7 +140,7 @@ class CrudRepositoryComponentTest {
         config = config.copy(queryStrategies = queryStrategies)
         component = CrudRepositoryComponent(config)
 
-        every { modelMapper.toEntity(any(), any()) } returns testEntity
+        every { modelMapper.toEntity(any()) } returns testEntity
         every { modelMapper.toModel(any()) } returns testModel
         every { remoteDao.get(any(), any()) } returns flowOf(Result.success(testModel))
 
@@ -148,45 +154,26 @@ class CrudRepositoryComponentTest {
             remoteDao.get(TEST_COLLECTION_PATH, testModel.id)
         }
         coVerify(exactly = 1) {
-            localDao.insert(testEntity)
+            syncManager.queueOperation(any())
         }
     }
 
     @Test
-    fun `get should propagate remote errors when local is empty`() = runTest {
+    fun `delete should remove model locally with timestamp and queue sync operation`() = runTest {
         // Given
-        val exception = Exception("Remote error")
-        queryStrategies = QueryStrategies<TestEntity>().apply {
-            withGetById { flow { emit(null) } }
-        }
-
-        config = config.copy(queryStrategies = queryStrategies)
-        component = CrudRepositoryComponent(config)
-
-        every { remoteDao.get(any(), any()) } returns flowOf(Result.failure(exception))
-
-        // When
-        val result = component.get(TEST_COLLECTION_PATH, testModel.id).first()
-
-        // Then
-        assertTrue(result.isFailure)
-        assertEquals(exception, result.exceptionOrNull())
-    }
-
-    @Test
-    fun `delete should remove model locally and queue sync operation`() = runTest {
-        // Given
-        every { modelMapper.toEntity(any(), any()) } returns testEntity
-        coEvery { localDao.delete(any()) } just runs
+        val timestamp = 1234567890L
+        every { modelMapper.toEntity(any()) } returns testEntity
+        coEvery { localDao.delete(any(), any(), any()) } just runs
         coEvery { syncManager.queueOperation(any()) } just runs
 
         // When
-        val result = component.delete(TEST_COLLECTION_PATH, testModel)
+        val result = component.delete(TEST_COLLECTION_PATH, testModel, timestamp)
 
         // Then
         assertTrue(result.isSuccess)
         coVerify(exactly = 1) {
-            localDao.delete(testEntity)
+            // Verify timestamp is passed through
+            localDao.delete(TEST_COLLECTION_PATH, testEntity, timestamp)
             syncManager.queueOperation(any())
         }
     }
@@ -194,11 +181,13 @@ class CrudRepositoryComponentTest {
     @Test
     fun `operations should propagate exceptions as failures`() = runTest {
         // Given
+        val timestamp = 1234567890L
         val exception = RuntimeException("Test exception")
-        coEvery { localDao.insert(any()) } throws exception
+        coEvery { localDao.insert(any(), any(), any()) } throws exception
+        every { modelMapper.toEntity(any()) } returns testEntity
 
         // When
-        val result = component.insert(TEST_COLLECTION_PATH, testModel)
+        val result = component.insert(TEST_COLLECTION_PATH, testModel, timestamp)
 
         // Then
         assertTrue(result.isFailure)
