@@ -3,9 +3,8 @@ package org.example.shared.data.local.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import org.example.shared.data.local.entity.definition.RoomEntity
-import org.example.shared.domain.model.LearningPreferences
-import org.example.shared.domain.model.LearningStyle
+import org.example.shared.data.local.entity.interfaces.RoomEntity
+import org.example.shared.domain.model.Profile
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -36,10 +35,10 @@ data class ProfileEntity(
     val photoUrl: String,
 
     @ColumnInfo(name = "preferences")
-    val preferences: LearningPreferences,
+    val preferences: Profile.LearningPreferences,
 
     @ColumnInfo(name = "learning_style")
-    val learningStyle: LearningStyle,
+    val learningStyle: Profile.LearningStyle,
 
     @ColumnInfo(
         name = "created_at",

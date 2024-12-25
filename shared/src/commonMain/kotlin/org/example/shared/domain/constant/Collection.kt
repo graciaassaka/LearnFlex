@@ -5,7 +5,7 @@ package org.example.shared.domain.constant
  *
  * @property value The name of the Firestore collection.
  */
-enum class DataCollection(val value: String) {
+enum class Collection(val value: String) {
     TEST("test"),
     PROFILES("profiles"),
     CURRICULA("curricula"),

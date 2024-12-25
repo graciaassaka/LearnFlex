@@ -1,7 +1,7 @@
 package org.example.shared.domain.storage_operations
 
 import kotlinx.coroutines.flow.Flow
-import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.model.interfaces.DatabaseRecord
 
 /**
  * A generic repository interface for managing CRUD operations on items of type Model.

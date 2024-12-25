@@ -7,7 +7,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
-import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.use_case.curriculum.GetActiveCurriculumUseCase
 import org.example.shared.domain.use_case.curriculum.GetAllCurriculaUseCase

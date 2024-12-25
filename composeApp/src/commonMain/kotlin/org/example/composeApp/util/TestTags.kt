@@ -1,6 +1,6 @@
 package org.example.composeApp.util
 
-import org.example.shared.domain.model.Level
+import org.example.shared.domain.constant.Level
 
 enum class TestTags(val tag: String) {
     SIGN_IN_FORM("sign_in_form"),

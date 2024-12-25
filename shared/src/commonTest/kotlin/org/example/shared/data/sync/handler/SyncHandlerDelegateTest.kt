@@ -7,11 +7,10 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 import org.example.shared.data.local.dao.LocalDao
-import org.example.shared.data.local.entity.definition.RoomEntity
+import org.example.shared.data.local.entity.interfaces.RoomEntity
 import org.example.shared.data.repository.util.QueryStrategies
-import org.example.shared.domain.constant.SyncOperationType
 import org.example.shared.domain.dao.Dao
-import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.repository.util.ModelMapper
 import org.example.shared.domain.sync.SyncHandler
 import org.example.shared.domain.sync.SyncOperation
@@ -57,7 +56,7 @@ class SyncHandlerDelegateTest {
     @Test
     fun `handleSync creates model in remote when operation type is CREATE`() = runTest {
         // Given
-        val operation = SyncOperation(SyncOperationType.INSERT, TEST_PATH, testModels, TIMESTAMP)
+        val operation = SyncOperation(SyncOperation.SyncOperationType.INSERT, TEST_PATH, testModels, TIMESTAMP)
 
         coEvery { remoteDao.insert(any(), any(), any()) } returns Result.success(Unit)
 
@@ -71,7 +70,7 @@ class SyncHandlerDelegateTest {
     @Test
     fun `handleSync updates model in remote when operation type is UPDATE`() = runTest {
         // Given
-        val operation = SyncOperation(SyncOperationType.UPDATE, TEST_PATH, testModels, TIMESTAMP)
+        val operation = SyncOperation(SyncOperation.SyncOperationType.UPDATE, TEST_PATH, testModels, TIMESTAMP)
 
         coEvery { remoteDao.update(any(), any(), any()) } returns Result.success(Unit)
 
@@ -85,7 +84,7 @@ class SyncHandlerDelegateTest {
     @Test
     fun `handleSync deletes model from remote when operation type is DELETE`() = runTest {
         // Given
-        val operation = SyncOperation(SyncOperationType.DELETE, TEST_PATH, testModels, TIMESTAMP)
+        val operation = SyncOperation(SyncOperation.SyncOperationType.DELETE, TEST_PATH, testModels, TIMESTAMP)
 
         coEvery { remoteDao.delete(any(), any(), any()) } returns Result.success(Unit)
 
@@ -104,7 +103,7 @@ class SyncHandlerDelegateTest {
             createdAt = testModels.first().createdAt,
             lastUpdated = testModels.first().lastUpdated + 1
         )
-        val operation = SyncOperation(SyncOperationType.SYNC, TEST_PATH, testModels, TIMESTAMP)
+        val operation = SyncOperation(SyncOperation.SyncOperationType.SYNC, TEST_PATH, testModels, TIMESTAMP)
 
         coEvery { remoteDao.get(any(), any()) } returns flowOf(Result.success(remoteModel))
         coEvery { localDao.update(any(), any(), any()) } returns Unit
@@ -130,7 +129,7 @@ class SyncHandlerDelegateTest {
             createdAt = testModels.first().createdAt,
             lastUpdated = testModels.first().lastUpdated - 1
         )
-        val operation = SyncOperation(SyncOperationType.SYNC, TEST_PATH, testModels, TIMESTAMP)
+        val operation = SyncOperation(SyncOperation.SyncOperationType.SYNC, TEST_PATH, testModels, TIMESTAMP)
 
         coEvery { remoteDao.get(any(), any()) } returns flowOf(Result.success(remoteModel))
         coEvery { remoteDao.insert(any(), any(), any()) } returns Result.success(Unit)
@@ -155,7 +154,7 @@ class SyncHandlerDelegateTest {
             createdAt = testModels.first().createdAt,
             lastUpdated = testModels.first().lastUpdated + 1
         )
-        val operation = SyncOperation(SyncOperationType.SYNC, TEST_PATH, testModels, TIMESTAMP)
+        val operation = SyncOperation(SyncOperation.SyncOperationType.SYNC, TEST_PATH, testModels, TIMESTAMP)
 
         coEvery { remoteDao.get(any(), any()) } returns flowOf(Result.success(remoteModel))
         coEvery { localDao.update(any(), any(), any()) } returns Unit
@@ -177,7 +176,7 @@ class SyncHandlerDelegateTest {
     @Test
     fun `handleSync insert model in remote when operation type is SYNC and remote is null`() = runTest {
         // Given
-        val operation = SyncOperation(SyncOperationType.SYNC, TEST_PATH, testModels, TIMESTAMP)
+        val operation = SyncOperation(SyncOperation.SyncOperationType.SYNC, TEST_PATH, testModels, TIMESTAMP)
 
         coEvery { remoteDao.get(any(), any()) } returns flowOf(Result.failure(Exception()))
         coEvery { remoteDao.insert(any(), any(), any()) } returns Result.success(Unit)
@@ -199,7 +198,7 @@ class SyncHandlerDelegateTest {
     @Test
     fun `handleSync insert entity in local when operation type is SYNC and local is null`() = runTest {
         // Given
-        val operation = SyncOperation(SyncOperationType.SYNC, TEST_PATH, testModels, TIMESTAMP)
+        val operation = SyncOperation(SyncOperation.SyncOperationType.SYNC, TEST_PATH, testModels, TIMESTAMP)
 
         coEvery { remoteDao.get(any(), any()) } returns flowOf(Result.success(testModels.first()))
         every { getStrategy.execute() } returns flowOf(null)
@@ -222,7 +221,7 @@ class SyncHandlerDelegateTest {
     @Test
     fun `handleSync propagates errors from remote data source`() = runTest {
         // Given
-        val operation = SyncOperation(SyncOperationType.INSERT, TEST_PATH, testModels, TIMESTAMP)
+        val operation = SyncOperation(SyncOperation.SyncOperationType.INSERT, TEST_PATH, testModels, TIMESTAMP)
         val exception = Exception("Test exception")
 
         coEvery { remoteDao.insert(any(), any(), any()) } returns Result.failure(exception)

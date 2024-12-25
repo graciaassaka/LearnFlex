@@ -3,7 +3,7 @@ package org.example.shared.domain.use_case.section
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.example.shared.domain.constant.ContentStatus
+import org.example.shared.domain.constant.Status
 import org.example.shared.domain.model.Section
 import org.junit.Before
 import org.junit.Test
@@ -26,8 +26,8 @@ class CountSectionsByStatusUseCaseTest {
         runTest {
             // Arrange
             val sectionProgress = sections.groupBy {
-                if (it.quizScore >= it.quizScoreMax * 0.75) ContentStatus.FINISHED
-                else ContentStatus.UNFINISHED
+                if (it.quizScore >= it.quizScoreMax * 0.75) Status.FINISHED
+                else Status.UNFINISHED
             }.mapValues { it.value.size }
 
             coEvery { getSectionsByCurriculumIdUseCase(PATH) } returns Result.success(sections)

@@ -4,6 +4,27 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
+ * Data class representing a thread request.
+ */
+@Serializable
+data class ThreadRequestBody(
+    @SerialName("messages") val messages: List<ThreadRequestMessage>? = null,
+    @SerialName("tool_resources") val toolResources: ToolResourceWrapper? = null,
+    @SerialName("metadata") val metadata: Map<String, String> = emptyMap()
+)
+
+/**
+ * Data class representing a thread request message.
+ */
+@Serializable
+data class ThreadRequestMessage(
+    @SerialName("role") val role: String,
+    @SerialName("content") val content: String,
+    @SerialName("attachments") val attachments: List<Attachment>? = null,
+    @SerialName("metadata") val metadata: Map<String, String> = emptyMap()
+)
+
+/**
  * Data class representing a thread.
  */
 @Serializable

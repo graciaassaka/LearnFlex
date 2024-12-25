@@ -29,11 +29,11 @@ import org.example.composeApp.dimension.Spacing
 import org.example.composeApp.layout.AlignedLabeledBarsLayout
 import org.example.composeApp.layout.EnumScrollablePickerLayout
 import org.example.composeApp.util.TestTags
+import org.example.shared.domain.client.StyleQuizGenerator
+import org.example.shared.domain.constant.Field
+import org.example.shared.domain.constant.Level
 import org.example.shared.domain.constant.Style
-import org.example.shared.domain.model.Field
-import org.example.shared.domain.model.LearningStyleBreakdown
-import org.example.shared.domain.model.Level
-import org.example.shared.domain.model.StyleQuestion
+import org.example.shared.domain.model.Profile
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.util.ProfileCreationForm
 import org.example.shared.presentation.util.SnackbarType
@@ -262,7 +262,7 @@ private fun StyleQuestionnaireScreen(
     enabled: Boolean,
     isScreenVisible: Boolean,
     onExitAnimationFinished: () -> Unit,
-    styleQuestionnaire: List<StyleQuestion>,
+    styleQuestionnaire: List<StyleQuizGenerator.StyleQuestion>,
     questionCount: Int,
     onQuestionAnswered: (Style) -> Unit,
     onQuestionnaireCompleted: () -> Unit,
@@ -270,7 +270,7 @@ private fun StyleQuestionnaireScreen(
     setLearningStyle: (String) -> Unit,
     handleError: (Throwable) -> Unit,
     showStyleBreakdownDialog: Boolean,
-    learningStyleBreakdown: LearningStyleBreakdown?,
+    learningStyleBreakdown: Profile.LearningStyleBreakdown?,
     modifier: Modifier = Modifier
 ) {
     var currentQuestionIndex by remember { mutableIntStateOf(0) }
@@ -335,7 +335,7 @@ private fun StyleQuestionnaireScreen(
 
 @Composable
 private fun QuestionContent(
-    question: StyleQuestion,
+    question: StyleQuizGenerator.StyleQuestion,
     selectedOption: String,
     enabled: Boolean,
     onOptionSelected: (String) -> Unit,
@@ -384,7 +384,7 @@ private fun QuestionContent(
 @Composable
 private fun StyleBreakdownDialog(
     enabled: Boolean,
-    learningStyleBreakdown: LearningStyleBreakdown,
+    learningStyleBreakdown: Profile.LearningStyleBreakdown,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier

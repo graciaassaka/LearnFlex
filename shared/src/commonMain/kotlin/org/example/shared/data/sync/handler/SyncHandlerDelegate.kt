@@ -2,12 +2,11 @@ package org.example.shared.data.sync.handler
 
 import kotlinx.coroutines.flow.first
 import org.example.shared.data.local.dao.LocalDao
-import org.example.shared.data.local.entity.definition.RoomEntity
+import org.example.shared.data.local.entity.interfaces.RoomEntity
 import org.example.shared.data.repository.util.QueryStrategies
-import org.example.shared.domain.constant.SyncOperationType
 import org.example.shared.domain.dao.Dao
 import org.example.shared.domain.dao.ExtendedDao
-import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.repository.util.ModelMapper
 import org.example.shared.domain.sync.SyncHandler
 import org.example.shared.domain.sync.SyncOperation
@@ -35,9 +34,9 @@ class SyncHandlerDelegate<Model : DatabaseRecord, Entity : RoomEntity>(
     override suspend fun handleSync(operation: SyncOperation<Model>) = with(operation) {
         require(data.isNotEmpty()) { "Data must not be empty" }
 
-        if (type == SyncOperationType.INSERT_ALL ||
-            type == SyncOperationType.UPDATE_ALL ||
-            type == SyncOperationType.DELETE_ALL
+        if (type == SyncOperation.SyncOperationType.INSERT_ALL ||
+            type == SyncOperation.SyncOperationType.UPDATE_ALL ||
+            type == SyncOperation.SyncOperationType.DELETE_ALL
         ) {
             require(remoteDao is ExtendedDao<Model>) {
                 "RemoteDao must be an instance of ExtendedDao"
@@ -45,21 +44,21 @@ class SyncHandlerDelegate<Model : DatabaseRecord, Entity : RoomEntity>(
         }
 
         when (type) {
-            SyncOperationType.INSERT -> remoteDao.insert(path, data.first(), timestamp).getOrThrow()
+            SyncOperation.SyncOperationType.INSERT -> remoteDao.insert(path, data.first(), timestamp).getOrThrow()
 
-            SyncOperationType.UPDATE -> remoteDao.update(path, data.first(), timestamp).getOrThrow()
+            SyncOperation.SyncOperationType.UPDATE -> remoteDao.update(path, data.first(), timestamp).getOrThrow()
 
-            SyncOperationType.DELETE -> remoteDao.delete(path, data.first(), timestamp).getOrThrow()
+            SyncOperation.SyncOperationType.DELETE -> remoteDao.delete(path, data.first(), timestamp).getOrThrow()
 
-            SyncOperationType.SYNC -> data.forEach { sync(path, it.id) }
+            SyncOperation.SyncOperationType.SYNC -> data.forEach { sync(path, it.id) }
 
-            SyncOperationType.INSERT_ALL -> (remoteDao as ExtendedDao<Model>).insertAll(path, data, timestamp)
+            SyncOperation.SyncOperationType.INSERT_ALL -> (remoteDao as ExtendedDao<Model>).insertAll(path, data, timestamp)
                 .getOrThrow()
 
-            SyncOperationType.UPDATE_ALL -> (remoteDao as ExtendedDao<Model>).updateAll(path, data, timestamp)
+            SyncOperation.SyncOperationType.UPDATE_ALL -> (remoteDao as ExtendedDao<Model>).updateAll(path, data, timestamp)
                 .getOrThrow()
 
-            SyncOperationType.DELETE_ALL -> (remoteDao as ExtendedDao<Model>).deleteAll(path, data, timestamp)
+            SyncOperation.SyncOperationType.DELETE_ALL -> (remoteDao as ExtendedDao<Model>).deleteAll(path, data, timestamp)
                 .getOrThrow()
         }
     }

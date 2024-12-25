@@ -5,44 +5,43 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.example.shared.domain.client.StyleQuizClient
-import org.example.shared.domain.model.LearningPreferences
-import org.example.shared.domain.model.StyleQuestion
+import org.example.shared.domain.client.StyleQuizGenerator
+import org.example.shared.domain.model.Profile
 import org.junit.Before
 import org.junit.Test
 
 class GetStyleQuestionnaireUseCaseTest {
     private lateinit var getStyleQuestionnaireUseCase: GetStyleQuestionnaireUseCase
-    private lateinit var styleQuizClient: StyleQuizClient
+    private lateinit var styleQuizGenerator: StyleQuizGenerator
 
     @Before
     fun setUp() {
-        styleQuizClient = mockk<StyleQuizClient>(relaxed = true)
-        getStyleQuestionnaireUseCase = GetStyleQuestionnaireUseCase(styleQuizClient)
+        styleQuizGenerator = mockk<StyleQuizGenerator>(relaxed = true)
+        getStyleQuestionnaireUseCase = GetStyleQuestionnaireUseCase(styleQuizGenerator)
     }
 
     @Test
     fun `getStyleQuestionnaire should call generateQuiz from styleQuizService`() = runTest {
         // Arrange
-        val preferences = mockk<LearningPreferences>()
+        val preferences = mockk<Profile.LearningPreferences>()
 
         // Act
         getStyleQuestionnaireUseCase(preferences, 5)
 
         // Assert
-        coVerify(exactly = 1) { styleQuizClient.streamQuestions(preferences, 5) }
+        coVerify(exactly = 1) { styleQuizGenerator.streamQuestions(preferences, 5) }
     }
 
     @Test
     fun `getStyleQuestionnaire should return Result#success when styleQuizService#generateQuiz returns a questionnaire`() =
         runTest {
             // Arrange
-            val preferences = mockk<LearningPreferences>()
-            val question = mockk<StyleQuestion>()
-            coEvery { styleQuizClient.streamQuestions(preferences, 1) } returns flowOf(Result.success(question))
+            val preferences = mockk<Profile.LearningPreferences>()
+            val question = mockk<StyleQuizGenerator.StyleQuestion>()
+            coEvery { styleQuizGenerator.streamQuestions(preferences, 1) } returns flowOf(Result.success(question))
 
             // Act
-            val result = mutableListOf<Result<StyleQuestion>>()
+            val result = mutableListOf<Result<StyleQuizGenerator.StyleQuestion>>()
             getStyleQuestionnaireUseCase(preferences, 1).collect(result::add)
 
             // Assert
@@ -54,12 +53,12 @@ class GetStyleQuestionnaireUseCaseTest {
     fun `getStyleQuestionnaire should return Result#failure when styleQuizService#generateQuiz throws an exception`() =
         runTest {
             // Arrange
-            val preferences = mockk<LearningPreferences>()
+            val preferences = mockk<Profile.LearningPreferences>()
             val exception = Exception("An error occurred")
-            coEvery { styleQuizClient.streamQuestions(preferences, 5) } returns flowOf(Result.failure(exception))
+            coEvery { styleQuizGenerator.streamQuestions(preferences, 5) } returns flowOf(Result.failure(exception))
 
             // Act
-            val result = mutableListOf<Result<StyleQuestion>>()
+            val result = mutableListOf<Result<StyleQuizGenerator.StyleQuestion>>()
             getStyleQuestionnaireUseCase(preferences, 5).collect(result::add)
 
             // Assert

@@ -2,7 +2,7 @@ package org.example.shared.data.local.converter
 
 import androidx.room.TypeConverter
 import kotlinx.serialization.json.Json
-import org.example.shared.domain.model.LearningStyle
+import org.example.shared.domain.model.Profile
 
 /**
  * A converter class for converting `StyleResult` objects to and from JSON strings.
@@ -16,8 +16,8 @@ class StyleConverter {
      * @return The JSON string representation of the `StyleResult` object.
      */
     @TypeConverter
-    fun fromStyle(style: LearningStyle): String {
-        return Json.encodeToString(LearningStyle.serializer(), style)
+    fun fromStyle(style: Profile.LearningStyle): String {
+        return Json.encodeToString(Profile.LearningStyle.serializer(), style)
     }
 
     /**
@@ -27,7 +27,7 @@ class StyleConverter {
      * @return The `StyleResult` object represented by the JSON string.
      */
     @TypeConverter
-    fun toStyle(style: String): LearningStyle {
-        return Json.decodeFromString(LearningStyle.serializer(), style)
+    fun toStyle(style: String): Profile.LearningStyle {
+        return Json.decodeFromString(Profile.LearningStyle.serializer(), style)
     }
 }

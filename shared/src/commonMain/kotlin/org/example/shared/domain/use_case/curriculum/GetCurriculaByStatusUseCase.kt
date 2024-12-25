@@ -1,6 +1,6 @@
 package org.example.shared.domain.use_case.curriculum
 
-import org.example.shared.domain.constant.ContentStatus
+import org.example.shared.domain.constant.Status
 import org.example.shared.domain.repository.CurriculumRepository
 
 /**
@@ -15,5 +15,5 @@ class GetCurriculaByStatusUseCase(private val repository: CurriculumRepository) 
      * @param status The status of the curricula to retrieve.
      * @return A list of curricula with the specified status.
      */
-    suspend operator fun invoke(status: ContentStatus) = repository.getByStatus(status)
+    suspend operator fun invoke(status: Status) = repository.getByStatus(status)
 }

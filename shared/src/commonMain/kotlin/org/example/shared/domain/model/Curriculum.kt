@@ -2,13 +2,13 @@ package org.example.shared.domain.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.example.shared.domain.model.definition.DatabaseRecord
-import org.example.shared.domain.model.definition.StatusQueryable
+import org.example.shared.domain.model.interfaces.DatabaseRecord
+import org.example.shared.domain.model.interfaces.StatusQueryable
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 /**
- * Data class representing a curriculum, which includes a syllabus,
+ * Data class representing a curriculum, which includes a title,
  * status information, and timestamps for creation and last update.
  */
 
@@ -21,8 +21,8 @@ data class Curriculum(
     @SerialName("image_url")
     val imageUrl: String,
 
-    @SerialName("syllabus")
-    val syllabus: String,
+    @SerialName("title")
+    val title: String,
 
     @SerialName("description")
     val description: String,

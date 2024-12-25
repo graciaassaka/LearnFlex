@@ -15,7 +15,7 @@ import org.example.shared.data.local.dao.util.TimestampUpdater
 import org.example.shared.data.local.database.LearnFlexDatabase
 import org.example.shared.data.local.entity.*
 import org.example.shared.data.remote.assistant.OpenAIAssistantClient
-import org.example.shared.data.remote.assistant.StyleQuizClientImpl
+import org.example.shared.data.remote.assistant.generation.StyleQuizGeneratorImpl
 import org.example.shared.data.remote.custom_search.GoogleImageSearchClient
 import org.example.shared.data.remote.firebase.FirebaseAuthClient
 import org.example.shared.data.remote.firebase.FirebaseStorageClient
@@ -31,11 +31,11 @@ import org.example.shared.data.sync.manager.SyncManagerImpl
 import org.example.shared.data.util.GoogleConstants
 import org.example.shared.data.util.OpenAIConstants
 import org.example.shared.domain.client.*
-import org.example.shared.domain.constant.DataCollection
+import org.example.shared.domain.constant.Collection
 import org.example.shared.domain.dao.Dao
 import org.example.shared.domain.dao.ExtendedDao
 import org.example.shared.domain.model.*
-import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.repository.*
 import org.example.shared.domain.repository.util.ModelMapper
 import org.example.shared.domain.storage_operations.*
@@ -132,7 +132,7 @@ val commonModule = module {
     }
 
     // Style Quiz Service
-    single<StyleQuizClient> { StyleQuizClientImpl(assistant = get()) }
+    single<StyleQuizGenerator> { StyleQuizGeneratorImpl(assistant = get()) }
 
     // Path Builder
     single<PathBuilder> { FirestorePathBuilder() }
@@ -163,14 +163,14 @@ val commonModule = module {
     }
 
     // Updaters map
-    single<Map<DataCollection, TimestampUpdater>> {
+    single<Map<Collection, TimestampUpdater>> {
         mapOf(
-            DataCollection.PROFILES to get<TimestampUpdater.ProfileTimestampUpdater>(named(USER_PROFILE_SCOPE)),
-            DataCollection.CURRICULA to get<TimestampUpdater.CurriculumTimestampUpdater>(named(CURRICULUM_SCOPE)),
-            DataCollection.MODULES to get<TimestampUpdater.ModuleTimestampUpdater>(named(MODULE_SCOPE)),
-            DataCollection.LESSONS to get<TimestampUpdater.LessonTimestampUpdater>(named(LESSON_SCOPE)),
-            DataCollection.SECTIONS to get<TimestampUpdater.SectionTimestampUpdater>(named(SECTION_SCOPE)),
-            DataCollection.SESSIONS to get<TimestampUpdater.SessionTimestampUpdater>(named(SESSION_SCOPE))
+            Collection.PROFILES to get<TimestampUpdater.ProfileTimestampUpdater>(named(USER_PROFILE_SCOPE)),
+            Collection.CURRICULA to get<TimestampUpdater.CurriculumTimestampUpdater>(named(CURRICULUM_SCOPE)),
+            Collection.MODULES to get<TimestampUpdater.ModuleTimestampUpdater>(named(MODULE_SCOPE)),
+            Collection.LESSONS to get<TimestampUpdater.LessonTimestampUpdater>(named(LESSON_SCOPE)),
+            Collection.SECTIONS to get<TimestampUpdater.SectionTimestampUpdater>(named(SECTION_SCOPE)),
+            Collection.SESSIONS to get<TimestampUpdater.SessionTimestampUpdater>(named(SESSION_SCOPE))
         )
     }
 
@@ -275,12 +275,12 @@ val commonModule = module {
     single<ModelMapper<Curriculum, CurriculumEntity>>(named(CURRICULUM_SCOPE)) {
         object : ModelMapper<Curriculum, CurriculumEntity> {
             override fun toModel(entity: CurriculumEntity) = with(entity) {
-                Curriculum(id, imageUrl, syllabus, description, status, createdAt, lastUpdated)
+                Curriculum(id, imageUrl, title, description, status, createdAt, lastUpdated)
             }
 
             override fun toEntity(model: Curriculum, parentId: String?) = with(model) {
                 require(parentId != null) { "Parent ID must not be null for CurriculumEntity" }
-                CurriculumEntity(id, parentId, imageUrl, syllabus, description, status, createdAt, lastUpdated)
+                CurriculumEntity(id, parentId, imageUrl, title, description, status, createdAt, lastUpdated)
             }
         }
     }
@@ -464,7 +464,7 @@ val commonModule = module {
     // Repository Components Configuration
     single<RepositoryConfig<Profile, ProfileEntity>>(named(USER_PROFILE_SCOPE)) {
         RepositoryConfig(
-            dataCollection = DataCollection.PROFILES,
+            collection = Collection.PROFILES,
             remoteDao = get<Dao<Profile>>(named(USER_PROFILE_SCOPE)),
             localDao = get<ProfileDao>(named(USER_PROFILE_SCOPE)),
             modelMapper = get(named(USER_PROFILE_SCOPE)),
@@ -476,7 +476,7 @@ val commonModule = module {
 
     single<RepositoryConfig<Curriculum, CurriculumEntity>>(named(CURRICULUM_SCOPE)) {
         RepositoryConfig(
-            dataCollection = DataCollection.CURRICULA,
+            collection = Collection.CURRICULA,
             remoteDao = get<ExtendedDao<Curriculum>>(named(CURRICULUM_SCOPE)),
             localDao = get<CurriculumLocalDao>(named(CURRICULUM_SCOPE)),
             modelMapper = get<ModelMapper<Curriculum, CurriculumEntity>>(named(CURRICULUM_SCOPE)),
@@ -498,7 +498,7 @@ val commonModule = module {
 
     single<RepositoryConfig<ModuleModel, ModuleEntity>>(named(MODULE_SCOPE)) {
         RepositoryConfig(
-            dataCollection = DataCollection.MODULES,
+            collection = Collection.MODULES,
             remoteDao = get<ExtendedDao<ModuleModel>>(named(MODULE_SCOPE)),
             localDao = get<ModuleLocalDao>(named(MODULE_SCOPE)),
             modelMapper = get<ModelMapper<ModuleModel, ModuleEntity>>(named(MODULE_SCOPE)),
@@ -527,7 +527,7 @@ val commonModule = module {
 
     single<RepositoryConfig<Lesson, LessonEntity>>(named(LESSON_SCOPE)) {
         RepositoryConfig(
-            dataCollection = DataCollection.LESSONS,
+            collection = Collection.LESSONS,
             remoteDao = get<ExtendedDao<Lesson>>(named(LESSON_SCOPE)),
             localDao = get<LessonLocalDao>(named(LESSON_SCOPE)),
             modelMapper = get<ModelMapper<Lesson, LessonEntity>>(named(LESSON_SCOPE)),
@@ -556,7 +556,7 @@ val commonModule = module {
 
     single<RepositoryConfig<Section, SectionEntity>>(named(SECTION_SCOPE)) {
         RepositoryConfig(
-            dataCollection = DataCollection.SECTIONS,
+            collection = Collection.SECTIONS,
             remoteDao = get<ExtendedDao<Section>>(named(SECTION_SCOPE)),
             localDao = get<SectionLocalDao>(named(SECTION_SCOPE)),
             modelMapper = get<ModelMapper<Section, SectionEntity>>(named(SECTION_SCOPE)),
@@ -585,7 +585,7 @@ val commonModule = module {
 
     single<RepositoryConfig<Session, SessionEntity>>(named(SESSION_SCOPE)) {
         RepositoryConfig(
-            dataCollection = DataCollection.SESSIONS,
+            collection = Collection.SESSIONS,
             remoteDao = get<ExtendedDao<Session>>(named(SESSION_SCOPE)),
             localDao = get<SessionLocalDao>(named(SESSION_SCOPE)),
             modelMapper = get<ModelMapper<Session, SessionEntity>>(named(SESSION_SCOPE)),

@@ -29,6 +29,7 @@ firebase-boom = "33.7.0"
 gitlive = "2.1.0"
 gitlive-java = "0.4.6"
 google-services = "4.4.2"
+jsoup = "1.16.1"
 junit = "4.13.2"
 koin = "4.0.0"
 kotlin = "2.0.21"
@@ -153,6 +154,7 @@ room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "
 room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room"}
 
 # Other libraries
+jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

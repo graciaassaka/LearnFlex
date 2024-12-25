@@ -1,7 +1,7 @@
 package org.example.shared.domain.storage_operations
 
 import kotlinx.coroutines.flow.Flow
-import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.model.interfaces.DatabaseRecord
 
 /**
  * Interface for batch operations on a collection of database records.

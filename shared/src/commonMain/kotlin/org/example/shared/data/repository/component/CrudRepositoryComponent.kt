@@ -5,10 +5,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import org.example.shared.data.local.entity.definition.RoomEntity
+import org.example.shared.data.local.entity.interfaces.RoomEntity
 import org.example.shared.data.repository.util.RepositoryConfig
-import org.example.shared.domain.constant.SyncOperationType
-import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.storage_operations.CrudOperations
 import org.example.shared.domain.sync.SyncOperation
 
@@ -32,7 +31,7 @@ class CrudRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      */
     override suspend fun insert(path: String, item: Model, timestamp: Long): Result<Unit> = config.runCatching {
         localDao.insert(path, modelMapper.toEntity(item), timestamp)
-        syncManager.queueOperation(createSyncOperation(SyncOperationType.INSERT, path, listOf(item), timestamp))
+        syncManager.queueOperation(createSyncOperation(SyncOperation.SyncOperationType.INSERT, path, listOf(item), timestamp))
     }
 
     /**
@@ -45,7 +44,7 @@ class CrudRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      */
     override suspend fun update(path: String, item: Model, timestamp: Long): Result<Unit> = config.runCatching {
         localDao.update(path, modelMapper.toEntity(item), timestamp)
-        syncManager.queueOperation(createSyncOperation(SyncOperationType.UPDATE, path, listOf(item), timestamp))
+        syncManager.queueOperation(createSyncOperation(SyncOperation.SyncOperationType.UPDATE, path, listOf(item), timestamp))
     }
 
     /**
@@ -76,7 +75,7 @@ class CrudRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
                         val model = config.modelMapper.toModel(it)
                         send(Result.success(model))
                         config.syncManager.queueOperation(
-                            createSyncOperation(SyncOperationType.SYNC, path, listOf(model), System.currentTimeMillis())
+                            createSyncOperation(SyncOperation.SyncOperationType.SYNC, path, listOf(model), System.currentTimeMillis())
                         )
                     }
                 }
@@ -101,7 +100,7 @@ class CrudRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
                     .onSuccess { model ->
                         send(Result.success(model))
                         config.syncManager.queueOperation(
-                            createSyncOperation(SyncOperationType.SYNC, path, listOf(model), System.currentTimeMillis())
+                            createSyncOperation(SyncOperation.SyncOperationType.SYNC, path, listOf(model), System.currentTimeMillis())
                         )
                     }.onFailure { error ->
                         send(Result.failure(error))
@@ -122,7 +121,7 @@ class CrudRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      */
     override suspend fun delete(path: String, item: Model, timestamp: Long): Result<Unit> = config.runCatching {
         localDao.delete(path, modelMapper.toEntity(item), timestamp)
-        syncManager.queueOperation(createSyncOperation(SyncOperationType.DELETE, path, listOf(item), timestamp))
+        syncManager.queueOperation(createSyncOperation(SyncOperation.SyncOperationType.DELETE, path, listOf(item), timestamp))
     }
 
     /**
@@ -134,6 +133,6 @@ class CrudRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      * @param timestamp The timestamp to associate with the operation.
      * @return The created sync operation.
      */
-    private fun createSyncOperation(type: SyncOperationType, path: String, items: List<Model>, timestamp: Long) =
+    private fun createSyncOperation(type: SyncOperation.SyncOperationType, path: String, items: List<Model>, timestamp: Long) =
         SyncOperation(type, path, items, timestamp)
 }

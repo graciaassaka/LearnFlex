@@ -1,7 +1,5 @@
 package org.example.shared.domain.sync
 
-import org.example.shared.domain.constant.SyncOperationType
-
 /**
  * Class representing a sync operation.
  *
@@ -15,4 +13,17 @@ data class SyncOperation<Model>(
     val path: String,
     val data: List<Model>,
     val timestamp: Long
-)
+) {
+    /**
+     * Enum class representing the type of a sync operation.
+     */
+    enum class SyncOperationType {
+        INSERT,
+        UPDATE,
+        DELETE,
+        SYNC,
+        INSERT_ALL,
+        UPDATE_ALL,
+        DELETE_ALL
+    }
+}

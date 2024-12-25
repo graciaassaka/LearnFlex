@@ -1,13 +1,13 @@
 package org.example.shared.data.local.dao.util
 
-import org.example.shared.domain.constant.DataCollection
+import org.example.shared.domain.constant.Collection
 
 /**
  * Manages the updating of timestamps for various entities.
  *
  * @property entityTimestampUpdaters A map of DataCollection to TimestampUpdater.
  */
-class TimestampManager(private val entityTimestampUpdaters: Map<DataCollection, TimestampUpdater>) {
+class TimestampManager(private val entityTimestampUpdaters: Map<Collection, TimestampUpdater>) {
 
     /**
      * Updates the timestamps for the given path.
@@ -20,7 +20,7 @@ class TimestampManager(private val entityTimestampUpdaters: Map<DataCollection, 
 
         for (i in segments.size - 1 downTo 0 step 2)
             if (i - 1 >= 0)
-                entityTimestampUpdaters[DataCollection.valueOf(segments[i - 1].uppercase())]
+                entityTimestampUpdaters[Collection.valueOf(segments[i - 1].uppercase())]
                     ?.updateTimestamp(segments[i], timestamp)
     }
 }

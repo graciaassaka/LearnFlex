@@ -2,7 +2,7 @@ package org.example.shared.data.local.dao
 
 import androidx.room.*
 import org.example.shared.data.local.dao.util.TimestampManager
-import org.example.shared.data.local.entity.definition.RoomEntity
+import org.example.shared.data.local.entity.interfaces.RoomEntity
 import org.koin.java.KoinJavaComponent.inject
 
 @Dao

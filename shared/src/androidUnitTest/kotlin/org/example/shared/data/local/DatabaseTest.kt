@@ -10,8 +10,10 @@ import org.example.shared.data.local.dao.util.TimestampManager
 import org.example.shared.data.local.dao.util.TimestampUpdater
 import org.example.shared.data.local.database.LearnFlexDatabase
 import org.example.shared.data.local.entity.*
-import org.example.shared.domain.constant.DataCollection
-import org.example.shared.domain.model.*
+import org.example.shared.domain.constant.Collection
+import org.example.shared.domain.constant.Field
+import org.example.shared.domain.constant.Level
+import org.example.shared.domain.model.Profile.*
 import org.junit.After
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -46,14 +48,14 @@ class DatabaseTest {
             modules(
                 module {
                     // Create the updaters map
-                    single<Map<DataCollection, TimestampUpdater>> {
+                    single<Map<Collection, TimestampUpdater>> {
                         mapOf(
-                            DataCollection.PROFILES to database.profileTimestampUpdater(),
-                            DataCollection.CURRICULA to database.curriculumTimestampUpdater(),
-                            DataCollection.MODULES to database.moduleTimestampUpdater(),
-                            DataCollection.LESSONS to database.lessonTimestampUpdater(),
-                            DataCollection.SECTIONS to database.sectionTimestampUpdater(),
-                            DataCollection.SESSIONS to database.sessionTimestampUpdater()
+                            Collection.PROFILES to database.profileTimestampUpdater(),
+                            Collection.CURRICULA to database.curriculumTimestampUpdater(),
+                            Collection.MODULES to database.moduleTimestampUpdater(),
+                            Collection.LESSONS to database.lessonTimestampUpdater(),
+                            Collection.SECTIONS to database.sectionTimestampUpdater(),
+                            Collection.SESSIONS to database.sessionTimestampUpdater()
                         )
                     }
 
@@ -111,7 +113,7 @@ class DatabaseTest {
             // Then curriculum should be stored correctly
             val retrievedCurriculum = curriculumDao.get(curricula.first().id).first()
             assertNotNull(retrievedCurriculum)
-            assertEquals(curricula.first().syllabus, retrievedCurriculum.syllabus)
+            assertEquals(curricula.first().title, retrievedCurriculum.title)
 
             // And profile timestamp should be updated
             val updatedProfile = profileDao.get(userProfile.id).first()
@@ -806,7 +808,7 @@ class DatabaseTest {
                 id = "curriculum_test_id",
                 userId = userProfile.id,
                 imageUrl = "test_image_url.jpg",
-                syllabus = "Test Syllabus",
+                title = "Test title",
                 description = "Test Description",
                 status = "active",
                 createdAt = System.currentTimeMillis(),
@@ -816,7 +818,7 @@ class DatabaseTest {
                 id = "curriculum_test_id_2",
                 userId = userProfile.id,
                 imageUrl = "test_image_url_2.jpg",
-                syllabus = "Test Syllabus 2",
+                title = "Test title 2",
                 description = "Test Description 2",
                 status = "inactive",
                 createdAt = System.currentTimeMillis(),

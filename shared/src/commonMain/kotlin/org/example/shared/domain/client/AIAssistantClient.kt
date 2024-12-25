@@ -1,16 +1,19 @@
 package org.example.shared.domain.client
 
 import org.example.shared.data.remote.model.*
+import java.io.File
 
 /**
  * Interface for AI Assistant Client operations.
  */
 interface AIAssistantClient {
     /**
-     * Creates a new thread.
-     * @return Result containing the created Thread.
+     * Creates a new thread with the provided request body.
+     *
+     * @param threadRequestBody The request body containing the details for creating the thread.
+     * @return A [Result] containing the created [Thread] if the operation is successful, or an error if it fails.
      */
-    suspend fun createThread(): Result<Thread>
+    suspend fun createThread(threadRequestBody: ThreadRequestBody): Result<Thread>
 
     /**
      * Retrieves a thread by its ID.
@@ -70,6 +73,14 @@ interface AIAssistantClient {
      * @return Result indicating the success or failure of the operation.
      */
     suspend fun cancelRun(threadId: String, runId: String): Result<Unit>
+
+    /**
+     * Uploads a file to the AI Assistant.
+     * @param file The file to upload.
+     * @param purpose The purpose of the file.
+     * @return Result containing the file upload response.
+     */
+    suspend fun uploadFile(file: File, purpose: FilePurpose): Result<FileUploadResponse>
 
     /**
      * Submits tool output for a run.

@@ -6,9 +6,8 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
-import org.example.shared.domain.constant.SyncOperationType
-import org.example.shared.domain.constant.SyncStatus
 import org.example.shared.domain.sync.SyncHandler
+import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.sync.SyncOperation
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -41,12 +40,12 @@ class SyncManagerImplTest {
 
         // Then
         withTimeout(5.seconds) {
-            while (syncManager.syncStatus.value !is SyncStatus.Success) {
+            while (syncManager.syncStatus.value !is SyncManager.SyncStatus.Success) {
                 advanceTimeBy(100)
             }
         }
 
-        assertEquals(SyncStatus.Success, syncManager.syncStatus.value)
+        assertEquals(SyncManager.SyncStatus.Success, syncManager.syncStatus.value)
         assertTrue(mockSyncHandler.operations.contains(operation))
     }
 
@@ -64,12 +63,12 @@ class SyncManagerImplTest {
 
         // Then
         withTimeout(5.seconds) {
-            while (syncManager.syncStatus.value !is SyncStatus.Error) {
+            while (syncManager.syncStatus.value !is SyncManager.SyncStatus.Error) {
                 advanceTimeBy(1000)
             }
         }
 
-        assertTrue(syncManager.syncStatus.value is SyncStatus.Error)
+        assertTrue(syncManager.syncStatus.value is SyncManager.SyncStatus.Error)
         assertEquals(4, mockSyncHandler.callCount) // Initial attempt + 3 retries
     }
 
@@ -77,7 +76,7 @@ class SyncManagerImplTest {
     fun `multiple operations are processed sequentially`() = testScope.runTest {
         // Given
         val operations = List(3) { index ->
-            SyncOperation(SyncOperationType.INSERT, TEST_PATH, listOf("test data $index"), TIMESTAMP)
+            SyncOperation(SyncOperation.SyncOperationType.INSERT, TEST_PATH, listOf("test data $index"), TIMESTAMP)
         }
         syncManager = SyncManagerImpl(
             syncScope = backgroundScope,
@@ -111,11 +110,11 @@ class SyncManagerImplTest {
         advanceTimeBy(100)
 
         // Then
-        assertEquals(SyncStatus.InProgress, syncManager.syncStatus.value)
+        assertEquals(SyncManager.SyncStatus.InProgress, syncManager.syncStatus.value)
 
         // Complete the operation
         withTimeout(5.seconds) {
-            while (syncManager.syncStatus.value !is SyncStatus.Success) {
+            while (syncManager.syncStatus.value !is SyncManager.SyncStatus.Success) {
                 advanceTimeBy(100)
             }
         }
@@ -135,12 +134,12 @@ class SyncManagerImplTest {
 
         // Then
         withTimeout(5.seconds) {
-            while (syncManager.syncStatus.value !is SyncStatus.Success) {
+            while (syncManager.syncStatus.value !is SyncManager.SyncStatus.Success) {
                 advanceTimeBy(1000)
             }
         }
 
-        assertEquals(SyncStatus.Success, syncManager.syncStatus.value)
+        assertEquals(SyncManager.SyncStatus.Success, syncManager.syncStatus.value)
         assertEquals(3, mockSyncHandler.callCount) // 2 failures + 1 success
     }
 
@@ -162,14 +161,14 @@ class SyncManagerImplTest {
         advanceTimeBy(1000) // Give enough time for the operation to complete if it wasn't cancelled
 
         // Then
-        assertEquals(SyncStatus.InProgress, syncManager.syncStatus.value) // Status should remain in progress
+        assertEquals(SyncManager.SyncStatus.InProgress, syncManager.syncStatus.value) // Status should remain in progress
         assertEquals(0, mockSyncHandler.operations.size) // Operation should not complete
     }
 
     companion object {
         private const val TEST_PATH = "test/path"
         private const val TIMESTAMP = 1234567890L
-        private val operation = SyncOperation(SyncOperationType.INSERT, TEST_PATH, listOf("test data"), TIMESTAMP)
+        private val operation = SyncOperation(SyncOperation.SyncOperationType.INSERT, TEST_PATH, listOf("test data"), TIMESTAMP)
     }
 }
 

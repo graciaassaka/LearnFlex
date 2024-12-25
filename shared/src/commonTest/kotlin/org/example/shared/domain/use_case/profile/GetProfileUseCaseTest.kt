@@ -6,8 +6,6 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.example.shared.domain.model.LearningPreferences
-import org.example.shared.domain.model.LearningStyle
 import org.example.shared.domain.model.Profile
 import org.example.shared.domain.model.User
 import org.example.shared.domain.repository.ProfileRepository
@@ -87,8 +85,8 @@ class GetProfileUseCaseTest {
             username = "sample_username",
             email = "sample_email@example.com",
             photoUrl = "",
-            preferences = LearningPreferences(),
-            learningStyle = LearningStyle(),
+            preferences = Profile.LearningPreferences(),
+            learningStyle = Profile.LearningStyle(),
             createdAt = System.currentTimeMillis(),
             lastUpdated = System.currentTimeMillis()
         )

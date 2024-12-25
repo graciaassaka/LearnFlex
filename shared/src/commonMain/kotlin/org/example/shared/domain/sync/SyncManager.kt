@@ -1,7 +1,6 @@
 package org.example.shared.domain.sync
 
 import kotlinx.coroutines.flow.StateFlow
-import org.example.shared.domain.constant.SyncStatus
 
 /**
  * Interface representing a manager for synchronizing operations.
@@ -9,6 +8,34 @@ import org.example.shared.domain.constant.SyncStatus
  * @param Model The type of the model being synchronized.
  */
 interface SyncManager<Model> {
+    /**
+     * Represents the synchronization status.
+     */
+    sealed class SyncStatus {
+
+        /**
+         * Indicates that synchronization is idle.
+         */
+        data object Idle : SyncStatus()
+
+        /**
+         * Indicates that synchronization is in progress.
+         */
+        data object InProgress : SyncStatus()
+
+        /**
+         * Indicates that synchronization was successful.
+         */
+        data object Success : SyncStatus()
+
+        /**
+         * Indicates that an error occurred during synchronization.
+         *
+         * @property error The error that occurred.
+         */
+        data class Error(val error: Throwable) : SyncStatus()
+    }
+
     /**
      * A StateFlow representing the current synchronization status.
      */

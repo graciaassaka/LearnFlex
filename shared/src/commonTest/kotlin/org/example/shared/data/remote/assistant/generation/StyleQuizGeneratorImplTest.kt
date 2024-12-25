@@ -1,4 +1,4 @@
-package org.example.shared.data.remote.assistant
+package org.example.shared.data.remote.assistant.generation
 
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -8,20 +8,20 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.example.shared.data.remote.model.*
 import org.example.shared.domain.client.AIAssistantClient
+import org.example.shared.domain.client.StyleQuizGenerator
 import org.example.shared.domain.constant.Style
-import org.example.shared.domain.model.LearningPreferences
-import org.example.shared.domain.model.StyleOption
-import org.example.shared.domain.model.StyleQuestion
+import org.example.shared.domain.model.Profile
+
 import kotlin.test.*
 
-class StyleQuizClientImplTest {
+class StyleQuizGeneratorImplTest {
     private lateinit var assistant: AIAssistantClient
-    private lateinit var client: StyleQuizClientImpl
+    private lateinit var client: StyleQuizGeneratorImpl
 
     @BeforeTest
     fun setup() {
         assistant = mockk<AIAssistantClient>()
-        client = StyleQuizClientImpl(assistant)
+        client = StyleQuizGeneratorImpl(assistant)
     }
 
     @Test
@@ -29,19 +29,19 @@ class StyleQuizClientImplTest {
         // Setup
         val threadId = "thread_123"
         val runId = "run_123"
-        val preferences = LearningPreferences("ComputerScience", "Beginner", "Learn Kotlin")
+        val preferences = Profile.LearningPreferences("ComputerScience", "Beginner", "Learn Kotlin")
         val thread = Thread(id = threadId, objectType = "thread", createdAt = 123)
         val messageId = "msg_123"
-        val question = StyleQuestion(
+        val question = StyleQuizGenerator.StyleQuestion(
             options = listOf(
-                StyleOption("visual", "Watch a video"),
-                StyleOption("reading", "Read documentation"),
-                StyleOption("kinesthetic", "Code examples")
+                StyleQuizGenerator.StyleOption("visual", "Watch a video"),
+                StyleQuizGenerator.StyleOption("reading", "Read documentation"),
+                StyleQuizGenerator.StyleOption("kinesthetic", "Code examples")
             ),
             scenario = "How would you prefer to learn Kotlin?"
         )
 
-        coEvery { assistant.createThread() } returns Result.success(thread)
+        coEvery { assistant.createThread(ThreadRequestBody()) } returns Result.success(thread)
         coEvery { assistant.createMessage(any(), any()) } returns Result.success(
             Message(
                 id = messageId,
@@ -78,7 +78,7 @@ class StyleQuizClientImplTest {
                         content = listOf(
                             Content.TextContent(
                                 type = "text",
-                                text = Text(Json.encodeToString(StyleQuestion.serializer(), question))
+                                text = Text(Json.encodeToString(StyleQuizGenerator.StyleQuestion.serializer(), question))
                             )
                         )
                     )
@@ -90,14 +90,14 @@ class StyleQuizClientImplTest {
         coEvery { assistant.cancelRun(any(), any()) } returns Result.success(Unit)
 
         // Test
-        val questions = mutableListOf<Result<StyleQuestion>>()
+        val questions = mutableListOf<Result<StyleQuizGenerator.StyleQuestion>>()
         client.streamQuestions(preferences, 1).collect { questions.add(it) }
 
         // Verify
         assertEquals(1, questions.size)
         assertTrue(questions[0].isSuccess)
         assertEquals(question, questions[0].getOrNull())
-        coVerify { assistant.createThread() }
+        coVerify { assistant.createThread(ThreadRequestBody()) }
         coVerify { assistant.deleteThread(threadId) }
     }
 
@@ -128,11 +128,11 @@ class StyleQuizClientImplTest {
 
     @Test
     fun `streamQuestions handles thread creation failure`() = runTest {
-        coEvery { assistant.createThread() } returns Result.failure(Exception("Failed to create thread"))
+        coEvery { assistant.createThread(ThreadRequestBody()) } returns Result.failure(Exception("Failed to create thread"))
 
-        val questions = mutableListOf<Result<StyleQuestion>>()
+        val questions = mutableListOf<Result<StyleQuizGenerator.StyleQuestion>>()
         client.streamQuestions(
-            LearningPreferences("ComputerScience", "Beginner", "Learn Kotlin"),
+            Profile.LearningPreferences("ComputerScience", "Beginner", "Learn Kotlin"),
             1
         ).collect { questions.add(it) }
 
@@ -145,16 +145,16 @@ class StyleQuizClientImplTest {
     fun `streamQuestions handles required action flow`() = runTest {
         val threadId = "thread_123"
         val runId = "run_123"
-        val preferences = LearningPreferences("ComputerScience", "Beginner", "Learn Kotlin")
-        val question = StyleQuestion(
+        val preferences = Profile.LearningPreferences("ComputerScience", "Beginner", "Learn Kotlin")
+        val question = StyleQuizGenerator.StyleQuestion(
             options = listOf(
-                StyleOption("visual", "Watch a video")
+                StyleQuizGenerator.StyleOption("visual", "Watch a video")
             ),
             scenario = "Test scenario"
         )
 
         // Setup initial success responses
-        coEvery { assistant.createThread() } returns Result.success(Thread(threadId, "thread", 123))
+        coEvery { assistant.createThread(ThreadRequestBody()) } returns Result.success(Thread(threadId, "thread", 123))
         coEvery { assistant.createMessage(any(), any()) } returns Result.success(
             Message(
                 id = "msg_123",
@@ -210,7 +210,7 @@ class StyleQuizClientImplTest {
                         content = listOf(
                             Content.TextContent(
                                 type = "text",
-                                text = Text(Json.encodeToString(StyleQuestion.serializer(), question))
+                                text = Text(Json.encodeToString(StyleQuizGenerator.StyleQuestion.serializer(), question))
                             )
                         )
                     )
@@ -222,7 +222,7 @@ class StyleQuizClientImplTest {
         coEvery { assistant.cancelRun(any(), any()) } returns Result.success(Unit)
 
         // Test
-        val questions = mutableListOf<Result<StyleQuestion>>()
+        val questions = mutableListOf<Result<StyleQuizGenerator.StyleQuestion>>()
         client.streamQuestions(preferences, 1).collect { questions.add(it) }
 
         // Verify

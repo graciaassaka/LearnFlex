@@ -7,7 +7,6 @@ import io.ktor.http.*
 import kotlinx.coroutines.flow.flow
 import org.example.shared.data.remote.util.HttpResponseHandler
 import org.example.shared.domain.client.ImageSearchClient
-import org.example.shared.domain.model.SearchResponse
 
 /**
  * A client for performing image searches using the Google Custom Search API.
@@ -42,8 +41,8 @@ class GoogleImageSearchClient(
                     parameter("searchType", "image")
                     parameter("num", numResults)
                 }.run {
-                    HttpResponseHandler<SearchResponse>(this).invoke {
-                        body<SearchResponse>()
+                    HttpResponseHandler<ImageSearchClient.SearchResponse>(this).invoke {
+                        body<ImageSearchClient.SearchResponse>()
                     }
                 }
             }

@@ -94,3 +94,29 @@ data class Parameters(
     @SerialName("additionalProperties")
     val additionalProperties: Boolean
 )
+
+/**
+ * Represents a file upload response.
+ */
+@Serializable
+data class FileUploadResponse(
+    @SerialName("id")
+    val id: String,
+    @SerialName("bytes")
+    val bytes: Long,
+    @SerialName("created_at")
+    val createdAt: Long,
+    @SerialName("filename")
+    val filename: String,
+    @SerialName("object")
+    val objectType: String,
+    @SerialName("purpose")
+    val purpose: String
+)
+
+/**
+ * Represents the purpose of a file.
+ */
+enum class FilePurpose(val value: String) {
+    ASSISTANTS("assistants"),
+}

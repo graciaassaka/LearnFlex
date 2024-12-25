@@ -4,7 +4,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.example.shared.domain.constant.ContentStatus
+import org.example.shared.domain.constant.Status
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.repository.CurriculumRepository
 import org.junit.Before
@@ -24,7 +24,7 @@ class GetCurriculaByStatusUseCaseTest {
     @Test
     fun `invoke should return success with filtered curricula list`() = runTest {
         // Arrange
-        val status = ContentStatus.UNFINISHED
+        val status = Status.UNFINISHED
         val curricula = List(3) { mockk<Curriculum>(relaxed = true) }
 
         coEvery { repository.getByStatus(status) } returns Result.success(curricula)
@@ -41,7 +41,7 @@ class GetCurriculaByStatusUseCaseTest {
     @Test
     fun `invoke should return success with empty list`() = runTest {
         // Arrange
-        val status = ContentStatus.UNFINISHED
+        val status = Status.UNFINISHED
         val curricula = emptyList<Curriculum>()
 
         coEvery { repository.getByStatus(status) } returns Result.success(curricula)
@@ -58,7 +58,7 @@ class GetCurriculaByStatusUseCaseTest {
     @Test
     fun `invoke should return failure when repository fails`() = runTest {
         // Arrange
-        val status = ContentStatus.UNFINISHED
+        val status = Status.UNFINISHED
         val exception = RuntimeException("Failed to get curricula")
 
         coEvery { repository.getByStatus(status) } returns Result.failure(exception)

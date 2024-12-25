@@ -5,8 +5,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
-import org.example.shared.data.local.entity.definition.RoomEntity
-import org.example.shared.domain.model.definition.EndTimeQueryable
+import org.example.shared.data.local.entity.interfaces.RoomEntity
+import org.example.shared.domain.model.interfaces.EndTimeQueryable
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 

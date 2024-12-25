@@ -34,11 +34,9 @@ class UploadProfilePictureUseCase(
         var fileUploaded = false
         var authUpdated = false
 
-        var newImageUrl = ""
-
         repeat(RETRY_TIMES) { time ->
             try {
-                newImageUrl = storageClient
+                val newImageUrl = storageClient
                     .uploadFile(image, "profile_pictures/${user.localId}.jpg", FileType.IMAGE)
                     .getOrThrow()
                     .also { fileUploaded = true }

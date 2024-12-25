@@ -60,8 +60,8 @@ import org.example.composeApp.dimension.Spacing
 import org.example.composeApp.layout.VerticalBarGraphLayout
 import org.example.composeApp.navigation.AppDestination
 import org.example.composeApp.util.TestTags
-import org.example.shared.domain.constant.ContentStatus
-import org.example.shared.domain.constant.DataCollection
+import org.example.shared.domain.constant.Collection
+import org.example.shared.domain.constant.Status
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
 import org.example.shared.presentation.navigation.Route
@@ -120,18 +120,18 @@ fun DashboardScreen(
 
     val itemsCompletion = listOf(
         Triple(
-            DataCollection.MODULES.value,
-            state.moduleCountByStatus[ContentStatus.FINISHED] ?: 0,
+            Collection.MODULES.value,
+            state.moduleCountByStatus[Status.FINISHED] ?: 0,
             state.moduleCountByStatus.values.sum()
         ),
         Triple(
-            DataCollection.LESSONS.value,
-            state.lessonCountByStatus[ContentStatus.FINISHED] ?: 0,
+            Collection.LESSONS.value,
+            state.lessonCountByStatus[Status.FINISHED] ?: 0,
             state.lessonCountByStatus.values.sum()
         ),
         Triple(
-            DataCollection.SECTIONS.value,
-            state.sectionCountByStatus[ContentStatus.FINISHED] ?: 0,
+            Collection.SECTIONS.value,
+            state.sectionCountByStatus[Status.FINISHED] ?: 0,
             state.sectionCountByStatus.values.sum()
         )
     )
@@ -388,7 +388,7 @@ private fun WelcomeCard(
         horizontalAlignment = Alignment.Start
     ) {
         Text(
-            text = curriculum?.syllabus ?: (stringResource(Res.string.hi_there)),
+            text = curriculum?.title ?: (stringResource(Res.string.hi_there)),
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.titleMedium,
         )
@@ -927,7 +927,7 @@ private fun CurriculumCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = curriculum.syllabus,
+                    text = curriculum.title,
                     style = MaterialTheme.typography.titleSmall
                 )
                 IconButton(

@@ -3,11 +3,11 @@ package org.example.shared.data.repository.component
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import org.example.shared.data.local.entity.definition.RoomEntity
+import org.example.shared.data.local.entity.interfaces.RoomEntity
 import org.example.shared.data.repository.util.RepositoryConfig
-import org.example.shared.domain.constant.ContentStatus
-import org.example.shared.domain.model.definition.DatabaseRecord
-import org.example.shared.domain.model.definition.StatusQueryable
+import org.example.shared.domain.constant.Status
+import org.example.shared.domain.model.interfaces.DatabaseRecord
+import org.example.shared.domain.model.interfaces.StatusQueryable
 import org.example.shared.domain.repository.util.QueryStrategy
 import org.example.shared.domain.storage_operations.QueryByStatusOperation
 
@@ -38,7 +38,7 @@ class QueryByStatusRepositoryComponent<Model, Entity : RoomEntity>(
          *
          * @param newStatus The new status to set.
          */
-        fun configure(newStatus: ContentStatus): StatusQueryStrategy<Entity> {
+        fun configure(newStatus: Status): StatusQueryStrategy<Entity> {
             status = newStatus.value
             return this
         }
@@ -61,7 +61,7 @@ class QueryByStatusRepositoryComponent<Model, Entity : RoomEntity>(
      * @param status The status to query by.
      * @return A flow of the query results wrapped in a Result.
      */
-    override suspend fun getByStatus(status: ContentStatus) = runCatching {
+    override suspend fun getByStatus(status: Status) = runCatching {
         val statusStrategy = config.queryStrategies
             .getCustomStrategy<List<Entity>>(STATUS_STRATEGY_KEY) as StatusQueryStrategy<Entity>
 

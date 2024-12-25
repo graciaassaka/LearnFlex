@@ -1,6 +1,6 @@
 package org.example.shared.domain.storage_operations
 
-import org.example.shared.domain.model.definition.EndTimeQueryable
+import org.example.shared.domain.model.interfaces.EndTimeQueryable
 
 /**
  * Interface representing a query operation that retrieves models within a specified date range.

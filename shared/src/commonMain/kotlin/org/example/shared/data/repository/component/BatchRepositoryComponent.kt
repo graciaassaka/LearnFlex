@@ -7,11 +7,10 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.example.shared.data.local.dao.ExtendedLocalDao
-import org.example.shared.data.local.entity.definition.RoomEntity
+import org.example.shared.data.local.entity.interfaces.RoomEntity
 import org.example.shared.data.repository.util.RepositoryConfig
-import org.example.shared.domain.constant.SyncOperationType
 import org.example.shared.domain.dao.ExtendedDao
-import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.repository.util.QueryStrategy
 import org.example.shared.domain.storage_operations.BatchOperations
 import org.example.shared.domain.sync.SyncOperation
@@ -44,7 +43,7 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
                 timestamp = timestamp
             )
             syncManager.queueOperation(
-                createSyncOperation(SyncOperationType.INSERT_ALL, path, items, timestamp)
+                createSyncOperation(SyncOperation.SyncOperationType.INSERT_ALL, path, items, timestamp)
             )
         }
 
@@ -65,7 +64,7 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
                 timestamp = timestamp
             )
             syncManager.queueOperation(
-                createSyncOperation(SyncOperationType.UPDATE_ALL, path, items, timestamp)
+                createSyncOperation(SyncOperation.SyncOperationType.UPDATE_ALL, path, items, timestamp)
             )
         }
 
@@ -86,7 +85,7 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
                 timestamp = timestamp
             )
             syncManager.queueOperation(
-                createSyncOperation(SyncOperationType.DELETE_ALL, path, items, timestamp)
+                createSyncOperation(SyncOperation.SyncOperationType.DELETE_ALL, path, items, timestamp)
             )
         }
 
@@ -152,7 +151,7 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
                             send(Result.success(models))
                             config.syncManager.queueOperation(
                                 createSyncOperation(
-                                    type = SyncOperationType.SYNC,
+                                    type = SyncOperation.SyncOperationType.SYNC,
                                     path = path,
                                     items = models,
                                     timestamp = System.currentTimeMillis()
@@ -190,7 +189,7 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
                     send(Result.success(models))
                     config.syncManager.queueOperation(
                         createSyncOperation(
-                            type = SyncOperationType.SYNC,
+                            type = SyncOperation.SyncOperationType.SYNC,
                             path = path,
                             items = models,
                             timestamp = System.currentTimeMillis()
@@ -225,6 +224,6 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      * @param items The list of items for the operation.
      * @return The created SyncOperation.
      */
-    private fun createSyncOperation(type: SyncOperationType, path: String, items: List<Model>, timestamp: Long) =
+    private fun createSyncOperation(type: SyncOperation.SyncOperationType, path: String, items: List<Model>, timestamp: Long) =
         SyncOperation(type, path, items, timestamp)
 }

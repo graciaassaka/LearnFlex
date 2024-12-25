@@ -97,6 +97,7 @@ kotlin {
                 implementation(libs.gitlive.firestore)
                 implementation(libs.room.runtime)
                 implementation(libs.coil)
+                implementation(libs.jsoup)
             }
         }
 

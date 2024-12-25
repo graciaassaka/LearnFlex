@@ -1,7 +1,7 @@
 package org.example.shared.data.local.dao
 
 import androidx.room.*
-import org.example.shared.data.local.entity.definition.RoomEntity
+import org.example.shared.data.local.entity.interfaces.RoomEntity
 
 @Dao
 abstract class ExtendedLocalDao<Entity : RoomEntity> : LocalDao<Entity>() {

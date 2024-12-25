@@ -1,6 +1,6 @@
 package org.example.shared.domain.storage_operations
 
-import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.model.interfaces.DatabaseRecord
 
 /**
  * Interface representing a query operation that retrieves a set of models by a curriculum ID.

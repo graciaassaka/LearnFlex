@@ -2,7 +2,7 @@ package org.example.shared.domain.use_case.curriculum
 
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
-import org.example.shared.domain.constant.DataCollection
+import org.example.shared.domain.constant.Collection
 import org.example.shared.domain.repository.CurriculumRepository
 
 /**
@@ -17,11 +17,11 @@ class GetAllCurriculaUseCase(private val repository: CurriculumRepository) {
      *
      * @param path The path from where the curricula should be retrieved.
      * @return A [Flow] emitting a [Result] containing the list of curricula.
-     * @throws IllegalArgumentException If the path does not end with [DataCollection.CURRICULA].
+     * @throws IllegalArgumentException If the path does not end with [Collection.CURRICULA].
      */
     operator fun invoke(path: String) = flow {
-        require(path.split("/").last() == DataCollection.CURRICULA.value) {
-            "The path must end with ${DataCollection.CURRICULA.value}"
+        require(path.split("/").last() == Collection.CURRICULA.value) {
+            "The path must end with ${Collection.CURRICULA.value}"
         }
         repository.getAll(path).collect(::emit)
     }.catch {

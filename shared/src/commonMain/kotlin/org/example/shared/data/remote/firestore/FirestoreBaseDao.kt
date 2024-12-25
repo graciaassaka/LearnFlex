@@ -5,7 +5,7 @@ import dev.gitlive.firebase.firestore.WriteBatch
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.KSerializer
 import org.example.shared.domain.dao.Dao
-import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.model.interfaces.DatabaseRecord
 
 /**
  * Base class for remote data sources interacting with Firebase Firestore.

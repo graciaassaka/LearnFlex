@@ -2,10 +2,10 @@ package org.example.shared.data.repository.component
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import org.example.shared.data.local.entity.definition.RoomEntity
+import org.example.shared.data.local.entity.interfaces.RoomEntity
 import org.example.shared.data.repository.util.RepositoryConfig
-import org.example.shared.domain.model.definition.DatabaseRecord
-import org.example.shared.domain.model.definition.EndTimeQueryable
+import org.example.shared.domain.model.interfaces.DatabaseRecord
+import org.example.shared.domain.model.interfaces.EndTimeQueryable
 import org.example.shared.domain.repository.util.QueryStrategy
 import org.example.shared.domain.storage_operations.QueryByDateRangeOperation
 

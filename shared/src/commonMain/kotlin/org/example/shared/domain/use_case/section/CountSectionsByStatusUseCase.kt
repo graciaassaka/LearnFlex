@@ -1,6 +1,6 @@
 package org.example.shared.domain.use_case.section
 
-import org.example.shared.domain.constant.ContentStatus
+import org.example.shared.domain.constant.Status
 
 /**
  * Use case for summing sections by their status.
@@ -19,8 +19,8 @@ class CountSectionsByStatusUseCase(private val getByCurriculumId: GetSectionsByC
         getByCurriculumId(curriculumId)
             .getOrThrow().let { modules ->
                 modules.groupBy {
-                    if (it.quizScore >= it.quizScoreMax * 0.75) ContentStatus.FINISHED
-                    else ContentStatus.UNFINISHED
+                    if (it.quizScore >= it.quizScoreMax * 0.75) Status.FINISHED
+                    else Status.UNFINISHED
                 }.mapValues { it.value.size }
             }
     }

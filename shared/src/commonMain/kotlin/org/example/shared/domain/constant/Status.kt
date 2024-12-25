@@ -7,7 +7,7 @@ package org.example.shared.domain.constant
  * progress for a given piece of content within the system.
  *
  */
-enum class ContentStatus(val value: String) {
+enum class Status(val value: String) {
     /**
      * Represents a content state that is not yet completed.
      */

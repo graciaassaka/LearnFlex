@@ -4,7 +4,7 @@ import dev.gitlive.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.KSerializer
 import org.example.shared.domain.dao.ExtendedDao
-import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.model.interfaces.DatabaseRecord
 
 /**
  * Extension of FirestoreBaseDao that adds support for batch operations in Firestore.

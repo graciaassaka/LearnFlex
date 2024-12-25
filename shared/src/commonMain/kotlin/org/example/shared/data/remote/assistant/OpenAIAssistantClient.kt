@@ -3,10 +3,12 @@ package org.example.shared.data.remote.assistant
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
 import io.ktor.http.*
 import org.example.shared.data.remote.model.*
 import org.example.shared.data.remote.util.HttpResponseHandler
 import org.example.shared.domain.client.AIAssistantClient
+import java.io.File
 
 /**
  * Client for interacting with the OpenAI Assistant API.
@@ -22,11 +24,13 @@ class OpenAIAssistantClient(
     /**
      * Creates a new thread.
      *
+     * @param threadRequestBody The request body containing the details for creating the thread.
      * @return A [Result] containing the created [Thread].
      */
-    override suspend fun createThread() = runCatching {
+    override suspend fun createThread(threadRequestBody: ThreadRequestBody) = runCatching {
         httpClient.post {
             setUpAssistantRequest("/v1/threads")
+            setBody(threadRequestBody)
         }.run {
             HttpResponseHandler<Thread>(this).invoke { body<Thread>() }
         }
@@ -137,6 +141,28 @@ class OpenAIAssistantClient(
             setUpAssistantRequest("/v1/threads/$threadId/runs/$runId/cancel")
         }.run {
             HttpResponseHandler<Unit>(this).invoke { }
+        }
+    }
+
+    /**
+     * Uploads a file to the OpenAI Assistant API.
+     *
+     * @param file The file to upload.
+     * @param purpose The purpose of the file.
+     * @return A [Result] containing the uploaded [FileUploadResponse].
+     */
+    override suspend fun uploadFile(file: File, purpose: FilePurpose) = kotlin.runCatching {
+        httpClient.post {
+            setUpAssistantRequest("/v1/files")
+            setBody(MultiPartFormDataContent(formData {
+                append("purpose", purpose.value)
+                append("file", file.readBytes(), Headers.build {
+                    append(HttpHeaders.ContentDisposition, "form-data; name=\"file\"; filename=\"${file.name}\"")
+                    append(HttpHeaders.ContentType, ContentType.Application.OctetStream.toString())
+                })
+            }))
+        }.run {
+            HttpResponseHandler<FileUploadResponse>(this).invoke { body<FileUploadResponse>() }
         }
     }
 

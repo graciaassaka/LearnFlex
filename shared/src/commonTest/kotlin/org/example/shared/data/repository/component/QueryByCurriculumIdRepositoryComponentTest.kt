@@ -6,11 +6,11 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
-import org.example.shared.data.local.entity.definition.RoomEntity
+import org.example.shared.data.local.entity.interfaces.RoomEntity
 import org.example.shared.data.repository.util.QueryStrategies
 import org.example.shared.data.repository.util.RepositoryConfig
-import org.example.shared.domain.constant.DataCollection
-import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.constant.Collection
+import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.repository.util.ModelMapper
 import org.example.shared.domain.sync.SyncManager
 import kotlin.test.BeforeTest
@@ -55,7 +55,7 @@ class QueryByCurriculumIdRepositoryComponentTest {
         )
 
         config = RepositoryConfig(
-            dataCollection = DataCollection.TEST,
+            collection = Collection.TEST,
             remoteDao = mockk(),
             localDao = mockk(),
             modelMapper = modelMapper,

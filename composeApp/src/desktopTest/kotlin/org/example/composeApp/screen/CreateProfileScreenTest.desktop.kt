@@ -18,8 +18,11 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.update
 import org.example.composeApp.theme.LearnFlexTheme
 import org.example.composeApp.util.TestTags
+import org.example.shared.domain.client.StyleQuizGenerator
+import org.example.shared.domain.constant.Field
+import org.example.shared.domain.constant.Level
 import org.example.shared.domain.constant.Style
-import org.example.shared.domain.model.*
+import org.example.shared.domain.model.Profile
 import org.example.shared.domain.use_case.validation.ValidateUsernameUseCase
 import org.example.shared.domain.use_case.validation.util.ValidationResult
 import org.example.shared.presentation.state.CreateProfileUIState
@@ -319,13 +322,13 @@ class CreateProfileScreenTest {
 
     companion object {
         private val styleQuestionnaire = listOf(
-            StyleQuestion(
-                listOf(StyleOption(Style.READING.value, Style.READING.value)), "Question 1",
+            StyleQuizGenerator.StyleQuestion(
+                listOf(StyleQuizGenerator.StyleOption(Style.READING.value, Style.READING.value)), "Question 1",
             )
         )
 
-        private val learningStyle = LearningStyle(
-            dominant = Style.READING.value, breakdown = LearningStyleBreakdown(visual = 0, reading = 50, kinesthetic = 50)
+        private val learningStyle = Profile.LearningStyle(
+            dominant = Style.READING.value, breakdown = Profile.LearningStyleBreakdown(visual = 0, reading = 50, kinesthetic = 50)
         )
     }
 }

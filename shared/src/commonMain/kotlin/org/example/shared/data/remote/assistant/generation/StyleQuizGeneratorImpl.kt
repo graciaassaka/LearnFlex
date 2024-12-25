@@ -1,4 +1,4 @@
-package org.example.shared.data.remote.assistant
+package org.example.shared.data.remote.assistant.generation
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
@@ -7,9 +7,11 @@ import org.example.shared.data.remote.model.*
 import org.example.shared.data.remote.model.Function
 import org.example.shared.data.util.OpenAIConstants
 import org.example.shared.domain.client.AIAssistantClient
-import org.example.shared.domain.client.StyleQuizClient
+import org.example.shared.domain.client.StyleQuizGenerator
+import org.example.shared.domain.constant.Field
+import org.example.shared.domain.constant.Level
 import org.example.shared.domain.constant.Style
-import org.example.shared.domain.model.*
+import org.example.shared.domain.model.Profile
 
 /**
  * Implementation of the StyleQuizService interface.
@@ -17,7 +19,7 @@ import org.example.shared.domain.model.*
  *
  * @property assistant The OpenAIAssistantClient used to interact with the OpenAI API.
  */
-class StyleQuizClientImpl(private val assistant: AIAssistantClient) : StyleQuizClient {
+class StyleQuizGeneratorImpl(private val assistant: AIAssistantClient) : StyleQuizGenerator {
 
     /**
      * Streams questions for the user based on their learning preferences.
@@ -26,12 +28,12 @@ class StyleQuizClientImpl(private val assistant: AIAssistantClient) : StyleQuizC
      * @param number The number of questions to generate.
      * @return A flow of results containing the generated StyleQuestion.
      */
-    override fun streamQuestions(preferences: LearningPreferences, number: Int) = with(assistant) {
-        flow<Result<StyleQuestion>> {
+    override fun streamQuestions(preferences: Profile.LearningPreferences, number: Int) = with(assistant) {
+        flow<Result<StyleQuizGenerator.StyleQuestion>> {
             var thread: Thread? = null
             val previousScenarios = mutableListOf<String>()
             try {
-                thread = createThread().getOrThrow()
+                thread = createThread(ThreadRequestBody()).getOrThrow()
                 createMessage(thread.id, MessageRequestBody(MessageRole.USER.value, MESSAGE)).getOrThrow()
 
                 var count = 0
@@ -63,28 +65,28 @@ class StyleQuizClientImpl(private val assistant: AIAssistantClient) : StyleQuizC
      * @param preferences The user's learning preferences which may influence the run processing.
      * @param previousScenarios A list of previously processed scenarios to be included in the current run.
      */
-    private suspend fun processRun(thread: Thread, preferences: LearningPreferences, previousScenarios: List<String>) =
+    private suspend fun processRun(thread: Thread, preferences: Profile.LearningPreferences, previousScenarios: List<String>) =
         with(assistant) {
             var currentRun = createRun(thread.id, previousScenarios).getOrThrow()
 
-        return@with try {
-            while (RunStatus.valueOf(currentRun.status.uppercase()).isRunActive()) {
-                if (currentRun.status == "requires_action") {
-                    currentRun.handleRequiredAction(thread.id, preferences).onFailure { throw it }
-                    delay(POLLING_INTERVAL)
+            return@with try {
+                while (RunStatus.valueOf(currentRun.status.uppercase()).isRunActive()) {
+                    if (currentRun.status == "requires_action") {
+                        currentRun.handleRequiredAction(thread.id, preferences).onFailure { throw it }
+                        delay(POLLING_INTERVAL)
+                    }
+
+                    currentRun = retrieveRun(thread.id, currentRun.id).getOrThrow()
                 }
 
-                currentRun = retrieveRun(thread.id, currentRun.id).getOrThrow()
+                if (currentRun.status == "completed") Result.success(currentRun.processCompletion(thread.id))
+                else throw IllegalStateException("Run ended with unexpected status: ${currentRun.status}")
+            } catch (e: Exception) {
+                Result.failure(e)
+            } finally {
+                cancelRun(thread.id, currentRun.id).onFailure { Result.failure<Throwable>(it) }
             }
-
-            if (currentRun.status == "completed") Result.success(currentRun.processCompletion(thread.id))
-            else throw IllegalStateException("Run ended with unexpected status: ${currentRun.status}")
-        } catch (e: Exception) {
-            Result.failure(e)
-        } finally {
-            cancelRun(thread.id, currentRun.id).onFailure { Result.failure<Throwable>(it) }
         }
-    }
 
 
     /**
@@ -145,7 +147,7 @@ class StyleQuizClientImpl(private val assistant: AIAssistantClient) : StyleQuizC
         RunStatus.IN_PROGRESS,
         RunStatus.REQUIRES_ACTION -> true
 
-        else                      -> false
+        else -> false
     }
 
     /**
@@ -154,26 +156,14 @@ class StyleQuizClientImpl(private val assistant: AIAssistantClient) : StyleQuizC
      * @param threadId The ID of the thread.
      * @param preferences The user's learning preferences.
      */
-    private suspend fun Run.handleRequiredAction(threadId: String, preferences: LearningPreferences) = runCatching {
+    private suspend fun Run.handleRequiredAction(threadId: String, preferences: Profile.LearningPreferences) = runCatching {
         requiredAction?.let { action ->
             when (RequiredActionType.valueOf(action.type.uppercase())) {
                 RequiredActionType.SUBMIT_TOOL_OUTPUTS -> {
-                    val toolCalls = requiredAction.submitToolOutputs?.toolCalls
+                    requiredAction.submitToolOutputs?.toolCalls
+                        ?.map { call -> submitToolOutput(threadId, id, call.id, preferences) }
+                        ?.forEach { it.getOrThrow() }
                         ?: throw IllegalStateException("No tool calls found")
-
-                    val results = toolCalls.map { call ->
-                        submitToolOutput(threadId, id, call.id, preferences)
-                    }
-
-                    results.filter { it.isFailure }
-                        .takeIf { it.isNotEmpty() }
-                        ?.let { failures ->
-                            throw IllegalStateException(
-                                "Failed to submit tool outputs: ${failures.mapNotNull { it.exceptionOrNull()?.message }}"
-                            )
-                        }
-
-                    results.forEach { it.getOrThrow() }
                 }
             }
         } ?: throw IllegalStateException("No required action found")
@@ -191,7 +181,7 @@ class StyleQuizClientImpl(private val assistant: AIAssistantClient) : StyleQuizC
         threadId: String,
         runId: String,
         toolCallId: String,
-        preferences: LearningPreferences
+        preferences: Profile.LearningPreferences
     ) = assistant.submitToolOutput(
         threadId = threadId,
         runId = runId,
@@ -237,7 +227,7 @@ class StyleQuizClientImpl(private val assistant: AIAssistantClient) : StyleQuizC
         .listMessages(threadId, 10, MessagesOrder.DESC)
         .getOrThrow().data
         .first { it.role == MessageRole.ASSISTANT.value }
-        .let { Json.decodeFromString<StyleQuestion>((it.content.first() as Content.TextContent).text.value) }
+        .let { Json.decodeFromString<StyleQuizGenerator.StyleQuestion>((it.content.first() as Content.TextContent).text.value) }
 
     /**
      * Evaluates the responses and calculates the dominant learning style and breakdown.
@@ -249,9 +239,9 @@ class StyleQuizClientImpl(private val assistant: AIAssistantClient) : StyleQuizC
     override fun evaluateResponses(responses: List<Style>) =
         responses.groupingBy { it.value }.eachCount().runCatching {
             if (responses.isEmpty()) throw IllegalArgumentException("Responses cannot be empty")
-            LearningStyle(
+            Profile.LearningStyle(
                 dominant = maxBy { it.value }.key,
-                breakdown = LearningStyleBreakdown(
+                breakdown = Profile.LearningStyleBreakdown(
                     visual = getOrDefault(Style.VISUAL.value, 0) * 100 / responses.size,
                     reading = getOrDefault(Style.READING.value, 0) * 100 / responses.size,
                     kinesthetic = getOrDefault(Style.KINESTHETIC.value, 0) * 100 / responses.size
@@ -260,6 +250,7 @@ class StyleQuizClientImpl(private val assistant: AIAssistantClient) : StyleQuizC
         }
 
     companion object {
+        private const val POLLING_INTERVAL = 1000L
         private const val MESSAGE = "Generate the next question."
         private const val FUN_NAME = "get_user_context"
         private const val FUN_DESC = "Get the user's learning context to generate personalized assessment questions"
@@ -267,6 +258,5 @@ class StyleQuizClientImpl(private val assistant: AIAssistantClient) : StyleQuizC
                 Generate learning style assessment question based on the user's context. 
                 Ensure the new question is completely different from the following scenarios:
             """
-        private const val POLLING_INTERVAL = 1000L
     }
 }

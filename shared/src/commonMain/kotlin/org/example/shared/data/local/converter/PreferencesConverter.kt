@@ -2,7 +2,7 @@ package org.example.shared.data.local.converter
 
 import androidx.room.TypeConverter
 import kotlinx.serialization.json.Json
-import org.example.shared.domain.model.LearningPreferences
+import org.example.shared.domain.model.Profile
 
 /**
  * Converter class for transforming LearningPreferences objects to and from JSON strings.
@@ -16,8 +16,8 @@ class PreferencesConverter {
      * @return The JSON string representation of the LearningPreferences object.
      */
     @TypeConverter
-    fun fromPreferences(preferences: LearningPreferences): String {
-        return Json.encodeToString(LearningPreferences.serializer(), preferences)
+    fun fromPreferences(preferences: Profile.LearningPreferences): String {
+        return Json.encodeToString(Profile.LearningPreferences.serializer(), preferences)
     }
 
     /**
@@ -27,7 +27,7 @@ class PreferencesConverter {
      * @return The LearningPreferences object represented by the JSON string.
      */
     @TypeConverter
-    fun toPreferences(preferences: String): LearningPreferences {
-        return Json.decodeFromString(LearningPreferences.serializer(), preferences)
+    fun toPreferences(preferences: String): Profile.LearningPreferences {
+        return Json.decodeFromString(Profile.LearningPreferences.serializer(), preferences)
     }
 }

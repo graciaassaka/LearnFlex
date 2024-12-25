@@ -5,14 +5,14 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
-import org.example.shared.data.local.entity.definition.RoomEntity
+import org.example.shared.data.local.entity.interfaces.RoomEntity
 import org.example.shared.data.repository.component.QueryByStatusRepositoryComponent.Companion.STATUS_STRATEGY_KEY
 import org.example.shared.data.repository.util.QueryStrategies
 import org.example.shared.data.repository.util.RepositoryConfig
-import org.example.shared.domain.constant.ContentStatus
-import org.example.shared.domain.constant.DataCollection
-import org.example.shared.domain.model.definition.DatabaseRecord
-import org.example.shared.domain.model.definition.StatusQueryable
+import org.example.shared.domain.constant.Collection
+import org.example.shared.domain.constant.Status
+import org.example.shared.domain.model.interfaces.DatabaseRecord
+import org.example.shared.domain.model.interfaces.StatusQueryable
 import org.example.shared.domain.repository.util.ModelMapper
 import org.example.shared.domain.sync.SyncManager
 import kotlin.test.BeforeTest
@@ -59,7 +59,7 @@ class QueryByStatusRepositoryComponentTest {
         )
 
         config = RepositoryConfig(
-            dataCollection = DataCollection.TEST,
+            collection = Collection.TEST,
             remoteDao = mockk(),
             localDao = mockk(),
             modelMapper = modelMapper,
@@ -77,14 +77,14 @@ class QueryByStatusRepositoryComponentTest {
         queryStrategies.withCustomQuery(
             STATUS_STRATEGY_KEY,
             QueryByStatusRepositoryComponent.StatusQueryStrategy { status ->
-                assertEquals(ContentStatus.FINISHED.value, status)
+                assertEquals(Status.FINISHED.value, status)
                 flowOf(listOf(testEntity))
             }
         )
         io.mockk.every { modelMapper.toModel(testEntity) } returns testModel
 
         // When
-        val result = component.getByStatus(ContentStatus.FINISHED)
+        val result = component.getByStatus(Status.FINISHED)
 
         // Then
         assertTrue(result.isSuccess)
@@ -102,7 +102,7 @@ class QueryByStatusRepositoryComponentTest {
         )
 
         // When
-        val result = component.getByStatus(ContentStatus.UNFINISHED)
+        val result = component.getByStatus(Status.UNFINISHED)
 
         // Then
         assertTrue(result.isSuccess)
@@ -121,7 +121,7 @@ class QueryByStatusRepositoryComponentTest {
         )
 
         // When
-        val result = component.getByStatus(ContentStatus.FINISHED)
+        val result = component.getByStatus(Status.FINISHED)
 
         // Then
         assertTrue(result.isFailure)
@@ -136,7 +136,7 @@ class QueryByStatusRepositoryComponentTest {
         component = QueryByStatusRepositoryComponent(invalidConfig)
 
         // When
-        val result = component.getByStatus(ContentStatus.FINISHED)
+        val result = component.getByStatus(Status.FINISHED)
 
         // Then
         assertTrue(result.isFailure)
@@ -144,7 +144,7 @@ class QueryByStatusRepositoryComponentTest {
     }
 
     companion object {
-        private val testStatus = ContentStatus.FINISHED.value
+        private val testStatus = Status.FINISHED.value
 
         private val testModel = TestModel(
             id = "test123",

@@ -6,8 +6,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.example.shared.data.remote.util.ApiError
-import org.example.shared.domain.constant.SyncStatus
-import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.sync.SyncManager
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.util.SnackbarType
@@ -35,7 +34,7 @@ open class BaseViewModel(
         syncMangers?.forEach { syncManager ->
             viewModelScope.launch(dispatcher) {
                 syncManager.syncStatus.collect { status ->
-                    if (status is SyncStatus.Error) {
+                    if (status is SyncManager.SyncStatus.Error) {
                         handleError(status.error)
                     }
                 }

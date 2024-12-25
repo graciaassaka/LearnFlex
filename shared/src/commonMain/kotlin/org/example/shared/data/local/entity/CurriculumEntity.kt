@@ -5,8 +5,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
-import org.example.shared.data.local.entity.definition.RoomEntity
-import org.example.shared.domain.model.definition.StatusQueryable
+import org.example.shared.data.local.entity.interfaces.RoomEntity
+import org.example.shared.domain.model.interfaces.StatusQueryable
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -16,7 +16,7 @@ import kotlin.uuid.Uuid
  * @property id The unique identifier of the curriculum.
  * @property userId The identifier of the user this curriculum belongs to.
  * @property imageUrl The URL of the curriculum's image.
- * @property syllabus The detailed syllabus of the curriculum.
+ * @property title The detailed title of the curriculum.
  * @property status The current status of the curriculum.
  * @property createdAt The timestamp when the curriculum was created.
  * @property lastUpdated The timestamp when the curriculum was last updated.
@@ -43,8 +43,8 @@ data class CurriculumEntity(
     @ColumnInfo(name = "image_url")
     val imageUrl: String,
 
-    @ColumnInfo(name = "syllabus")
-    val syllabus: String,
+    @ColumnInfo(name = "title")
+    val title: String,
 
     @ColumnInfo(name = "description")
     val description: String,

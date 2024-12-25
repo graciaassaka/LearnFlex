@@ -1,6 +1,6 @@
 package org.example.shared.domain.dao
 
-import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.storage_operations.CrudOperations
 
 /**

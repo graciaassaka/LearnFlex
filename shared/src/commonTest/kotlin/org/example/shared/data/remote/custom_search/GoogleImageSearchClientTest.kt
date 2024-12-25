@@ -16,8 +16,8 @@ import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import org.example.shared.domain.model.SearchItem
-import org.example.shared.domain.model.SearchResponse
+import org.example.shared.domain.client.ImageSearchClient
+
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -75,7 +75,7 @@ class GoogleImageSearchClientTest {
         // Given
         val query = "test_query"
         val numResults = 10
-        val searchResponse = SearchResponse(items = listOf(SearchItem(link = "test_link")))
+        val searchResponse = ImageSearchClient.SearchResponse(items = listOf(ImageSearchClient.SearchItem(link = "test_link")))
         wireMockServer.stubFor(
             get(urlPathEqualTo("/"))
                 .willReturn(

@@ -1,7 +1,7 @@
 package org.example.shared.data.repository.util
 
 import kotlinx.coroutines.flow.Flow
-import org.example.shared.data.local.entity.definition.RoomEntity
+import org.example.shared.data.local.entity.interfaces.RoomEntity
 import org.example.shared.domain.repository.util.QueryStrategy
 
 /**

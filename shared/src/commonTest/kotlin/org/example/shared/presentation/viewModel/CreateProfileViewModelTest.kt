@@ -12,10 +12,13 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
+import org.example.shared.domain.client.StyleQuizGenerator
+import org.example.shared.domain.constant.Field
+import org.example.shared.domain.constant.Level
 import org.example.shared.domain.constant.Style
-import org.example.shared.domain.constant.SyncStatus
-import org.example.shared.domain.model.*
-import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.model.Profile
+import org.example.shared.domain.model.User
+import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.use_case.auth.GetUserDataUseCase
 import org.example.shared.domain.use_case.path.BuildProfilePathUseCase
@@ -44,7 +47,7 @@ class CreateProfileViewModelTest {
     private lateinit var validateUsernameUseCase: ValidateUsernameUseCase
     private lateinit var buildProfilePathUseCase: BuildProfilePathUseCase
     private lateinit var testDispatcher: TestDispatcher
-    private val syncStatus = MutableStateFlow<SyncStatus>(SyncStatus.Idle)
+    private val syncStatus = MutableStateFlow<SyncManager.SyncStatus>(SyncManager.SyncStatus.Idle)
 
     @Before
     fun setUp() {
@@ -92,7 +95,7 @@ class CreateProfileViewModelTest {
         }
 
         // When
-        syncStatus.value = SyncStatus.Error(Exception(errorMessage))
+        syncStatus.value = SyncManager.SyncStatus.Error(Exception(errorMessage))
         advanceUntilIdle()
 
         // Then
@@ -432,7 +435,7 @@ class CreateProfileViewModelTest {
     fun `startStyleQuestionnaire should update state with questionnaire when getStyleQuestionnaireUseCase returns success`() =
         runTest {
             // Given
-            val question = mockk<StyleQuestion>()
+            val question = mockk<StyleQuizGenerator.StyleQuestion>()
 
             coEvery { getStyleQuestionnaireUseCase(any(), any()) } returns flowOf(Result.success(question))
 
@@ -491,7 +494,7 @@ class CreateProfileViewModelTest {
     @Test
     fun `onQuestionnaireCompleted should call getStyleResultUseCase and update state with result`() = runTest {
         // Given
-        val result = mockk<LearningStyle>()
+        val result = mockk<Profile.LearningStyle>()
 
         coEvery { getStyleResultUseCase(any()) } returns Result.success(result)
 
@@ -669,8 +672,8 @@ class CreateProfileViewModelTest {
 
     companion object {
         private const val TEST_PATH = "profiles/user123"
-        private val testLearningStyleBreakdown = LearningStyleBreakdown(visual = 30, reading = 40, kinesthetic = 30)
-        private val testLearningStyle = LearningStyle(
+        private val testLearningStyleBreakdown = Profile.LearningStyleBreakdown(visual = 30, reading = 40, kinesthetic = 30)
+        private val testLearningStyle = Profile.LearningStyle(
             dominant = Style.READING.value,
             breakdown = testLearningStyleBreakdown
         )

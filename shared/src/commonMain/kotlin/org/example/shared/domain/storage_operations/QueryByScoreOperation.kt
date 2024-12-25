@@ -1,6 +1,6 @@
 package org.example.shared.domain.storage_operations
 
-import org.example.shared.domain.model.definition.ScoreQueryable
+import org.example.shared.domain.model.interfaces.ScoreQueryable
 
 /**
  * Interface representing a query operation that retrieves a set of IDs by a minimum score.

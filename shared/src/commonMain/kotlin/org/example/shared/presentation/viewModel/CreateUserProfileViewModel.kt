@@ -4,9 +4,11 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import org.example.shared.domain.constant.Field
+import org.example.shared.domain.constant.Level
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.*
-import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.use_case.*
 import org.example.shared.domain.use_case.auth.GetUserDataUseCase
@@ -182,8 +184,8 @@ class CreateUserProfileViewModel(
                     email = value.email,
                     username = value.username,
                     photoUrl = value.photoUrl,
-                    preferences = LearningPreferences(value.field.name, value.level.name, value.goal),
-                    learningStyle = LearningStyle(),
+                    preferences = Profile.LearningPreferences(value.field.name, value.level.name, value.goal),
+                    learningStyle = Profile.LearningStyle(),
                     createdAt = System.currentTimeMillis(),
                     lastUpdated = System.currentTimeMillis()
                 ),
@@ -216,7 +218,7 @@ class CreateUserProfileViewModel(
 
         viewModelScope.launch(dispatcher) {
             getStyleQuestionnaireUseCase(
-                LearningPreferences(value.field.name, value.level.name, value.goal),
+                Profile.LearningPreferences(value.field.name, value.level.name, value.goal),
                 questionCount
             ).collect { result ->
                 result.fold(
@@ -265,7 +267,7 @@ class CreateUserProfileViewModel(
                         email = value.email,
                         username = value.username,
                         photoUrl = value.photoUrl,
-                        preferences = LearningPreferences(value.field.name, value.level.name, value.goal),
+                        preferences = Profile.LearningPreferences(value.field.name, value.level.name, value.goal),
                         learningStyle = value.learningStyle!!,
                         createdAt = System.currentTimeMillis(),
                         lastUpdated = System.currentTimeMillis()

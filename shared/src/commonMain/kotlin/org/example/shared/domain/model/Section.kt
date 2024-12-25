@@ -2,8 +2,8 @@ package org.example.shared.domain.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.example.shared.domain.model.definition.DatabaseRecord
-import org.example.shared.domain.model.definition.ScoreQueryable
+import org.example.shared.domain.model.interfaces.DatabaseRecord
+import org.example.shared.domain.model.interfaces.ScoreQueryable
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 

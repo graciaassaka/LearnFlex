@@ -1,6 +1,6 @@
 package org.example.shared.presentation.state
 
-import org.example.shared.domain.constant.ContentStatus
+import org.example.shared.domain.constant.Status
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
 import org.example.shared.domain.model.Profile
@@ -26,7 +26,7 @@ data class DashboardUIState(
     val curricula: List<Curriculum> = emptyList(),
     val activeCurriculum: Curriculum? = null,
     val modules: List<Module> = emptyList(),
-    val moduleCountByStatus: Map<ContentStatus, Int> = emptyMap(),
-    val lessonCountByStatus: Map<ContentStatus, Int> = emptyMap(),
-    val sectionCountByStatus: Map<ContentStatus, Int> = emptyMap(),
+    val moduleCountByStatus: Map<Status, Int> = emptyMap(),
+    val lessonCountByStatus: Map<Status, Int> = emptyMap(),
+    val sectionCountByStatus: Map<Status, Int> = emptyMap(),
 )

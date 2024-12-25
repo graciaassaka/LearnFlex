@@ -19,6 +19,7 @@ import org.example.shared.data.remote.util.ApiError
 import org.example.shared.data.util.OpenAIConstants
 import org.junit.After
 import org.junit.Before
+import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -111,7 +112,7 @@ class OpenAIAssistantClientTest {
         )
 
         // Act
-        val result = openAIAssistantClient.createThread()
+        val result = openAIAssistantClient.createThread(ThreadRequestBody())
 
         // Assert
         wireMockServer.verify(1, postRequestedFor(urlEqualTo("/v1/threads")))
@@ -145,7 +146,7 @@ class OpenAIAssistantClientTest {
         )
 
         // Act
-        val result = openAIAssistantClient.createThread()
+        val result = openAIAssistantClient.createThread(ThreadRequestBody())
 
         // Assert
         wireMockServer.verify(1, postRequestedFor(urlEqualTo("/v1/threads")))
@@ -607,11 +608,11 @@ class OpenAIAssistantClientTest {
                             """ 
                                {
                                   "id": "run_abc123",
-                                    "object": "thread.run",
+                                  "object": "thread.run",
                                   "created_at": 1699075072,
-                                    "assistant_id": "asst_abc123",
+                                  "assistant_id": "asst_abc123",
                                   "thread_id": "thread_abc123",
-                                    "status": "completed",
+                                  "status": "completed",
                                   "started_at": 1699075072,
                                   "expires_at": null,
                                   "cancelled_at": null,
@@ -619,12 +620,12 @@ class OpenAIAssistantClientTest {
                                   "completed_at": 1699075073,
                                   "last_error": null,
                                   "model": "gpt-4o",
-                                    "instructions": null,
+                                  "instructions": null,
                                   "incomplete_details": null,
                                   "tools": [
                                     {
                                       "type": "code_interpreter"
-                                }
+                                    }
                                   ],
                                   "metadata": {},
                                   "usage": {
@@ -720,7 +721,7 @@ class OpenAIAssistantClientTest {
                             """
                             {
                               "id": "run_abc123",
-                                "object": "thread.run",
+                              "object": "thread.run",
                               "created_at": 1699075592,
                               "assistant_id": "asst_123",
                               "thread_id": "thread_abc123",
@@ -923,5 +924,93 @@ class OpenAIAssistantClientTest {
         wireMockServer.verify(1, postRequestedFor(urlEqualTo("/v1/threads/$threadId/runs/$runId/submit_tool_outputs")))
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull() is ApiError.NotFound)
+    }
+
+    @Test
+    fun `uploadFile should return success when status code is 200`() = runTest {
+        // Arrange
+        val tempFile = File.createTempFile("sample", ".txt").apply {
+            writeBytes("test content".toByteArray())
+            deleteOnExit()
+        }
+
+        val purpose = FilePurpose.ASSISTANTS
+        val fileResponse = FileUploadResponse(
+            id = "file_abc123",
+            objectType = "file",
+            bytes = 1024,
+            createdAt = 1699044208,
+            filename = "sample.txt",
+            purpose = purpose.value
+        )
+
+        wireMockServer.stubFor(
+            post(urlEqualTo("/v1/files"))
+                .withHeader("Authorization", equalTo("Bearer ${OpenAIConstants.API_KEY}"))
+                .willReturn(
+                    aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(
+                            """
+                            {
+                                "id": "${fileResponse.id}",
+                                "object": "${fileResponse.objectType}",
+                                "bytes": ${fileResponse.bytes},
+                                "created_at": ${fileResponse.createdAt},
+                                "filename": "${fileResponse.filename}",
+                                "purpose": "${fileResponse.purpose}"
+                            }
+                            """.trimIndent()
+                        )
+                )
+        )
+
+        // Act
+        val result = openAIAssistantClient.uploadFile(tempFile, purpose)
+
+        // Assert
+        wireMockServer.verify(1, postRequestedFor(urlEqualTo("/v1/files")))
+        assertTrue(result.isSuccess)
+        assertEquals(fileResponse, result.getOrNull())
+    }
+
+
+    @Test
+    fun `uploadFile should return failure when status code is 401`() = runTest {
+        // Arrange
+        val file = File.createTempFile("sample", ".txt").apply {
+            writeBytes("test content".toByteArray())
+            deleteOnExit()
+        }
+        val purpose = FilePurpose.ASSISTANTS
+        wireMockServer.stubFor(
+            post(urlEqualTo("/v1/files"))
+                .withHeader("Authorization", equalTo("Bearer ${OpenAIConstants.API_KEY}"))
+                .willReturn(
+                    aResponse()
+                        .withStatus(401)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(
+                            """
+                            {
+                                "error": {
+                                    "message": "Invalid Authentication",
+                                    "type": "invalid_request_error",
+                                    "code": "invalid_api_key"
+                                }
+                            }
+                            """.trimIndent()
+                        )
+                )
+        )
+
+        // Act
+        val result = openAIAssistantClient.uploadFile(file, purpose)
+
+        // Assert
+        wireMockServer.verify(1, postRequestedFor(urlEqualTo("/v1/files")))
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is ApiError.Unauthorized)
     }
 }

@@ -4,7 +4,7 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.example.shared.data.local.dao.util.TimestampUpdater.*
-import org.example.shared.domain.constant.DataCollection
+import org.example.shared.domain.constant.Collection
 import org.junit.Before
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -31,12 +31,12 @@ class TimestampManagerTest {
         // Create TimestampManager with mock updaters
         timestampManager = TimestampManager(
             mapOf(
-                DataCollection.PROFILES to profileUpdater,
-                DataCollection.CURRICULA to curriculumUpdater,
-                DataCollection.MODULES to moduleUpdater,
-                DataCollection.LESSONS to lessonUpdater,
-                DataCollection.SECTIONS to sectionUpdater,
-                DataCollection.SESSIONS to sessionUpdater
+                Collection.PROFILES to profileUpdater,
+                Collection.CURRICULA to curriculumUpdater,
+                Collection.MODULES to moduleUpdater,
+                Collection.LESSONS to lessonUpdater,
+                Collection.SECTIONS to sectionUpdater,
+                Collection.SESSIONS to sessionUpdater
             )
         )
     }

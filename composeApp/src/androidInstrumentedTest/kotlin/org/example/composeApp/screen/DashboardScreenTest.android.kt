@@ -113,7 +113,7 @@ class DashboardScreenTest {
     fun welcomeSection_withActiveCurriculum_shouldDisplayCorrectly() {
         val activeCurriculum = mockk<Curriculum>()
 
-        every { activeCurriculum.syllabus } returns "Some syllabus"
+        every { activeCurriculum.title } returns "Some title"
         every { activeCurriculum.description } returns "Some description"
 
         uiState.value = DashboardUIState(activeCurriculum = activeCurriculum)
@@ -127,7 +127,7 @@ class DashboardScreenTest {
         composeTestRule.onNodeWithTag(TestTags.DASHBOARD_WELCOME_CARD.tag, useUnmergedTree = true).apply {
             assertIsDisplayed()
             assertHasClickAction()
-            onChildAt(0).assert(hasText(activeCurriculum.syllabus))
+            onChildAt(0).assert(hasText(activeCurriculum.title))
             onChildAt(1).assert(hasText(activeCurriculum.description))
         }
     }
@@ -139,7 +139,7 @@ class DashboardScreenTest {
         uiState.value = DashboardUIState(activeCurriculum = activeCurriculum)
 
         every { activeCurriculum.id } returns curriculumId
-        every { activeCurriculum.syllabus } returns "Some syllabus"
+        every { activeCurriculum.title } returns "Some title"
         every { activeCurriculum.description } returns "Some description"
 
         composeTestRule.onNodeWithTag(TestTags.DASHBOARD_WELCOME_CARD.tag).performClick()

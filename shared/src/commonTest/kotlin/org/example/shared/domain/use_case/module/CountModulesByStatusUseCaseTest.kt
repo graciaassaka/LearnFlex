@@ -3,7 +3,7 @@ package org.example.shared.domain.use_case.module
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.example.shared.domain.constant.ContentStatus
+import org.example.shared.domain.constant.Status
 import org.example.shared.domain.model.Module
 import org.junit.Before
 import org.junit.Test
@@ -23,8 +23,8 @@ class CountModulesByStatusUseCaseTest {
     fun `invoke should return a map of ContentStatus to module count when getAllModulesUseCase succeeds`() = runTest {
         // Arrange
         val expected = modules.groupBy {
-            if (it.quizScore >= it.quizScoreMax * 0.75) ContentStatus.FINISHED
-            else ContentStatus.UNFINISHED
+            if (it.quizScore >= it.quizScoreMax * 0.75) Status.FINISHED
+            else Status.UNFINISHED
         }.mapValues { it.value.size }
 
         coEvery { getModulesByCurriculumIdUseCase(PATH) } returns Result.success(modules)

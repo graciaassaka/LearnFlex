@@ -10,12 +10,11 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
 import org.example.shared.data.remote.firestore.FirestorePathBuilder
-import org.example.shared.domain.constant.ContentStatus
-import org.example.shared.domain.constant.SyncStatus
+import org.example.shared.domain.constant.Status
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
 import org.example.shared.domain.model.Profile
-import org.example.shared.domain.model.definition.DatabaseRecord
+import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.use_case.curriculum.GetActiveCurriculumUseCase
 import org.example.shared.domain.use_case.curriculum.GetAllCurriculaUseCase
@@ -114,7 +113,7 @@ class DashboardViewModelTest {
         )
 
         // Set up default behaviors for mocks
-        every { syncManager.syncStatus } returns MutableStateFlow(SyncStatus.Idle)
+        every { syncManager.syncStatus } returns MutableStateFlow(SyncManager.SyncStatus.Idle)
         coEvery { buildProfilePathUseCase() } returns profilePath
         coEvery { buildSessionPathUseCase(profile.id) } returns sessionPath
         coEvery { buildCurriculumPathUseCase(profile.id) } returns curriculumPath
@@ -303,7 +302,7 @@ class DashboardViewModelTest {
     @Test
     fun `countModulesByStatus should update modulesByStatus`() = runTest {
         // Given
-        val modulesByStatus = mapOf(ContentStatus.FINISHED to 1, ContentStatus.UNFINISHED to 2)
+        val modulesByStatus = mapOf(Status.FINISHED to 1, Status.UNFINISHED to 2)
         coEvery { countModulesByStatusUseCase(activeCurriculum.id) } returns Result.success(modulesByStatus)
 
         // When
@@ -352,7 +351,7 @@ class DashboardViewModelTest {
     @Test
     fun `countLessonsByStatus should update lessonsByStatus`() = runTest {
         // Given
-        val lessonsByStatus = mapOf(ContentStatus.FINISHED to 1, ContentStatus.UNFINISHED to 2)
+        val lessonsByStatus = mapOf(Status.FINISHED to 1, Status.UNFINISHED to 2)
 
         coEvery { getAllModulesUseCase(modulePath) } returns flowOf(Result.success(listOf(mockk(relaxed = true))))
         coEvery { getAllLessonsUseCase(lessonPath) } returns flowOf(Result.success(listOf(mockk(relaxed = true))))
@@ -408,7 +407,7 @@ class DashboardViewModelTest {
     @Test
     fun `countSectionsByStatus should update sectionsByStatus`() = runTest {
         // Given
-        val sectionsByStatus = mapOf(ContentStatus.FINISHED to 1, ContentStatus.UNFINISHED to 2)
+        val sectionsByStatus = mapOf(Status.FINISHED to 1, Status.UNFINISHED to 2)
 
         coEvery { getAllModulesUseCase(modulePath) } returns flowOf(Result.success(listOf(mockk(relaxed = true))))
         coEvery { getAllLessonsUseCase(lessonPath) } returns flowOf(Result.success(listOf(mockk(relaxed = true))))
