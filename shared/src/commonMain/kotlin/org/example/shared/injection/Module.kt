@@ -731,7 +731,9 @@ val commonModule = module {
     single { GetCurriculumUseCase(get(named(CURRICULUM_SCOPE))) }
     single { GetAllCurriculaUseCase(get(named(CURRICULUM_SCOPE))) }
     single { GetCurriculaByStatusUseCase(get(named(CURRICULUM_SCOPE))) }
+    single { GenerateCurriculumFromDescriptionUseCase(get(named(CURRICULUM_SCOPE))) }
     singleOf(::GetActiveCurriculumUseCase)
+    singleOf(::GenerateCurriculumFromFileUseCase)
 
     // Use Cases - Module
     single { UploadModuleUseCase(get(named(MODULE_SCOPE))) }
@@ -741,6 +743,7 @@ val commonModule = module {
     single { GetModulesByCurriculumIdUseCase(get(named(MODULE_SCOPE))) }
     single { GetModulesByMinQuizScoreUseCase(get(named(MODULE_SCOPE))) }
     single { DeleteAllModulesUseCase(get(named(MODULE_SCOPE))) }
+    single { GenerateModuleUseCase(get(named(MODULE_SCOPE))) }
     singleOf(::CountModulesByStatusUseCase)
 
     // Use Cases - Lesson
@@ -751,6 +754,7 @@ val commonModule = module {
     single { GetLessonsByCurriculumIdUseCase(get(named(LESSON_SCOPE))) }
     single { GetLessonsByMinQuizScoreUseCase(get(named(LESSON_SCOPE))) }
     single { DeleteAllLessonsUseCase(get(named(LESSON_SCOPE))) }
+    single { GenerateLessonUseCase(get(named(LESSON_SCOPE))) }
     singleOf(::CountLessonsByStatusUseCase)
 
     // Use Cases - Section
@@ -760,6 +764,7 @@ val commonModule = module {
     single { GetSectionsByCurriculumIdUseCase(get(named(SECTION_SCOPE))) }
     single { GetSectionByMinQuizScoreUseCase(get(named(SECTION_SCOPE))) }
     single { DeleteAllSectionsUseCase(get(named(SECTION_SCOPE))) }
+    single { GenerateSectionUseCase(get(named(SECTION_SCOPE))) }
     singleOf(::CountSectionsByStatusUseCase)
 
     // Use Cases - Session

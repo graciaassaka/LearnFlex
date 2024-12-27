@@ -21,7 +21,7 @@ class GenerateCurriculumFromDescriptionUseCase(
      * @param profile The user profile containing learning preferences and learning style.
      * @return A [Result] encapsulating the first generated curriculum content or the failure if an error occurs.
      */
-    suspend operator fun invoke(syllabusDescription: String, profile: Profile) = runCatching {
+    suspend operator fun invoke(syllabusDescription: String, profile: Profile) =
         contentGeneratorClient.generateContent(
             ContentGeneratorClient.Context(
                 field = profile.preferences.field,
@@ -37,6 +37,6 @@ class GenerateCurriculumFromDescriptionUseCase(
                     )
                 )
             )
-        ).first().getOrThrow()
-    }
+        ).first()
+
 }

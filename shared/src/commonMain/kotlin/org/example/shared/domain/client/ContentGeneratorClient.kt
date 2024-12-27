@@ -7,8 +7,6 @@ import org.example.shared.domain.model.Profile
 
 /**
  * Interface for a client that generates content.
- *
- * @param Model The type of the database record.
  */
 interface ContentGeneratorClient {
 

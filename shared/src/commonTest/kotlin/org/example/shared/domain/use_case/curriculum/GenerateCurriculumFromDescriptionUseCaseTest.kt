@@ -50,6 +50,11 @@ class GenerateCurriculumFromDescriptionUseCaseTest {
             )
         )
 
+        // Mock the client to return a flow of generated content
+        coEvery {
+            contentGeneratorClient.generateContent(any())
+        } returns flowOf(Result.success(mockk()))
+
         // Act
         generateCurriculumUseCase(syllabusDescription, profile)
 
