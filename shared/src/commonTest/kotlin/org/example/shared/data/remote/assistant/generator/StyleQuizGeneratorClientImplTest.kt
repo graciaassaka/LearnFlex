@@ -1,4 +1,4 @@
-package org.example.shared.data.remote.assistant.generation
+package org.example.shared.data.remote.assistant.generator
 
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -6,22 +6,21 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
-import org.example.shared.data.remote.model.*
 import org.example.shared.domain.client.AIAssistantClient
-import org.example.shared.domain.client.StyleQuizGenerator
+import org.example.shared.domain.client.StyleQuizGeneratorClient
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.Profile
-
+import org.example.shared.domain.model.assistant.*
 import kotlin.test.*
 
-class StyleQuizGeneratorImplTest {
+class StyleQuizGeneratorClientImplTest {
     private lateinit var assistant: AIAssistantClient
-    private lateinit var client: StyleQuizGeneratorImpl
+    private lateinit var client: StyleQuizGeneratorClientImpl
 
     @BeforeTest
     fun setup() {
         assistant = mockk<AIAssistantClient>()
-        client = StyleQuizGeneratorImpl(assistant)
+        client = StyleQuizGeneratorClientImpl(assistant, "testId")
     }
 
     @Test
@@ -32,11 +31,11 @@ class StyleQuizGeneratorImplTest {
         val preferences = Profile.LearningPreferences("ComputerScience", "Beginner", "Learn Kotlin")
         val thread = Thread(id = threadId, objectType = "thread", createdAt = 123)
         val messageId = "msg_123"
-        val question = StyleQuizGenerator.StyleQuestion(
+        val question = StyleQuizGeneratorClient.StyleQuestion(
             options = listOf(
-                StyleQuizGenerator.StyleOption("visual", "Watch a video"),
-                StyleQuizGenerator.StyleOption("reading", "Read documentation"),
-                StyleQuizGenerator.StyleOption("kinesthetic", "Code examples")
+                StyleQuizGeneratorClient.StyleOption("visual", "Watch a video"),
+                StyleQuizGeneratorClient.StyleOption("reading", "Read documentation"),
+                StyleQuizGeneratorClient.StyleOption("kinesthetic", "Code examples")
             ),
             scenario = "How would you prefer to learn Kotlin?"
         )
@@ -78,7 +77,7 @@ class StyleQuizGeneratorImplTest {
                         content = listOf(
                             Content.TextContent(
                                 type = "text",
-                                text = Text(Json.encodeToString(StyleQuizGenerator.StyleQuestion.serializer(), question))
+                                text = Text(Json.encodeToString(StyleQuizGeneratorClient.StyleQuestion.serializer(), question))
                             )
                         )
                     )
@@ -90,7 +89,7 @@ class StyleQuizGeneratorImplTest {
         coEvery { assistant.cancelRun(any(), any()) } returns Result.success(Unit)
 
         // Test
-        val questions = mutableListOf<Result<StyleQuizGenerator.StyleQuestion>>()
+        val questions = mutableListOf<Result<StyleQuizGeneratorClient.StyleQuestion>>()
         client.streamQuestions(preferences, 1).collect { questions.add(it) }
 
         // Verify
@@ -104,8 +103,8 @@ class StyleQuizGeneratorImplTest {
     @Test
     fun `evaluateResponses calculates correct style breakdown`() {
         val responses = listOf(
-            Style.VISUAL,
-            Style.VISUAL,
+            Style.READING,
+            Style.READING,
             Style.READING,
             Style.KINESTHETIC
         )
@@ -113,9 +112,8 @@ class StyleQuizGeneratorImplTest {
         val result = client.evaluateResponses(responses).getOrNull()
         assertNotNull(result)
 
-        assertEquals(Style.VISUAL.value, result.dominant)
-        assertEquals(50, result.breakdown.visual)
-        assertEquals(25, result.breakdown.reading)
+        assertEquals(Style.READING.value, result.dominant)
+        assertEquals(75, result.breakdown.reading)
         assertEquals(25, result.breakdown.kinesthetic)
     }
 
@@ -130,7 +128,7 @@ class StyleQuizGeneratorImplTest {
     fun `streamQuestions handles thread creation failure`() = runTest {
         coEvery { assistant.createThread(ThreadRequestBody()) } returns Result.failure(Exception("Failed to create thread"))
 
-        val questions = mutableListOf<Result<StyleQuizGenerator.StyleQuestion>>()
+        val questions = mutableListOf<Result<StyleQuizGeneratorClient.StyleQuestion>>()
         client.streamQuestions(
             Profile.LearningPreferences("ComputerScience", "Beginner", "Learn Kotlin"),
             1
@@ -146,9 +144,9 @@ class StyleQuizGeneratorImplTest {
         val threadId = "thread_123"
         val runId = "run_123"
         val preferences = Profile.LearningPreferences("ComputerScience", "Beginner", "Learn Kotlin")
-        val question = StyleQuizGenerator.StyleQuestion(
+        val question = StyleQuizGeneratorClient.StyleQuestion(
             options = listOf(
-                StyleQuizGenerator.StyleOption("visual", "Watch a video")
+                StyleQuizGeneratorClient.StyleOption("visual", "Watch a video")
             ),
             scenario = "Test scenario"
         )
@@ -210,7 +208,7 @@ class StyleQuizGeneratorImplTest {
                         content = listOf(
                             Content.TextContent(
                                 type = "text",
-                                text = Text(Json.encodeToString(StyleQuizGenerator.StyleQuestion.serializer(), question))
+                                text = Text(Json.encodeToString(StyleQuizGeneratorClient.StyleQuestion.serializer(), question))
                             )
                         )
                     )
@@ -222,7 +220,7 @@ class StyleQuizGeneratorImplTest {
         coEvery { assistant.cancelRun(any(), any()) } returns Result.success(Unit)
 
         // Test
-        val questions = mutableListOf<Result<StyleQuizGenerator.StyleQuestion>>()
+        val questions = mutableListOf<Result<StyleQuizGeneratorClient.StyleQuestion>>()
         client.streamQuestions(preferences, 1).collect { questions.add(it) }
 
         // Verify

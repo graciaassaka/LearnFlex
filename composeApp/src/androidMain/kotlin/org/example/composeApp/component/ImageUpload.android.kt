@@ -43,7 +43,7 @@ actual fun ImageUpload(
         uri?.let {
             with(context.contentResolver) {
                 openFileDescriptor(uri, "r")?.use { descriptor ->
-                    if (descriptor.statSize > FileType.IMAGE.maxFileSize) handleError(Exception(fileTooLargeErr))
+                    if (descriptor.statSize > FileType.IMAGE.value) handleError(Exception(fileTooLargeErr))
                     else openInputStream(uri)?.use { onImageSelected(it.readBytes()) } ?: handleError(Exception(fileNotFoundErr))
                 }
             }

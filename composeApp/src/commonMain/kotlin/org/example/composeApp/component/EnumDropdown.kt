@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import org.example.composeApp.dimension.Padding
+import org.example.shared.domain.constant.interfaces.ValuableEnum
 
 /**
  * A composable function that displays a dropdown menu for selecting values from an enumeration.
@@ -44,7 +45,7 @@ inline fun <reified T> EnumDropdown(
     crossinline onSelected: (T) -> Unit,
     enabled: Boolean,
     modifier: Modifier = Modifier
-) where T : Enum<T>
+) where T : Enum<T>, T : ValuableEnum<String>
 {
     val density = LocalDensity.current
     var rowSize by remember { mutableStateOf(Size.Zero) }
@@ -77,7 +78,7 @@ inline fun <reified T> EnumDropdown(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = selected.name,
+                    text = selected.value,
                     modifier = Modifier.padding(Padding.SMALL.dp)
                 )
                 Spacer(modifier = Modifier.weight(1f))
@@ -97,7 +98,7 @@ inline fun <reified T> EnumDropdown(
             ) {
                 enumValues<T>().sorted().forEachIndexed { i, entry ->
                     DropdownMenuItem(
-                        text = { Text(entry.name) },
+                        text = { Text(entry.value) },
                         onClick = {
                             onDropDownVisibilityChanged()
                             onSelected(entry)

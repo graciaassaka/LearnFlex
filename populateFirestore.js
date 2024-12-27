@@ -9,9 +9,9 @@ admin.initializeApp({
 const db = admin.firestore();
 
 async function addMockData() {
-    const profileRef = db.collection('profiles').doc('PODiEe97uX4KDFrvOcdvLXh0jmuo');
+    const profileRef = db.collection('profiles').doc('YJ2m4rjDEEhwUQXg17n0V7hAH8ap');
     await profileRef.set({
-        id: 'PODiEe97uX4KDFrvOcdvLXh0jmuo',
+        id: 'YJ2m4rjDEEhwUQXg17n0V7hAH8ap',
         username: 'JohnDoe',
         email: 'john.doe@example.com',
         photo_url: 'https://example.com/photo.jpg',

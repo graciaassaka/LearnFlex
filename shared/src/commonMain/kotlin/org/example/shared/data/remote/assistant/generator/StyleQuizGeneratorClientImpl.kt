@@ -1,25 +1,31 @@
-package org.example.shared.data.remote.assistant.generation
+package org.example.shared.data.remote.assistant.generator
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.*
-import org.example.shared.data.remote.model.*
-import org.example.shared.data.remote.model.Function
-import org.example.shared.data.util.OpenAIConstants
+import org.example.shared.data.remote.assistant.util.CompletionProcessor
+import org.example.shared.data.remote.assistant.util.RequiredActionHandler
 import org.example.shared.domain.client.AIAssistantClient
-import org.example.shared.domain.client.StyleQuizGenerator
+import org.example.shared.domain.client.StyleQuizGeneratorClient
 import org.example.shared.domain.constant.Field
 import org.example.shared.domain.constant.Level
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.Profile
+import org.example.shared.domain.model.assistant.*
+import org.example.shared.domain.model.assistant.Function
 
 /**
- * Implementation of the StyleQuizService interface.
- * This service generates a learning style quiz based on user preferences.
+ * Implementation of the StyleQuizGeneratorClient interface that interacts with an AI assistant service
+ * to generate style quizzes based on user preferences.
  *
- * @property assistant The OpenAIAssistantClient used to interact with the OpenAI API.
+ * @constructor Instantiates the client with an AI assistant client and a specific assistant ID.
+ * @param assistantClient The AI assistant client used to handle API interactions.
+ * @param assistantId The unique identifier of the assistant to be used for generating style quizzes.
  */
-class StyleQuizGeneratorImpl(private val assistant: AIAssistantClient) : StyleQuizGenerator {
+class StyleQuizGeneratorClientImpl(
+    private val assistantClient: AIAssistantClient,
+    private val assistantId: String
+) : StyleQuizGeneratorClient {
 
     /**
      * Streams questions for the user based on their learning preferences.
@@ -28,15 +34,17 @@ class StyleQuizGeneratorImpl(private val assistant: AIAssistantClient) : StyleQu
      * @param number The number of questions to generate.
      * @return A flow of results containing the generated StyleQuestion.
      */
-    override fun streamQuestions(preferences: Profile.LearningPreferences, number: Int) = with(assistant) {
-        flow<Result<StyleQuizGenerator.StyleQuestion>> {
+    override fun streamQuestions(preferences: Profile.LearningPreferences, number: Int) = with(assistantClient) {
+        flow<Result<StyleQuizGeneratorClient.StyleQuestion>> {
             var thread: Thread? = null
-            val previousScenarios = mutableListOf<String>()
-            try {
-                thread = createThread(ThreadRequestBody()).getOrThrow()
-                createMessage(thread.id, MessageRequestBody(MessageRole.USER.value, MESSAGE)).getOrThrow()
 
+            try {
+                val message = "Generate the next question."
+                val previousScenarios = mutableListOf<String>()
                 var count = 0
+
+                thread = createThread(ThreadRequestBody()).getOrThrow()
+
                 while (count < number) {
                     processRun(thread, preferences, previousScenarios).onSuccess {
                         emit(Result.success(it))
@@ -46,9 +54,7 @@ class StyleQuizGeneratorImpl(private val assistant: AIAssistantClient) : StyleQu
                         emit(Result.failure(it))
                     }
 
-                    if (count < number - 1) {
-                        createMessage(thread.id, MessageRequestBody(MessageRole.USER.value, MESSAGE)).getOrThrow()
-                    }
+                    if (count < number - 1) createMessage(thread.id, message).getOrThrow()
                 }
             } catch (e: Exception) {
                 emit(Result.failure(e))
@@ -66,21 +72,24 @@ class StyleQuizGeneratorImpl(private val assistant: AIAssistantClient) : StyleQu
      * @param previousScenarios A list of previously processed scenarios to be included in the current run.
      */
     private suspend fun processRun(thread: Thread, preferences: Profile.LearningPreferences, previousScenarios: List<String>) =
-        with(assistant) {
+        with(assistantClient) {
             var currentRun = createRun(thread.id, previousScenarios).getOrThrow()
 
             return@with try {
                 while (RunStatus.valueOf(currentRun.status.uppercase()).isRunActive()) {
-                    if (currentRun.status == "requires_action") {
-                        currentRun.handleRequiredAction(thread.id, preferences).onFailure { throw it }
-                        delay(POLLING_INTERVAL)
+                    if (currentRun.status == RunStatus.REQUIRES_ACTION.value) {
+                        RequiredActionHandler(currentRun, thread.id, preferences, ::submitToolOutput).getOrThrow()
+                        delay(1000L)
                     }
 
                     currentRun = retrieveRun(thread.id, currentRun.id).getOrThrow()
                 }
 
-                if (currentRun.status == "completed") Result.success(currentRun.processCompletion(thread.id))
-                else throw IllegalStateException("Run ended with unexpected status: ${currentRun.status}")
+                if (currentRun.status == RunStatus.COMPLETED.value) {
+                    Result.success(CompletionProcessor<StyleQuizGeneratorClient.StyleQuestion>(assistantClient, currentRun, thread.id))
+                } else {
+                    throw IllegalStateException("Run ended with unexpected status: ${currentRun.status}")
+                }
             } catch (e: Exception) {
                 Result.failure(e)
             } finally {
@@ -95,14 +104,26 @@ class StyleQuizGeneratorImpl(private val assistant: AIAssistantClient) : StyleQu
      * @param threadId The ID of the thread in which the run will be created.
      * @param previousScenarios A list of scenarios that were processed previously and need to be included in the instructions.
      */
-    private suspend fun createRun(threadId: String, previousScenarios: List<String>) = assistant.createRun(
+    private suspend fun createRun(threadId: String, previousScenarios: List<String>) = assistantClient.createRun(
         threadId = threadId,
         requestBody = RunRequestBody(
-            assistantId = OpenAIConstants.STYLE_ASSISTANT_ID,
-            instructions = INSTRUCTIONS + previousScenarios.joinToString(", "),
+            assistantId = assistantId,
+            instructions = getRunInstructions(previousScenarios),
             tools = listOf(Tool.FunctionTool(constructFunction()))
         )
     )
+
+    /**
+     * Generates instructions for running the style quiz generator.
+     *
+     * @param previousScenarios A list of previous scenarios to avoid repetition.
+     * @return A string containing the run instructions.
+     */
+    private fun getRunInstructions(previousScenarios: List<String>) = """
+        Generate learning style assessment question based on the user's context. 
+        Ensure the new question is completely different from the following scenarios:
+        ${previousScenarios.joinToString("\n")}
+    """.trimIndent()
 
     /**
      * Constructs a Function object with predefined parameters.
@@ -110,8 +131,8 @@ class StyleQuizGeneratorImpl(private val assistant: AIAssistantClient) : StyleQu
      * @return The constructed Function object.
      */
     private fun constructFunction() = Function(
-        name = FUN_NAME,
-        description = FUN_DESC,
+        name = "get_user_context",
+        description = "Get the user's learning context",
         strict = true,
         parameters = Parameters(
             type = "object",
@@ -151,25 +172,6 @@ class StyleQuizGeneratorImpl(private val assistant: AIAssistantClient) : StyleQu
     }
 
     /**
-     * Handles the required action for the given run.
-     *
-     * @param threadId The ID of the thread.
-     * @param preferences The user's learning preferences.
-     */
-    private suspend fun Run.handleRequiredAction(threadId: String, preferences: Profile.LearningPreferences) = runCatching {
-        requiredAction?.let { action ->
-            when (RequiredActionType.valueOf(action.type.uppercase())) {
-                RequiredActionType.SUBMIT_TOOL_OUTPUTS -> {
-                    requiredAction.submitToolOutputs?.toolCalls
-                        ?.map { call -> submitToolOutput(threadId, id, call.id, preferences) }
-                        ?.forEach { it.getOrThrow() }
-                        ?: throw IllegalStateException("No tool calls found")
-                }
-            }
-        } ?: throw IllegalStateException("No required action found")
-    }
-
-    /**
      * Submits the tool output for the given tool call ID.
      *
      * @param threadId The ID of the thread.
@@ -182,7 +184,7 @@ class StyleQuizGeneratorImpl(private val assistant: AIAssistantClient) : StyleQu
         runId: String,
         toolCallId: String,
         preferences: Profile.LearningPreferences
-    ) = assistant.submitToolOutput(
+    ) = assistantClient.submitToolOutput(
         threadId = threadId,
         runId = runId,
         requestBody = SubmitToolOutputsRequestBody(
@@ -190,8 +192,8 @@ class StyleQuizGeneratorImpl(private val assistant: AIAssistantClient) : StyleQu
                 ToolOutput(
                     toolCallId = toolCallId,
                     output = Json.encodeToString(
-                        JsonObject.serializer(),
-                        buildJsonObject {
+                        serializer = JsonObject.serializer(),
+                        value = buildJsonObject {
                             put("field", JsonPrimitive(preferences.field))
                             put("level", JsonPrimitive(preferences.level))
                             put("goal", JsonPrimitive(preferences.goal))
@@ -201,33 +203,18 @@ class StyleQuizGeneratorImpl(private val assistant: AIAssistantClient) : StyleQu
         ))
 
     /**
-     * Processes the completion of the run.
+     * Creates a message within the specified thread using the given content.
      *
-     * @param threadId The ID of the thread.
-     * @return The generated StyleQuestionnaire.
-     * @throws IllegalStateException if the run status is not COMPLETED.
+     * @param threadId The ID of the thread to which the message is to be added.
+     * @param message The content of the message to be created.
      */
-    private suspend fun Run.processCompletion(threadId: String) =
-        when (RunStatus.valueOf(status.uppercase())) {
-            RunStatus.COMPLETED -> getAssistantMessage(threadId)
-            RunStatus.FAILED -> throw IllegalStateException("Run failed: ${lastError?.message}")
-            RunStatus.CANCELLED -> throw IllegalStateException("Run cancelled: ${lastError?.message}")
-            RunStatus.INCOMPLETE -> throw IllegalStateException("Run incomplete: ${incompleteDetails?.reason}")
-            RunStatus.EXPIRED -> throw IllegalStateException("Run expired: ${lastError?.message}")
-            else -> throw IllegalStateException("Unexpected status: $status")
-        }
-
-    /**
-     * Retrieves the assistant message for the given thread ID.
-     *
-     * @param threadId The ID of the thread.
-     * @return The decoded StyleQuestionnaire.
-     */
-    private suspend fun getAssistantMessage(threadId: String) = assistant
-        .listMessages(threadId, 10, MessagesOrder.DESC)
-        .getOrThrow().data
-        .first { it.role == MessageRole.ASSISTANT.value }
-        .let { Json.decodeFromString<StyleQuizGenerator.StyleQuestion>((it.content.first() as Content.TextContent).text.value) }
+    private suspend fun createMessage(threadId: String, message: String) = assistantClient.createMessage(
+        threadId = threadId,
+        requestBody = MessageRequestBody(
+            role = MessageRole.USER.value,
+            content = message
+        )
+    )
 
     /**
      * Evaluates the responses and calculates the dominant learning style and breakdown.
@@ -242,21 +229,9 @@ class StyleQuizGeneratorImpl(private val assistant: AIAssistantClient) : StyleQu
             Profile.LearningStyle(
                 dominant = maxBy { it.value }.key,
                 breakdown = Profile.LearningStyleBreakdown(
-                    visual = getOrDefault(Style.VISUAL.value, 0) * 100 / responses.size,
                     reading = getOrDefault(Style.READING.value, 0) * 100 / responses.size,
                     kinesthetic = getOrDefault(Style.KINESTHETIC.value, 0) * 100 / responses.size
                 )
             )
         }
-
-    companion object {
-        private const val POLLING_INTERVAL = 1000L
-        private const val MESSAGE = "Generate the next question."
-        private const val FUN_NAME = "get_user_context"
-        private const val FUN_DESC = "Get the user's learning context to generate personalized assessment questions"
-        private const val INSTRUCTIONS = """
-                Generate learning style assessment question based on the user's context. 
-                Ensure the new question is completely different from the following scenarios:
-            """
-    }
 }

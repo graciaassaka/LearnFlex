@@ -13,6 +13,7 @@ import org.example.shared.data.local.entity.*
 import org.example.shared.domain.constant.Collection
 import org.example.shared.domain.constant.Field
 import org.example.shared.domain.constant.Level
+import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.Profile.*
 import org.junit.After
 import org.junit.Assert.assertNull
@@ -787,16 +788,15 @@ class DatabaseTest {
             email = "test@email.com",
             photoUrl = "test_photo.jpg",
             preferences = LearningPreferences(
-                field = Field.Law.name,
-                level = Level.Advanced.name,
+                field = Field.LAW.name,
+                level = Level.ADVANCED.name,
                 goal = "test"
             ),
             learningStyle = LearningStyle(
-                dominant = "Visual",
+                dominant = Style.READING.name,
                 breakdown = LearningStyleBreakdown(
-                    visual = 80,
                     reading = 10,
-                    kinesthetic = 10
+                    kinesthetic = 5
                 )
             ),
             createdAt = System.currentTimeMillis(),

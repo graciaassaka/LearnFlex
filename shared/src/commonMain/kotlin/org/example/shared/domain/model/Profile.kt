@@ -60,13 +60,11 @@ data class Profile(
     /**
      * Represents the breakdown of different styles.
      *
-     * @property visual The score for visual style.
      * @property reading The score for reading style.
      * @property kinesthetic The score for kinesthetic style.
      */
     @Serializable
     data class LearningStyleBreakdown(
-        val visual: Int = 0,
         val reading: Int = 0,
         val kinesthetic: Int = 0
     )

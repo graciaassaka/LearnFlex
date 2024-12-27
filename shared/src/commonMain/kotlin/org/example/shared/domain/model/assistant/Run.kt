@@ -1,4 +1,4 @@
-package org.example.shared.data.remote.model
+package org.example.shared.domain.model.assistant
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
@@ -11,6 +11,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonPrimitive
+import org.example.shared.domain.constant.interfaces.ValuableEnum
 
 /**
  * Represents a request to create a run.
@@ -40,7 +41,7 @@ data class Run(
     @SerialName("cancelled_at") val cancelledAt: Int? = null,
     @SerialName("failed_at") val failedAt: Int? = null,
     @SerialName("completed_at") val completedAt: Int? = null,
-    @SerialName("incomplete_details") val incompleteDetails: IncompleteDetails? = null,
+    @SerialName("incomplete_details") val incompleteDetails: IncompleteRunDetails? = null,
     @SerialName("model") val model: String,
     @SerialName("instructions") val instructions: String? = null,
     @SerialName("additional_instructions") val additionalInstructions: String? = null,
@@ -63,7 +64,7 @@ data class Run(
  * Enum representing the status of a run.
  */
 @Suppress("unused")
-enum class RunStatus(val value: String) {
+enum class RunStatus(override val value: String) : ValuableEnum<String> {
     QUEUED("queued"),
     IN_PROGRESS("in_progress"),
     REQUIRES_ACTION("requires_action"),
@@ -116,6 +117,15 @@ data class ToolCall(
 data class ToolCallFunction(
     @SerialName("name") val name: String,
     @SerialName("arguments") val arguments: String
+)
+
+/**
+ * Represents details about an incomplete run.
+ */
+@Serializable
+@SerialName("incomplete_details")
+data class IncompleteRunDetails(
+    val reason: String,
 )
 
 /**

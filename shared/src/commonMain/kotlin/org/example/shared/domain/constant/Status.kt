@@ -1,13 +1,13 @@
 package org.example.shared.domain.constant
 
+import org.example.shared.domain.constant.interfaces.ValuableEnum
+
 /**
  * Enum class representing the status of content with different progression stages.
  *
- * This enum class provides a standardized way to represent the state of
- * progress for a given piece of content within the system.
- *
+ * @property value The status of the content.
  */
-enum class Status(val value: String) {
+enum class Status(override val value: String) : ValuableEnum<String> {
     /**
      * Represents a content state that is not yet completed.
      */

@@ -1,7 +1,8 @@
-package org.example.shared.data.remote.model
+package org.example.shared.domain.model.assistant
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.example.shared.domain.constant.interfaces.ValuableEnum
 
 /**
  * Represents a request to create a message.
@@ -35,7 +36,7 @@ data class Message(
     @SerialName("created_at") val createdAt: Int,
     @SerialName("thread_id") val threadId: String,
     @SerialName("status") val status: MessageStatus? = null,
-    @SerialName("incomplete_details") val incompleteDetails: IncompleteDetails? = null,
+    @SerialName("incomplete_details") val incompleteDetails: IncompleteMessageDetails? = null,
     @SerialName("completed_at") val completedAt: Int? = null,
     @SerialName("incomplete_at") val incompleteAt: Int? = null,
     @SerialName("role") val role: String,
@@ -62,10 +63,19 @@ enum class MessageStatus {
 }
 
 /**
+ * Represents details about an incomplete message.
+ */
+@Serializable
+@SerialName("incomplete_details")
+data class IncompleteMessageDetails(
+    val reason: String,
+)
+
+/**
  * Represents the role of a message.
  */
 @Suppress("unused")
-enum class MessageRole(val value: String) {
+enum class MessageRole(override val value: String) : ValuableEnum<String> {
     USER("user"),
     ASSISTANT("assistant")
 }
@@ -209,14 +219,45 @@ data class ImageUrl(
 @Serializable
 data class Attachment(
     @SerialName("file_id") val fileId: String,
-    @SerialName("tools") val tools: List<Tool>,
+    @SerialName("tools") val tools: List<AttachmentTool>,
 )
 
 /**
  * Represents a tool.
  */
+@Serializable
+sealed class AttachmentTool {
+    companion object {
+        private const val CODE_INTERPRETER = "code_interpreter"
+        private const val FILE_SEARCH = "file_search"
+    }
+
+    val type: String
+        get() = when (this) {
+            is CodeInterpreterTool -> CODE_INTERPRETER
+            is FileSearchTool -> FILE_SEARCH
+        }
+
+    /**
+     * Represents a code interpreter tool.
+     */
+    @Serializable
+    @SerialName(CODE_INTERPRETER)
+    data object CodeInterpreterTool : AttachmentTool()
+
+    /**
+     * Represents a file search tool with optional configuration.
+     */
+    @Serializable
+    @SerialName(FILE_SEARCH)
+    data object FileSearchTool : AttachmentTool()
+}
+
+/**
+ * Represents a tool.
+ */
 @Suppress("unused")
-enum class MessagesOrder(val value: String) {
+enum class MessagesOrder(override val value: String) : ValuableEnum<String> {
     ASC("asc"),
     DESC("desc")
 }

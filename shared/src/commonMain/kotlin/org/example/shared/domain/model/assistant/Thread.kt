@@ -1,4 +1,4 @@
-package org.example.shared.data.remote.model
+package org.example.shared.domain.model.assistant
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

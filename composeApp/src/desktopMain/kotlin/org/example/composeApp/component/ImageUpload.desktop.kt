@@ -60,7 +60,7 @@ actual fun ImageUpload(
 
                 val result = fileChooser.showOpenDialog(null)
                 if (result == JFileChooser.APPROVE_OPTION) fileChooser.selectedFile.run {
-                    if (length() > FileType.IMAGE.maxFileSize) handleError(Exception(fileTooLargeErr))
+                    if (length() > FileType.IMAGE.value) handleError(Exception(fileTooLargeErr))
                     else inputStream().buffered().use { onImageSelected(it.readBytes()) }
                 }
             }

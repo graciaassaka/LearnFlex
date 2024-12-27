@@ -29,7 +29,7 @@ import org.example.composeApp.dimension.Spacing
 import org.example.composeApp.layout.AlignedLabeledBarsLayout
 import org.example.composeApp.layout.EnumScrollablePickerLayout
 import org.example.composeApp.util.TestTags
-import org.example.shared.domain.client.StyleQuizGenerator
+import org.example.shared.domain.client.StyleQuizGeneratorClient
 import org.example.shared.domain.constant.Field
 import org.example.shared.domain.constant.Level
 import org.example.shared.domain.constant.Style
@@ -262,7 +262,7 @@ private fun StyleQuestionnaireScreen(
     enabled: Boolean,
     isScreenVisible: Boolean,
     onExitAnimationFinished: () -> Unit,
-    styleQuestionnaire: List<StyleQuizGenerator.StyleQuestion>,
+    styleQuestionnaire: List<StyleQuizGeneratorClient.StyleQuestion>,
     questionCount: Int,
     onQuestionAnswered: (Style) -> Unit,
     onQuestionnaireCompleted: () -> Unit,
@@ -335,7 +335,7 @@ private fun StyleQuestionnaireScreen(
 
 @Composable
 private fun QuestionContent(
-    question: StyleQuizGenerator.StyleQuestion,
+    question: StyleQuizGeneratorClient.StyleQuestion,
     selectedOption: String,
     enabled: Boolean,
     onOptionSelected: (String) -> Unit,
@@ -420,7 +420,6 @@ private fun StyleBreakdownDialog(
             val labels = remember { Style.entries.map { it.value } }
             val bars = remember(learningStyleBreakdown) {
                 listOf(
-                    learningStyleBreakdown.visual / 100f,
                     learningStyleBreakdown.reading / 100f,
                     learningStyleBreakdown.kinesthetic / 100f
                 )

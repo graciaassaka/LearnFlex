@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import org.example.composeApp.dimension.Padding
+import org.example.shared.domain.constant.interfaces.ValuableEnum
 import kotlin.enums.enumEntries
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -34,7 +35,7 @@ inline fun <reified T> EnumScrollablePickerLayout(
     crossinline onChange: (T) -> Unit,
     enabled: Boolean,
     modifier: Modifier = Modifier,
-) where T : Enum<T> {
+) where T : Enum<T>, T : ValuableEnum<String> {
     val itemHeight = Padding.LARGE.dp
     var offset by remember { mutableStateOf(0f) }
     val coroutineScope = rememberCoroutineScope()
@@ -81,8 +82,8 @@ inline fun <reified T> EnumScrollablePickerLayout(
                     repeat(enumEntries<T>().size) { index ->
                         Box(
                             contentAlignment = Alignment.Center,
-                            modifier = Modifier.height(itemHeight).testTag(entries[index].name),
-                            content = { Text(text = entries[index].name, fontSize = 16.sp) }
+                            modifier = Modifier.height(itemHeight).testTag(entries[index].value),
+                            content = { Text(text = entries[index].value, fontSize = 16.sp) }
                         )
                     }
                 }

@@ -1,9 +1,13 @@
 package org.example.shared.domain.constant
 
+import org.example.shared.domain.constant.interfaces.ValuableEnum
+
 /**
  * Enum class representing different types of files.
+ *
+ * @property value The maximum size of the file type in bytes.
  */
-enum class FileType(val maxFileSize: Long) {
+enum class FileType(override val value: Long) : ValuableEnum<Long> {
     /**
      * Represents an image file type.
      */

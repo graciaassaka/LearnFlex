@@ -8,7 +8,7 @@ import org.example.shared.domain.model.Profile
 /**
  * Service interface for generating and evaluating style quizzes.
  */
-interface StyleQuizGenerator {
+interface StyleQuizGeneratorClient {
 
     /**
      * Represents a style question with a list of options and a scenario.
@@ -41,6 +41,7 @@ interface StyleQuizGenerator {
      * @return A result containing the style questionnaire.
      */
     fun streamQuestions(preferences: Profile.LearningPreferences, number: Int): Flow<Result<StyleQuestion>>
+
     /**
      * Evaluates a list of style responses to determine the dominant learning style and provide a style breakdown.
      *

@@ -4,19 +4,19 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.example.shared.domain.client.StyleQuizGenerator
+import org.example.shared.domain.client.StyleQuizGeneratorClient
 import org.example.shared.domain.model.Profile
 import org.junit.Before
 import kotlin.test.Test
 
 class GetLearningStyleUseCaseTest {
     private lateinit var getStyleResultUseCase: GetStyleResultUseCase
-    private lateinit var styleQuizGenerator: StyleQuizGenerator
+    private lateinit var styleQuizGeneratorClient: StyleQuizGeneratorClient
 
     @Before
     fun setUp() {
-        styleQuizGenerator = mockk<StyleQuizGenerator>(relaxed = true)
-        getStyleResultUseCase = GetStyleResultUseCase(styleQuizGenerator)
+        styleQuizGeneratorClient = mockk<StyleQuizGeneratorClient>(relaxed = true)
+        getStyleResultUseCase = GetStyleResultUseCase(styleQuizGeneratorClient)
     }
 
     @Test
@@ -25,14 +25,14 @@ class GetLearningStyleUseCaseTest {
         getStyleResultUseCase(mockk())
 
         // Assert
-        coVerify(exactly = 1) { styleQuizGenerator.evaluateResponses(any()) }
+        coVerify(exactly = 1) { styleQuizGeneratorClient.evaluateResponses(any()) }
     }
 
     @Test
     fun `getStyleResult should return Result#success when styleQuizService#evaluateResponses returns StyleResult`() = runTest {
         // Arrange
         val learningStyle = mockk<Profile.LearningStyle>()
-        coEvery { styleQuizGenerator.evaluateResponses(any()) } returns Result.success(learningStyle)
+        coEvery { styleQuizGeneratorClient.evaluateResponses(any()) } returns Result.success(learningStyle)
 
         // Act
         val result = getStyleResultUseCase(mockk())
@@ -46,7 +46,7 @@ class GetLearningStyleUseCaseTest {
     fun `getStyleResult should return Result#failure when styleQuizService#evaluateResponses throws an exception`() = runTest {
         // Arrange
         val exception = Exception("An error occurred")
-        coEvery { styleQuizGenerator.evaluateResponses(any()) } returns Result.failure(exception)
+        coEvery { styleQuizGeneratorClient.evaluateResponses(any()) } returns Result.failure(exception)
 
         // Act
         val result = getStyleResultUseCase(mockk())

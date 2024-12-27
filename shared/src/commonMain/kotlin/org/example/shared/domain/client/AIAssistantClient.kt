@@ -1,12 +1,13 @@
 package org.example.shared.domain.client
 
-import org.example.shared.data.remote.model.*
+import org.example.shared.domain.model.assistant.*
 import java.io.File
 
 /**
  * Interface for AI Assistant Client operations.
  */
 interface AIAssistantClient {
+
     /**
      * Creates a new thread with the provided request body.
      *

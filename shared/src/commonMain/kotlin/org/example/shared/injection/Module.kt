@@ -15,7 +15,8 @@ import org.example.shared.data.local.dao.util.TimestampUpdater
 import org.example.shared.data.local.database.LearnFlexDatabase
 import org.example.shared.data.local.entity.*
 import org.example.shared.data.remote.assistant.OpenAIAssistantClient
-import org.example.shared.data.remote.assistant.generation.StyleQuizGeneratorImpl
+import org.example.shared.data.remote.assistant.generator.ContentGeneratorClientImpl
+import org.example.shared.data.remote.assistant.generator.StyleQuizGeneratorClientImpl
 import org.example.shared.data.remote.custom_search.GoogleImageSearchClient
 import org.example.shared.data.remote.firebase.FirebaseAuthClient
 import org.example.shared.data.remote.firebase.FirebaseStorageClient
@@ -131,8 +132,33 @@ val commonModule = module {
         )
     }
 
-    // Style Quiz Service
-    single<StyleQuizGenerator> { StyleQuizGeneratorImpl(assistant = get()) }
+    // Style Quiz Client
+    single<StyleQuizGeneratorClient> { StyleQuizGeneratorClientImpl(assistantClient = get(), assistantId = OpenAIConstants.STYLE_ASSISTANT_ID) }
+
+    // Content Generator Clients
+    single<ContentGeneratorClient>(named(CURRICULUM_SCOPE)) {
+        ContentGeneratorClientImpl(
+            assistantClient = get(), assistantId = OpenAIConstants.CURRICULUM_GENERATOR_ID
+        )
+    }
+
+    single<ContentGeneratorClient>(named(MODULE_SCOPE)) {
+        ContentGeneratorClientImpl(
+            assistantClient = get(), assistantId = OpenAIConstants.MODULE_GENERATOR_ID
+        )
+    }
+
+    single<ContentGeneratorClient>(named(LESSON_SCOPE)) {
+        ContentGeneratorClientImpl(
+            assistantClient = get(), assistantId = OpenAIConstants.LESSON_GENERATOR_ID
+        )
+    }
+
+    single<ContentGeneratorClient>(named(SECTION_SCOPE)) {
+        ContentGeneratorClientImpl(
+            assistantClient = get(), assistantId = OpenAIConstants.SECTION_GENERATOR_ID
+        )
+    }
 
     // Path Builder
     single<PathBuilder> { FirestorePathBuilder() }

@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.update
 import org.example.composeApp.theme.LearnFlexTheme
 import org.example.composeApp.util.TestTags
-import org.example.shared.domain.client.StyleQuizGenerator
+import org.example.shared.domain.client.StyleQuizGeneratorClient
 import org.example.shared.domain.constant.Field
 import org.example.shared.domain.constant.Level
 import org.example.shared.domain.constant.Style
@@ -161,7 +161,7 @@ class CreateProfileScreenTest {
 
     @Test
     fun levelDropdown_calls_viewModel_onLevelChanged_whenSelected() {
-        val level = Level.Advanced
+        val level = Level.ADVANCED
         every {
             viewModel.toggleLevelDropdownVisibility()
         } answers {
@@ -174,10 +174,10 @@ class CreateProfileScreenTest {
         composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_LEVEL_DROPDOWN_BUTTON.tag).performClick()
         verify { viewModel.toggleLevelDropdownVisibility() }
 
-        composeTestRule.onNodeWithText(Level.Advanced.name).performClick()
+        composeTestRule.onNodeWithText(Level.ADVANCED.value).performClick()
         verify { viewModel.onLevelChanged(level) }
 
-        composeTestRule.onNodeWithText("Advanced").assertIsDisplayed()
+        composeTestRule.onNodeWithText(Level.ADVANCED.value).assertIsDisplayed()
     }
 
     @Test
@@ -305,14 +305,14 @@ class CreateProfileScreenTest {
 
     companion object {
         private val styleQuestionnaire = listOf(
-            StyleQuizGenerator.StyleQuestion(
-                listOf(StyleQuizGenerator.StyleOption(Style.READING.value, Style.READING.value)), "Question 1",
+            StyleQuizGeneratorClient.StyleQuestion(
+                listOf(StyleQuizGeneratorClient.StyleOption(Style.READING.value, Style.READING.value)), "Question 1",
                 )
             )
 
         private val learningStyle = Profile.LearningStyle(
             dominant = Style.READING.value,
-            breakdown = Profile.LearningStyleBreakdown(visual = 0, reading = 50, kinesthetic = 50)
+            breakdown = Profile.LearningStyleBreakdown(reading = 50, kinesthetic = 50)
         )
     }
 }

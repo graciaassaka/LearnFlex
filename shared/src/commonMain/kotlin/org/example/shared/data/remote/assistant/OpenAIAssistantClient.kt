@@ -5,9 +5,9 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
-import org.example.shared.data.remote.model.*
 import org.example.shared.data.remote.util.HttpResponseHandler
 import org.example.shared.domain.client.AIAssistantClient
+import org.example.shared.domain.model.assistant.*
 import java.io.File
 
 /**

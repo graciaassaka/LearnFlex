@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
-import org.example.shared.domain.client.StyleQuizGenerator
+import org.example.shared.domain.client.StyleQuizGeneratorClient
 import org.example.shared.domain.constant.Field
 import org.example.shared.domain.constant.Level
 import org.example.shared.domain.constant.Style
@@ -183,7 +183,7 @@ class CreateProfileViewModelTest {
     @Test
     fun `onFieldChanged should update field in state`() = runTest {
         // Given
-        val field = Field.ComputerScience
+        val field = Field.COMPUTER_SCIENCE
 
         // When
         viewModel.onFieldChanged(field)
@@ -196,7 +196,7 @@ class CreateProfileViewModelTest {
     @Test
     fun `onLevelChanged should update level in state`() = runTest {
         // Given
-        val level = Level.Beginner
+        val level = Level.BEGINNER
 
         // When
         viewModel.onLevelChanged(level)
@@ -435,7 +435,7 @@ class CreateProfileViewModelTest {
     fun `startStyleQuestionnaire should update state with questionnaire when getStyleQuestionnaireUseCase returns success`() =
         runTest {
             // Given
-            val question = mockk<StyleQuizGenerator.StyleQuestion>()
+            val question = mockk<StyleQuizGeneratorClient.StyleQuestion>()
 
             coEvery { getStyleQuestionnaireUseCase(any(), any()) } returns flowOf(Result.success(question))
 
@@ -672,7 +672,7 @@ class CreateProfileViewModelTest {
 
     companion object {
         private const val TEST_PATH = "profiles/user123"
-        private val testLearningStyleBreakdown = Profile.LearningStyleBreakdown(visual = 30, reading = 40, kinesthetic = 30)
+        private val testLearningStyleBreakdown = Profile.LearningStyleBreakdown(reading = 40, kinesthetic = 30)
         private val testLearningStyle = Profile.LearningStyle(
             dominant = Style.READING.value,
             breakdown = testLearningStyleBreakdown

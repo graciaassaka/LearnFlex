@@ -9,6 +9,30 @@ import kotlinx.serialization.Serializable
  */
 sealed class ApiError(message: String? = null) : Exception(message) {
     /**
+     * A container class that holds details of an error.
+     *
+     * @property error The details of the error, encapsulated in an [ErrorDetails] object.
+     */
+    @Serializable
+    data class ErrorContainer(
+        val error: ErrorDetails
+    )
+
+    /**
+     * Represents the details of an error.
+     *
+     * @property message The error message providing information about what went wrong.
+     * @property type The type of error, categorizing the nature of the error.
+     * @property code An optional error code that provides a specific identifier for the error.
+     */
+    @Serializable
+    data class ErrorDetails(
+        val message: String = "",
+        val type: String = "",
+        val code: String? = null
+    )
+
+    /**
      * The path of the API request that resulted in an error.
      */
     abstract val requestPath: String
@@ -121,26 +145,3 @@ sealed class ApiError(message: String? = null) : Exception(message) {
     ) : ApiError(message)
 }
 
-/**
- * A container class that holds details of an error.
- *
- * @property error The details of the error, encapsulated in an [ErrorDetails] object.
- */
-@Serializable
-data class ErrorContainer(
-    val error: ErrorDetails
-)
-
-/**
- * Represents the details of an error.
- *
- * @property message The error message providing information about what went wrong.
- * @property type The type of error, categorizing the nature of the error.
- * @property code An optional error code that provides a specific identifier for the error.
- */
-@Serializable
-data class ErrorDetails(
-    val message: String = "",
-    val type: String = "",
-    val code: String? = null
-)

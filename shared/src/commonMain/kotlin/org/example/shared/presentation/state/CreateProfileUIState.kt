@@ -1,6 +1,6 @@
 package org.example.shared.presentation.state
 
-import org.example.shared.domain.client.StyleQuizGenerator
+import org.example.shared.domain.client.StyleQuizGeneratorClient
 import org.example.shared.domain.constant.Field
 import org.example.shared.domain.constant.Level
 import org.example.shared.domain.constant.Style
@@ -39,7 +39,7 @@ data class CreateProfileUIState(
     val isLevelDropdownVisible: Boolean = false,
     val goal: String = "",
     val isProfileCreated: Boolean = false,
-    val styleQuestionnaire: List<StyleQuizGenerator.StyleQuestion> = emptyList(),
+    val styleQuestionnaire: List<StyleQuizGeneratorClient.StyleQuestion> = emptyList(),
     val styleResponses: List<Style> = emptyList(),
     val learningStyle: Profile.LearningStyle? = null,
     val showStyleResultDialog: Boolean = false,

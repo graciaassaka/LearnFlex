@@ -1,14 +1,14 @@
 package org.example.shared.domain.use_case.profile
 
-import org.example.shared.domain.client.StyleQuizGenerator
+import org.example.shared.domain.client.StyleQuizGeneratorClient
 import org.example.shared.domain.model.Profile
 
 /**
  * Use case for getting the style questionnaire.
  *
- * @property styleQuizGenerator The service used to generate the quiz.
+ * @property styleQuizGeneratorClient The service used to generate the quiz.
  */
-class GetStyleQuestionnaireUseCase(private val styleQuizGenerator: StyleQuizGenerator) {
+class GetStyleQuestionnaireUseCase(private val styleQuizGeneratorClient: StyleQuizGeneratorClient) {
 
     /**
      * Invokes the use case to generate a style quiz based on learning preferences.
@@ -17,5 +17,5 @@ class GetStyleQuestionnaireUseCase(private val styleQuizGenerator: StyleQuizGene
      * @return The generated quiz.
      */
     operator fun invoke(preferences: Profile.LearningPreferences, number: Int) =
-        styleQuizGenerator.streamQuestions(preferences, number)
+        styleQuizGeneratorClient.streamQuestions(preferences, number)
 }

@@ -33,6 +33,11 @@ tasks.register("generateConstants") {
             object OpenAIConstants {
                 const val API_KEY = "${getLocalProperty("OPENAI_API_KEY")}"
                 const val STYLE_ASSISTANT_ID = "${getLocalProperty("OPENAI_STYLE_ASSISTANT_ID")}"
+                const val SYLLABUS_SUMMARIZER_ID = "${getLocalProperty("OPENAI_SYLLABUS_SUMMARIZER_ASSISTANT_ID")}"
+                const val CURRICULUM_GENERATOR_ID = "${getLocalProperty("OPENAI_CURRICULUM_GENERATOR_ASSISTANT_ID")}"
+                const val MODULE_GENERATOR_ID = "${getLocalProperty("OPENAI_MODULE_GENERATOR_ASSISTANT_ID")}"
+                const val LESSON_GENERATOR_ID = "${getLocalProperty("OPENAI_LESSON_GENERATOR_ASSISTANT_ID")}"
+                const val SECTION_GENERATOR_ID = "${getLocalProperty("OPENAI_SECTION_GENERATOR_ASSISTANT_ID")}"
             }
             
             object GoogleConstants {

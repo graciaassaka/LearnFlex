@@ -26,7 +26,7 @@ class HttpResponseHandler<T>(private val response: HttpResponse) {
      * @throws ApiError.ServerError For any other response status.
      */
     suspend operator fun invoke(handleSuccess: suspend () -> T): T = response.run {
-        val errorContent = if (!status.isSuccess()) body<ErrorContainer>() else null
+        val errorContent = if (!status.isSuccess()) body<ApiError.ErrorContainer>() else null
         when (status.value) {
             200  -> handleSuccess()
 
