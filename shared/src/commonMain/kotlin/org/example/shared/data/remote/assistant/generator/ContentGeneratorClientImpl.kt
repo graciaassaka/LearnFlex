@@ -247,11 +247,11 @@ class ContentGeneratorClientImpl(
                                     put("kinesthetic", JsonPrimitive(output.style.breakdown.kinesthetic))
                                 })
                             })
-                            put("type", JsonPrimitive(output.type))
+                            put("type", JsonPrimitive(output.type.name))
                             put("contentDescriptors", buildJsonArray {
                                 output.contentDescriptors.forEach { descriptor ->
                                     add(buildJsonObject {
-                                        put("type", JsonPrimitive(descriptor.type))
+                                        put("type", JsonPrimitive(descriptor.type.name))
                                         put("title", JsonPrimitive(descriptor.title))
                                         put("description", JsonPrimitive(descriptor.description))
                                     })

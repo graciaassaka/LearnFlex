@@ -95,10 +95,10 @@ class ContentGeneratorClientImplTest {
                     kinesthetic = 30
                 )
             ),
-            type = ContentType.LESSON.name,
+            type = ContentType.LESSON,
             contentDescriptors = listOf(
                 ContentGeneratorClient.ContentDescriptor(
-                    type = ContentType.SECTION.name,
+                    type = ContentType.SECTION,
                     title = "Getting Started",
                     description = "Setup and basic syntax"
                 )
@@ -147,7 +147,7 @@ class ContentGeneratorClientImplTest {
                     kinesthetic = 30
                 )
             ),
-            type = ContentType.LESSON.name,
+            type = ContentType.LESSON,
             contentDescriptors = emptyList()
         )
 
@@ -252,10 +252,10 @@ class ContentGeneratorClientImplTest {
                 dominant = "reading",
                 breakdown = Profile.LearningStyleBreakdown(reading = 80, kinesthetic = 20)
             ),
-            type = ContentType.LESSON.name,
+            type = ContentType.LESSON,
             contentDescriptors = listOf(
                 ContentGeneratorClient.ContentDescriptor(
-                    type = ContentType.SECTION.name,
+                    type = ContentType.SECTION,
                     title = "Flows Introduction",
                     description = "Concepts and definitions"
                 )
@@ -315,7 +315,7 @@ class ContentGeneratorClientImplTest {
                 dominant = "reading",
                 breakdown = Profile.LearningStyleBreakdown(reading = 70, kinesthetic = 30)
             ),
-            type = ContentType.LESSON.name,
+            type = ContentType.LESSON,
             contentDescriptors = emptyList()
         )
 

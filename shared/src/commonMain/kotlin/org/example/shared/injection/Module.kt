@@ -17,6 +17,7 @@ import org.example.shared.data.local.entity.*
 import org.example.shared.data.remote.assistant.OpenAIAssistantClient
 import org.example.shared.data.remote.assistant.generator.ContentGeneratorClientImpl
 import org.example.shared.data.remote.assistant.generator.StyleQuizGeneratorClientImpl
+import org.example.shared.data.remote.assistant.summarizer.SyllabusSummarizerClientImpl
 import org.example.shared.data.remote.custom_search.GoogleImageSearchClient
 import org.example.shared.data.remote.firebase.FirebaseAuthClient
 import org.example.shared.data.remote.firebase.FirebaseStorageClient
@@ -134,6 +135,9 @@ val commonModule = module {
 
     // Style Quiz Client
     single<StyleQuizGeneratorClient> { StyleQuizGeneratorClientImpl(assistantClient = get(), assistantId = OpenAIConstants.STYLE_ASSISTANT_ID) }
+
+    // Syllabus Summarizer Client
+    single<SyllabusSummarizerClient> { SyllabusSummarizerClientImpl(assistantClient = get(), assistantId = OpenAIConstants.SYLLABUS_SUMMARIZER_ID) }
 
     // Content Generator Clients
     single<ContentGeneratorClient>(named(CURRICULUM_SCOPE)) {
