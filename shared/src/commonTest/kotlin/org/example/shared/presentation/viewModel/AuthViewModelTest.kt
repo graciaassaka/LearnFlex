@@ -14,6 +14,7 @@ import org.example.shared.domain.use_case.validation.ValidateEmailUseCase
 import org.example.shared.domain.use_case.validation.ValidatePasswordConfirmationUseCase
 import org.example.shared.domain.use_case.validation.ValidatePasswordUseCase
 import org.example.shared.domain.use_case.validation.util.ValidationResult
+import org.example.shared.presentation.action.AuthAction
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.util.AuthForm
 import org.example.shared.presentation.util.UIEvent
@@ -69,12 +70,12 @@ class AuthViewModelTest {
     fun tearDown() = Dispatchers.resetMain()
 
     @Test
-    fun `onSignInEmailChanged with valid email should update email state and set email error to null`() {
+    fun `handleSignInEmailChanged with valid email should update email state and set email error to null`() {
         // Given
         val email = "test@example.com"
 
         // When
-        viewModel.onSignInEmailChanged(email)
+        viewModel.handleAction(AuthAction.HandleSignInEmailChanged(email))
 
         // Then
         assertEquals(email, viewModel.state.value.signInEmail)
@@ -82,12 +83,12 @@ class AuthViewModelTest {
     }
 
     @Test
-    fun `onSignInEmailChanged with invalid email should update email state and set email error to message`() {
+    fun `handleSignInEmailChanged with invalid email should update email state and set email error to message`() {
         // Given
         val email = "test"
         val message = (validateEmailUseCase(email) as ValidationResult.Invalid).message
         // When
-        viewModel.onSignInEmailChanged(email)
+        viewModel.handleAction(AuthAction.HandleSignInEmailChanged(email))
 
         // Then
         assertEquals(email, viewModel.state.value.signInEmail)
@@ -95,12 +96,12 @@ class AuthViewModelTest {
     }
 
     @Test
-    fun `onSignInPasswordChanged with valid password should update password state and set password error to null`() {
+    fun `handleSignInPasswordChanged with valid password should update password state and set password error to null`() {
         // Given
         val password = "P@ssw0rd"
 
         // When
-        viewModel.onSignInPasswordChanged(password)
+        viewModel.handleAction(AuthAction.HandleSignInPasswordChanged(password))
 
         // Then
         assertEquals(password, viewModel.state.value.signInPassword)
@@ -108,13 +109,13 @@ class AuthViewModelTest {
     }
 
     @Test
-    fun `onSignInPasswordChanged with invalid password should update password state and set password error to message`() {
+    fun `handleSignInPasswordChanged with invalid password should update password state and set password error to message`() {
         // Given
         val password = "password"
         val message = (validatePasswordUseCase(password) as ValidationResult.Invalid).message
 
         // When
-        viewModel.onSignInPasswordChanged(password)
+        viewModel.handleAction(AuthAction.HandleSignInPasswordChanged(password))
 
         // Then
         assertEquals(password, viewModel.state.value.signInPassword)
@@ -127,7 +128,7 @@ class AuthViewModelTest {
         val initialVisibility = viewModel.state.value.signInPasswordVisibility
 
         // When
-        viewModel.toggleSignInPasswordVisibility()
+        viewModel.handleAction(AuthAction.ToggleSignInPasswordVisibility)
 
         // Then
         assertNotEquals(initialVisibility, viewModel.state.value.signInPasswordVisibility)
@@ -139,13 +140,13 @@ class AuthViewModelTest {
         val successMessage = "User signed in successfully"
         val email = "test@example.com"
         val password = "P@ssw0rd"
-        viewModel.onSignInEmailChanged(email)
-        viewModel.onSignInPasswordChanged(password)
+        viewModel.handleAction(AuthAction.HandleSignInEmailChanged(email))
+        viewModel.handleAction(AuthAction.HandleSignInPasswordChanged(password))
 
         coEvery { signInUseCase(any(), any()) } returns Result.success(Unit)
 
         // When
-        viewModel.signIn(successMessage)
+        viewModel.handleAction(AuthAction.SignIn(successMessage))
         advanceUntilIdle()
 
         // Then
@@ -159,11 +160,11 @@ class AuthViewModelTest {
         val password = "P@ssw0rd"
         val successMessage = "User signed in successfully"
 
-        viewModel.onSignInEmailChanged(email)
-        viewModel.onSignInPasswordChanged(password)
+        viewModel.handleAction(AuthAction.HandleSignInEmailChanged(email))
+        viewModel.handleAction(AuthAction.HandleSignInPasswordChanged(password))
 
         // When
-        viewModel.signIn(successMessage)
+        viewModel.handleAction(AuthAction.SignIn(successMessage))
         testScheduler.advanceUntilIdle()
 
         // Then
@@ -177,11 +178,11 @@ class AuthViewModelTest {
         val password = "password"
         val successMessage = "User signed in successfully"
 
-        viewModel.onSignInEmailChanged(email)
-        viewModel.onSignInPasswordChanged(password)
+        viewModel.handleAction(AuthAction.HandleSignInEmailChanged(email))
+        viewModel.handleAction(AuthAction.HandleSignInPasswordChanged(password))
 
         // When
-        viewModel.signIn(successMessage)
+        viewModel.handleAction(AuthAction.SignIn(successMessage))
         testScheduler.advanceUntilIdle()
 
         // Then
@@ -194,10 +195,10 @@ class AuthViewModelTest {
         val password = "P@ssw0rd"
         val successMessage = "User signed in successfully"
 
-        viewModel.onSignInPasswordChanged(password)
+        viewModel.handleAction(AuthAction.HandleSignInPasswordChanged(password))
 
         // When
-        viewModel.signIn(successMessage)
+        viewModel.handleAction(AuthAction.SignIn(successMessage))
         testScheduler.advanceUntilIdle()
 
         // Then
@@ -209,10 +210,10 @@ class AuthViewModelTest {
         // Given
         val email = "test@example.com"
         val successMessage = "User signed in successfully"
-        viewModel.onSignInEmailChanged(email)
+        viewModel.handleAction(AuthAction.HandleSignInEmailChanged(email))
 
         // When
-        viewModel.signIn(successMessage)
+        viewModel.handleAction(AuthAction.SignIn(successMessage))
         testScheduler.advanceUntilIdle()
 
         // Then
@@ -234,13 +235,13 @@ class AuthViewModelTest {
         }
 
         // When
-        viewModel.onSignInEmailChanged(email)
-        viewModel.onSignInPasswordChanged(password)
-        viewModel.signIn(successMessage)
+        viewModel.handleAction(AuthAction.HandleSignInEmailChanged(email))
+        viewModel.handleAction(AuthAction.HandleSignInPasswordChanged(password))
+        viewModel.handleAction(AuthAction.SignIn(successMessage))
         advanceUntilIdle()
 
         // Simulate the exit animation finishing
-        viewModel.onExitAnimationFinished()
+        viewModel.handleExitAnimationFinished()
         advanceUntilIdle()
 
         // Then
@@ -277,9 +278,9 @@ class AuthViewModelTest {
         }
 
         // When
-        viewModel.onSignInEmailChanged(email)
-        viewModel.onSignInPasswordChanged(password)
-        viewModel.signIn(successMessage)
+        viewModel.handleAction(AuthAction.HandleSignInEmailChanged(email))
+        viewModel.handleAction(AuthAction.HandleSignInPasswordChanged(password))
+        viewModel.handleAction(AuthAction.SignIn(successMessage))
         advanceUntilIdle()
 
         // Then
@@ -299,25 +300,25 @@ class AuthViewModelTest {
 
 
     @Test
-    fun `onSignUpEmailChanged with valid email should update email state and set email error to null`() {
+    fun `handleSignUpEmailChanged with valid email should update email state and set email error to null`() {
         // Given
         val email = "test@example.com"
 
         // When
-        viewModel.onSignUpEmailChanged(email)
+        viewModel.handleAction(AuthAction.HandleSignUpEmailChanged(email))
 
         // Then
         assertEquals(email, viewModel.state.value.signUpEmail)
     }
 
     @Test
-    fun `onSignUpEmailChanged with invalid email should update email state and set email error to message`() {
+    fun `handleSignUpEmailChanged with invalid email should update email state and set email error to message`() {
         // Given
         val email = "test"
         val message = (validateEmailUseCase(email) as ValidationResult.Invalid).message
 
         // When
-        viewModel.onSignUpEmailChanged(email)
+        viewModel.handleAction(AuthAction.HandleSignUpEmailChanged(email))
 
         // Then
         assertEquals(email, viewModel.state.value.signUpEmail)
@@ -330,7 +331,7 @@ class AuthViewModelTest {
         val password = "P@ssw0rd"
 
         // When
-        viewModel.onSignUpPasswordChanged(password)
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordChanged(password))
 
         // Then
         assertEquals(password, viewModel.state.value.signUpPassword)
@@ -344,7 +345,7 @@ class AuthViewModelTest {
         val message = (validatePasswordUseCase(password) as ValidationResult.Invalid).message
 
         // When
-        viewModel.onSignUpPasswordChanged(password)
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordChanged(password))
 
         // Then
         assertEquals(password, viewModel.state.value.signUpPassword)
@@ -357,7 +358,7 @@ class AuthViewModelTest {
         val initialVisibility = viewModel.state.value.signUpPasswordVisibility
 
         // When
-        viewModel.toggleSignUpPasswordVisibility()
+        viewModel.handleAction(AuthAction.ToggleSignUpPasswordVisibility)
 
         // Then
         assertNotEquals(initialVisibility, viewModel.state.value.signUpPasswordVisibility)
@@ -370,8 +371,8 @@ class AuthViewModelTest {
         val passwordConfirmation = "P@ssw0rd"
 
         // When
-        viewModel.onSignUpPasswordChanged(password)
-        viewModel.onSignUpPasswordConfirmationChanged(passwordConfirmation)
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordChanged(password))
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordConfirmationChanged(passwordConfirmation))
 
         // Then
         assertEquals(passwordConfirmation, viewModel.state.value.signUpPasswordConfirmation)
@@ -389,8 +390,8 @@ class AuthViewModelTest {
         ) as ValidationResult.Invalid).message
 
         // When
-        viewModel.onSignUpPasswordChanged(password)
-        viewModel.onSignUpPasswordConfirmationChanged(passwordConfirmation)
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordChanged(password))
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordConfirmationChanged(passwordConfirmation))
 
         // Then
         assertEquals(passwordConfirmation, viewModel.state.value.signUpPasswordConfirmation)
@@ -406,12 +407,12 @@ class AuthViewModelTest {
         val successMessage = "User signed up successfully"
         coEvery { signUpUseCase(any(), any()) } returns Result.success(Unit)
 
-        viewModel.onSignUpEmailChanged(email)
-        viewModel.onSignUpPasswordChanged(password)
-        viewModel.onSignUpPasswordConfirmationChanged(passwordConfirmation)
+        viewModel.handleAction(AuthAction.HandleSignUpEmailChanged(email))
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordChanged(password))
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordConfirmationChanged(passwordConfirmation))
 
         // When
-        viewModel.signUp(successMessage)
+        viewModel.handleAction(AuthAction.SignUp(successMessage))
         advanceUntilIdle()
 
         // Then
@@ -426,12 +427,12 @@ class AuthViewModelTest {
         val passwordConfirmation = "P@ssw0rd"
         val successMessage = "User signed up successfully"
 
-        viewModel.onSignUpEmailChanged(email)
-        viewModel.onSignUpPasswordChanged(password)
-        viewModel.onSignUpPasswordConfirmationChanged(passwordConfirmation)
+        viewModel.handleAction(AuthAction.HandleSignUpEmailChanged(email))
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordChanged(password))
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordConfirmationChanged(passwordConfirmation))
 
         // When
-        viewModel.signUp(successMessage)
+        viewModel.handleAction(AuthAction.SignUp(successMessage))
 
         // Then
         coVerify(exactly = 0) { signUpUseCase(any(), any()) }
@@ -445,12 +446,12 @@ class AuthViewModelTest {
         val passwordConfirmation = "password"
         val successMessage = "User signed up successfully"
 
-        viewModel.onSignUpEmailChanged(email)
-        viewModel.onSignUpPasswordChanged(password)
-        viewModel.onSignUpPasswordConfirmationChanged(passwordConfirmation)
+        viewModel.handleAction(AuthAction.HandleSignUpEmailChanged(email))
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordChanged(password))
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordConfirmationChanged(passwordConfirmation))
 
         // When
-        viewModel.signUp(successMessage)
+        viewModel.handleAction(AuthAction.SignUp(successMessage))
 
         // Then
         coVerify(exactly = 0) { signUpUseCase(any(), any()) }
@@ -464,29 +465,29 @@ class AuthViewModelTest {
         val passwordConfirmation = "password"
         val successMessage = "User signed"
 
-        viewModel.onSignUpEmailChanged(email)
-        viewModel.onSignUpPasswordChanged(password)
-        viewModel.onSignUpPasswordConfirmationChanged(passwordConfirmation)
+        viewModel.handleAction(AuthAction.HandleSignUpEmailChanged(email))
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordChanged(password))
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordConfirmationChanged(passwordConfirmation))
 
         // When
-        viewModel.signUp(successMessage)
+        viewModel.handleAction(AuthAction.SignUp(successMessage))
 
         // Then
         coVerify(exactly = 0) { signUpUseCase(any(), any()) }
     }
 
     @Test
-    fun `signUp with no prior call to onSignUpEmailChanged should not call signUpUseCase`() = runTest {
+    fun `signUp with no prior call to handleSignUpEmailChanged should not call signUpUseCase`() = runTest {
         // Given
         val password = "P@ssw0rd"
         val passwordConfirmation = "P@ssw0rd"
         val successMessage = "User signed up successfully"
 
-        viewModel.onSignUpPasswordChanged(password)
-        viewModel.onSignUpPasswordConfirmationChanged(passwordConfirmation)
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordChanged(password))
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordConfirmationChanged(passwordConfirmation))
 
         // When
-        viewModel.signUp(successMessage)
+        viewModel.handleAction(AuthAction.SignUp(successMessage))
 
         // Then
         coVerify(exactly = 0) { signUpUseCase(any(), any()) }
@@ -499,11 +500,11 @@ class AuthViewModelTest {
         val passwordConfirmation = "P@ssw0rd"
         val successMessage = "User signed up successfully"
 
-        viewModel.onSignUpEmailChanged(email)
-        viewModel.onSignUpPasswordConfirmationChanged(passwordConfirmation)
+        viewModel.handleAction(AuthAction.HandleSignUpEmailChanged(email))
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordConfirmationChanged(passwordConfirmation))
 
         // When
-        viewModel.signUp(successMessage)
+        viewModel.handleAction(AuthAction.SignUp(successMessage))
 
         // Then
         coVerify(exactly = 0) { signUpUseCase(any(), any()) }
@@ -516,11 +517,11 @@ class AuthViewModelTest {
         val password = "P@ssw0rd"
         val successMessage = "User signed up successfully"
 
-        viewModel.onSignUpEmailChanged(email)
-        viewModel.onSignUpPasswordChanged(password)
+        viewModel.handleAction(AuthAction.HandleSignUpEmailChanged(email))
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordChanged(password))
 
         // When
-        viewModel.signUp(successMessage)
+        viewModel.handleAction(AuthAction.SignUp(successMessage))
 
         // Then
         coVerify(exactly = 0) { signUpUseCase(any(), any()) }
@@ -542,10 +543,10 @@ class AuthViewModelTest {
         }
 
         // When
-        viewModel.onSignUpEmailChanged(email)
-        viewModel.onSignUpPasswordChanged(password)
-        viewModel.onSignUpPasswordConfirmationChanged(passwordConfirmation)
-        viewModel.signUp(successMessage)
+        viewModel.handleAction(AuthAction.HandleSignUpEmailChanged(email))
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordChanged(password))
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordConfirmationChanged(passwordConfirmation))
+        viewModel.handleAction(AuthAction.SignUp(successMessage))
         advanceUntilIdle()
 
         // Then
@@ -577,10 +578,10 @@ class AuthViewModelTest {
         }
 
         // When
-        viewModel.onSignUpEmailChanged(email)
-        viewModel.onSignUpPasswordChanged(password)
-        viewModel.onSignUpPasswordConfirmationChanged(passwordConfirmation)
-        viewModel.signUp(successMessage)
+        viewModel.handleAction(AuthAction.HandleSignUpEmailChanged(email))
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordChanged(password))
+        viewModel.handleAction(AuthAction.HandleSignUpPasswordConfirmationChanged(passwordConfirmation))
+        viewModel.handleAction(AuthAction.SignUp(successMessage))
         advanceUntilIdle()
 
         // Then
@@ -608,7 +609,7 @@ class AuthViewModelTest {
         coEvery { sendVerificationEmailUseCase() } returns Result.success(Unit)
 
         // When
-        viewModel.resendVerificationEmail(successMessage)
+        viewModel.handleAction(AuthAction.ResendVerificationEmail(successMessage))
         advanceUntilIdle()
 
         // Then
@@ -628,7 +629,7 @@ class AuthViewModelTest {
             val successMessage = "Verification email sent successfully"
 
             // When
-            viewModel.resendVerificationEmail(successMessage)
+            viewModel.handleAction(AuthAction.ResendVerificationEmail(successMessage))
             advanceUntilIdle()
 
             // Then
@@ -655,7 +656,7 @@ class AuthViewModelTest {
         val successMessage = "Verification email sent successfully"
 
         // When
-        viewModel.resendVerificationEmail(successMessage)
+        viewModel.handleAction(AuthAction.ResendVerificationEmail(successMessage))
         advanceUntilIdle()
 
         // Then
@@ -675,7 +676,7 @@ class AuthViewModelTest {
         coEvery { verifyEmailUseCase() } returns Result.success(Unit)
 
         // When
-        viewModel.verifyEmail()
+        viewModel.handleAction(AuthAction.VerifyEmail)
         advanceUntilIdle()
 
         // Then
@@ -693,11 +694,11 @@ class AuthViewModelTest {
         }
 
         // When
-        viewModel.verifyEmail()
+        viewModel.handleAction(AuthAction.VerifyEmail)
         advanceUntilIdle()
 
         // Simulate the exit animation finishing
-        viewModel.onExitAnimationFinished()
+        viewModel.handleExitAnimationFinished()
         advanceUntilIdle()
 
         // Then
@@ -723,7 +724,7 @@ class AuthViewModelTest {
         }
 
         // When
-        viewModel.verifyEmail()
+        viewModel.handleAction(AuthAction.VerifyEmail)
         advanceUntilIdle()
 
         // Then
@@ -744,7 +745,7 @@ class AuthViewModelTest {
         coEvery { deleteUserUseCase() } returns Result.success(Unit)
 
         // When
-        viewModel.deleteUser(successMessage)
+        viewModel.handleAction(AuthAction.DeleteUser(successMessage))
         advanceUntilIdle()
 
         // Then
@@ -763,7 +764,7 @@ class AuthViewModelTest {
         }
 
         // When
-        viewModel.deleteUser(successMessage)
+        viewModel.handleAction(AuthAction.DeleteUser(successMessage))
         advanceUntilIdle()
 
         // Then
@@ -790,7 +791,7 @@ class AuthViewModelTest {
         }
 
         // When
-        viewModel.deleteUser(successMessage)
+        viewModel.handleAction(AuthAction.DeleteUser(successMessage))
         advanceUntilIdle()
 
         // Then
@@ -805,13 +806,13 @@ class AuthViewModelTest {
     }
 
     @Test
-    fun `onPasswordResetEmailChanged with valid email should update email state and set email error to null`() =
+    fun `handlePasswordResetEmailChanged with valid email should update email state and set email error to null`() =
         runTest {
             // Given
             val email = "test@example.com"
 
             // When
-            viewModel.onPasswordResetEmailChanged(email)
+            viewModel.handleAction(AuthAction.HandlePasswordResetEmailChanged(email))
 
             // Then
             assertEquals(email, viewModel.state.value.resetPasswordEmail)
@@ -819,14 +820,14 @@ class AuthViewModelTest {
         }
 
     @Test
-    fun `onPasswordResetEmailChanged with invalid email should update email state and set email error to message`() =
+    fun `handlePasswordResetEmailChanged with invalid email should update email state and set email error to message`() =
         runTest {
             // Given
             val email = "test"
             val message = (validateEmailUseCase(email) as ValidationResult.Invalid).message
 
             // When
-            viewModel.onPasswordResetEmailChanged(email)
+            viewModel.handleAction(AuthAction.HandlePasswordResetEmailChanged(email))
 
             // Then
             assertEquals(email, viewModel.state.value.resetPasswordEmail)
@@ -842,8 +843,8 @@ class AuthViewModelTest {
         coEvery { sendPasswordResetEmailUseCase(any()) } returns Result.success(Unit)
 
         // When
-        viewModel.onPasswordResetEmailChanged(email)
-        viewModel.sendPasswordResetEmail(successMessage)
+        viewModel.handleAction(AuthAction.HandlePasswordResetEmailChanged(email))
+        viewModel.handleAction(AuthAction.SendPasswordResetEmail(successMessage))
         advanceUntilIdle()
 
         // Then
@@ -857,8 +858,8 @@ class AuthViewModelTest {
         val successMessage = "Password reset email sent successfully"
 
         // When
-        viewModel.onPasswordResetEmailChanged(email)
-        viewModel.sendPasswordResetEmail(successMessage)
+        viewModel.handleAction(AuthAction.HandlePasswordResetEmailChanged(email))
+        viewModel.handleAction(AuthAction.SendPasswordResetEmail(successMessage))
         advanceUntilIdle()
 
         // Then
@@ -881,8 +882,8 @@ class AuthViewModelTest {
             }
 
             // When
-            viewModel.onPasswordResetEmailChanged(email)
-            viewModel.sendPasswordResetEmail(successMessage)
+            viewModel.handleAction(AuthAction.HandlePasswordResetEmailChanged(email))
+            viewModel.handleAction(AuthAction.SendPasswordResetEmail(successMessage))
             advanceUntilIdle()
 
             // Then
@@ -902,7 +903,7 @@ class AuthViewModelTest {
         val form = AuthForm.SignIn
 
         // When
-        viewModel.displayAuthForm(form)
+        viewModel.handleAction(AuthAction.DisplayAuthForm(form))
 
         // Then
         assertEquals(AuthForm.SignIn, viewModel.state.value.currentForm)
@@ -914,7 +915,7 @@ class AuthViewModelTest {
         val form = AuthForm.SignUp
 
         // When
-        viewModel.displayAuthForm(form)
+        viewModel.handleAction(AuthAction.DisplayAuthForm(form))
 
         // Then
         assertEquals(AuthForm.SignUp, viewModel.state.value.currentForm)
@@ -926,7 +927,7 @@ class AuthViewModelTest {
         val form = AuthForm.VerifyEmail
 
         // When
-        viewModel.displayAuthForm(form)
+        viewModel.handleAction(AuthAction.DisplayAuthForm(form))
 
         // Then
         assertEquals(AuthForm.VerifyEmail, viewModel.state.value.currentForm)
@@ -938,7 +939,7 @@ class AuthViewModelTest {
         val form = AuthForm.ResetPassword
 
         // When
-        viewModel.displayAuthForm(form)
+        viewModel.handleAction(AuthAction.DisplayAuthForm(form))
 
         // Then
         assertEquals(AuthForm.ResetPassword, viewModel.state.value.currentForm)

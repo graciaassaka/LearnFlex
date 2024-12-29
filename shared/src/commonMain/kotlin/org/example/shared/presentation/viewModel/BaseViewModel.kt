@@ -63,7 +63,7 @@ open class BaseViewModel(
      * Called when the exit animation is finished.
      * Navigates to the stored destination if available.
      */
-    fun onExitAnimationFinished() = navDestination?.let {
+    fun handleExitAnimationFinished() = navDestination?.let {
         viewModelScope.launch(dispatcher) {
             _uiEvent.emit(UIEvent.Navigate(it))
             navDestination = null

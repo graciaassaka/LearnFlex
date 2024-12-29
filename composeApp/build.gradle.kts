@@ -62,6 +62,10 @@ kotlin {
                 implementation(libs.coil.compose)
                 implementation(libs.coil.test)
                 implementation(libs.coil.network.ktor)
+                implementation(libs.compottie)
+                implementation(libs.compottie.dot)
+                implementation(libs.compottie.resources)
+                implementation(libs.compottie.network)
                 implementation(project(":shared"))
             }
         }

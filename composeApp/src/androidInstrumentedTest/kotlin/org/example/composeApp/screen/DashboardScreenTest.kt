@@ -22,6 +22,7 @@ import org.example.composeApp.theme.LearnFlexTheme
 import org.example.composeApp.util.TestTags
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
+import org.example.shared.presentation.action.DashboardAction
 import org.example.shared.presentation.state.DashboardUIState
 import org.example.shared.presentation.util.UIEvent
 import org.example.shared.presentation.viewModel.DashboardViewModel
@@ -57,9 +58,9 @@ class DashboardScreenTest {
         uiEventFlow = MutableSharedFlow()
         isScreenVisible = MutableStateFlow(true)
         windowSizeClass = WindowSizeClass.calculateFromSize(
-            DpSize(400.dp, 800.dp),
-            setOf(WindowWidthSizeClass.Compact),
-            setOf(WindowHeightSizeClass.Compact)
+            DpSize(3840.dp, 2160.dp),
+            setOf(WindowWidthSizeClass.Expanded),
+            setOf(WindowHeightSizeClass.Expanded)
         )
 
         every { viewModel.state } returns uiState
@@ -74,7 +75,6 @@ class DashboardScreenTest {
                 "welcome_message" to stringResource(Res.string.welcome_message),
                 "best_quiz_score" to stringResource(Res.string.best_quiz_score),
             )
-
             LearnFlexTheme {
                 DashboardScreen(
                     navController = navController,
@@ -144,7 +144,13 @@ class DashboardScreenTest {
 
         composeTestRule.onNodeWithTag(TestTags.DASHBOARD_WELCOME_CARD.tag).performClick()
 
-        verify(exactly = 1) { viewModel.onCurriculumClicked(curriculumId) }
+        verify(exactly = 1) {
+            viewModel.handleAction(
+                match {
+                    it is DashboardAction.OpenCurriculum
+                }
+            )
+        }
     }
 
     @Test
@@ -212,6 +218,6 @@ class DashboardScreenTest {
 
         composeTestRule.onNodeWithTag("module_card_${moduleId}", true).performClick()
 
-        verify(exactly = 1) { viewModel.onModuleClicked(moduleId) }
+        verify(exactly = 1) { viewModel.openModule(moduleId) }
     }
 }

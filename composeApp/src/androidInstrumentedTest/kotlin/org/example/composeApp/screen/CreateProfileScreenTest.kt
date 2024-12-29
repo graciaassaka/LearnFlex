@@ -38,6 +38,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.example.shared.presentation.action.CreateUserProfileAction as Action
 
 @RunWith(AndroidJUnit4::class)
 class CreateProfileScreenTest {
@@ -97,10 +98,10 @@ class CreateProfileScreenTest {
     @Test
     fun usernameTextField_calls_viewModel_onUsernameChanged_whenTextEntered() {
         val username = "TestUser"
-        every { viewModel.onUsernameChanged(username) } answers {
+        every { viewModel.handleAction(Action.HandleUsernameChanged(username)) } answers {
             with(validateUsernameUseCase(username)) {
                 when (this@with) {
-                    is ValidationResult.Valid   -> uiState.update { it.copy(username = value, usernameError = null) }
+                    is ValidationResult.Valid -> uiState.update { it.copy(username = value, usernameError = null) }
                     is ValidationResult.Invalid -> uiState.update { it.copy(username = username, usernameError = message) }
                 }
             }
@@ -108,7 +109,7 @@ class CreateProfileScreenTest {
 
         composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_USERNAME_TEXT_FIELD.tag).performTextInput(username)
 
-        verify { viewModel.onUsernameChanged(username) }
+        verify { viewModel.handleAction(Action.HandleUsernameChanged(username)) }
         composeTestRule.onNodeWithText(username).assertIsDisplayed()
     }
 
@@ -116,10 +117,10 @@ class CreateProfileScreenTest {
     fun usernameTextField_displaysError_whenInvalidUsernameEntered() {
         val username = "Test User"
         val errorMessage = (validateUsernameUseCase(username) as ValidationResult.Invalid).message
-        every { viewModel.onUsernameChanged(username) } answers {
+        every { viewModel.handleAction(Action.HandleUsernameChanged(username)) } answers {
             with(validateUsernameUseCase(username)) {
                 when (this@with) {
-                    is ValidationResult.Valid   -> uiState.update { it.copy(username = value, usernameError = null) }
+                    is ValidationResult.Valid -> uiState.update { it.copy(username = value, usernameError = null) }
                     is ValidationResult.Invalid -> uiState.update {
                         it.copy(username = username, usernameError = message)
                     }
@@ -129,27 +130,27 @@ class CreateProfileScreenTest {
 
         composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_USERNAME_TEXT_FIELD.tag).performTextInput(username)
 
-        verify { viewModel.onUsernameChanged(username) }
+        verify { viewModel.handleAction(Action.HandleUsernameChanged(username)) }
         composeTestRule.onNodeWithText(errorMessage).assertIsDisplayed()
     }
 
     @Test
     fun goalTextField_calls_viewModel_onGoalChanged_whenTextEntered() {
         val goal = "TestGoal"
-        every { viewModel.onGoalChanged(goal) } answers {
+        every { viewModel.handleAction(Action.HandleGoalChanged(goal)) } answers {
             uiState.update { it.copy(goal = goal) }
         }
 
         composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_GOAL_TEXT_FIELD.tag).performTextInput(goal)
 
-        verify { viewModel.onGoalChanged(goal) }
+        verify { viewModel.handleAction(Action.HandleGoalChanged(goal)) }
         composeTestRule.onNodeWithText(goal).assertIsDisplayed()
     }
 
     @Test
     fun goalTextField_displays_character_count() {
         val goal = "TestGoal"
-        every { viewModel.onGoalChanged(goal) } answers {
+        every { viewModel.handleAction(Action.HandleGoalChanged(goal)) } answers {
             uiState.update { it.copy(goal = goal) }
         }
 
@@ -163,19 +164,19 @@ class CreateProfileScreenTest {
     fun levelDropdown_calls_viewModel_onLevelChanged_whenSelected() {
         val level = Level.ADVANCED
         every {
-            viewModel.toggleLevelDropdownVisibility()
+            viewModel.handleAction(Action.ToggleLevelDropdownVisibility)
         } answers {
             uiState.update { it.copy(isLevelDropdownVisible = !it.isLevelDropdownVisible) }
         }
-        every { viewModel.onLevelChanged(level) } answers {
+        every { viewModel.handleAction(Action.HandleLevelChanged(level)) } answers {
             uiState.update { it.copy(level = level) }
         }
 
         composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_LEVEL_DROPDOWN_BUTTON.tag).performClick()
-        verify { viewModel.toggleLevelDropdownVisibility() }
+        verify { viewModel.handleAction(Action.ToggleLevelDropdownVisibility) }
 
         composeTestRule.onNodeWithText(Level.ADVANCED.value).performClick()
-        verify { viewModel.onLevelChanged(level) }
+        verify { viewModel.handleAction(Action.HandleLevelChanged(level)) }
 
         composeTestRule.onNodeWithText(Level.ADVANCED.value).assertIsDisplayed()
     }
@@ -189,14 +190,26 @@ class CreateProfileScreenTest {
                 up()
             }
 
-        verify { viewModel.onFieldChanged(any()) }
+        verify {
+            viewModel.handleAction(
+                match {
+                    it is Action.HandleFieldChanged
+                }
+            )
+        }
     }
 
     @Test
     fun createProfileButton_calls_viewModel_onCreateProfile_whenClicked() {
         composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_CREATE_PROFILE_BUTTON.tag).performClick()
 
-        verify { viewModel.onCreateProfile(any()) }
+        verify {
+            viewModel.handleAction(
+                match {
+                    it is Action.CreateProfile
+                }
+            )
+        }
     }
 
     @Test
@@ -251,7 +264,13 @@ class CreateProfileScreenTest {
         composeTestRule.onNodeWithText(Style.READING.value).assertIsSelected()
 
         composeTestRule.onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_NEXT_BUTTON.tag).performClick()
-        verify { viewModel.onQuestionAnswered(any()) }
+        verify {
+            viewModel.handleAction(
+                match {
+                    it is Action.HandleQuestionAnswered
+                }
+            )
+        }
     }
 
     @Test
@@ -284,7 +303,13 @@ class CreateProfileScreenTest {
 
         composeTestRule.onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_SET_LEARNING_STYLE_BUTTON.tag).performClick()
 
-        verify { viewModel.setLearningStyle(any()) }
+        verify {
+            viewModel.handleAction(
+                match {
+                    it is Action.SetLearningStyle
+                }
+            )
+        }
     }
 
     @Test
@@ -300,15 +325,15 @@ class CreateProfileScreenTest {
 
         composeTestRule.onNodeWithTag(TestTags.STYLE_QUESTIONNAIRE_RESTART_BUTTON.tag).performClick()
 
-        verify { viewModel.startStyleQuestionnaire() }
+        verify { viewModel.handleAction(Action.StartStyleQuestionnaire) }
     }
 
     companion object {
         private val styleQuestionnaire = listOf(
             StyleQuizGeneratorClient.StyleQuestion(
                 listOf(StyleQuizGeneratorClient.StyleOption(Style.READING.value, Style.READING.value)), "Question 1",
-                )
             )
+        )
 
         private val learningStyle = Profile.LearningStyle(
             dominant = Style.READING.value,

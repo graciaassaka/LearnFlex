@@ -20,6 +20,7 @@ import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.state.CreateProfileUIState
 import org.example.shared.presentation.util.ProfileCreationForm
 import org.example.shared.presentation.util.SnackbarType
+import org.example.shared.presentation.action.CreateUserProfileAction as Action
 
 /**
  * ViewModel for the profile creation screen.
@@ -50,9 +51,6 @@ class CreateUserProfileViewModel(
     syncManagers: List<SyncManager<DatabaseRecord>>,
     sharingStarted: SharingStarted
 ) : BaseViewModel(dispatcher, syncManagers) {
-    // The number of questions to be fetched in the style questionnaire
-    val questionCount = 5
-
     // Mutable state flow to manage the UI state of the profile creation screen
     private val _state = MutableStateFlow(CreateProfileUIState())
     val state = _state
@@ -62,7 +60,7 @@ class CreateUserProfileViewModel(
     /**
      * Fetches the user data from the database.
      */
-    fun getUserData() = with(_state) {
+    private fun getUserData() = with(_state) {
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
@@ -84,11 +82,36 @@ class CreateUserProfileViewModel(
     }
 
     /**
+     * Handles the given action.
+     *
+     * @param action The action to handle.
+     */
+    fun handleAction(action: Action) {
+        when (action) {
+            is Action.HandleUsernameChanged -> handleUsernameChanged(action.username)
+            is Action.HandleFieldChanged -> handleFieldChanged(action.field)
+            is Action.HandleLevelChanged -> handleLevelChanged(action.level)
+            is Action.ToggleLevelDropdownVisibility -> toggleLevelDropdownVisibility()
+            is Action.HandleGoalChanged -> handleGoalChanged(action.goal)
+            is Action.HandleUploadProfilePicture -> handleUploadProfilePicture(action.imageData, action.successMessage)
+            is Action.HandleProfilePictureDeleted -> handleProfilePictureDeleted(action.successMessage)
+            is Action.CreateProfile -> createProfile(action.successMessage)
+            is Action.StartStyleQuestionnaire -> startStyleQuestionnaire()
+            is Action.HandleQuestionAnswered -> handleQuestionAnswered(action.style)
+            is Action.HandleQuestionnaireCompleted -> handleQuestionnaireCompleted()
+            is Action.SetLearningStyle -> setLearningStyle(action.successMessage)
+            is Action.DisplayProfileCreationForm -> displayProfileCreationForm(action.form)
+            is Action.HandleError -> handleError(action.error)
+            is Action.HandleAnimationEnd -> handleExitAnimationFinished()
+        }
+    }
+
+    /**
      * Handles changes to the username input.
      *
      * @param username The new username input.
      */
-    fun onUsernameChanged(username: String) = _state.update {
+    private fun handleUsernameChanged(username: String) = _state.update {
         with(validateUsernameUseCase(username)) {
             when (this@with) {
                 is ValidationResult.Valid -> it.copy(username = value, usernameError = null)
@@ -102,19 +125,19 @@ class CreateUserProfileViewModel(
      *
      * @param field The selected learning field.
      */
-    fun onFieldChanged(field: Field) = _state.update { it.copy(field = field) }
+    private fun handleFieldChanged(field: Field) = _state.update { it.copy(field = field) }
 
     /**
      * Handles changes to the learning level selection.
      *
      * @param level The selected learning level.
      */
-    fun onLevelChanged(level: Level) = _state.update { it.copy(level = level) }
+    private fun handleLevelChanged(level: Level) = _state.update { it.copy(level = level) }
 
     /**
      * Handles changes to the learning level dropdown visibility.
      */
-    fun toggleLevelDropdownVisibility() =
+    private fun toggleLevelDropdownVisibility() =
         _state.update { it.copy(isLevelDropdownVisible = !it.isLevelDropdownVisible) }
 
     /**
@@ -122,7 +145,7 @@ class CreateUserProfileViewModel(
      *
      * @param goal The new learning goal input.
      */
-    fun onGoalChanged(goal: String) = _state.update { it.copy(goal = goal) }
+    private fun handleGoalChanged(goal: String) = _state.update { it.copy(goal = goal) }
 
     /**
      * Handles the upload of a profile picture.
@@ -130,7 +153,7 @@ class CreateUserProfileViewModel(
      * @param imageData The image data of the profile picture.
      * @param successMessage The message to show on successful upload.
      */
-    fun onUploadProfilePicture(imageData: ByteArray, successMessage: String) = with(_state) {
+    private fun handleUploadProfilePicture(imageData: ByteArray, successMessage: String) = with(_state) {
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
@@ -151,7 +174,7 @@ class CreateUserProfileViewModel(
      *
      * @param successMessage The message to show on successful deletion.
      */
-    fun onProfilePictureDeleted(successMessage: String) = with(_state) {
+    private fun handleProfilePictureDeleted(successMessage: String) = with(_state) {
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
@@ -172,10 +195,10 @@ class CreateUserProfileViewModel(
      *
      * @param successMessage The message to show on successful profile creation.
      */
-    fun onCreateProfile(successMessage: String) = with(_state) {
+    private fun createProfile(successMessage: String) = with(_state) {
         update { it.copy(isLoading = true) }
 
-        onUsernameChanged(value.username)
+        handleUsernameChanged(value.username)
 
         if (value.usernameError.isNullOrBlank()) viewModelScope.launch(dispatcher) {
             createProfileUseCase(
@@ -205,7 +228,7 @@ class CreateUserProfileViewModel(
      * Starts the style questionnaire process.
      * Initializes the state and fetches the style questionnaire.
      */
-    fun startStyleQuestionnaire() = with(_state) {
+    private fun startStyleQuestionnaire() = with(_state) {
         update {
             it.copy(
                 isLoading = true,
@@ -219,7 +242,7 @@ class CreateUserProfileViewModel(
         viewModelScope.launch(dispatcher) {
             getStyleQuestionnaireUseCase(
                 Profile.LearningPreferences(value.field.name, value.level.name, value.goal),
-                questionCount
+                QUESTION_COUNT
             ).collect { result ->
                 result.fold(
                     onSuccess = { question ->
@@ -239,12 +262,12 @@ class CreateUserProfileViewModel(
      *
      * @param style The style response to the question.
      */
-    fun onQuestionAnswered(style: Style) = _state.update { it.copy(styleResponses = it.styleResponses + style) }
+    private fun handleQuestionAnswered(style: Style) = _state.update { it.copy(styleResponses = it.styleResponses + style) }
 
     /**
      * Completes the style questionnaire and fetches the style result.
      */
-    fun onQuestionnaireCompleted() = with(_state) {
+    private fun handleQuestionnaireCompleted() = with(_state) {
         getStyleResultUseCase(value.styleResponses)
             .onSuccess { result -> update { it.copy(learningStyle = result, showStyleResultDialog = true) } }
             .onFailure { error -> handleError(error) }
@@ -255,7 +278,7 @@ class CreateUserProfileViewModel(
      *
      * @param successMessage The message to show on successful setting of the learning style.
      */
-    fun setLearningStyle(successMessage: String) = with(_state) {
+    private fun setLearningStyle(successMessage: String) = with(_state) {
         try {
             require(value.learningStyle != null)
 
@@ -292,11 +315,15 @@ class CreateUserProfileViewModel(
      *
      * @param form The form to display.
      */
-    fun displayProfileCreationForm(form: ProfileCreationForm) = _state.update {
+    private fun displayProfileCreationForm(form: ProfileCreationForm) = _state.update {
         when (form) {
             ProfileCreationForm.PERSONAL_INFO -> it.copy(currentForm = ProfileCreationForm.PERSONAL_INFO)
             ProfileCreationForm.STYLE_QUESTIONNAIRE -> it.copy(currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE)
         }
+    }
+
+    companion object {
+        const val QUESTION_COUNT = 5
     }
 }
 

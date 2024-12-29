@@ -5,6 +5,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
+import org.example.shared.domain.constant.Collection
+import org.example.shared.domain.constant.Status
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
 import org.example.shared.domain.model.interfaces.DatabaseRecord
@@ -21,7 +23,9 @@ import org.example.shared.domain.use_case.profile.GetProfileUseCase
 import org.example.shared.domain.use_case.section.CountSectionsByStatusUseCase
 import org.example.shared.domain.use_case.section.GetAllSectionsUseCase
 import org.example.shared.domain.use_case.session.GetAllSessionsUseCase
+import org.example.shared.presentation.action.DashboardAction
 import org.example.shared.presentation.state.DashboardUIState
+import java.time.DayOfWeek
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
@@ -80,6 +84,19 @@ class DashboardViewModel(
         .stateIn(viewModelScope, sharingStarted, _state.value)
 
     /**
+     * Handles various actions related to the dashboard by invoking the appropriate use cases or methods.
+     *
+     * @param action The specific action to handle, represented as a sealed class of type [DashboardAction].
+     */
+    fun handleAction(action: DashboardAction) {
+        when (action) {
+            is DashboardAction.LoadData -> fetchAllUserData()
+            is DashboardAction.OpenCurriculum -> opentCurriculum(action.curriculumId)
+            is DashboardAction.OpenModule -> openModule(action.moduleId)
+        }
+    }
+
+    /**
      * Initiates the entire data fetching process for the dashboard.
      * This function is non-suspending and safely launches a coroutine.
      */
@@ -95,7 +112,7 @@ class DashboardViewModel(
                     getAllSessionsUseCase(buildSessionPathUseCase(profile.id)).first().getOrNull()
 
                     val weeklyActivity = getWeeklyActivityUseCase(System.currentTimeMillis()).getOrNull() ?: emptyMap()
-                    _state.update { it.copy(weeklyActivity = weeklyActivity) }
+                    updateWeeklyActivity(weeklyActivity)
 
                     val curricula = getAllCurriculaUseCase(buildCurriculumPathUseCase(profile.id)).first().getOrNull() ?: emptyList()
                     _state.update { it.copy(curricula = curricula) }
@@ -104,11 +121,31 @@ class DashboardViewModel(
                     _state.update { it.copy(activeCurriculum = activeCurriculum) }
 
                     if (activeCurriculum != null) fetchActiveCurriculumData(profile.id, activeCurriculum)
+                    updateItemsCompletion()
                 }
             } catch (exception: Exception) {
                 if (exception !is CancellationException) handleError(exception)
             } finally {
                 _state.update { it.copy(isLoading = false) }
+            }
+        }
+    }
+
+
+    /**
+     * Updates the weekly activity data in the state.
+     *
+     * @param weeklyActivity A map where the key is a string representing the day of the week,
+     * and the value is a pair of long values representing the activity duration and another metric.
+     */
+    private fun updateWeeklyActivity(weeklyActivity: Map<DayOfWeek, Pair<Long, Int>>) {
+        _state.update { current ->
+            with(weeklyActivity) {
+                current.copy(
+                    weeklyActivity = this,
+                    totalMinutes = values.sumOf { it.first.toInt() },
+                    averageMinutes = if (isNotEmpty()) values.sumOf { it.first.toInt() } / size else 0
+                )
             }
         }
     }
@@ -152,11 +189,39 @@ class DashboardViewModel(
         _state.update { it.copy(sectionCountByStatus = countSectionsByStatusUseCase(curriculumId).getOrThrow()) }
     }
 
-    fun onModuleClicked(moduleId: String) {
+    /**
+     * Updates the completion data for the items in the active curriculum.
+     */
+    private fun updateItemsCompletion() = with(_state) {
+        update { current ->
+            current.copy(
+                itemsCompletion = listOf(
+                    Triple(
+                        first = Collection.MODULES.value,
+                        second = value.moduleCountByStatus[Status.FINISHED] ?: 0,
+                        third = value.moduleCountByStatus.values.sum()
+                    ),
+                    Triple(
+                        first = Collection.LESSONS.value,
+                        second = value.lessonCountByStatus[Status.FINISHED] ?: 0,
+                        third = value.lessonCountByStatus.values.sum()
+                    ),
+                    Triple(
+                        first = Collection.SECTIONS.value,
+                        second = value.sectionCountByStatus[Status.FINISHED] ?: 0,
+                        third = value.sectionCountByStatus.values.sum()
+                    )
+                )
+            )
+        }
+    }
+
+
+    fun openModule(moduleId: String) {
         TODO("Navigate to module details screen")
     }
 
-    fun onCurriculumClicked(curriculumId: String) {
+    fun opentCurriculum(curriculumId: String) {
         TODO("Navigate to curriculum details screen")
     }
 

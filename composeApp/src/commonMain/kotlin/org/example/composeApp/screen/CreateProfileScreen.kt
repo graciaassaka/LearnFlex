@@ -28,6 +28,7 @@ import org.example.composeApp.dimension.Padding
 import org.example.composeApp.dimension.Spacing
 import org.example.composeApp.layout.AlignedLabeledBarsLayout
 import org.example.composeApp.layout.EnumScrollablePickerLayout
+import org.example.composeApp.util.ScreenConfig
 import org.example.composeApp.util.TestTags
 import org.example.shared.domain.client.StyleQuizGeneratorClient
 import org.example.shared.domain.constant.Field
@@ -35,10 +36,12 @@ import org.example.shared.domain.constant.Level
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.Profile
 import org.example.shared.presentation.navigation.Route
+import org.example.shared.presentation.state.CreateProfileUIState
 import org.example.shared.presentation.util.ProfileCreationForm
 import org.example.shared.presentation.util.SnackbarType
 import org.example.shared.presentation.viewModel.CreateUserProfileViewModel
 import org.jetbrains.compose.resources.stringResource
+import org.example.shared.presentation.action.CreateUserProfileAction as Action
 
 /**
  * A composable function that displays the CreateProfileScreen with a form for user input.
@@ -53,60 +56,29 @@ fun CreateProfileScreen(
     navController: NavController,
     viewModel: CreateUserProfileViewModel
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    var currentSnackbarType by remember { mutableStateOf<SnackbarType>(SnackbarType.Info) }
+    val screenConfig = ScreenConfig(
+        windowSizeClass = windowSizeClass,
+        snackbarHostState = remember { SnackbarHostState() },
+        snackbarType = remember { mutableStateOf(SnackbarType.Info) },
+        uiState = viewModel.state.collectAsState(),
+        isScreenVisible = viewModel.isScreenVisible.collectAsState()
+    )
 
-    val uiState by viewModel.state.collectAsState()
-    val isScreenVisible by viewModel.isScreenVisible.collectAsState()
+    HandleUIEvents(Route.CreateProfile, navController, viewModel, screenConfig.snackbarHostState) { screenConfig.snackbarType.value = it }
 
-    HandleUIEvents(Route.CreateProfile, navController, viewModel, snackbarHostState) { currentSnackbarType = it }
-
-    when (uiState.currentForm) {
+    when (screenConfig.uiState.value.currentForm) {
         ProfileCreationForm.PERSONAL_INFO -> {
             PersonalInfoScreen(
-                windowSizeClass = windowSizeClass,
-                snackbarHostState = snackbarHostState,
-                currentSnackbarType = currentSnackbarType,
-                enabled = !uiState.isLoading,
-                displayForm = viewModel::displayProfileCreationForm,
-                onUploadProfilePicture = { data, msg -> viewModel.onUploadProfilePicture(data, msg) },
-                onProfilePictureDeleted = viewModel::onProfilePictureDeleted,
-                handleError = viewModel::handleError,
-                photoUrl = uiState.photoUrl,
-                username = uiState.username,
-                onUsernameChanged = viewModel::onUsernameChanged,
-                usernameError = uiState.usernameError,
-                goal = uiState.goal,
-                onGoalChanged = viewModel::onGoalChanged,
-                level = uiState.level,
-                onLevelChanged = viewModel::onLevelChanged,
-                isLevelDropdownVisible = uiState.isLevelDropdownVisible,
-                toggleLevelDropdownVisibility = viewModel::toggleLevelDropdownVisibility,
-                onFieldChanged = viewModel::onFieldChanged,
-                onCreateProfile = viewModel::onCreateProfile,
-                isProfileCreated = uiState.isProfileCreated,
-                startStyleQuestionnaire = viewModel::startStyleQuestionnaire,
+                screenConfig = screenConfig,
+                handleAction = viewModel::handleAction,
                 modifier = Modifier.testTag(TestTags.PERSONAL_INFO.tag)
             )
         }
 
         ProfileCreationForm.STYLE_QUESTIONNAIRE -> {
             StyleQuestionnaireScreen(
-                windowSizeClass = windowSizeClass,
-                snackbarHostState = snackbarHostState,
-                currentSnackbarType = currentSnackbarType,
-                enabled = !uiState.isLoading,
-                isScreenVisible = isScreenVisible,
-                onExitAnimationFinished = viewModel::onExitAnimationFinished,
-                styleQuestionnaire = uiState.styleQuestionnaire,
-                questionCount = viewModel.questionCount,
-                onQuestionAnswered = viewModel::onQuestionAnswered,
-                onQuestionnaireCompleted = viewModel::onQuestionnaireCompleted,
-                startStyleQuestionnaire = viewModel::startStyleQuestionnaire,
-                setLearningStyle = viewModel::setLearningStyle,
-                handleError = viewModel::handleError,
-                showStyleBreakdownDialog = uiState.showStyleResultDialog,
-                learningStyleBreakdown = uiState.learningStyle?.breakdown,
+                screenConfig = screenConfig,
+                handleAction = viewModel::handleAction,
                 modifier = Modifier.testTag(TestTags.STYLE_QUESTIONNAIRE.tag)
             )
         }
@@ -115,30 +87,10 @@ fun CreateProfileScreen(
 
 @Composable
 private fun PersonalInfoScreen(
-    windowSizeClass: WindowSizeClass,
-    snackbarHostState: SnackbarHostState,
-    currentSnackbarType: SnackbarType,
-    enabled: Boolean,
-    displayForm: (ProfileCreationForm) -> Unit,
-    onUploadProfilePicture: (ByteArray, String) -> Unit,
-    onProfilePictureDeleted: (String) -> Unit,
-    handleError: (Throwable) -> Unit,
-    photoUrl: String,
-    username: String,
-    onUsernameChanged: (String) -> Unit,
-    usernameError: String?,
-    goal: String,
-    onGoalChanged: (String) -> Unit,
-    level: Level,
-    onLevelChanged: (Level) -> Unit,
-    isLevelDropdownVisible: Boolean,
-    toggleLevelDropdownVisibility: () -> Unit,
-    onFieldChanged: (Field) -> Unit,
-    onCreateProfile: (String) -> Unit,
-    isProfileCreated: Boolean,
-    startStyleQuestionnaire: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+    screenConfig: ScreenConfig<CreateProfileUIState>,
+    handleAction: (Action) -> Unit,
+    modifier: Modifier = Modifier
+) = with(screenConfig) {
     var isFormVisible by remember { mutableStateOf(true) }
     var currentDestination by remember { mutableStateOf<ProfileCreationForm?>(null) }
     var goalCharCount by remember { mutableIntStateOf(0) }
@@ -149,9 +101,9 @@ private fun PersonalInfoScreen(
     val uploadPhotoSuccessMsg = stringResource(Res.string.update_photo_success)
     val deletePhotoSuccessMsg = stringResource(Res.string.delete_photo_success)
 
-    LaunchedEffect(isProfileCreated) {
-        if (isProfileCreated) {
-            startStyleQuestionnaire()
+    LaunchedEffect(uiState.value.isProfileCreated) {
+        if (uiState.value.isProfileCreated) {
+            handleAction(Action.StartStyleQuestionnaire)
             isFormVisible = false
             currentDestination = ProfileCreationForm.STYLE_QUESTIONNAIRE
         }
@@ -160,11 +112,15 @@ private fun PersonalInfoScreen(
     PersonalInfoForm(
         windowSizeClass = windowSizeClass,
         snackbarHostState = snackbarHostState,
-        snackbarType = currentSnackbarType,
+        snackbarType = snackbarType.value,
         caption = stringResource(Res.string.create_profile_screen_title),
-        enabled = enabled,
+        enabled = !uiState.value.isLoading,
         isVisible = isFormVisible,
-        onAnimationFinished = { currentDestination?.let { displayForm(it) } },
+        onAnimationFinished = {
+            currentDestination?.let {
+                handleAction(Action.DisplayProfileCreationForm(it))
+            }
+        },
         modifier = modifier
     ) {
         Box(modifier = modifier.fillMaxSize()) {
@@ -182,36 +138,42 @@ private fun PersonalInfoScreen(
             ) {
                 Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
                 ImageUpload(
-                    enabled = enabled,
-                    onImageSelected = { onUploadProfilePicture(it, uploadPhotoSuccessMsg) },
-                    onImageDeleted = { onProfilePictureDeleted(deletePhotoSuccessMsg) },
-                    handleError = handleError,
+                    enabled = !uiState.value.isLoading,
+                    onImageSelected = { imageData ->
+                        handleAction(Action.HandleUploadProfilePicture(imageData, uploadPhotoSuccessMsg))
+                    },
+                    onImageDeleted = {
+                        handleAction(Action.HandleProfilePictureDeleted(deletePhotoSuccessMsg))
+                    },
+                    handleError = { error: Throwable ->
+                        handleAction(Action.HandleError(error))
+                    },
                     modifier = Modifier.testTag(TestTags.PERSONAL_INFO_IMAGE_UPLOAD.tag),
-                    isUploaded = photoUrl.isBlank().not()
+                    isUploaded = uiState.value.photoUrl.isBlank().not()
                 )
                 TextField(
-                    value = username,
-                    onValueChange = onUsernameChanged,
+                    value = uiState.value.username,
+                    onValueChange = { handleAction(Action.HandleUsernameChanged(it)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag(TestTags.PERSONAL_INFO_USERNAME_TEXT_FIELD.tag),
-                    enabled = enabled,
+                    enabled = !uiState.value.isLoading,
                     label = { Text(stringResource(Res.string.username_label)) },
                     leadingIcon = { Icon(Icons.Default.AccountCircle, null) },
-                    supportingText = { usernameError?.let { Text(it) } },
-                    isError = usernameError != null,
+                    supportingText = { Text(uiState.value.usernameError ?: "") },
+                    isError = uiState.value.usernameError != null,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 )
                 TextField(
-                    value = goal,
+                    value = uiState.value.goal,
                     onValueChange = {
-                        if (it.length < maxGoalLen) onGoalChanged(it)
+                        if (it.length < maxGoalLen) handleAction(Action.HandleGoalChanged(it))
                         goalCharCount = it.length
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag(TestTags.PERSONAL_INFO_GOAL_TEXT_FIELD.tag),
-                    enabled = enabled,
+                    enabled = !uiState.value.isLoading,
                     label = { Text(stringResource(Res.string.goals_label)) },
                     leadingIcon = { Icon(Icons.Default.SportsFootball, null) },
                     supportingText = {
@@ -225,22 +187,22 @@ private fun PersonalInfoScreen(
                 )
                 EnumDropdown<Level>(
                     label = stringResource(Res.string.level_label),
-                    selected = level,
-                    isDropDownVisible = isLevelDropdownVisible,
-                    onDropDownVisibilityChanged = toggleLevelDropdownVisibility,
-                    onSelected = onLevelChanged,
-                    enabled = enabled,
+                    selected = uiState.value.level,
+                    isDropDownVisible = uiState.value.isLevelDropdownVisible,
+                    onDropDownVisibilityChanged = { handleAction(Action.ToggleLevelDropdownVisibility) },
+                    onSelected = { handleAction(Action.HandleLevelChanged(it)) },
+                    enabled = !uiState.value.isLoading,
                     modifier = Modifier.testTag(TestTags.PERSONAL_INFO_LEVEL_DROPDOWN.tag)
                 )
                 EnumScrollablePickerLayout<Field>(
                     label = stringResource(Res.string.field_label),
-                    onChange = onFieldChanged,
-                    enabled = enabled,
+                    onChange = { handleAction(Action.HandleFieldChanged(it)) },
+                    enabled = !uiState.value.isLoading,
                     modifier = Modifier.testTag(TestTags.PERSONAL_INFO_FIELD_PICKER.tag)
                 )
                 Button(
-                    onClick = { onCreateProfile(createProfileSuccessMsg) },
-                    enabled = enabled && usernameError.isNullOrBlank(),
+                    onClick = { handleAction(Action.CreateProfile(createProfileSuccessMsg)) },
+                    enabled = !uiState.value.isLoading && uiState.value.usernameError.isNullOrBlank(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
@@ -256,25 +218,12 @@ private fun PersonalInfoScreen(
 
 @Composable
 private fun StyleQuestionnaireScreen(
-    windowSizeClass: WindowSizeClass,
-    snackbarHostState: SnackbarHostState,
-    currentSnackbarType: SnackbarType,
-    enabled: Boolean,
-    isScreenVisible: Boolean,
-    onExitAnimationFinished: () -> Unit,
-    styleQuestionnaire: List<StyleQuizGeneratorClient.StyleQuestion>,
-    questionCount: Int,
-    onQuestionAnswered: (Style) -> Unit,
-    onQuestionnaireCompleted: () -> Unit,
-    startStyleQuestionnaire: () -> Unit,
-    setLearningStyle: (String) -> Unit,
-    handleError: (Throwable) -> Unit,
-    showStyleBreakdownDialog: Boolean,
-    learningStyleBreakdown: Profile.LearningStyleBreakdown?,
+    screenConfig: ScreenConfig<CreateProfileUIState>,
+    handleAction: (Action) -> Unit,
     modifier: Modifier = Modifier
-) {
+) = with(screenConfig) {
     var currentQuestionIndex by remember { mutableIntStateOf(0) }
-    val currentQuestion = styleQuestionnaire.getOrNull(currentQuestionIndex)
+    val currentQuestion = uiState.value.styleQuestionnaire.getOrNull(currentQuestionIndex)
     var selectedOption by rememberSaveable(currentQuestion) { mutableStateOf("") }
     val styleSaver = Saver<Style?, String>(
         save = { it?.value },
@@ -287,47 +236,47 @@ private fun StyleQuestionnaireScreen(
     StyleQuestionnaireForm(
         windowSizeClass = windowSizeClass,
         snackbarHostState = snackbarHostState,
-        snackbarType = currentSnackbarType,
+        snackbarType = snackbarType.value,
         question = currentQuestion?.scenario ?: "",
-        enabled = enabled && currentQuestionIndex < styleQuestionnaire.size,
-        isVisible = isScreenVisible,
-        onAnimationFinished = onExitAnimationFinished,
+        enabled = !uiState.value.isLoading && currentQuestionIndex < uiState.value.styleQuestionnaire.size,
+        isVisible = isScreenVisible.value,
+        onAnimationFinished = { handleAction(Action.HandleAnimationEnd) },
         modifier = modifier
     ) {
         currentQuestion?.let { question ->
             QuestionContent(
                 question = question,
                 selectedOption = selectedOption,
-                enabled = enabled && currentQuestionIndex < styleQuestionnaire.size,
+                enabled = !uiState.value.isLoading && currentQuestionIndex < uiState.value.styleQuestionnaire.size,
                 onOptionSelected = { option ->
                     selectedOption = option
                     selectedStyle = try {
                         Style.valueOf(question.options.first { it.text == option }.style.uppercase())
                     } catch (e: Exception) {
-                        handleError(e)
+                        handleAction(Action.HandleError(e))
                         null
                     }
                 },
-                isQuizFinished = currentQuestionIndex == questionCount - 1,
+                isQuizFinished = currentQuestionIndex == CreateUserProfileViewModel.QUESTION_COUNT - 1,
                 onNextClicked = {
                     selectedStyle?.let { style ->
-                        onQuestionAnswered(style)
-                        if (currentQuestionIndex < styleQuestionnaire.size) currentQuestionIndex++
+                        handleAction(Action.HandleQuestionAnswered(style))
+                        if (currentQuestionIndex < uiState.value.styleQuestionnaire.size) currentQuestionIndex++
                     }
                 },
-                onFinish = onQuestionnaireCompleted
+                onFinish = { handleAction(Action.HandleQuestionnaireCompleted) },
             )
         }
     }
 
-    if (showStyleBreakdownDialog && learningStyleBreakdown != null) {
+    if (uiState.value.showStyleResultDialog && uiState.value.learningStyle?.breakdown != null) {
         StyleBreakdownDialog(
-            enabled = enabled,
-            learningStyleBreakdown = learningStyleBreakdown,
-            onConfirm = { setLearningStyle(successMessage) },
+            enabled = !uiState.value.isLoading,
+            learningStyleBreakdown = uiState.value.learningStyle!!.breakdown,
+            onConfirm = { handleAction(Action.SetLearningStyle(successMessage)) },
             onDismiss = {
                 currentQuestionIndex = 0
-                startStyleQuestionnaire()
+                handleAction(Action.StartStyleQuestionnaire)
             }
         )
     }

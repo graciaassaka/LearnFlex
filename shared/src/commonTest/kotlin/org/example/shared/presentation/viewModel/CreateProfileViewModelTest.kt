@@ -32,6 +32,7 @@ import org.junit.Before
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import org.example.shared.presentation.action.CreateUserProfileAction as Action
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CreateProfileViewModelTest {
@@ -118,7 +119,6 @@ class CreateProfileViewModelTest {
         coEvery { getUserDataUseCase() } returns Result.success(userData)
 
         // When
-        viewModel.getUserData()
         advanceUntilIdle()
 
         // Then
@@ -157,7 +157,7 @@ class CreateProfileViewModelTest {
 
         // When
         advanceUntilIdle()
-        viewModel.onUsernameChanged(username)
+        viewModel.handleAction(Action.HandleUsernameChanged(username))
         advanceUntilIdle()
 
         // Then
@@ -172,7 +172,7 @@ class CreateProfileViewModelTest {
 
         // When
         advanceUntilIdle()
-        viewModel.onUsernameChanged(username)
+        viewModel.handleAction(Action.HandleUsernameChanged(username))
         advanceUntilIdle()
 
         // Then
@@ -186,7 +186,7 @@ class CreateProfileViewModelTest {
         val field = Field.COMPUTER_SCIENCE
 
         // When
-        viewModel.onFieldChanged(field)
+        viewModel.handleAction(Action.HandleFieldChanged(field))
         advanceUntilIdle()
 
         // Then
@@ -199,7 +199,7 @@ class CreateProfileViewModelTest {
         val level = Level.BEGINNER
 
         // When
-        viewModel.onLevelChanged(level)
+        viewModel.handleAction(Action.HandleLevelChanged(level))
         advanceUntilIdle()
 
         // Then
@@ -212,7 +212,7 @@ class CreateProfileViewModelTest {
         val isLevelDropdownVisible = false
 
         // When
-        viewModel.toggleLevelDropdownVisibility()
+        viewModel.handleAction(Action.ToggleLevelDropdownVisibility)
         advanceUntilIdle()
 
         // Then
@@ -226,7 +226,7 @@ class CreateProfileViewModelTest {
         val goal = "Learn something new"
 
         // When
-        viewModel.onGoalChanged(goal)
+        viewModel.handleAction(Action.HandleGoalChanged(goal))
         advanceUntilIdle()
 
         // Then
@@ -250,7 +250,7 @@ class CreateProfileViewModelTest {
             coEvery { uploadProfilePictureUseCase(TEST_PATH, imageData) } returns Result.success(photoUrl)
 
             // When
-            viewModel.onUploadProfilePicture(imageData, successMessage)
+            viewModel.handleAction(Action.HandleUploadProfilePicture(imageData, successMessage))
             advanceUntilIdle()
 
             // Then
@@ -278,7 +278,7 @@ class CreateProfileViewModelTest {
             coEvery { uploadProfilePictureUseCase(TEST_PATH, imageData) } returns Result.failure(Exception(errorMessage))
 
             // When
-            viewModel.onUploadProfilePicture(imageData, "Success message")
+            viewModel.handleAction(Action.HandleUploadProfilePicture(imageData, "Success message"))
             advanceUntilIdle()
 
             // Then
@@ -302,7 +302,7 @@ class CreateProfileViewModelTest {
             coEvery { deleteProfilePictureUseCase(any()) } returns Result.success(Unit)
 
             // When
-            viewModel.onProfilePictureDeleted(successMessage)
+            viewModel.handleAction(Action.HandleProfilePictureDeleted(successMessage))
             advanceUntilIdle()
 
             // Then
@@ -327,7 +327,7 @@ class CreateProfileViewModelTest {
             coEvery { deleteProfilePictureUseCase(any()) } returns Result.failure(Exception(errorMessage))
 
             // When
-            viewModel.onProfilePictureDeleted("Success message")
+            viewModel.handleAction(Action.HandleProfilePictureDeleted("Success message"))
             advanceUntilIdle()
 
             // Then
@@ -345,8 +345,8 @@ class CreateProfileViewModelTest {
         coEvery { createProfileUseCase(any(), any()) } returns Result.success(Unit)
 
         // When
-        viewModel.onUsernameChanged(username)
-        viewModel.onCreateProfile("Success message")
+        viewModel.handleAction(Action.HandleUsernameChanged(username))
+        viewModel.handleAction(Action.CreateProfile("Success message"))
         advanceUntilIdle()
 
         // Then
@@ -361,8 +361,8 @@ class CreateProfileViewModelTest {
         coEvery { buildProfilePathUseCase() } returns path
 
         // When
-        viewModel.onUsernameChanged(username)
-        viewModel.onCreateProfile("Success message")
+        viewModel.handleAction(Action.HandleUsernameChanged(username))
+        viewModel.handleAction(Action.CreateProfile("Success message"))
         advanceUntilIdle()
 
         // Then
@@ -381,8 +381,8 @@ class CreateProfileViewModelTest {
         coEvery { createProfileUseCase(any(), any()) } returns Result.success(Unit)
 
         // When
-        viewModel.onUsernameChanged("TestUser")
-        viewModel.onCreateProfile(successMessage)
+        viewModel.handleAction(Action.HandleUsernameChanged("TestUser"))
+        viewModel.handleAction(Action.CreateProfile(successMessage))
         advanceUntilIdle()
 
         // Then
@@ -405,8 +405,8 @@ class CreateProfileViewModelTest {
         coEvery { createProfileUseCase(any(), any()) } returns Result.failure(Exception(errorMessage))
 
         // When
-        viewModel.onUsernameChanged("TestUser")
-        viewModel.onCreateProfile("Success message")
+        viewModel.handleAction(Action.HandleUsernameChanged("TestUser"))
+        viewModel.handleAction(Action.CreateProfile("Success message"))
         advanceUntilIdle()
 
         // Then
@@ -424,7 +424,7 @@ class CreateProfileViewModelTest {
             coEvery { getStyleQuestionnaireUseCase(any(), any()) } returns flowOf(Result.success(mockk()))
 
             // When
-            viewModel.startStyleQuestionnaire()
+            viewModel.handleAction(Action.StartStyleQuestionnaire)
             advanceUntilIdle()
 
             // Then
@@ -440,7 +440,7 @@ class CreateProfileViewModelTest {
             coEvery { getStyleQuestionnaireUseCase(any(), any()) } returns flowOf(Result.success(question))
 
             // When
-            viewModel.startStyleQuestionnaire()
+            viewModel.handleAction(Action.StartStyleQuestionnaire)
             advanceUntilIdle()
 
             // Then
@@ -466,7 +466,7 @@ class CreateProfileViewModelTest {
             } returns flowOf(Result.failure(Exception(errorMessage)))
 
             // When
-            viewModel.startStyleQuestionnaire()
+            viewModel.handleAction(Action.StartStyleQuestionnaire)
             advanceUntilIdle()
 
             // Then
@@ -483,7 +483,7 @@ class CreateProfileViewModelTest {
         val style = Style.READING
 
         // When
-        viewModel.onQuestionAnswered(style)
+        viewModel.handleAction(Action.HandleQuestionAnswered(style))
         advanceUntilIdle()
 
         // Then
@@ -499,7 +499,7 @@ class CreateProfileViewModelTest {
         coEvery { getStyleResultUseCase(any()) } returns Result.success(result)
 
         // When
-        viewModel.onQuestionnaireCompleted()
+        viewModel.handleAction(Action.HandleQuestionnaireCompleted)
         advanceUntilIdle()
 
         // Then
@@ -519,7 +519,7 @@ class CreateProfileViewModelTest {
         coEvery { getStyleResultUseCase(any()) } returns Result.failure(Exception(errorMessage))
 
         // When
-        viewModel.onQuestionnaireCompleted()
+        viewModel.handleAction(Action.HandleQuestionnaireCompleted)
         advanceUntilIdle()
 
         // Then
@@ -536,7 +536,7 @@ class CreateProfileViewModelTest {
         val form = ProfileCreationForm.PERSONAL_INFO
 
         // When
-        viewModel.displayProfileCreationForm(form)
+        viewModel.handleAction(Action.DisplayProfileCreationForm(form))
         advanceUntilIdle()
 
         // Then
@@ -549,7 +549,7 @@ class CreateProfileViewModelTest {
         val form = ProfileCreationForm.STYLE_QUESTIONNAIRE
 
         // When
-        viewModel.displayProfileCreationForm(form)
+        viewModel.handleAction(Action.DisplayProfileCreationForm(form))
         advanceUntilIdle()
 
         // Then
@@ -566,9 +566,9 @@ class CreateProfileViewModelTest {
             coEvery { getStyleResultUseCase(any()) } returns Result.success(testLearningStyle)
 
             // When
-            viewModel.onQuestionnaireCompleted() // This will set the styleResult
+            viewModel.handleAction(Action.HandleQuestionnaireCompleted) // This will set the styleResu)
             advanceUntilIdle()
-            viewModel.setLearningStyle(successMessage)
+            viewModel.handleAction(Action.SetLearningStyle(successMessage))
             advanceUntilIdle()
 
             // Then
@@ -589,9 +589,9 @@ class CreateProfileViewModelTest {
         coEvery { getStyleResultUseCase(any()) } returns Result.success(testLearningStyle)
 
         // When
-        viewModel.onQuestionnaireCompleted() // This will set the styleResult
+        viewModel.handleAction(Action.HandleQuestionnaireCompleted) // This will set the styleResu)
         advanceUntilIdle()
-        viewModel.setLearningStyle(successMessage)
+        viewModel.handleAction(Action.SetLearningStyle(successMessage))
         advanceUntilIdle()
 
         // Then
@@ -616,9 +616,9 @@ class CreateProfileViewModelTest {
 
 
         // When
-        viewModel.onQuestionnaireCompleted()
+        viewModel.handleAction(Action.HandleQuestionnaireCompleted)
         advanceUntilIdle()
-        viewModel.setLearningStyle(successMessage)
+        viewModel.handleAction(Action.SetLearningStyle(successMessage))
         advanceUntilIdle()
 
         // Then
@@ -639,7 +639,7 @@ class CreateProfileViewModelTest {
 
 
         // When
-        viewModel.setLearningStyle(successMessage)
+        viewModel.handleAction(Action.SetLearningStyle(successMessage))
         advanceUntilIdle()
 
         // Then
@@ -661,9 +661,9 @@ class CreateProfileViewModelTest {
         coEvery { getStyleResultUseCase(any()) } returns Result.success(testLearningStyle)
 
         // When
-        viewModel.onQuestionnaireCompleted()
+        viewModel.handleAction(Action.HandleQuestionnaireCompleted)
         advanceUntilIdle()
-        viewModel.setLearningStyle(successMessage)
+        viewModel.handleAction(Action.SetLearningStyle(successMessage))
         advanceUntilIdle()
 
         // Then

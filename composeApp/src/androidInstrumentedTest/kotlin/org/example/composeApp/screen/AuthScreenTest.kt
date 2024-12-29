@@ -25,6 +25,7 @@ import org.example.shared.domain.use_case.validation.ValidateEmailUseCase
 import org.example.shared.domain.use_case.validation.ValidatePasswordConfirmationUseCase
 import org.example.shared.domain.use_case.validation.ValidatePasswordUseCase
 import org.example.shared.domain.use_case.validation.util.ValidationResult
+import org.example.shared.presentation.action.AuthAction
 import org.example.shared.presentation.state.AuthUIState
 import org.example.shared.presentation.util.AuthForm
 import org.example.shared.presentation.util.UIEvent
@@ -97,7 +98,7 @@ class AuthScreenTest {
         // Given
         val email = "test@example.com"
         val validationResult = validateEmailUseCase(email)
-        every { viewModel.onSignInEmailChanged(email) } answers {
+        every { viewModel.handleAction(AuthAction.HandleSignInEmailChanged(email)) } answers {
             uiState.update {
                 when (validationResult) {
                     is ValidationResult.Valid -> it.copy(signInEmail = email, signInEmailError = null)
@@ -113,7 +114,7 @@ class AuthScreenTest {
         composeTestRule.onNodeWithTag(TestTags.SIGN_IN_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
-        verify { viewModel.onSignInEmailChanged(email) }
+        verify { viewModel.handleAction(AuthAction.HandleSignInEmailChanged(email)) }
         composeTestRule.onNodeWithText(email).assertIsDisplayed()
     }
 
@@ -122,7 +123,7 @@ class AuthScreenTest {
         // Given
         val email = "test@example"
         val validationResult = validateEmailUseCase(email)
-        every { viewModel.onSignInEmailChanged(email) } answers {
+        every { viewModel.handleAction(AuthAction.HandleSignInEmailChanged(email)) } answers {
             uiState.update {
                 when (validationResult) {
                     is ValidationResult.Valid -> it.copy(signInEmail = email, signInEmailError = null)
@@ -138,7 +139,7 @@ class AuthScreenTest {
         composeTestRule.onNodeWithTag(TestTags.SIGN_IN_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
-        verify { viewModel.onSignInEmailChanged(email) }
+        verify { viewModel.handleAction(AuthAction.HandleSignInEmailChanged(email)) }
         composeTestRule.onNodeWithText((validationResult as ValidationResult.Invalid).message).assertIsDisplayed()
     }
 
@@ -147,7 +148,7 @@ class AuthScreenTest {
         // Given
         val password = "P@ssw0rd"
         val validationResult = validatePasswordUseCase(password)
-        every { viewModel.onSignInPasswordChanged(password) } answers {
+        every { viewModel.handleAction(AuthAction.HandleSignInPasswordChanged(password)) } answers {
             uiState.update {
                 when (validationResult) {
                     is ValidationResult.Valid -> it.copy(signInPassword = password, signInPasswordError = null)
@@ -163,7 +164,7 @@ class AuthScreenTest {
         composeTestRule.onNodeWithTag(TestTags.SIGN_IN_PASSWORD_FIELD.tag).performTextInput(password)
 
         // Then
-        verify { viewModel.onSignInPasswordChanged(password) }
+        verify { viewModel.handleAction(AuthAction.HandleSignInPasswordChanged(password)) }
     }
 
     @Test
@@ -171,7 +172,7 @@ class AuthScreenTest {
         // Given
         val password = "password"
         val validationResult = validatePasswordUseCase(password)
-        every { viewModel.onSignInPasswordChanged(password) } answers {
+        every { viewModel.handleAction(AuthAction.HandleSignInPasswordChanged(password)) } answers {
             uiState.update {
                 when (validationResult) {
                     is ValidationResult.Valid -> it.copy(signInPassword = password, signInPasswordError = null)
@@ -187,7 +188,7 @@ class AuthScreenTest {
         composeTestRule.onNodeWithTag(TestTags.SIGN_IN_PASSWORD_FIELD.tag).performTextInput(password)
 
         // Then
-        verify { viewModel.onSignInPasswordChanged(password) }
+        verify { viewModel.handleAction(AuthAction.HandleSignInPasswordChanged(password)) }
         composeTestRule.onNodeWithText((validationResult as ValidationResult.Invalid).message).assertIsDisplayed()
     }
 
@@ -197,7 +198,7 @@ class AuthScreenTest {
         val password = "P@ssw0rd"
         uiState.update { it.copy(signInPassword = password) }
 
-        every { viewModel.toggleSignInPasswordVisibility() } answers {
+        every { viewModel.handleAction(AuthAction.ToggleSignInPasswordVisibility) } answers {
             uiState.update { it.copy(signInPasswordVisibility = !it.signInPasswordVisibility) }
         }
 
@@ -206,7 +207,7 @@ class AuthScreenTest {
         composeTestRule.onNodeWithTag(TestTags.TOGGLE_PASSWORD_VISIBILITY.tag).performClick()
 
         // Then
-        verify { viewModel.toggleSignInPasswordVisibility() }
+        verify { viewModel.handleAction(AuthAction.ToggleSignInPasswordVisibility) }
     }
 
     @Test
@@ -217,7 +218,7 @@ class AuthScreenTest {
         val emailValidationResult = validateEmailUseCase(email)
         val passwordValidationResult = validatePasswordUseCase(password)
 
-        every { viewModel.onSignInEmailChanged(email) } answers {
+        every { viewModel.handleAction(AuthAction.HandleSignInEmailChanged(email)) } answers {
             uiState.update {
                 when (emailValidationResult) {
                     is ValidationResult.Valid -> it.copy(signInEmail = email, signInEmailError = null)
@@ -229,7 +230,7 @@ class AuthScreenTest {
             }
         }
 
-        every { viewModel.onSignInPasswordChanged(password) } answers {
+        every { viewModel.handleAction(AuthAction.HandleSignInPasswordChanged(password)) } answers {
             uiState.update {
                 when (passwordValidationResult) {
                     is ValidationResult.Valid -> it.copy(signInPassword = password, signInPasswordError = null)
@@ -241,11 +242,6 @@ class AuthScreenTest {
             }
         }
 
-        every { viewModel.signIn(any()) } answers {
-            uiState.update { it.copy(isLoading = true) }
-            uiState.update { it.copy(isLoading = false) }
-        }
-
         // When
         composeTestRule.onNodeWithTag(TestTags.SIGN_IN_EMAIL_FIELD.tag).performTextInput(email)
         composeTestRule.onNodeWithTag(TestTags.SIGN_IN_PASSWORD_FIELD.tag).performTextInput(password)
@@ -253,7 +249,13 @@ class AuthScreenTest {
         composeTestRule.waitForIdle()
 
         // Then
-        verify { viewModel.signIn(any()) }
+        verify {
+            viewModel.handleAction(
+                match {
+                    it is AuthAction.SignIn
+                }
+            )
+        }
     }
 
     @Test
@@ -265,7 +267,7 @@ class AuthScreenTest {
         val email = "test@example"
         val emailValidationResult = validateEmailUseCase(email)
 
-        every { viewModel.onSignInEmailChanged(email) } answers {
+        every { viewModel.handleAction(AuthAction.HandleSignInEmailChanged(email)) } answers {
             uiState.update {
                 when (emailValidationResult) {
                     is ValidationResult.Valid -> it.copy(signInEmail = email, signInEmailError = null)
@@ -293,7 +295,7 @@ class AuthScreenTest {
         val password = "password"
         val passwordValidationResult = validatePasswordUseCase(password)
 
-        every { viewModel.onSignInPasswordChanged(password) } answers {
+        every { viewModel.handleAction(AuthAction.HandleSignInPasswordChanged(password)) } answers {
             uiState.update {
                 when (passwordValidationResult) {
                     is ValidationResult.Valid -> it.copy(signInPassword = password, signInPasswordError = null)
@@ -327,7 +329,7 @@ class AuthScreenTest {
     @Test
     fun signInForm_navigatesToForgotPasswordForm() {
         // Given
-        every { viewModel.displayAuthForm(AuthForm.ResetPassword) } answers {
+        every { viewModel.handleAction(AuthAction.DisplayAuthForm(AuthForm.ResetPassword)) } answers {
             uiState.update { it.copy(currentForm = AuthForm.ResetPassword) }
         }
 
@@ -336,13 +338,13 @@ class AuthScreenTest {
         composeTestRule.waitForIdle()
 
         // Then
-        verify { viewModel.displayAuthForm(AuthForm.ResetPassword) }
+        verify { viewModel.handleAction(AuthAction.DisplayAuthForm(AuthForm.ResetPassword)) }
     }
 
     @Test
     fun signInForm_navigatesToSignUpForm() {
         // Given
-        every { viewModel.displayAuthForm(AuthForm.SignUp) } answers {
+        every { viewModel.handleAction(AuthAction.DisplayAuthForm(AuthForm.SignUp)) } answers {
             uiState.update { it.copy(currentForm = AuthForm.SignUp) }
         }
 
@@ -351,7 +353,7 @@ class AuthScreenTest {
         composeTestRule.waitForIdle()
 
         // Then
-        verify { viewModel.displayAuthForm(AuthForm.SignUp) }
+        verify { viewModel.handleAction(AuthAction.DisplayAuthForm(AuthForm.SignUp)) }
         composeTestRule.onNodeWithTag(TestTags.SIGN_UP_FORM.tag).assertIsDisplayed()
     }
 
@@ -372,7 +374,7 @@ class AuthScreenTest {
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
         val email = "test@example.com"
         val validationResult = validateEmailUseCase(email)
-        every { viewModel.onSignUpEmailChanged(email) } answers {
+        every { viewModel.handleAction(AuthAction.HandleSignUpEmailChanged(email)) } answers {
             uiState.update {
                 when (validationResult) {
                     is ValidationResult.Valid -> it.copy(signUpEmail = email, signUpEmailError = null)
@@ -388,7 +390,7 @@ class AuthScreenTest {
         composeTestRule.onNodeWithTag(TestTags.SIGN_UP_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
-        verify { viewModel.onSignUpEmailChanged(email) }
+        verify { viewModel.handleAction(AuthAction.HandleSignUpEmailChanged(email)) }
         composeTestRule.onNodeWithText(email).assertIsDisplayed()
     }
 
@@ -398,7 +400,7 @@ class AuthScreenTest {
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
         val email = "test@example"
         val validationResult = validateEmailUseCase(email)
-        every { viewModel.onSignUpEmailChanged(email) } answers {
+        every { viewModel.handleAction(AuthAction.HandleSignUpEmailChanged(email)) } answers {
             uiState.update {
                 when (validationResult) {
                     is ValidationResult.Valid -> it.copy(signUpEmail = email, signUpEmailError = null)
@@ -414,7 +416,7 @@ class AuthScreenTest {
         composeTestRule.onNodeWithTag(TestTags.SIGN_UP_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
-        verify { viewModel.onSignUpEmailChanged(email) }
+        verify { viewModel.handleAction(AuthAction.HandleSignUpEmailChanged(email)) }
         composeTestRule.onNodeWithText((validationResult as ValidationResult.Invalid).message).assertIsDisplayed()
     }
 
@@ -424,7 +426,7 @@ class AuthScreenTest {
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
         val password = "P@ssw0rd"
         val validationResult = validatePasswordUseCase(password)
-        every { viewModel.onSignUpPasswordChanged(password) } answers {
+        every { viewModel.handleAction(AuthAction.HandleSignUpPasswordChanged(password)) } answers {
             uiState.update {
                 when (validationResult) {
                     is ValidationResult.Valid -> it.copy(signUpPassword = password, signUpPasswordError = null)
@@ -440,7 +442,7 @@ class AuthScreenTest {
         composeTestRule.onNodeWithTag(TestTags.SIGN_UP_PASSWORD_FIELD.tag).performTextInput(password)
 
         // Then
-        verify { viewModel.onSignUpPasswordChanged(password) }
+        verify { viewModel.handleAction(AuthAction.HandleSignUpPasswordChanged(password)) }
     }
 
     @Test
@@ -449,7 +451,7 @@ class AuthScreenTest {
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
         val password = "password"
         val validationResult = validatePasswordUseCase(password)
-        every { viewModel.onSignUpPasswordChanged(password) } answers {
+        every { viewModel.handleAction(AuthAction.HandleSignUpPasswordChanged(password)) } answers {
             uiState.update {
                 when (validationResult) {
                     is ValidationResult.Valid -> it.copy(signUpPassword = password, signUpPasswordError = null)
@@ -465,7 +467,7 @@ class AuthScreenTest {
         composeTestRule.onNodeWithTag(TestTags.SIGN_UP_PASSWORD_FIELD.tag).performTextInput(password)
 
         // Then
-        verify { viewModel.onSignUpPasswordChanged(password) }
+        verify { viewModel.handleAction(AuthAction.HandleSignUpPasswordChanged(password)) }
         composeTestRule.onNodeWithText((validationResult as ValidationResult.Invalid).message).assertIsDisplayed()
     }
 
@@ -475,7 +477,7 @@ class AuthScreenTest {
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
         val password = "P@ssw0rd"
         val validationResult = validatePasswordConfirmationUseCase(password, password)
-        every { viewModel.onSignUpPasswordConfirmationChanged(password) } answers {
+        every { viewModel.handleAction(AuthAction.HandleSignUpPasswordConfirmationChanged(password)) } answers {
             uiState.update {
                 when (validationResult) {
                     is ValidationResult.Valid -> it.copy(
@@ -495,7 +497,7 @@ class AuthScreenTest {
         composeTestRule.onNodeWithTag(TestTags.SIGN_UP_CONFIRM_PASSWORD_FIELD.tag).performTextInput(password)
 
         // Then
-        verify { viewModel.onSignUpPasswordConfirmationChanged(password) }
+        verify { viewModel.handleAction(AuthAction.HandleSignUpPasswordConfirmationChanged(password)) }
     }
 
     @Test
@@ -505,7 +507,7 @@ class AuthScreenTest {
         val password = "password"
         val confirmPassword = "password123"
         val validationResult = validatePasswordConfirmationUseCase(password, confirmPassword)
-        every { viewModel.onSignUpPasswordConfirmationChanged(confirmPassword) } answers {
+        every { viewModel.handleAction(AuthAction.HandleSignUpPasswordConfirmationChanged(confirmPassword)) } answers {
             uiState.update {
                 when (validationResult) {
                     is ValidationResult.Valid -> it.copy(
@@ -525,7 +527,7 @@ class AuthScreenTest {
         composeTestRule.onNodeWithTag(TestTags.SIGN_UP_CONFIRM_PASSWORD_FIELD.tag).performTextInput(confirmPassword)
 
         // Then
-        verify { viewModel.onSignUpPasswordConfirmationChanged(confirmPassword) }
+        verify { viewModel.handleAction(AuthAction.HandleSignUpPasswordConfirmationChanged(confirmPassword)) }
         composeTestRule.onNodeWithText((validationResult as ValidationResult.Invalid).message).assertIsDisplayed()
     }
 
@@ -540,7 +542,7 @@ class AuthScreenTest {
         val passwordValidationResult = validatePasswordUseCase(password)
         val confirmPasswordValidationResult = validatePasswordConfirmationUseCase(password, confirmPassword)
 
-        every { viewModel.onSignUpEmailChanged(email) } answers {
+        every { viewModel.handleAction(AuthAction.HandleSignUpEmailChanged(email)) } answers {
             uiState.update {
                 when (emailValidationResult) {
                     is ValidationResult.Valid -> it.copy(signUpEmail = email, signUpEmailError = null)
@@ -552,7 +554,7 @@ class AuthScreenTest {
             }
         }
 
-        every { viewModel.onSignUpPasswordChanged(password) } answers {
+        every { viewModel.handleAction(AuthAction.HandleSignUpPasswordChanged(password)) } answers {
             uiState.update {
                 when (passwordValidationResult) {
                     is ValidationResult.Valid -> it.copy(signUpPassword = password, signUpPasswordError = null)
@@ -564,7 +566,7 @@ class AuthScreenTest {
             }
         }
 
-        every { viewModel.onSignUpPasswordConfirmationChanged(confirmPassword) } answers {
+        every { viewModel.handleAction(AuthAction.HandleSignUpPasswordConfirmationChanged(confirmPassword)) } answers {
             uiState.update {
                 when (confirmPasswordValidationResult) {
                     is ValidationResult.Valid -> it.copy(
@@ -580,12 +582,6 @@ class AuthScreenTest {
             }
         }
 
-        every { viewModel.signUp(any()) } answers {
-            uiState.update { it.copy(isLoading = true) }
-            uiState.update { it.copy(currentForm = AuthForm.VerifyEmail) }
-            uiState.update { it.copy(isLoading = false) }
-        }
-
         // When
         composeTestRule.onNodeWithTag(TestTags.SIGN_UP_EMAIL_FIELD.tag).performTextInput(email)
         composeTestRule.onNodeWithTag(TestTags.SIGN_UP_PASSWORD_FIELD.tag).performTextInput(password)
@@ -594,7 +590,13 @@ class AuthScreenTest {
         composeTestRule.waitForIdle()
 
         // Then
-        verify { viewModel.signUp(any()) }
+        verify {
+            viewModel.handleAction(
+                match {
+                    it is AuthAction.SignUp
+                }
+            )
+        }
     }
 
     @Test
@@ -615,7 +617,7 @@ class AuthScreenTest {
         val email = "test@example"
         val emailValidationResult = validateEmailUseCase(email)
 
-        every { viewModel.onSignUpEmailChanged(email) } answers {
+        every { viewModel.handleAction(AuthAction.HandleSignUpEmailChanged(email)) } answers {
             uiState.update {
                 when (emailValidationResult) {
                     is ValidationResult.Valid -> it.copy(signUpEmail = email, signUpEmailError = null)
@@ -652,7 +654,7 @@ class AuthScreenTest {
         val password = "password"
         val passwordValidationResult = validatePasswordUseCase(password)
 
-        every { viewModel.onSignUpPasswordChanged(password) } answers {
+        every { viewModel.handleAction(AuthAction.HandleSignUpPasswordChanged(password)) } answers {
             uiState.update {
                 when (passwordValidationResult) {
                     is ValidationResult.Valid -> it.copy(signUpPassword = password, signUpPasswordError = null)
@@ -689,7 +691,7 @@ class AuthScreenTest {
         val confirmPassword = "password123"
         val confirmPasswordValidationResult = validatePasswordConfirmationUseCase(password, confirmPassword)
 
-        every { viewModel.onSignUpPasswordConfirmationChanged(confirmPassword) } answers {
+        every { viewModel.handleAction(AuthAction.HandleSignUpPasswordConfirmationChanged(confirmPassword)) } answers {
             uiState.update {
                 when (confirmPasswordValidationResult) {
                     is ValidationResult.Valid ->
@@ -725,7 +727,7 @@ class AuthScreenTest {
     fun signUpForm_navigatesToSignInForm() {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.SignUp) }
-        every { viewModel.displayAuthForm(AuthForm.SignIn) } answers {
+        every { viewModel.handleAction(AuthAction.DisplayAuthForm(AuthForm.SignIn)) } answers {
             uiState.update { it.copy(currentForm = AuthForm.SignIn) }
         }
 
@@ -734,7 +736,7 @@ class AuthScreenTest {
         composeTestRule.waitForIdle()
 
         // Then
-        verify { viewModel.displayAuthForm(AuthForm.SignIn) }
+        verify { viewModel.handleAction(AuthAction.DisplayAuthForm(AuthForm.SignIn)) }
         composeTestRule.onNodeWithTag(TestTags.SIGN_IN_FORM.tag).assertIsDisplayed()
     }
 
@@ -753,7 +755,7 @@ class AuthScreenTest {
     fun verifyEmailForm_navigatesToSignUpForm() {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.VerifyEmail) }
-        every { viewModel.displayAuthForm(AuthForm.SignUp) } answers {
+        every { viewModel.handleAction(AuthAction.DisplayAuthForm(AuthForm.SignUp)) } answers {
             uiState.update { it.copy(currentForm = AuthForm.SignUp) }
         }
 
@@ -762,8 +764,8 @@ class AuthScreenTest {
         composeTestRule.waitForIdle()
 
         // Then
-        verify { viewModel.displayAuthForm(AuthForm.SignUp) }
-        verify { viewModel.deleteUser(any()) }
+        verify { viewModel.handleAction(AuthAction.DisplayAuthForm(AuthForm.SignUp)) }
+        verify { viewModel.handleAction(AuthAction.DisplayAuthForm(AuthForm.SignUp)) }
         composeTestRule.onNodeWithTag(TestTags.SIGN_UP_FORM.tag).assertIsDisplayed()
     }
 
@@ -793,7 +795,7 @@ class AuthScreenTest {
         val email = "test@example.com"
         val validationResult = validateEmailUseCase(email)
 
-        every { viewModel.onPasswordResetEmailChanged(email) } answers {
+        every { viewModel.handleAction(AuthAction.HandlePasswordResetEmailChanged(email)) } answers {
             uiState.update {
                 when (validationResult) {
                     is ValidationResult.Valid -> it.copy(resetPasswordEmail = email, resetPasswordEmailError = null)
@@ -809,7 +811,7 @@ class AuthScreenTest {
         composeTestRule.onNodeWithTag(TestTags.RESET_PASSWORD_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
-        verify { viewModel.onPasswordResetEmailChanged(email) }
+        verify { viewModel.handleAction(AuthAction.HandlePasswordResetEmailChanged(email)) }
         composeTestRule.onNodeWithText(email).assertIsDisplayed()
     }
 
@@ -820,7 +822,7 @@ class AuthScreenTest {
         val email = "test@example"
         val validationResult = validateEmailUseCase(email)
 
-        every { viewModel.onPasswordResetEmailChanged(email) } answers {
+        every { viewModel.handleAction(AuthAction.HandlePasswordResetEmailChanged(email)) } answers {
             uiState.update {
                 when (validationResult) {
                     is ValidationResult.Valid -> it.copy(resetPasswordEmail = email, resetPasswordEmailError = null)
@@ -836,7 +838,7 @@ class AuthScreenTest {
         composeTestRule.onNodeWithTag(TestTags.RESET_PASSWORD_EMAIL_FIELD.tag).performTextInput(email)
 
         // Then
-        verify { viewModel.onPasswordResetEmailChanged(email) }
+        verify { viewModel.handleAction(AuthAction.HandlePasswordResetEmailChanged(email)) }
         composeTestRule.onNodeWithText((validationResult as ValidationResult.Invalid).message).assertIsDisplayed()
     }
 
@@ -854,7 +856,7 @@ class AuthScreenTest {
     fun passwordResetForm_navigatesToSignInForm() {
         // Given
         uiState.update { it.copy(currentForm = AuthForm.ResetPassword) }
-        every { viewModel.displayAuthForm(AuthForm.SignIn) } answers {
+        every { viewModel.handleAction(AuthAction.DisplayAuthForm(AuthForm.SignIn)) } answers {
             uiState.update { it.copy(currentForm = AuthForm.SignIn) }
         }
 
@@ -863,7 +865,7 @@ class AuthScreenTest {
         composeTestRule.waitForIdle()
 
         // Then
-        verify { viewModel.displayAuthForm(AuthForm.SignIn) }
+        verify { viewModel.handleAction(AuthAction.DisplayAuthForm(AuthForm.SignIn)) }
         composeTestRule.onNodeWithTag(TestTags.SIGN_IN_FORM.tag).assertIsDisplayed()
     }
 
@@ -874,7 +876,7 @@ class AuthScreenTest {
         val email = "test@example.com"
         val emailValidationResult = validateEmailUseCase(email)
 
-        every { viewModel.onPasswordResetEmailChanged(email) } answers {
+        every { viewModel.handleAction(AuthAction.HandlePasswordResetEmailChanged(email)) } answers {
             uiState.update {
                 when (emailValidationResult) {
                     is ValidationResult.Valid -> it.copy(resetPasswordEmail = email, resetPasswordEmailError = null)
@@ -886,18 +888,19 @@ class AuthScreenTest {
             }
         }
 
-        every { viewModel.sendPasswordResetEmail(any()) } answers {
-            uiState.update { it.copy(isLoading = true) }
-            uiState.update { it.copy(isLoading = false) }
-        }
-
         // When
         composeTestRule.onNodeWithTag(TestTags.RESET_PASSWORD_EMAIL_FIELD.tag).performTextInput(email)
         composeTestRule.onNodeWithTag(TestTags.RESET_PASSWORD_BUTTON.tag).performClick()
         composeTestRule.waitForIdle()
 
         // Then
-        verify { viewModel.sendPasswordResetEmail(any()) }
+        verify {
+            viewModel.handleAction(
+                match {
+                    it is AuthAction.SendPasswordResetEmail
+                }
+            )
+        }
     }
 
     @Test
@@ -907,7 +910,7 @@ class AuthScreenTest {
         val email = "test@example"
         val emailValidationResult = validateEmailUseCase(email)
 
-        every { viewModel.onPasswordResetEmailChanged(email) } answers {
+        every { viewModel.handleAction(AuthAction.HandlePasswordResetEmailChanged(email)) } answers {
             uiState.update {
                 when (emailValidationResult) {
                     is ValidationResult.Valid -> it.copy(resetPasswordEmail = email, resetPasswordEmailError = null)

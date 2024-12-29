@@ -1,5 +1,9 @@
 package org.example.composeApp.screen
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,22 +25,35 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import io.github.alexzhirkevich.compottie.*
 import learnflex.composeapp.generated.resources.*
 import org.example.composeApp.component.AnimatedOutlinedTextField
 import org.example.composeApp.component.CustomVerticalScrollbar
 import org.example.composeApp.component.HandleUIEvents
-import org.example.composeApp.component.PulsingImage
 import org.example.composeApp.dimension.Dimension
 import org.example.composeApp.dimension.Padding
 import org.example.composeApp.dimension.Spacing
 import org.example.composeApp.layout.AuthLayout
+import org.example.composeApp.util.ScreenConfig
 import org.example.composeApp.util.TestTags
+import org.example.shared.presentation.action.AuthAction
 import org.example.shared.presentation.navigation.Route
+import org.example.shared.presentation.state.AuthUIState
 import org.example.shared.presentation.util.AuthForm
 import org.example.shared.presentation.util.SnackbarType
 import org.example.shared.presentation.viewModel.AuthViewModel
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+
+/**
+ * Represents the different phases of the authentication UI.
+ */
+private enum class AuthUiPhase {
+    FORM,
+    ANIMATION,
+    HIDDEN
+}
 
 /**
  * Represents the authentication screen which handles different authentication forms
@@ -52,525 +69,594 @@ fun AuthScreen(
     navController: NavController,
     viewModel: AuthViewModel = koinViewModel()
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    var currentSnackbarType by remember { mutableStateOf<SnackbarType>(SnackbarType.Info) }
-    HandleUIEvents(Route.Auth, navController, viewModel, snackbarHostState) { currentSnackbarType = it }
-    val uiState by viewModel.state.collectAsState()
-    val isScreenVisible by viewModel.isScreenVisible.collectAsState()
+    val screenConfig = ScreenConfig(
+        windowSizeClass = windowSizeClass,
+        snackbarHostState = remember { SnackbarHostState() },
+        snackbarType = remember { mutableStateOf(SnackbarType.Info) },
+        uiState = viewModel.state.collectAsState(),
+        isScreenVisible = viewModel.isScreenVisible.collectAsState()
+    )
 
-    when (uiState.currentForm) {
+    HandleUIEvents(Route.Auth, navController, viewModel, screenConfig.snackbarHostState) { screenConfig.snackbarType.value = it }
+
+    when (screenConfig.uiState.value.currentForm) {
         AuthForm.SignIn -> SignInForm(
-            isScreenVisible = isScreenVisible,
-            windowSizeClass = windowSizeClass,
-            snackbarHostState = snackbarHostState,
-            snackbarType = currentSnackbarType,
-            email = uiState.signInEmail,
-            onEmailChanged = viewModel::onSignInEmailChanged,
-            emailError = uiState.signInEmailError,
-            password = uiState.signInPassword,
-            passwordError = uiState.signInPasswordError,
-            onPasswordChanged = viewModel::onSignInPasswordChanged,
-            passwordVisibility = uiState.signInPasswordVisibility,
-            onPasswordVisibilityToggled = viewModel::toggleSignInPasswordVisibility,
-            onSignInClicked = viewModel::signIn,
-            enabled = !uiState.isLoading,
-            displayAuthForm = viewModel::displayAuthForm,
-            onAnimationFinished = viewModel::onExitAnimationFinished,
+            screenConfig = screenConfig,
+            handleAction = viewModel::handleAction,
             modifier = Modifier.testTag(TestTags.SIGN_IN_FORM.tag)
         )
 
         AuthForm.SignUp -> SignUpForm(
-            isScreenVisible = isScreenVisible,
-            windowSizeClass = windowSizeClass,
-            snackbarHostState = snackbarHostState,
-            snackbarType = currentSnackbarType,
-            email = uiState.signUpEmail,
-            onEmailChanged = viewModel::onSignUpEmailChanged,
-            emailError = uiState.signUpEmailError,
-            password = uiState.signUpPassword,
-            passwordError = uiState.signUpPasswordError,
-            onPasswordChanged = viewModel::onSignUpPasswordChanged,
-            passwordVisibility = uiState.signUpPasswordVisibility,
-            onPasswordVisibilityToggled = viewModel::toggleSignUpPasswordVisibility,
-            confirmedPassword = uiState.signUpPasswordConfirmation,
-            confirmedPasswordError = uiState.signUpPasswordConfirmationError,
-            onConfirmedPasswordChanged = viewModel::onSignUpPasswordConfirmationChanged,
-            onSignUpClicked = viewModel::signUp,
-            isUserSignedUp = uiState.isUserSignedUp,
-            enabled = !uiState.isLoading,
-            displayAuthForm = viewModel::displayAuthForm,
-            onAnimationFinished = viewModel::onExitAnimationFinished,
+            screenConfig = screenConfig,
+            handleAction = viewModel::handleAction,
             modifier = Modifier.testTag(TestTags.SIGN_UP_FORM.tag)
         )
 
         AuthForm.VerifyEmail -> {
             VerificationForm(
-                isScreenVisible = isScreenVisible,
-                windowSizeClass = windowSizeClass,
-                snackbarHostState = snackbarHostState,
-                snackbarType = currentSnackbarType,
-                email = uiState.signUpEmail,
-                onResendVerificationEmailClicked = viewModel::resendVerificationEmail,
-                onVerifyEmailClicked = viewModel::verifyEmail,
-                deleteUser = viewModel::deleteUser,
-                displayAuthForm = viewModel::displayAuthForm,
-                enabled = !uiState.isLoading,
-                onAnimationFinished = viewModel::onExitAnimationFinished,
+                screenConfig = screenConfig,
+                handleAction = viewModel::handleAction,
                 modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_FORM.tag)
             )
         }
 
         AuthForm.ResetPassword -> {
             PasswordResetForm(
-                isScreenVisible = isScreenVisible,
-                windowSizeClass = windowSizeClass,
-                snackbarHostState = snackbarHostState,
-                snackbarType = currentSnackbarType,
-                email = uiState.resetPasswordEmail,
-                onEmailChanged = viewModel::onPasswordResetEmailChanged,
-                emailError = uiState.resetPasswordEmailError,
-                onResetPasswordClicked = viewModel::sendPasswordResetEmail,
-                enabled = !uiState.isLoading,
-                displayAuthForm = viewModel::displayAuthForm,
-                onAnimationFinished = viewModel::onExitAnimationFinished,
+                screenConfig = screenConfig,
+                handleAction = viewModel::handleAction,
                 modifier = Modifier.testTag(TestTags.RESET_PASSWORD_FORM.tag)
             )
         }
     }
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun SignInForm(
-    isScreenVisible: Boolean,
-    windowSizeClass: WindowSizeClass,
-    snackbarHostState: SnackbarHostState,
-    snackbarType: SnackbarType,
-    email: String,
-    onEmailChanged: (String) -> Unit,
-    emailError: String?,
-    password: String,
-    passwordError: String?,
-    onPasswordChanged: (String) -> Unit,
-    passwordVisibility: Boolean,
-    onPasswordVisibilityToggled: () -> Unit,
-    onSignInClicked: (String) -> Unit,
-    enabled: Boolean,
-    displayAuthForm: (AuthForm) -> Unit,
-    onAnimationFinished: () -> Unit,
+    screenConfig: ScreenConfig<AuthUIState>,
+    handleAction: (AuthAction) -> Unit,
     modifier: Modifier = Modifier
-) {
+) = with(screenConfig) {
     val signInSuccessMessage = stringResource(Res.string.sign_in_success)
-    var isFormVisible by remember { mutableStateOf(true) }
+    var authUiPhase by remember { mutableStateOf(AuthUiPhase.FORM) }
     var currentDestination by remember { mutableStateOf<AuthForm?>(null) }
     val scrollState = rememberScrollState()
-
-    LaunchedEffect(isScreenVisible) { isFormVisible = isScreenVisible }
+    val lockAnimComposition by rememberLottieComposition {
+        LottieCompositionSpec.JsonString(
+            Res.readBytes("files/lock.json").decodeToString()
+        )
+    }
+    val lockAnimProgress = animateLottieCompositionAsState(
+        composition = lockAnimComposition,
+        iterations = 1,
+        isPlaying = authUiPhase == AuthUiPhase.ANIMATION
+    )
+    LaunchedEffect(uiState.value.isUserSignedIn) {
+        if (uiState.value.isUserSignedIn) authUiPhase = AuthUiPhase.ANIMATION
+    }
+    LaunchedEffect(lockAnimProgress.progress) {
+        if (lockAnimProgress.progress >= 1f) authUiPhase = AuthUiPhase.HIDDEN
+    }
 
     AuthLayout(
         windowSizeClass = windowSizeClass,
         snackbarHostState = snackbarHostState,
-        snackbarType = snackbarType,
-        enabled = enabled,
-        isVisible = isFormVisible,
+        snackbarType = snackbarType.value,
+        enabled = !uiState.value.isLoading,
+        isVisible = authUiPhase != AuthUiPhase.HIDDEN,
         onAnimationFinished = {
-            if (currentDestination == null) onAnimationFinished()
-            else currentDestination?.let(displayAuthForm)
+            currentDestination?.let { form -> handleAction(AuthAction.DisplayAuthForm(form)) }
+                ?: handleAction(AuthAction.HandleAnimationEnd)
         }
     ) {
-        Box(modifier = modifier.fillMaxSize()) {
-            CustomVerticalScrollbar(
-                scrollState = scrollState,
-                modifier = Modifier.align(Alignment.CenterEnd)
+        when (authUiPhase) {
+            AuthUiPhase.HIDDEN -> Unit
+
+            AuthUiPhase.ANIMATION -> LottieAnimationBox(
+                composition = lockAnimComposition,
+                animationState = lockAnimProgress,
+                modifier = Modifier.fillMaxSize()
             )
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = Padding.MEDIUM.dp)
-                    .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+
+            AuthUiPhase.FORM -> AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(),
+                exit = fadeOut()
             ) {
-                Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
-                Text(
-                    text = stringResource(Res.string.sign_in_screen_title),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.testTag(TestTags.SIGN_IN_SCREEN_TITLE.tag)
-                )
-                EmailInputField(
-                    email = email,
-                    onEmailChanged = onEmailChanged,
-                    emailError = emailError,
-                    enabled = enabled,
-                    modifier = Modifier.testTag(TestTags.SIGN_IN_EMAIL_FIELD.tag)
-                )
-                PasswordInputField(
-                    password = password,
-                    onPasswordChanged = onPasswordChanged,
-                    passwordError = passwordError,
-                    enabled = enabled,
-                    onPasswordVisibilityToggled = onPasswordVisibilityToggled,
-                    passwordVisibility = passwordVisibility,
-                    modifier = Modifier.testTag(TestTags.SIGN_IN_PASSWORD_FIELD.tag),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                    keyboardActions = KeyboardActions { onSignInClicked(signInSuccessMessage) },
-                )
-                Button(
-                    onClick = { onSignInClicked(signInSuccessMessage) },
-                    enabled = enabled && emailError.isNullOrBlank() && passwordError.isNullOrBlank(),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
-                        .testTag(TestTags.SIGN_IN_BUTTON.tag),
-                    shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
-                    content = { Text(stringResource(Res.string.sign_in_button_label)) }
-                )
-                TextButton(
-                    onClick = {
-                        isFormVisible = false
-                        currentDestination = AuthForm.ResetPassword
-                    },
-                    enabled = enabled,
-                    modifier = Modifier.testTag(TestTags.SIGN_IN_FORGOT_PASSWORD_BUTTON.tag),
-                    content = { Text(stringResource(Res.string.forgot_password_button_label)) }
-                )
-                AuthDivider()
-                TextButton(
-                    onClick = {
-                        isFormVisible = false
-                        currentDestination = AuthForm.SignUp
-                    },
-                    enabled = enabled,
-                    modifier = Modifier.testTag(TestTags.SIGN_IN_CREATE_ACCOUNT_BUTTON.tag),
-                    content = { Text(stringResource(Res.string.create_account_button_label)) }
-                )
-                Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
+                Box(modifier = modifier.fillMaxSize()) {
+                    CustomVerticalScrollbar(
+                        scrollState = scrollState,
+                        modifier = Modifier.align(Alignment.CenterEnd)
+                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = Padding.MEDIUM.dp)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
+
+                        Text(
+                            text = stringResource(Res.string.sign_in_screen_title),
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.testTag(TestTags.SIGN_IN_SCREEN_TITLE.tag)
+                        )
+                        EmailInputField(
+                            email = uiState.value.signInEmail,
+                            onEmailChanged = { handleAction(AuthAction.HandleSignInEmailChanged(it)) },
+                            emailError = uiState.value.signInEmailError,
+                            enabled = !uiState.value.isLoading,
+                            modifier = Modifier.testTag(TestTags.SIGN_IN_EMAIL_FIELD.tag)
+                        )
+                        PasswordInputField(
+                            password = uiState.value.signInPassword,
+                            onPasswordChanged = { handleAction(AuthAction.HandleSignInPasswordChanged(it)) },
+                            passwordError = uiState.value.signInPasswordError,
+                            enabled = !uiState.value.isLoading,
+                            onPasswordVisibilityToggled = { handleAction(AuthAction.ToggleSignInPasswordVisibility) },
+                            passwordVisibility = uiState.value.signInPasswordVisibility,
+                            modifier = Modifier.testTag(TestTags.SIGN_IN_PASSWORD_FIELD.tag),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                            keyboardActions = KeyboardActions { handleAction(AuthAction.SignIn(signInSuccessMessage)) }
+                        )
+                        Button(
+                            onClick = { handleAction(AuthAction.SignIn(signInSuccessMessage)) },
+                            enabled = !uiState.value.isLoading &&
+                                    uiState.value.signInEmailError.isNullOrBlank() &&
+                                    uiState.value.signInPasswordError.isNullOrBlank(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
+                                .testTag(TestTags.SIGN_IN_BUTTON.tag),
+                            shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
+                            content = { Text(stringResource(Res.string.sign_in_button_label)) }
+                        )
+                        TextButton(
+                            onClick = {
+                                authUiPhase = AuthUiPhase.HIDDEN
+                                currentDestination = AuthForm.ResetPassword
+                            },
+                            enabled = !uiState.value.isLoading,
+                            modifier = Modifier.testTag(TestTags.SIGN_IN_FORGOT_PASSWORD_BUTTON.tag),
+                            content = { Text(stringResource(Res.string.forgot_password_button_label)) }
+                        )
+                        AuthDivider()
+                        TextButton(
+                            onClick = {
+                                authUiPhase = AuthUiPhase.HIDDEN
+                                currentDestination = AuthForm.SignUp
+                            },
+                            enabled = !uiState.value.isLoading,
+                            modifier = Modifier.testTag(TestTags.SIGN_IN_CREATE_ACCOUNT_BUTTON.tag),
+                            content = { Text(stringResource(Res.string.create_account_button_label)) }
+                        )
+                        Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
+                    }
+                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun SignUpForm(
-    isScreenVisible: Boolean,
-    windowSizeClass: WindowSizeClass,
-    snackbarHostState: SnackbarHostState,
-    snackbarType: SnackbarType,
-    email: String,
-    onEmailChanged: (String) -> Unit,
-    emailError: String?,
-    password: String,
-    passwordError: String?,
-    onPasswordChanged: (String) -> Unit,
-    passwordVisibility: Boolean,
-    onPasswordVisibilityToggled: () -> Unit,
-    confirmedPassword: String,
-    confirmedPasswordError: String?,
-    onConfirmedPasswordChanged: (String) -> Unit,
-    onSignUpClicked: (String) -> Unit,
-    isUserSignedUp: Boolean,
-    enabled: Boolean,
-    displayAuthForm: (AuthForm) -> Unit,
-    onAnimationFinished: () -> Unit,
+    screenConfig: ScreenConfig<AuthUIState>,
+    handleAction: (AuthAction) -> Unit,
     modifier: Modifier = Modifier
-) {
+) = with(screenConfig) {
     val signUpSuccessMessage = stringResource(Res.string.sign_up_success)
-    var isFormVisible by remember { mutableStateOf(true) }
+    var authUiPhase by remember { mutableStateOf(AuthUiPhase.FORM) }
     var currentDestination by remember { mutableStateOf<AuthForm?>(null) }
     val scrollState = rememberScrollState()
-
-    LaunchedEffect(isScreenVisible) { isFormVisible = isScreenVisible }
-
-    LaunchedEffect(isUserSignedUp) {
-        if (isUserSignedUp) {
-            isFormVisible = false
+    val lockAnimComposition by rememberLottieComposition {
+        LottieCompositionSpec.JsonString(
+            Res.readBytes("files/email_confirmation.json").decodeToString()
+        )
+    }
+    val lockAnimProgress = animateLottieCompositionAsState(
+        composition = lockAnimComposition,
+        iterations = 1,
+        isPlaying = authUiPhase == AuthUiPhase.ANIMATION
+    )
+    LaunchedEffect(uiState.value.isUserSignedUp) {
+        if (uiState.value.isUserSignedUp) {
+            authUiPhase = AuthUiPhase.ANIMATION
+        }
+    }
+    LaunchedEffect(lockAnimProgress.progress) {
+        if (lockAnimProgress.progress == 1f) {
+            authUiPhase = AuthUiPhase.HIDDEN
             currentDestination = AuthForm.VerifyEmail
         }
     }
-
     AuthLayout(
         windowSizeClass = windowSizeClass,
         snackbarHostState = snackbarHostState,
-        snackbarType = snackbarType,
-        enabled = enabled,
-        isVisible = isFormVisible,
+        snackbarType = snackbarType.value,
+        enabled = !uiState.value.isLoading,
+        isVisible = authUiPhase != AuthUiPhase.HIDDEN,
         onAnimationFinished = {
-            if (currentDestination == null) onAnimationFinished()
-            else currentDestination?.let(displayAuthForm)
+            currentDestination?.let { form -> handleAction(AuthAction.DisplayAuthForm(form)) }
+                ?: handleAction(AuthAction.HandleAnimationEnd)
         }
     ) {
-        Box(modifier = modifier.fillMaxSize()) {
-            CustomVerticalScrollbar(
-                scrollState = scrollState,
-                modifier = Modifier.align(Alignment.CenterEnd)
+        when (authUiPhase) {
+            AuthUiPhase.HIDDEN -> Unit
+
+            AuthUiPhase.ANIMATION -> LottieAnimationBox(
+                composition = lockAnimComposition,
+                animationState = lockAnimProgress,
+                modifier = Modifier.fillMaxSize()
             )
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = Padding.MEDIUM.dp)
-                    .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+
+            AuthUiPhase.FORM -> AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(),
+                exit = fadeOut()
             ) {
-                Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
-                Text(
-                    text = stringResource(Res.string.sign_up_screen_title),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.testTag(TestTags.SIGN_UP_SCREEN_TITLE.tag)
-                )
-                EmailInputField(
-                    email = email,
-                    onEmailChanged = onEmailChanged,
-                    emailError = emailError,
-                    enabled = enabled,
-                    modifier = Modifier.testTag(TestTags.SIGN_UP_EMAIL_FIELD.tag)
-                )
-                PasswordInputField(
-                    password = password,
-                    onPasswordChanged = onPasswordChanged,
-                    passwordError = passwordError,
-                    enabled = enabled,
-                    passwordVisibility = passwordVisibility,
-                    onPasswordVisibilityToggled = onPasswordVisibilityToggled,
-                    modifier = Modifier.testTag(TestTags.SIGN_UP_PASSWORD_FIELD.tag)
-                )
-                ConfirmPasswordInputField(
-                    password = confirmedPassword,
-                    onPasswordChanged = onConfirmedPasswordChanged,
-                    passwordError = confirmedPasswordError,
-                    enabled = enabled,
-                    modifier = Modifier.testTag(TestTags.SIGN_UP_CONFIRM_PASSWORD_FIELD.tag),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                    keyboardActions = KeyboardActions { onSignUpClicked(signUpSuccessMessage) },
-                )
-                Button(
-                    onClick = { onSignUpClicked(signUpSuccessMessage) },
-                    enabled = enabled && emailError.isNullOrBlank() && passwordError.isNullOrBlank() && confirmedPasswordError.isNullOrBlank(),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
-                        .testTag(TestTags.SIGN_UP_BUTTON.tag),
-                    shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
-                    content = { Text(stringResource(Res.string.sign_up_button_label)) }
-                )
-                AuthDivider()
-                TextButton(
-                    onClick = {
-                        isFormVisible = false
-                        currentDestination = AuthForm.SignIn
-                    },
-                    enabled = enabled,
-                    modifier = Modifier.testTag(TestTags.SIGN_UP_SIGN_IN_BUTTON.tag),
-                    content = { Text(stringResource(Res.string.already_have_account_button_label)) }
-                )
-                Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
-            }
-        }
-    }
-}
-
-@Composable
-private fun VerificationForm(
-    isScreenVisible: Boolean,
-    windowSizeClass: WindowSizeClass,
-    snackbarHostState: SnackbarHostState,
-    snackbarType: SnackbarType,
-    email: String,
-    onResendVerificationEmailClicked: (String) -> Unit,
-    onVerifyEmailClicked: () -> Unit,
-    deleteUser: (String) -> Unit,
-    displayAuthForm: (AuthForm) -> Unit,
-    enabled: Boolean,
-    onAnimationFinished: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val resendEmailSuccessMessage = stringResource(Res.string.resend_email_success)
-    val deleteUserSuccessMessage = stringResource(Res.string.del_user_success)
-    var isFormVisible by remember { mutableStateOf(true) }
-    var currentDestination by remember { mutableStateOf<AuthForm?>(null) }
-    val scrollState = rememberScrollState()
-
-    LaunchedEffect(isScreenVisible) { isFormVisible = isScreenVisible }
-
-    AuthLayout(
-        windowSizeClass = windowSizeClass,
-        snackbarHostState = snackbarHostState,
-        snackbarType = snackbarType,
-        enabled = enabled,
-        isVisible = isFormVisible,
-        onAnimationFinished = {
-            if (currentDestination == null) onAnimationFinished()
-            else currentDestination?.let(displayAuthForm)
-        }
-    ) {
-        Box(modifier = modifier.fillMaxSize()) {
-            CustomVerticalScrollbar(
-                scrollState = scrollState,
-                modifier = Modifier.align(Alignment.CenterEnd)
-            )
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = Padding.MEDIUM.dp)
-                    .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
-                Text(
-                    text = stringResource(Res.string.verify_email_screen_title),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_SCREEN_TITLE.tag)
-                )
-                Text(
-                    text = stringResource(Res.string.verify_email_screen_description),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_SCREEN_DESCRIPTION.tag)
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = email,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_SCREEN_EMAIL.tag)
+                Box(modifier = modifier.fillMaxSize()) {
+                    CustomVerticalScrollbar(
+                        scrollState = scrollState,
+                        modifier = Modifier.align(Alignment.CenterEnd)
                     )
-                    IconButton(
-                        onClick = {
-                            isFormVisible = false
-                            deleteUser(deleteUserSuccessMessage)
-                            currentDestination = AuthForm.SignUp
-                        },
-                        modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_SCREEN_EDIT_EMAIL_BUTTON.tag),
-                        enabled = enabled
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = Padding.MEDIUM.dp)
+                            .verticalScroll(scrollState),
+                        verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = stringResource(Res.string.email_label),
-                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
+                        Text(
+                            text = stringResource(Res.string.sign_up_screen_title),
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.testTag(TestTags.SIGN_UP_SCREEN_TITLE.tag)
                         )
+                        EmailInputField(
+                            email = uiState.value.signUpEmail,
+                            onEmailChanged = { handleAction(AuthAction.HandleSignUpEmailChanged(it)) },
+                            emailError = uiState.value.signUpEmailError,
+                            enabled = !uiState.value.isLoading,
+                            modifier = Modifier.testTag(TestTags.SIGN_UP_EMAIL_FIELD.tag)
+                        )
+                        PasswordInputField(
+                            password = uiState.value.signUpPassword,
+                            onPasswordChanged = { handleAction(AuthAction.HandleSignUpPasswordChanged(it)) },
+                            passwordError = uiState.value.signUpPasswordError,
+                            enabled = !uiState.value.isLoading,
+                            passwordVisibility = uiState.value.signUpPasswordVisibility,
+                            onPasswordVisibilityToggled = { handleAction(AuthAction.ToggleSignUpPasswordVisibility) },
+                            modifier = Modifier.testTag(TestTags.SIGN_UP_PASSWORD_FIELD.tag)
+                        )
+                        ConfirmPasswordInputField(
+                            password = uiState.value.signUpPasswordConfirmation,
+                            onPasswordChanged = { handleAction(AuthAction.HandleSignUpPasswordConfirmationChanged(it)) },
+                            passwordError = uiState.value.signUpPasswordConfirmationError,
+                            enabled = !uiState.value.isLoading,
+                            modifier = Modifier.testTag(TestTags.SIGN_UP_CONFIRM_PASSWORD_FIELD.tag),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                            keyboardActions = KeyboardActions { handleAction(AuthAction.SignUp(signUpSuccessMessage)) }
+                        )
+                        Button(
+                            onClick = { handleAction(AuthAction.SignUp(signUpSuccessMessage)) },
+                            enabled = !uiState.value.isLoading &&
+                                    uiState.value.signUpEmailError.isNullOrBlank() &&
+                                    uiState.value.signUpPasswordError.isNullOrBlank() &&
+                                    uiState.value.signUpPasswordConfirmationError.isNullOrBlank(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
+                                .testTag(TestTags.SIGN_UP_BUTTON.tag),
+                            shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
+                            content = { Text(stringResource(Res.string.sign_up_button_label)) }
+                        )
+                        AuthDivider()
+                        TextButton(
+                            onClick = {
+                                authUiPhase = AuthUiPhase.HIDDEN
+                                currentDestination = AuthForm.SignIn
+                            },
+                            enabled = !uiState.value.isLoading,
+                            modifier = Modifier.testTag(TestTags.SIGN_UP_SIGN_IN_BUTTON.tag),
+                            content = { Text(stringResource(Res.string.already_have_account_button_label)) }
+                        )
+                        Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
                     }
                 }
-                PulsingImage(image = Res.drawable.ic_envelop, size = 150.dp)
-                Button(
-                    onClick = onVerifyEmailClicked,
-                    enabled = enabled,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
-                        .testTag(TestTags.VERIFY_EMAIL_SCREEN_VERIFY_EMAIL_BUTTON.tag),
-                    shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
-                    content = { Text(stringResource(Res.string.verify_email_button_label)) }
-                )
-                OutlinedButton(
-                    onClick = { onResendVerificationEmailClicked(resendEmailSuccessMessage) },
-                    enabled = enabled,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
-                        .testTag(TestTags.VERIFY_EMAIL_RESEND_EMAIL_BUTTON.tag),
-                    shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
-                    content = { Text(stringResource(Res.string.resend_email_button_label)) }
-                )
-                Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
             }
         }
     }
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
-private fun PasswordResetForm(
-    isScreenVisible: Boolean,
-    windowSizeClass: WindowSizeClass,
-    snackbarHostState: SnackbarHostState,
-    snackbarType: SnackbarType,
-    email: String,
-    onEmailChanged: (String) -> Unit,
-    emailError: String?,
-    onResetPasswordClicked: (String) -> Unit,
-    enabled: Boolean,
-    displayAuthForm: (AuthForm) -> Unit,
-    onAnimationFinished: () -> Unit,
+private fun VerificationForm(
+    screenConfig: ScreenConfig<AuthUIState>,
+    handleAction: (AuthAction) -> Unit,
     modifier: Modifier = Modifier
-) {
-    val resetSuccessMessage = stringResource(Res.string.password_reset_success)
-    var isFormVisible by remember { mutableStateOf(true) }
+) = with(screenConfig) {
+    val resendEmailSuccessMessage = stringResource(Res.string.resend_email_success)
+    val deleteUserSuccessMessage = stringResource(Res.string.del_user_success)
+    var authUiPhase by remember { mutableStateOf(AuthUiPhase.FORM) }
     var currentDestination by remember { mutableStateOf<AuthForm?>(null) }
     val scrollState = rememberScrollState()
-
-    LaunchedEffect(isScreenVisible) { isFormVisible = isScreenVisible }
+    val scanUnlockComposition by rememberLottieComposition {
+        LottieCompositionSpec.JsonString(
+            Res.readBytes("files/scan_and_unlock.json").decodeToString()
+        )
+    }
+    val scanUnlockAnimationState = animateLottieCompositionAsState(
+        composition = scanUnlockComposition,
+        iterations = 1,
+        isPlaying = authUiPhase == AuthUiPhase.ANIMATION
+    )
+    val twoFactorAuthComposition by rememberLottieComposition {
+        LottieCompositionSpec.JsonString(
+            Res.readBytes("files/two_factor_authentication.json").decodeToString()
+        )
+    }
+    val twoFactorAuthAnimationState = animateLottieCompositionAsState(
+        composition = twoFactorAuthComposition,
+        iterations = Compottie.IterateForever
+    )
+    LaunchedEffect(uiState.value.isEmailVerified) {
+        if (uiState.value.isEmailVerified) authUiPhase = AuthUiPhase.ANIMATION
+    }
+    LaunchedEffect(scanUnlockAnimationState.progress) {
+        if (scanUnlockAnimationState.progress == 1f) authUiPhase = AuthUiPhase.HIDDEN
+    }
 
     AuthLayout(
         windowSizeClass = windowSizeClass,
         snackbarHostState = snackbarHostState,
-        snackbarType = snackbarType,
-        enabled = enabled,
-        isVisible = isFormVisible,
+        snackbarType = snackbarType.value,
+        enabled = !uiState.value.isLoading,
+        isVisible = authUiPhase != AuthUiPhase.HIDDEN,
         onAnimationFinished = {
-            if (currentDestination == null) onAnimationFinished()
-            else currentDestination?.let(displayAuthForm)
+            currentDestination?.let { form -> handleAction(AuthAction.DisplayAuthForm(form)) }
+                ?: handleAction(AuthAction.HandleAnimationEnd)
         }
     ) {
-        Box(modifier = modifier.fillMaxSize()) {
-            CustomVerticalScrollbar(
-                scrollState = scrollState,
-                modifier = Modifier.align(Alignment.CenterEnd)
+        when (authUiPhase) {
+            AuthUiPhase.HIDDEN -> Unit
+
+            AuthUiPhase.ANIMATION -> LottieAnimationBox(
+                composition = scanUnlockComposition,
+                animationState = scanUnlockAnimationState,
+                modifier = Modifier.fillMaxSize()
             )
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = Padding.MEDIUM.dp)
-                    .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+
+            AuthUiPhase.FORM -> {
+                AnimatedVisibility(
+                    visible = true,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    Box(modifier = modifier.fillMaxSize()) {
+                        CustomVerticalScrollbar(
+                            scrollState = scrollState,
+                            modifier = Modifier.align(Alignment.CenterEnd)
+                        )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = Padding.MEDIUM.dp)
+                                .verticalScroll(scrollState),
+                            verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
+                            Text(
+                                text = stringResource(Res.string.verify_email_screen_title),
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_SCREEN_TITLE.tag)
+                            )
+                            Text(
+                                text = stringResource(Res.string.verify_email_screen_description),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_SCREEN_DESCRIPTION.tag)
+                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = uiState.value.signUpEmail,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    textAlign = TextAlign.Center,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_SCREEN_EMAIL.tag)
+                                )
+                                IconButton(
+                                    onClick = {
+                                        authUiPhase = AuthUiPhase.HIDDEN
+                                        handleAction(AuthAction.DeleteUser(deleteUserSuccessMessage))
+                                        currentDestination = AuthForm.SignUp
+                                    },
+                                    modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_SCREEN_EDIT_EMAIL_BUTTON.tag),
+                                    enabled = !uiState.value.isLoading
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Edit,
+                                        contentDescription = stringResource(Res.string.email_label),
+                                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                    )
+                                }
+                            }
+                            Image(
+                                painter = rememberLottiePainter(
+                                    composition = twoFactorAuthComposition,
+                                    progress = twoFactorAuthAnimationState::value
+                                ),
+                                contentDescription = null,
+                                modifier = Modifier.size(150.dp)
+                            )
+                            Button(
+                                onClick = { handleAction(AuthAction.VerifyEmail) },
+                                enabled = !uiState.value.isLoading,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
+                                    .testTag(TestTags.VERIFY_EMAIL_SCREEN_VERIFY_EMAIL_BUTTON.tag),
+                                shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
+                                content = { Text(stringResource(Res.string.verify_email_button_label)) }
+                            )
+                            OutlinedButton(
+                                onClick = { handleAction(AuthAction.ResendVerificationEmail(resendEmailSuccessMessage)) },
+                                enabled = !uiState.value.isLoading,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
+                                    .testTag(TestTags.VERIFY_EMAIL_RESEND_EMAIL_BUTTON.tag),
+                                shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
+                                content = { Text(stringResource(Res.string.resend_email_button_label)) }
+                            )
+                            Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun PasswordResetForm(
+    screenConfig: ScreenConfig<AuthUIState>,
+    handleAction: (AuthAction) -> Unit,
+    modifier: Modifier = Modifier
+) = with(screenConfig) {
+    val resetSuccessMessage = stringResource(Res.string.password_reset_success)
+    var authUiPhase by remember { mutableStateOf(AuthUiPhase.FORM) }
+    var currentDestination by remember { mutableStateOf<AuthForm?>(null) }
+    val scrollState = rememberScrollState()
+    val emailSentAnimation by rememberLottieComposition {
+        LottieCompositionSpec.JsonString(
+            Res.readBytes("files/email_sent.json").decodeToString()
+        )
+    }
+    val emailSentAnimationState = animateLottieCompositionAsState(
+        composition = emailSentAnimation,
+        iterations = 1,
+        isPlaying = authUiPhase == AuthUiPhase.ANIMATION
+    )
+    val forgotPasswordComposition by rememberLottieComposition {
+        LottieCompositionSpec.JsonString(
+            Res.readBytes("files/forgot_password.json").decodeToString()
+        )
+    }
+    val forgotPasswordAnimationState = animateLottieCompositionAsState(
+        composition = forgotPasswordComposition,
+        iterations = Compottie.IterateForever
+    )
+    LaunchedEffect(uiState.value.isPasswordResetEmailSent) {
+        if (uiState.value.isPasswordResetEmailSent) authUiPhase = AuthUiPhase.ANIMATION
+    }
+    LaunchedEffect(emailSentAnimationState.progress) {
+        if (emailSentAnimationState.progress == 1f) {
+            authUiPhase = AuthUiPhase.HIDDEN
+            currentDestination = AuthForm.SignIn
+        }
+    }
+
+    AuthLayout(
+        windowSizeClass = windowSizeClass,
+        snackbarHostState = snackbarHostState,
+        snackbarType = snackbarType.value,
+        enabled = !uiState.value.isLoading,
+        isVisible = authUiPhase != AuthUiPhase.HIDDEN,
+        onAnimationFinished = {
+            currentDestination?.let { form -> handleAction(AuthAction.DisplayAuthForm(form)) }
+                ?: handleAction(AuthAction.HandleAnimationEnd)
+        }
+    ) {
+        when (authUiPhase) {
+            AuthUiPhase.HIDDEN -> Unit
+
+            AuthUiPhase.ANIMATION -> LottieAnimationBox(
+                composition = emailSentAnimation,
+                animationState = emailSentAnimationState,
+                modifier = Modifier.fillMaxSize()
+            )
+
+            AuthUiPhase.FORM -> AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(),
+                exit = fadeOut()
             ) {
-                Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
-                Text(
-                    text = stringResource(Res.string.password_reset_screen_title),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.testTag(TestTags.RESET_PASSWORD_SCREEN_TITLE.tag)
-                )
-                EmailInputField(
-                    email = email,
-                    onEmailChanged = onEmailChanged,
-                    emailError = emailError,
-                    enabled = enabled,
-                    modifier = Modifier.testTag(TestTags.RESET_PASSWORD_EMAIL_FIELD.tag),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                    keyboardActions = KeyboardActions { onResetPasswordClicked(resetSuccessMessage) }
-                )
-                Button(
-                    onClick = { onResetPasswordClicked(resetSuccessMessage) },
-                    enabled = enabled && emailError.isNullOrBlank(),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
-                        .testTag(TestTags.RESET_PASSWORD_BUTTON.tag),
-                    shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
-                    content = { Text(stringResource(Res.string.send_reset_password_email_button_label)) }
-                )
-                AuthDivider()
-                TextButton(
-                    onClick = {
-                        isFormVisible = false
-                        currentDestination = AuthForm.SignIn
-                    },
-                    enabled = enabled,
-                    modifier = Modifier.testTag(TestTags.RESET_PASSWORD_SIGN_IN_BUTTON.tag),
-                    content = { Text(stringResource(Res.string.back_to_sign_in_button_label)) }
-                )
-                Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
+                Box(modifier = modifier.fillMaxSize()) {
+                    CustomVerticalScrollbar(
+                        scrollState = scrollState,
+                        modifier = Modifier.align(Alignment.CenterEnd)
+                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = Padding.MEDIUM.dp)
+                            .verticalScroll(scrollState),
+                        verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
+                        Image(
+                            painter = rememberLottiePainter(
+                                composition = forgotPasswordComposition,
+                                progress = forgotPasswordAnimationState::value
+                            ),
+                            contentDescription = null,
+                            modifier = Modifier.size(150.dp)
+                        )
+                        Text(
+                            text = stringResource(Res.string.password_reset_screen_title),
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.testTag(TestTags.RESET_PASSWORD_SCREEN_TITLE.tag)
+                        )
+                        EmailInputField(
+                            email = uiState.value.resetPasswordEmail,
+                            onEmailChanged = { handleAction(AuthAction.HandlePasswordResetEmailChanged(it)) },
+                            emailError = uiState.value.resetPasswordEmailError,
+                            enabled = !uiState.value.isLoading,
+                            modifier = Modifier.testTag(TestTags.RESET_PASSWORD_EMAIL_FIELD.tag),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                            keyboardActions = KeyboardActions { handleAction(AuthAction.SendPasswordResetEmail(resetSuccessMessage)) }
+                        )
+                        Button(
+                            onClick = { handleAction(AuthAction.SendPasswordResetEmail(resetSuccessMessage)) },
+                            enabled = !uiState.value.isLoading && uiState.value.resetPasswordEmailError.isNullOrBlank(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
+                                .testTag(TestTags.RESET_PASSWORD_BUTTON.tag),
+                            shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
+                            content = { Text(stringResource(Res.string.send_reset_password_email_button_label)) }
+                        )
+                        AuthDivider()
+                        TextButton(
+                            onClick = {
+                                authUiPhase = AuthUiPhase.HIDDEN
+                                currentDestination = AuthForm.SignIn
+                            },
+                            enabled = !uiState.value.isLoading,
+                            modifier = Modifier.testTag(TestTags.RESET_PASSWORD_SIGN_IN_BUTTON.tag),
+                            content = { Text(stringResource(Res.string.back_to_sign_in_button_label)) }
+                        )
+                        Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
+                    }
+                }
             }
         }
     }
@@ -680,3 +766,23 @@ private fun AuthDivider(
         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
     )
 }
+
+@Composable
+private fun LottieAnimationBox(
+    composition: LottieComposition?,
+    animationState: LottieAnimationState,
+    modifier: Modifier = Modifier
+) = Box(
+    modifier = modifier,
+    contentAlignment = Alignment.Center
+) {
+    Image(
+        painter = rememberLottiePainter(
+            composition = composition,
+            progress = animationState::value
+        ),
+        contentDescription = null,
+        modifier = Modifier.size(200.dp)
+    )
+}
+

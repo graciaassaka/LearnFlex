@@ -15,5 +15,13 @@ class SignInUseCase(private val authClient: AuthClient) {
      * @param password The password of the user.
      * @return The result of the sign-in operation.
      */
-    suspend operator fun invoke(email: String, password: String) = authClient.signIn(email, password)
+    suspend operator fun invoke(email: String, password: String) = authClient.runCatching {
+        signIn(email, password).getOrThrow()
+        getUserData().getOrThrow().let {
+            if (it.emailVerified == false) {
+                deleteUser().getOrThrow()
+                throw IllegalStateException("Email not verified")
+            }
+        }
+    }
 }

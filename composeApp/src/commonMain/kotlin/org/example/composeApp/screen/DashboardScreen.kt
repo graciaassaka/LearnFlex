@@ -59,12 +59,13 @@ import org.example.composeApp.dimension.Padding
 import org.example.composeApp.dimension.Spacing
 import org.example.composeApp.layout.VerticalBarGraphLayout
 import org.example.composeApp.navigation.AppDestination
+import org.example.composeApp.util.ScreenConfig
 import org.example.composeApp.util.TestTags
-import org.example.shared.domain.constant.Collection
-import org.example.shared.domain.constant.Status
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
+import org.example.shared.presentation.action.DashboardAction
 import org.example.shared.presentation.navigation.Route
+import org.example.shared.presentation.state.DashboardUIState
 import org.example.shared.presentation.util.SnackbarType
 import org.example.shared.presentation.viewModel.DashboardViewModel
 import org.jetbrains.compose.resources.painterResource
@@ -110,45 +111,26 @@ fun DashboardScreen(
     navController: NavController,
     viewModel: DashboardViewModel
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    var currentSnackbarType by remember { mutableStateOf<SnackbarType>(SnackbarType.Info) }
-
-    val state by viewModel.state.collectAsState()
-    val isScreenVisible by viewModel.isScreenVisible.collectAsState()
-
-    HandleUIEvents(Route.CreateProfile, navController, viewModel, snackbarHostState) { currentSnackbarType = it }
-
-    val itemsCompletion = listOf(
-        Triple(
-            Collection.MODULES.value,
-            state.moduleCountByStatus[Status.FINISHED] ?: 0,
-            state.moduleCountByStatus.values.sum()
-        ),
-        Triple(
-            Collection.LESSONS.value,
-            state.lessonCountByStatus[Status.FINISHED] ?: 0,
-            state.lessonCountByStatus.values.sum()
-        ),
-        Triple(
-            Collection.SECTIONS.value,
-            state.sectionCountByStatus[Status.FINISHED] ?: 0,
-            state.sectionCountByStatus.values.sum()
-        )
+    val screenConfig = ScreenConfig(
+        windowSizeClass = windowSizeClass,
+        snackbarHostState = remember { SnackbarHostState() },
+        snackbarType = remember { mutableStateOf(SnackbarType.Info) },
+        uiState = viewModel.state.collectAsState(),
+        isScreenVisible = viewModel.isScreenVisible.collectAsState()
     )
 
-    val totalMinutes = state.weeklyActivity.values.sumOf { it.first.toInt() }
-    val averageMinutes = if (state.weeklyActivity.isNotEmpty()) totalMinutes / state.weeklyActivity.size else 0
+    HandleUIEvents(Route.CreateProfile, navController, viewModel, screenConfig.snackbarHostState) { screenConfig.snackbarType.value = it }
 
     val fabInteractionSource = remember { MutableInteractionSource() }
     val isFabHovered by fabInteractionSource.collectIsHoveredAsState()
     val lazyGridState = rememberLazyGridState()
 
     CustomScaffold(
-        snackbarHostState = snackbarHostState,
-        snackbarType = currentSnackbarType,
+        snackbarHostState = screenConfig.snackbarHostState,
+        snackbarType = screenConfig.snackbarType.value,
         currentDestination = AppDestination.Dashboard,
         onDestinationSelected = { viewModel.navigate(it.route, true) },
-        enabled = !state.isLoading
+        enabled = !screenConfig.uiState.value.isLoading,
     ) { paddingValues ->
         Row(
             modifier = Modifier
@@ -169,11 +151,9 @@ fun DashboardScreen(
                 ) {
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         WelcomeSection(
-                            isVisible = isScreenVisible,
-                            isLoading = state.isLoading,
-                            modifier = Modifier.testTag(TestTags.DASHBOARD_WELCOME_SECTION.tag),
-                            curriculum = state.activeCurriculum,
-                            onCurriculumSelected = viewModel::onCurriculumClicked
+                            screenConfig = screenConfig,
+                            handleAction = viewModel::handleAction,
+                            modifier = Modifier.testTag(TestTags.DASHBOARD_WELCOME_SECTION.tag)
                         )
                     }
 
@@ -197,11 +177,7 @@ fun DashboardScreen(
 
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         WeeklyActivitiesSection(
-                            isLoading = state.isLoading,
-                            windowSizeClass = windowSizeClass,
-                            weeklyActivities = state.weeklyActivity,
-                            totalMinutes = totalMinutes,
-                            averageMinutes = averageMinutes,
+                            screenConfig = screenConfig,
                             modifier = Modifier.testTag(TestTags.DASHBOARD_WEEKLY_ACTIVITY_SECTION.tag)
                         )
                     }
@@ -224,14 +200,14 @@ fun DashboardScreen(
                         Spacer(modifier = Modifier.height(Spacing.MEDIUM.dp))
                     }
 
-                    items(state.modules) { module ->
+                    items(screenConfig.uiState.value.modules) { module ->
                         ModuleCard(
-                            isLoading = state.isLoading,
+                            isLoading = screenConfig.uiState.value.isLoading,
                             module = module,
                             modifier = Modifier
                                 .padding(Padding.SMALL.dp)
                                 .testTag("module_card_${module.id}"),
-                            onModuleClicked = viewModel::onModuleClicked
+                            onModuleClicked = viewModel::openModule
                         )
                     }
                 }
@@ -266,10 +242,8 @@ fun DashboardScreen(
                     .fillMaxHeight()
             ) {
                 CurriculumSection(
-                    isLoading = state.isLoading,
-                    curricula = state.curricula,
-                    itemCompletions = itemsCompletion,
-                    onCurriculumClicked = viewModel::onCurriculumClicked,
+                    screenConfig = screenConfig,
+                    handleAction = viewModel::handleAction,
                     modifier = Modifier.testTag(TestTags.DASHBOARD_CURRICULUM_SECTION.tag)
                 )
             }
@@ -279,13 +253,11 @@ fun DashboardScreen(
 
 @Composable
 private fun WelcomeSection(
-    isVisible: Boolean,
-    isLoading: Boolean,
-    onCurriculumSelected: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    curriculum: Curriculum? = null
-) {
-    val visible by remember { mutableStateOf(isVisible) }
+    screenConfig: ScreenConfig<DashboardUIState>,
+    handleAction: (DashboardAction) -> Unit,
+    modifier: Modifier = Modifier
+) = with(screenConfig) {
+    val visible by remember { mutableStateOf(isScreenVisible.value) }
 
     AnimatedVisibility(
         visible = visible,
@@ -302,18 +274,18 @@ private fun WelcomeSection(
                 horizontalAlignment = Alignment.Start
             ) {
                 TitleSection(
-                    isLoading = isLoading,
+                    isLoading = uiState.value.isLoading,
                     modifier = Modifier
                         .height(this@BoxWithConstraints.maxHeight / 3)
                         .width(this@BoxWithConstraints.maxWidth * 2 / 3)
                         .testTag(TestTags.DASHBOARD_TITLE_SECTION.tag)
                 )
                 WelcomeCard(
-                    isLoading = isLoading,
-                    curriculum = curriculum,
+                    isLoading = uiState.value.isLoading,
+                    curriculum = uiState.value.activeCurriculum,
                     maxHeight = this@BoxWithConstraints.maxHeight,
                     maxWidth = this@BoxWithConstraints.maxWidth,
-                    onCurriculumSelected = onCurriculumSelected,
+                    onCurriculumSelected = { handleAction(DashboardAction.OpenCurriculum(it)) },
                     modifier = Modifier.testTag(TestTags.DASHBOARD_WELCOME_CARD.tag)
                 )
             }
@@ -402,13 +374,9 @@ private fun WelcomeCard(
 
 @Composable
 private fun WeeklyActivitiesSection(
-    isLoading: Boolean,
-    windowSizeClass: WindowSizeClass,
-    weeklyActivities: Map<DayOfWeek, Pair<Long, Int>>,
-    totalMinutes: Int,
-    averageMinutes: Int,
-    modifier: Modifier = Modifier,
-) = if (isLoading) {
+    screenConfig: ScreenConfig<DashboardUIState>,
+    modifier: Modifier = Modifier
+) = if (screenConfig.uiState.value.isLoading) {
     Box(
         modifier = modifier
             .height(Dimensions.WEEKLY_ACTIVITY_SECTION_HEIGHT.dp)
@@ -440,10 +408,10 @@ private fun WeeklyActivitiesSection(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             WeeklyActivitiesContent(
-                windowSizeClass = windowSizeClass,
-                weeklyActivities = weeklyActivities,
-                totalMinutes = totalMinutes,
-                averageMinutes = averageMinutes,
+                windowSizeClass = screenConfig.windowSizeClass,
+                weeklyActivities = screenConfig.uiState.value.weeklyActivity,
+                totalMinutes = screenConfig.uiState.value.totalMinutes,
+                averageMinutes = screenConfig.uiState.value.averageMinutes,
                 selectedDay = selectedDay,
                 showPopup = showPopup,
                 onDaySelected = { selectedDay = it; showPopup = true },
@@ -649,12 +617,10 @@ private fun ModuleCard(
 
 @Composable
 private fun CurriculumSection(
-    isLoading: Boolean,
-    curricula: List<Curriculum>,
-    itemCompletions: List<Triple<String, Int, Int>>,
-    onCurriculumClicked: (String) -> Unit,
-    modifier: Modifier = Modifier,
-) = if (isLoading) {
+    screenConfig: ScreenConfig<DashboardUIState>,
+    handleAction: (DashboardAction) -> Unit,
+    modifier: Modifier = Modifier
+) = if (screenConfig.uiState.value.isLoading) {
     Box(modifier = modifier.fillMaxSize().shimmerEffect())
 } else {
     val lazyState = rememberLazyListState()
@@ -676,7 +642,12 @@ private fun CurriculumSection(
 
     Box(modifier = modifier.fillMaxSize()) {
         AnimatedBackground(brushColors, offset)
-        CurriculumContent(curricula, itemCompletions, onCurriculumClicked, lazyState)
+        CurriculumContent(
+            curricula = screenConfig.uiState.value.curricula,
+            itemCompletions = screenConfig.uiState.value.itemsCompletion,
+            onCurriculumClicked = { handleAction(DashboardAction.OpenCurriculum(it)) },
+            lazyState = lazyState
+        )
         CustomVerticalScrollbar(
             lazyListState = lazyState,
             modifier = Modifier.align(Alignment.CenterEnd)

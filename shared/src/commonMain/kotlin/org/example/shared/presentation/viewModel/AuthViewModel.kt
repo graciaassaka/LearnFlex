@@ -11,6 +11,7 @@ import org.example.shared.domain.use_case.validation.ValidateEmailUseCase
 import org.example.shared.domain.use_case.validation.ValidatePasswordConfirmationUseCase
 import org.example.shared.domain.use_case.validation.ValidatePasswordUseCase
 import org.example.shared.domain.use_case.validation.util.ValidationResult
+import org.example.shared.presentation.action.AuthAction
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.state.AuthUIState
 import org.example.shared.presentation.util.AuthForm
@@ -48,11 +49,37 @@ class AuthViewModel(
     val state = _state.asStateFlow()
 
     /**
+     * Handles the specified action.
+     *
+     * @param action The action to handle.
+     */
+    fun handleAction(action: AuthAction) {
+        when (action) {
+            is AuthAction.HandleSignInEmailChanged -> handleSignInEmailChanged(action.email)
+            is AuthAction.HandleSignInPasswordChanged -> handleSignInPasswordChanged(action.password)
+            is AuthAction.ToggleSignInPasswordVisibility -> toggleSignInPasswordVisibility()
+            is AuthAction.SignIn -> signIn(action.successMessage)
+            is AuthAction.HandleSignUpEmailChanged -> handleSignUpEmailChanged(action.email)
+            is AuthAction.HandleSignUpPasswordChanged -> handleSignUpPasswordChanged(action.password)
+            is AuthAction.ToggleSignUpPasswordVisibility -> toggleSignUpPasswordVisibility()
+            is AuthAction.HandleSignUpPasswordConfirmationChanged -> handleSignUpPasswordConfirmationChanged(action.password)
+            is AuthAction.SignUp -> signUp(action.successMessage)
+            is AuthAction.ResendVerificationEmail -> resendVerificationEmail(action.successMessage)
+            is AuthAction.VerifyEmail -> verifyEmail()
+            is AuthAction.DeleteUser -> deleteUser(action.successMessage)
+            is AuthAction.HandlePasswordResetEmailChanged -> handlePasswordResetEmailChanged(action.email)
+            is AuthAction.SendPasswordResetEmail -> sendPasswordResetEmail(action.successMessage)
+            is AuthAction.DisplayAuthForm -> displayAuthForm(action.form)
+            is AuthAction.HandleAnimationEnd -> handleExitAnimationFinished()
+        }
+    }
+
+    /**
      * Updates the sign-in email and its validation error state.
      *
      * @param email The new email to validate and update.
      */
-    fun onSignInEmailChanged(email: String) = with(validateEmailUseCase(email)) {
+    private fun handleSignInEmailChanged(email: String) = with(validateEmailUseCase(email)) {
         when (this@with) {
             is ValidationResult.Valid -> _state.update { it.copy(signInEmail = email, signInEmailError = null) }
             is ValidationResult.Invalid -> _state.update { it.copy(signInEmail = email, signInEmailError = message) }
@@ -64,7 +91,7 @@ class AuthViewModel(
      *
      * @param password The new password to validate and update.
      */
-    fun onSignInPasswordChanged(password: String) = with(validatePasswordUseCase(password)) {
+    private fun handleSignInPasswordChanged(password: String) = with(validatePasswordUseCase(password)) {
         when (this@with) {
             is ValidationResult.Valid -> _state.update {
                 it.copy(
@@ -85,17 +112,17 @@ class AuthViewModel(
     /**
      * Toggles the visibility of the sign-in password.
      */
-    fun toggleSignInPasswordVisibility() =
+    private fun toggleSignInPasswordVisibility() =
         _state.update { it.copy(signInPasswordVisibility = !it.signInPasswordVisibility) }
 
     /**
      * Initiates the sign-in process.
      */
-    fun signIn(successMessage: String) = with(_state) {
+    private fun signIn(successMessage: String) = with(_state) {
         update { it.copy(isLoading = true) }
 
-        onSignInEmailChanged(value.signInEmail)
-        onSignInPasswordChanged(value.signInPassword)
+        handleSignInEmailChanged(value.signInEmail)
+        handleSignInPasswordChanged(value.signInPassword)
 
         if (value.signInEmailError.isNullOrBlank() && value.signInPasswordError.isNullOrBlank()) viewModelScope.launch(
             dispatcher
@@ -104,6 +131,7 @@ class AuthViewModel(
                 email = value.signInEmail,
                 password = value.signInPassword
             ).onSuccess {
+                update { it.copy(isUserSignedIn = true) }
                 navigate(Route.Dashboard, true)
                 showSnackbar(successMessage, SnackbarType.Success)
             }.onFailure { error ->
@@ -119,7 +147,7 @@ class AuthViewModel(
      *
      * @param email The new email to validate and update.
      */
-    fun onSignUpEmailChanged(email: String) = with(validateEmailUseCase(email)) {
+    private fun handleSignUpEmailChanged(email: String) = with(validateEmailUseCase(email)) {
         when (this@with) {
             is ValidationResult.Valid -> _state.update { it.copy(signUpEmail = email, signUpEmailError = null) }
             is ValidationResult.Invalid -> _state.update { it.copy(signUpEmail = email, signUpEmailError = message) }
@@ -131,7 +159,7 @@ class AuthViewModel(
      *
      * @param password The new password to validate and update.
      */
-    fun onSignUpPasswordChanged(password: String) = with(validatePasswordUseCase(password)) {
+    private fun handleSignUpPasswordChanged(password: String) = with(validatePasswordUseCase(password)) {
         when (this@with) {
             is ValidationResult.Valid -> _state.update {
                 it.copy(
@@ -152,7 +180,7 @@ class AuthViewModel(
     /**
      * Toggles the visibility of the sign-up password.
      */
-    fun toggleSignUpPasswordVisibility() =
+    private fun toggleSignUpPasswordVisibility() =
         _state.update { it.copy(signUpPasswordVisibility = !it.signUpPasswordVisibility) }
 
     /**
@@ -160,7 +188,7 @@ class AuthViewModel(
      *
      * @param password The new password confirmation to validate and update.
      */
-    fun onSignUpPasswordConfirmationChanged(password: String) =
+    private fun handleSignUpPasswordConfirmationChanged(password: String) =
         with(validatePasswordConfirmationUseCase(_state.value.signUpPassword, password)) {
             when (this@with) {
                 is ValidationResult.Valid ->
@@ -184,12 +212,12 @@ class AuthViewModel(
     /**
      * Initiates the sign-up process.
      */
-    fun signUp(successMessage: String) = with(_state) {
+    private fun signUp(successMessage: String) = with(_state) {
         update { it.copy(isLoading = true) }
 
-        onSignUpEmailChanged(value.signUpEmail)
-        onSignUpPasswordChanged(value.signUpPassword)
-        onSignUpPasswordConfirmationChanged(value.signUpPasswordConfirmation)
+        handleSignUpEmailChanged(value.signUpEmail)
+        handleSignUpPasswordChanged(value.signUpPassword)
+        handleSignUpPasswordConfirmationChanged(value.signUpPasswordConfirmation)
 
         if (
             value.signUpEmailError.isNullOrBlank() &&
@@ -217,7 +245,7 @@ class AuthViewModel(
      * and handles the success and failure cases by showing a snackbar with appropriate messages.
      * Finally, it sets the loading state back to false.
      */
-    fun resendVerificationEmail(successMessage: String) = with(_state) {
+    private fun resendVerificationEmail(successMessage: String) = with(_state) {
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
@@ -236,13 +264,16 @@ class AuthViewModel(
      * On success, navigates to the Dashboard route. On failure, handles the error by showing
      * an appropriate message.
      */
-    fun verifyEmail() = with(_state) {
+    private fun verifyEmail() = with(_state) {
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
-            verifyEmailUseCase()
-                .onSuccess { navigate(Route.CreateProfile, true) }
-                .onFailure { error -> handleError(error) }
+            verifyEmailUseCase().onSuccess {
+                update { it.copy(isEmailVerified = true) }
+                navigate(Route.CreateProfile, true)
+            }.onFailure { error ->
+                handleError(error)
+            }
         }
 
         update { it.copy(isLoading = false) }
@@ -255,7 +286,7 @@ class AuthViewModel(
      * On success, navigates to the Auth route. On failure, handles the error by showing
      * an appropriate message.
      */
-    fun deleteUser(successMessage: String) = with(_state) {
+    private fun deleteUser(successMessage: String) = with(_state) {
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
@@ -272,7 +303,7 @@ class AuthViewModel(
      *
      * @param email The new email to validate and update.
      */
-    fun onPasswordResetEmailChanged(email: String) = with(validateEmailUseCase(email)) {
+    private fun handlePasswordResetEmailChanged(email: String) = with(validateEmailUseCase(email)) {
         when (this@with) {
             is ValidationResult.Valid -> _state.update {
                 it.copy(
@@ -300,15 +331,18 @@ class AuthViewModel(
      *
      * @param successMessage The message to show on successful email sending.
      */
-    fun sendPasswordResetEmail(successMessage: String) = with(_state) {
+    private fun sendPasswordResetEmail(successMessage: String) = with(_state) {
         update { it.copy(isLoading = true) }
 
-        onPasswordResetEmailChanged(value.resetPasswordEmail)
+        handlePasswordResetEmailChanged(value.resetPasswordEmail)
 
         if (value.resetPasswordEmailError.isNullOrBlank()) viewModelScope.launch(dispatcher) {
-            sendPasswordResetEmailUseCase(value.resetPasswordEmail)
-                .onSuccess { showSnackbar(successMessage, SnackbarType.Success) }
-                .onFailure { error -> handleError(error) }
+            sendPasswordResetEmailUseCase(value.resetPasswordEmail).onSuccess {
+                update { it.copy(isPasswordResetEmailSent = true) }
+                showSnackbar(successMessage, SnackbarType.Success)
+            }.onFailure { error ->
+                handleError(error)
+            }
         }
 
         update { it.copy(isLoading = false) }
@@ -319,12 +353,12 @@ class AuthViewModel(
      *
      * @param form The authentication form to display.
      */
-    fun displayAuthForm(form: AuthForm) = when (form) {
-        AuthForm.SignIn      -> _state.update {
+    private fun displayAuthForm(form: AuthForm) = when (form) {
+        AuthForm.SignIn -> _state.update {
             AuthUIState().copy(currentForm = AuthForm.SignIn)
         }
 
-        AuthForm.SignUp      -> _state.update {
+        AuthForm.SignUp -> _state.update {
             AuthUIState().copy(currentForm = AuthForm.SignUp)
         }
 

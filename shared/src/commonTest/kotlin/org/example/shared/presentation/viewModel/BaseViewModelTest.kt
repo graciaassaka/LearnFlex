@@ -75,7 +75,7 @@ class BaseViewModelTest {
         viewModel.navigate(destination, true)
         testScheduler.advanceUntilIdle()
 
-        viewModel.onExitAnimationFinished()
+        viewModel.handleExitAnimationFinished()
         testScheduler.advanceUntilIdle()
 
         assertTrue(uiEvents.size == 1)
@@ -93,7 +93,7 @@ class BaseViewModelTest {
             viewModel.uiEvent.toList(uiEvents)
         }
 
-        viewModel.onExitAnimationFinished()
+        viewModel.handleExitAnimationFinished()
         testScheduler.advanceUntilIdle()
 
         assertTrue(uiEvents.isEmpty())
