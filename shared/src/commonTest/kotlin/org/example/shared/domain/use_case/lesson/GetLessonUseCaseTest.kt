@@ -3,7 +3,6 @@ package org.example.shared.domain.use_case.lesson
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.example.shared.data.remote.firestore.FirestorePathBuilder
@@ -33,13 +32,11 @@ class GetLessonUseCaseTest {
         every { repository.get(path, "lessonId") } returns lessonFlow
 
         // Act
-        val emissions = mutableListOf<Result<Lesson>>()
-        useCase(path, "lessonId").collect { emissions.add(it) }
+        val result = useCase(path, "lessonId")
 
         // Assert
         verify(exactly = 1) { repository.get(path, "lessonId") }
-        assertEquals(1, emissions.size)
-        assertEquals(Result.success(lesson), emissions.first())
+        assertEquals(Result.success(lesson), result)
     }
 
     @Test
@@ -51,14 +48,11 @@ class GetLessonUseCaseTest {
         every { repository.get(path, "lessonId") } returns errorFlow
 
         // Act
-        val emissions = mutableListOf<Result<Lesson>>()
-        useCase(path, "lessonId").collect { emissions.add(it) }
+        val result = useCase(path, "lessonId")
 
         // Assert
         verify(exactly = 1) { repository.get(path, "lessonId") }
-        assertEquals(1, emissions.size)
-        assert(emissions.first().isFailure)
-        assertEquals(exception, emissions.first().exceptionOrNull())
+        assertEquals(Result.failure(exception), result)
     }
 
     @Test
@@ -69,7 +63,7 @@ class GetLessonUseCaseTest {
         // Act & Assert
         assertFailsWith<IllegalArgumentException> {
             runTest {
-                useCase(path, "lessonId").first().getOrThrow()
+                useCase(path, "lessonId").getOrThrow()
             }
         }
     }

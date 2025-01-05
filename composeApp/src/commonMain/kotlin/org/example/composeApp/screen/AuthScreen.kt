@@ -24,6 +24,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import io.github.alexzhirkevich.compottie.*
 import learnflex.composeapp.generated.resources.*
@@ -73,8 +74,8 @@ fun AuthScreen(
         windowSizeClass = windowSizeClass,
         snackbarHostState = remember { SnackbarHostState() },
         snackbarType = remember { mutableStateOf(SnackbarType.Info) },
-        uiState = viewModel.state.collectAsState(),
-        isScreenVisible = viewModel.isScreenVisible.collectAsState()
+        uiState = viewModel.state.collectAsStateWithLifecycle(),
+        isScreenVisible = viewModel.isScreenVisible.collectAsStateWithLifecycle()
     )
 
     HandleUIEvents(Route.Auth, navController, viewModel, screenConfig.snackbarHostState) { screenConfig.snackbarType.value = it }
@@ -177,7 +178,6 @@ private fun SignInForm(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
-
                         Text(
                             text = stringResource(Res.string.sign_in_screen_title),
                             style = MaterialTheme.typography.headlineMedium,
@@ -186,14 +186,14 @@ private fun SignInForm(
                         )
                         EmailInputField(
                             email = uiState.value.signInEmail,
-                            onEmailChanged = { handleAction(AuthAction.HandleSignInEmailChanged(it)) },
+                            onEmailChanged = { handleAction(AuthAction.EditSignInEmail(it)) },
                             emailError = uiState.value.signInEmailError,
                             enabled = !uiState.value.isLoading,
                             modifier = Modifier.testTag(TestTags.SIGN_IN_EMAIL_FIELD.tag)
                         )
                         PasswordInputField(
                             password = uiState.value.signInPassword,
-                            onPasswordChanged = { handleAction(AuthAction.HandleSignInPasswordChanged(it)) },
+                            onPasswordChanged = { handleAction(AuthAction.EditSignInPassword(it)) },
                             passwordError = uiState.value.signInPasswordError,
                             enabled = !uiState.value.isLoading,
                             onPasswordVisibilityToggled = { handleAction(AuthAction.ToggleSignInPasswordVisibility) },
@@ -320,14 +320,14 @@ private fun SignUpForm(
                         )
                         EmailInputField(
                             email = uiState.value.signUpEmail,
-                            onEmailChanged = { handleAction(AuthAction.HandleSignUpEmailChanged(it)) },
+                            onEmailChanged = { handleAction(AuthAction.EditSignUpEmail(it)) },
                             emailError = uiState.value.signUpEmailError,
                             enabled = !uiState.value.isLoading,
                             modifier = Modifier.testTag(TestTags.SIGN_UP_EMAIL_FIELD.tag)
                         )
                         PasswordInputField(
                             password = uiState.value.signUpPassword,
-                            onPasswordChanged = { handleAction(AuthAction.HandleSignUpPasswordChanged(it)) },
+                            onPasswordChanged = { handleAction(AuthAction.EditSignUpPassword(it)) },
                             passwordError = uiState.value.signUpPasswordError,
                             enabled = !uiState.value.isLoading,
                             passwordVisibility = uiState.value.signUpPasswordVisibility,
@@ -336,7 +336,7 @@ private fun SignUpForm(
                         )
                         ConfirmPasswordInputField(
                             password = uiState.value.signUpPasswordConfirmation,
-                            onPasswordChanged = { handleAction(AuthAction.HandleSignUpPasswordConfirmationChanged(it)) },
+                            onPasswordChanged = { handleAction(AuthAction.EditSignUpPasswordConfirmation(it)) },
                             passwordError = uiState.value.signUpPasswordConfirmationError,
                             enabled = !uiState.value.isLoading,
                             modifier = Modifier.testTag(TestTags.SIGN_UP_CONFIRM_PASSWORD_FIELD.tag),
@@ -627,7 +627,7 @@ private fun PasswordResetForm(
                         )
                         EmailInputField(
                             email = uiState.value.resetPasswordEmail,
-                            onEmailChanged = { handleAction(AuthAction.HandlePasswordResetEmailChanged(it)) },
+                            onEmailChanged = { handleAction(AuthAction.EditPasswordResetEmail(it)) },
                             emailError = uiState.value.resetPasswordEmailError,
                             enabled = !uiState.value.isLoading,
                             modifier = Modifier.testTag(TestTags.RESET_PASSWORD_EMAIL_FIELD.tag),

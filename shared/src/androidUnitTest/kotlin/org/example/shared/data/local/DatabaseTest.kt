@@ -807,9 +807,9 @@ class DatabaseTest {
             CurriculumEntity(
                 id = "curriculum_test_id",
                 userId = userProfile.id,
-                imageUrl = "test_image_url.jpg",
                 title = "Test title",
                 description = "Test Description",
+                content = listOf("Test Module 1", "Test Module 2"),
                 status = "active",
                 createdAt = System.currentTimeMillis(),
                 lastUpdated = System.currentTimeMillis()
@@ -817,9 +817,9 @@ class DatabaseTest {
             CurriculumEntity(
                 id = "curriculum_test_id_2",
                 userId = userProfile.id,
-                imageUrl = "test_image_url_2.jpg",
                 title = "Test title 2",
                 description = "Test Description 2",
+                content = listOf("Test Module 1", "Test Module 2"),
                 status = "inactive",
                 createdAt = System.currentTimeMillis(),
                 lastUpdated = System.currentTimeMillis()
@@ -829,9 +829,9 @@ class DatabaseTest {
             ModuleEntity(
                 id = "module_test_id_1",
                 curriculumId = curricula.first().id,
-                imageUrl = "test_image_url_module_1.jpg",
                 title = "Test Module 1",
                 description = "Test Module Description 1",
+                content = listOf("Test Lesson 1", "Test Lesson 2"),
                 index = 1,
                 quizScore = 90,
                 quizScoreMax = 100,
@@ -841,9 +841,9 @@ class DatabaseTest {
             ModuleEntity(
                 id = "module_test_id_2",
                 curriculumId = curricula.last().id,
-                imageUrl = "test_image_url_module_2.jpg",
                 title = "Test Module 2",
                 description = "Test Module Description 2",
+                content = listOf("Test Lesson 1", "Test Lesson 2"),
                 index = 2,
                 quizScore = 85,
                 quizScoreMax = 100,
@@ -856,10 +856,10 @@ class DatabaseTest {
             LessonEntity(
                 id = "lesson1",
                 moduleId = modules.first().id,
-                imageUrl = "image1.jpg",
                 title = "Lesson 1 Title",
                 description = "Lesson 1 Description",
                 index = 1,
+                content = listOf("Test Section 1", "Test Section 2"),
                 quizScore = 80,
                 quizScoreMax = 100,
                 createdAt = System.currentTimeMillis(),
@@ -868,10 +868,10 @@ class DatabaseTest {
             LessonEntity(
                 id = "lesson2",
                 moduleId = modules.last().id,
-                imageUrl = "image2.jpg",
                 title = "Lesson 2 Title",
                 description = "Lesson 2 Description",
                 index = 2,
+                content = listOf("Test Section 1", "Test Section 2"),
                 quizScore = 85,
                 quizScoreMax = 100,
                 createdAt = System.currentTimeMillis(),
@@ -883,7 +883,6 @@ class DatabaseTest {
             SectionEntity(
                 id = "section1",
                 lessonId = lessons.first().id,
-                imageUrl = "section_image1.jpg",
                 index = 1,
                 title = "Section 1 Title",
                 description = "Section 1 Description",
@@ -896,7 +895,6 @@ class DatabaseTest {
             SectionEntity(
                 id = "section2",
                 lessonId = lessons.last().id,
-                imageUrl = "section_image2.jpg",
                 index = 2,
                 title = "Section 2 Title",
                 description = "Section 2 Description",

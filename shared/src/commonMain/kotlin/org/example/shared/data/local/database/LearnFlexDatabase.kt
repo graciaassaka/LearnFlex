@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import org.example.shared.data.local.converter.PreferencesConverter
+import org.example.shared.data.local.converter.StringListConverter
 import org.example.shared.data.local.converter.StyleConverter
 import org.example.shared.data.local.dao.*
 import org.example.shared.data.local.dao.util.TimestampUpdater
@@ -24,7 +25,8 @@ import org.example.shared.data.local.entity.*
 @TypeConverters(
     value = [
         PreferencesConverter::class,
-        StyleConverter::class
+        StyleConverter::class,
+        StringListConverter::class
     ]
 )
 @ConstructedBy(LearnFlexDatabaseConstructor::class)

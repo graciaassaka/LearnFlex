@@ -11,13 +11,13 @@ sealed class AuthAction {
      * Action to handle changes in the sign-in email field.
      * @param email The new email entered by the user.
      */
-    data class HandleSignInEmailChanged(val email: String) : AuthAction()
+    data class EditSignInEmail(val email: String) : AuthAction()
 
     /**
      * Action to handle changes in the sign-in password field.
      * @param password The new password entered by the user.
      */
-    data class HandleSignInPasswordChanged(val password: String) : AuthAction()
+    data class EditSignInPassword(val password: String) : AuthAction()
 
     /**
      * Action to toggle the visibility of the sign-in password.
@@ -34,13 +34,13 @@ sealed class AuthAction {
      * Action to handle changes in the sign-up email field.
      * @param email The new email entered by the user.
      */
-    data class HandleSignUpEmailChanged(val email: String) : AuthAction()
+    data class EditSignUpEmail(val email: String) : AuthAction()
 
     /**
      * Action to handle changes in the sign-up password field.
      * @param password The new password entered by the user.
      */
-    data class HandleSignUpPasswordChanged(val password: String) : AuthAction()
+    data class EditSignUpPassword(val password: String) : AuthAction()
 
     /**
      * Action to toggle the visibility of the sign-up password.
@@ -51,7 +51,7 @@ sealed class AuthAction {
      * Action to handle changes in the sign-up password confirmation field.
      * @param password The new password confirmation entered by the user.
      */
-    data class HandleSignUpPasswordConfirmationChanged(val password: String) : AuthAction()
+    data class EditSignUpPasswordConfirmation(val password: String) : AuthAction()
 
     /**
      * Action to handle the sign-up process.
@@ -80,7 +80,7 @@ sealed class AuthAction {
      * Action to handle changes in the password reset email field.
      * @param email The new email entered by the user for password reset.
      */
-    data class HandlePasswordResetEmailChanged(val email: String) : AuthAction()
+    data class EditPasswordResetEmail(val email: String) : AuthAction()
 
     /**
      * Action to send the password reset email.

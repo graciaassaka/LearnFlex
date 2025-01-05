@@ -54,7 +54,6 @@ class ContentGeneratorClientImplTest {
         // that contains the JSON-encoded GeneratedResponse
         val generatedResponse = ContentGeneratorClient.GeneratedResponse(
             title = "My Lesson Title",
-            imagePrompt = "A colorful illustration of Kotlin coroutines",
             description = "A short description about the lesson content",
             content = listOf("Introduction", "Main topic", "Summary")
         )
@@ -87,7 +86,6 @@ class ContentGeneratorClientImplTest {
         val context = ContentGeneratorClient.Context(
             field = Field.COMPUTER_SCIENCE.name,
             level = Level.BEGINNER.name,
-            goal = "Learn Kotlin concurrency",
             style = Profile.LearningStyle(
                 dominant = "reading",
                 breakdown = Profile.LearningStyleBreakdown(
@@ -117,7 +115,6 @@ class ContentGeneratorClientImplTest {
         val actual = firstResult.getOrNull()
         assertNotNull(actual)
         assertEquals(generatedResponse.title, actual.title)
-        assertEquals(generatedResponse.imagePrompt, actual.imagePrompt)
         assertEquals(generatedResponse.description, actual.description)
         assertEquals(generatedResponse.content, actual.content)
 
@@ -139,7 +136,6 @@ class ContentGeneratorClientImplTest {
         val context = ContentGeneratorClient.Context(
             field = Field.COMPUTER_SCIENCE.name,
             level = Level.BEGINNER.name,
-            goal = "Learn Kotlin concurrency",
             style = Profile.LearningStyle(
                 dominant = "reading",
                 breakdown = Profile.LearningStyleBreakdown(
@@ -209,7 +205,6 @@ class ContentGeneratorClientImplTest {
         // The CompletionProcessor will fetch the final assistant message
         val generatedResponse = ContentGeneratorClient.GeneratedResponse(
             title = "Lesson on Asynchronous Flows",
-            imagePrompt = "A diagram representing coroutines",
             description = "Detailed content about Kotlin flows",
             content = listOf("Flow basics", "Cancellation", "Cold and Hot flows")
         )
@@ -247,7 +242,6 @@ class ContentGeneratorClientImplTest {
         val context = ContentGeneratorClient.Context(
             field = Field.COMPUTER_SCIENCE.name,
             level = Level.BEGINNER.name,
-            goal = "Understand asynchronous flows",
             style = Profile.LearningStyle(
                 dominant = "reading",
                 breakdown = Profile.LearningStyleBreakdown(reading = 80, kinesthetic = 20)
@@ -310,7 +304,6 @@ class ContentGeneratorClientImplTest {
         val context = ContentGeneratorClient.Context(
             field = Field.COMPUTER_SCIENCE.name,
             level = Level.BEGINNER.name,
-            goal = "Learn Kotlin concurrency",
             style = Profile.LearningStyle(
                 dominant = "reading",
                 breakdown = Profile.LearningStyleBreakdown(reading = 70, kinesthetic = 30)

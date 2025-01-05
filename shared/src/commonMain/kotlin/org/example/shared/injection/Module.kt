@@ -18,7 +18,6 @@ import org.example.shared.data.remote.assistant.OpenAIAssistantClient
 import org.example.shared.data.remote.assistant.generator.ContentGeneratorClientImpl
 import org.example.shared.data.remote.assistant.generator.StyleQuizGeneratorClientImpl
 import org.example.shared.data.remote.assistant.summarizer.SyllabusSummarizerClientImpl
-import org.example.shared.data.remote.custom_search.GoogleImageSearchClient
 import org.example.shared.data.remote.firebase.FirebaseAuthClient
 import org.example.shared.data.remote.firebase.FirebaseStorageClient
 import org.example.shared.data.remote.firestore.FirestoreBaseDao
@@ -30,7 +29,6 @@ import org.example.shared.data.repository.util.QueryStrategies
 import org.example.shared.data.repository.util.RepositoryConfig
 import org.example.shared.data.sync.handler.SyncHandlerDelegate
 import org.example.shared.data.sync.manager.SyncManagerImpl
-import org.example.shared.data.util.GoogleConstants
 import org.example.shared.data.util.OpenAIConstants
 import org.example.shared.domain.client.*
 import org.example.shared.domain.constant.Collection
@@ -44,11 +42,11 @@ import org.example.shared.domain.storage_operations.*
 import org.example.shared.domain.storage_operations.util.PathBuilder
 import org.example.shared.domain.sync.SyncHandler
 import org.example.shared.domain.sync.SyncManager
+import org.example.shared.domain.use_case.activity.GetWeeklyActivityUseCase
 import org.example.shared.domain.use_case.auth.*
 import org.example.shared.domain.use_case.curriculum.*
 import org.example.shared.domain.use_case.lesson.*
 import org.example.shared.domain.use_case.module.*
-import org.example.shared.domain.use_case.other.GetWeeklyActivityUseCase
 import org.example.shared.domain.use_case.path.*
 import org.example.shared.domain.use_case.profile.*
 import org.example.shared.domain.use_case.section.*
@@ -56,14 +54,12 @@ import org.example.shared.domain.use_case.session.GetAllSessionsUseCase
 import org.example.shared.domain.use_case.session.GetSessionsByDateRangeUseCase
 import org.example.shared.domain.use_case.session.UpdateSessionUseCase
 import org.example.shared.domain.use_case.session.UploadSessionUseCase
+import org.example.shared.domain.use_case.syllabus.SummarizeSyllabusUseCase
 import org.example.shared.domain.use_case.validation.ValidateEmailUseCase
 import org.example.shared.domain.use_case.validation.ValidatePasswordConfirmationUseCase
 import org.example.shared.domain.use_case.validation.ValidatePasswordUseCase
 import org.example.shared.domain.use_case.validation.ValidateUsernameUseCase
-import org.example.shared.presentation.viewModel.AuthViewModel
-import org.example.shared.presentation.viewModel.BaseViewModel
-import org.example.shared.presentation.viewModel.CreateUserProfileViewModel
-import org.example.shared.presentation.viewModel.DashboardViewModel
+import org.example.shared.presentation.viewModel.*
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
@@ -118,18 +114,6 @@ val commonModule = module {
             httpClient = get(), baseUrl = URLBuilder(
                 protocol = URLProtocol.HTTPS, host = "api.openai.com"
             ).build(), apiKey = OpenAIConstants.API_KEY
-        )
-    }
-
-    // Google Image Search Client
-    single<ImageSearchClient> {
-        GoogleImageSearchClient(
-            httpClient = get(),
-            baseUrl = URLBuilder(
-                protocol = URLProtocol.HTTPS, host = "www.googleapis.com", pathSegments = listOf("customsearch", "v1")
-            ).build(),
-            apiKey = GoogleConstants.CUSTOM_SEARCH_API_KEY,
-            searchEngineId = GoogleConstants.CUSTOM_IMAGES_SEARCH_ENGINE_ID
         )
     }
 
@@ -305,12 +289,12 @@ val commonModule = module {
     single<ModelMapper<Curriculum, CurriculumEntity>>(named(CURRICULUM_SCOPE)) {
         object : ModelMapper<Curriculum, CurriculumEntity> {
             override fun toModel(entity: CurriculumEntity) = with(entity) {
-                Curriculum(id, imageUrl, title, description, status, createdAt, lastUpdated)
+                Curriculum(id, title, description, content, status, createdAt, lastUpdated)
             }
 
             override fun toEntity(model: Curriculum, parentId: String?) = with(model) {
                 require(parentId != null) { "Parent ID must not be null for CurriculumEntity" }
-                CurriculumEntity(id, parentId, imageUrl, title, description, status, createdAt, lastUpdated)
+                CurriculumEntity(id, parentId, title, description, content, status, createdAt, lastUpdated)
             }
         }
     }
@@ -319,14 +303,14 @@ val commonModule = module {
         object : ModelMapper<ModuleModel, ModuleEntity> {
             override fun toModel(entity: ModuleEntity) = with(entity) {
                 ModuleModel(
-                    id, imageUrl, title, description, index, quizScore, quizScoreMax, createdAt, lastUpdated
+                    id, title, description, index, content, quizScore, quizScoreMax, createdAt, lastUpdated
                 )
             }
 
             override fun toEntity(model: ModuleModel, parentId: String?) = with(model) {
                 require(parentId != null) { "Parent ID must not be null for ModuleEntity" }
                 ModuleEntity(
-                    id, parentId, imageUrl, title, description, index, quizScore, quizScoreMax, createdAt, lastUpdated
+                    id, parentId, title, description, index, content, quizScore, quizScoreMax, createdAt, lastUpdated
                 )
             }
         }
@@ -335,13 +319,13 @@ val commonModule = module {
     single<ModelMapper<Lesson, LessonEntity>>(named(LESSON_SCOPE)) {
         object : ModelMapper<Lesson, LessonEntity> {
             override fun toModel(entity: LessonEntity) = with(entity) {
-                Lesson(id, imageUrl, title, description, index, quizScore, quizScoreMax, createdAt, lastUpdated)
+                Lesson(id, title, description, index, content, quizScore, quizScoreMax, createdAt, lastUpdated)
             }
 
             override fun toEntity(model: Lesson, parentId: String?) = with(model) {
                 require(parentId != null) { "Parent ID must not be null for LessonEntity" }
                 LessonEntity(
-                    id, parentId, imageUrl, title, description, index, quizScore, quizScoreMax, createdAt, lastUpdated
+                    id, parentId, title, description, index, content, quizScore, quizScoreMax, createdAt, lastUpdated
                 )
             }
         }
@@ -351,14 +335,14 @@ val commonModule = module {
         object : ModelMapper<Section, SectionEntity> {
             override fun toModel(entity: SectionEntity) = with(entity) {
                 Section(
-                    id, imageUrl, index, title, description, content, quizScore, quizScoreMax, createdAt, lastUpdated
+                    id, index, title, description, content, quizScore, quizScoreMax, createdAt, lastUpdated
                 )
             }
 
             override fun toEntity(model: Section, parentId: String?) = with(model) {
                 require(parentId != null) { "Parent ID must not be null for SectionEntity" }
                 SectionEntity(
-                    id, parentId, imageUrl, index, title, description, content, quizScore, quizScoreMax, createdAt, lastUpdated
+                    id, parentId, index, title, description, content, quizScore, quizScoreMax, createdAt, lastUpdated
                 )
             }
         }
@@ -731,12 +715,11 @@ val commonModule = module {
     single { GetCurriculumUseCase(get(named(CURRICULUM_SCOPE))) }
     single { GetAllCurriculaUseCase(get(named(CURRICULUM_SCOPE))) }
     single { GetCurriculaByStatusUseCase(get(named(CURRICULUM_SCOPE))) }
-    single { GenerateCurriculumFromDescriptionUseCase(get(named(CURRICULUM_SCOPE))) }
+    single { GenerateCurriculumUseCase(get(named(CURRICULUM_SCOPE))) }
     singleOf(::GetActiveCurriculumUseCase)
-    singleOf(::GenerateCurriculumFromFileUseCase)
 
     // Use Cases - Module
-    single { UploadModuleUseCase(get(named(MODULE_SCOPE))) }
+    single { UploadModulesUseCase(get(named(MODULE_SCOPE))) }
     single { UpdateModuleUseCase(get(named(MODULE_SCOPE))) }
     single { GetModuleUseCase(get(named(MODULE_SCOPE))) }
     single { GetAllModulesUseCase(get(named(MODULE_SCOPE))) }
@@ -747,7 +730,7 @@ val commonModule = module {
     singleOf(::CountModulesByStatusUseCase)
 
     // Use Cases - Lesson
-    single { UploadLessonUseCase(get(named(LESSON_SCOPE))) }
+    single { UploadLessonsUseCase(get(named(LESSON_SCOPE))) }
     single { UpdateLessonUseCase(get(named(LESSON_SCOPE))) }
     single { GetLessonUseCase(get(named(LESSON_SCOPE))) }
     single { GetAllLessonsUseCase(get(named(LESSON_SCOPE))) }
@@ -758,7 +741,7 @@ val commonModule = module {
     singleOf(::CountLessonsByStatusUseCase)
 
     // Use Cases - Section
-    single { UploadSectionUseCase(get(named(SECTION_SCOPE))) }
+    single { UploadSectionsUseCase(get(named(SECTION_SCOPE))) }
     single { UpdateSectionUseCase(get(named(SECTION_SCOPE))) }
     single { GetAllSectionsUseCase(get(named(SECTION_SCOPE))) }
     single { GetSectionsByCurriculumIdUseCase(get(named(SECTION_SCOPE))) }
@@ -773,13 +756,16 @@ val commonModule = module {
     single { GetAllSessionsUseCase(get(named(SESSION_SCOPE))) }
     single { GetSessionsByDateRangeUseCase(get(named(SESSION_SCOPE))) }
 
+    // Use Cases - Syllabus
+    singleOf(::SummarizeSyllabusUseCase)
+
     // Use Cases - Validation
     singleOf(::ValidateEmailUseCase)
     singleOf(::ValidatePasswordUseCase)
     singleOf(::ValidateUsernameUseCase)
     singleOf(::ValidatePasswordConfirmationUseCase)
 
-    // Use Cases - Other
+    // Use Cases - Activity
     singleOf(::GetWeeklyActivityUseCase)
 
     // ViewModels
@@ -843,6 +829,23 @@ val commonModule = module {
             dispatcher = get(),
             syncManagers = get(),
             sharingStarted = get()
+        )
+    }
+    viewModel {
+        LibraryViewModel(
+            buildProfilePathUseCase = get(),
+            buildModulePathUseCase = get(),
+            getProfileUseCase = get(),
+            summarizeSyllabusUseCase = get(),
+            generateModuleUseCase = get(),
+            uploadModulesUseCase = get(),
+            buildCurriculumPathUseCase = get(),
+            getAllCurriculaUseCase = get(),
+            generateCurriculumUseCase = get(),
+            uploadCurriculumUseCase = get(),
+            dispatcher = get(),
+            syncManagers = get(),
+            sharingStarted = get(),
         )
     }
 }

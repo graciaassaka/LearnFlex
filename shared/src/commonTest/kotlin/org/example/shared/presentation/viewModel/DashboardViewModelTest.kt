@@ -5,7 +5,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
@@ -16,13 +15,13 @@ import org.example.shared.domain.model.Module
 import org.example.shared.domain.model.Profile
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.sync.SyncManager
+import org.example.shared.domain.use_case.activity.GetWeeklyActivityUseCase
 import org.example.shared.domain.use_case.curriculum.GetActiveCurriculumUseCase
 import org.example.shared.domain.use_case.curriculum.GetAllCurriculaUseCase
 import org.example.shared.domain.use_case.lesson.CountLessonsByStatusUseCase
 import org.example.shared.domain.use_case.lesson.GetAllLessonsUseCase
 import org.example.shared.domain.use_case.module.CountModulesByStatusUseCase
 import org.example.shared.domain.use_case.module.GetAllModulesUseCase
-import org.example.shared.domain.use_case.other.GetWeeklyActivityUseCase
 import org.example.shared.domain.use_case.path.*
 import org.example.shared.domain.use_case.profile.GetProfileUseCase
 import org.example.shared.domain.use_case.section.CountSectionsByStatusUseCase
@@ -121,14 +120,14 @@ class DashboardViewModelTest {
         coEvery { buildLessonPathUseCase(profile.id, activeCurriculum.id, any()) } returns lessonPath
         coEvery { buildSectionPathUseCase(profile.id, activeCurriculum.id, any(), any()) } returns sectionPath
 
-        coEvery { getProfileUseCase(profilePath) } returns flowOf(Result.success(profile))
-        coEvery { getAllSessionsUseCase(sessionPath) } returns flowOf(Result.success(emptyList()))
-        coEvery { getActiveCurriculumUseCase(curriculumPath) } returns flowOf(Result.success(activeCurriculum))
-        coEvery { getAllCurriculaUseCase(curriculumPath) } returns flowOf(Result.success(emptyList()))
+        coEvery { getProfileUseCase(profilePath) } returns Result.success(profile)
+        coEvery { getAllSessionsUseCase(sessionPath) } returns Result.success(emptyList())
+        coEvery { getActiveCurriculumUseCase(curriculumPath) } returns Result.success(activeCurriculum)
+        coEvery { getAllCurriculaUseCase(curriculumPath) } returns Result.success(emptyList())
 
-        coEvery { getAllModulesUseCase(modulePath) } returns flowOf(Result.success(emptyList()))
-        coEvery { getAllLessonsUseCase(lessonPath) } returns flowOf(Result.success(emptyList()))
-        coEvery { getAllSectionsUseCase(sectionPath) } returns flowOf(Result.success(emptyList()))
+        coEvery { getAllModulesUseCase(modulePath) } returns Result.success(emptyList())
+        coEvery { getAllLessonsUseCase(lessonPath) } returns Result.success(emptyList())
+        coEvery { getAllSectionsUseCase(sectionPath) } returns Result.success(emptyList())
 
         coEvery { getWeeklyActivityUseCase(any()) } returns Result.success(emptyMap())
 
@@ -145,7 +144,7 @@ class DashboardViewModelTest {
     @Test
     fun `getProfileUseCase success should update profile, and set isLoading to false`() = runTest {
         // Given
-        coEvery { getProfileUseCase(profilePath) } returns flowOf(Result.success(profile))
+        coEvery { getProfileUseCase(profilePath) } returns Result.success(profile)
 
         // When
         advanceUntilIdle()
@@ -170,7 +169,7 @@ class DashboardViewModelTest {
             viewModel.uiEvent.toList(uiEvents)
         }
 
-        coEvery { getProfileUseCase(profilePath) } returns flowOf(Result.failure(exception))
+        coEvery { getProfileUseCase(profilePath) } returns Result.failure(exception)
 
         // When
         advanceUntilIdle()
@@ -217,7 +216,7 @@ class DashboardViewModelTest {
     fun `getAllCurricula success should update curricula`() = runTest {
         // Given
         val curricula = listOf(mockk<Curriculum>(relaxed = true))
-        coEvery { getAllCurriculaUseCase(curriculumPath) } returns flowOf(Result.success(curricula))
+        coEvery { getAllCurriculaUseCase(curriculumPath) } returns Result.success(curricula)
 
         // When
         advanceUntilIdle()
@@ -235,7 +234,7 @@ class DashboardViewModelTest {
     @Test
     fun `getActiveCurriculumData should update active curriculum`() = runTest {
         // Given
-        coEvery { getActiveCurriculumUseCase(curriculumPath) } returns flowOf(Result.success(activeCurriculum))
+        coEvery { getActiveCurriculumUseCase(curriculumPath) } returns Result.success(activeCurriculum)
 
         // When
         advanceUntilIdle()
@@ -254,7 +253,7 @@ class DashboardViewModelTest {
     fun `getAllModulesData should update modules`() = runTest {
         // Given
         val modules = listOf(mockk<Module>(relaxed = true))
-        coEvery { getAllModulesUseCase(modulePath) } returns flowOf(Result.success(modules))
+        coEvery { getAllModulesUseCase(modulePath) } returns Result.success(modules)
 
         // When
         advanceUntilIdle()
@@ -278,7 +277,7 @@ class DashboardViewModelTest {
             viewModel.uiEvent.toList(uiEvents)
         }
 
-        coEvery { getAllModulesUseCase(modulePath) } returns flowOf(Result.failure(exception))
+        coEvery { getAllModulesUseCase(modulePath) } returns Result.failure(exception)
 
         // When
         advanceUntilIdle()
@@ -353,8 +352,8 @@ class DashboardViewModelTest {
         // Given
         val lessonsByStatus = mapOf(Status.FINISHED to 1, Status.UNFINISHED to 2)
 
-        coEvery { getAllModulesUseCase(modulePath) } returns flowOf(Result.success(listOf(mockk(relaxed = true))))
-        coEvery { getAllLessonsUseCase(lessonPath) } returns flowOf(Result.success(listOf(mockk(relaxed = true))))
+        coEvery { getAllModulesUseCase(modulePath) } returns Result.success(listOf(mockk(relaxed = true)))
+        coEvery { getAllLessonsUseCase(lessonPath) } returns Result.success(listOf(mockk(relaxed = true)))
         coEvery { countLessonsByStatusUseCase(activeCurriculum.id) } returns Result.success(lessonsByStatus)
 
         // When
@@ -381,8 +380,8 @@ class DashboardViewModelTest {
             viewModel.uiEvent.toList(uiEvents)
         }
 
-        coEvery { getAllModulesUseCase(modulePath) } returns flowOf(Result.success(listOf(mockk(relaxed = true))))
-        coEvery { getAllLessonsUseCase(lessonPath) } returns flowOf(Result.success(listOf(mockk(relaxed = true))))
+        coEvery { getAllModulesUseCase(modulePath) } returns Result.success(listOf(mockk(relaxed = true)))
+        coEvery { getAllLessonsUseCase(lessonPath) } returns Result.success(listOf(mockk(relaxed = true)))
         coEvery { countLessonsByStatusUseCase(activeCurriculum.id) } returns Result.failure(exception)
 
         // When
@@ -409,9 +408,9 @@ class DashboardViewModelTest {
         // Given
         val sectionsByStatus = mapOf(Status.FINISHED to 1, Status.UNFINISHED to 2)
 
-        coEvery { getAllModulesUseCase(modulePath) } returns flowOf(Result.success(listOf(mockk(relaxed = true))))
-        coEvery { getAllLessonsUseCase(lessonPath) } returns flowOf(Result.success(listOf(mockk(relaxed = true))))
-        coEvery { getAllSectionsUseCase(sectionPath) } returns flowOf(Result.success(listOf(mockk(relaxed = true))))
+        coEvery { getAllModulesUseCase(modulePath) } returns Result.success(listOf(mockk(relaxed = true)))
+        coEvery { getAllLessonsUseCase(lessonPath) } returns Result.success(listOf(mockk(relaxed = true)))
+        coEvery { getAllSectionsUseCase(sectionPath) } returns Result.success(listOf(mockk(relaxed = true)))
         coEvery { countSectionsByStatusUseCase(activeCurriculum.id) } returns Result.success(sectionsByStatus)
 
         // When
@@ -439,9 +438,9 @@ class DashboardViewModelTest {
             viewModel.uiEvent.toList(uiEvents)
         }
 
-        coEvery { getAllModulesUseCase(modulePath) } returns flowOf(Result.success(listOf(mockk(relaxed = true))))
-        coEvery { getAllLessonsUseCase(lessonPath) } returns flowOf(Result.success(listOf(mockk(relaxed = true))))
-        coEvery { getAllSectionsUseCase(sectionPath) } returns flowOf(Result.success(listOf(mockk(relaxed = true))))
+        coEvery { getAllModulesUseCase(modulePath) } returns Result.success(listOf(mockk(relaxed = true)))
+        coEvery { getAllLessonsUseCase(lessonPath) } returns Result.success(listOf(mockk(relaxed = true)))
+        coEvery { getAllSectionsUseCase(sectionPath) } returns Result.success(listOf(mockk(relaxed = true)))
         coEvery { countSectionsByStatusUseCase(activeCurriculum.id) } returns Result.failure(exception)
 
         // When

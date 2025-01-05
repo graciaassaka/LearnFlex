@@ -58,9 +58,9 @@ class DashboardScreenTest {
         uiEventFlow = MutableSharedFlow()
         isScreenVisible = MutableStateFlow(true)
         windowSizeClass = WindowSizeClass.calculateFromSize(
-            DpSize(3840.dp, 2160.dp),
-            setOf(WindowWidthSizeClass.Expanded),
-            setOf(WindowHeightSizeClass.Expanded)
+            DpSize(1344.dp, 2992.dp),
+            setOf(WindowWidthSizeClass.Compact),
+            setOf(WindowHeightSizeClass.Compact)
         )
 
         every { viewModel.state } returns uiState
@@ -180,14 +180,12 @@ class DashboardScreenTest {
         val moduleId = "module_id"
         val moduleTitle = "Module Title"
         val moduleScore = 8
-        val moduleImgUrl = "https://example.com/image.jpg"
 
         val module = mockk<Module>()
 
         every { module.id } returns moduleId
         every { module.title } returns moduleTitle
         every { module.quizScore } returns moduleScore
-        every { module.imageUrl } returns moduleImgUrl
 
         uiState.value = DashboardUIState(modules = listOf(module))
 
@@ -205,19 +203,17 @@ class DashboardScreenTest {
         val moduleId = "module_id"
         val moduleTitle = "Module Title"
         val moduleScore = 8
-        val moduleImgUrl = "https://example.com/image.jpg"
 
         val module = mockk<Module>()
 
         every { module.id } returns moduleId
         every { module.title } returns moduleTitle
         every { module.quizScore } returns moduleScore
-        every { module.imageUrl } returns moduleImgUrl
 
         uiState.value = DashboardUIState(modules = listOf(module))
 
         composeTestRule.onNodeWithTag("module_card_${moduleId}", true).performClick()
 
-        verify(exactly = 1) { viewModel.openModule(moduleId) }
+        verify(exactly = 1) { viewModel.handleAction(DashboardAction.OpenModule(moduleId)) }
     }
 }

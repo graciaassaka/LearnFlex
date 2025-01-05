@@ -18,6 +18,7 @@ sealed class Tool {
     /**
      * Represents a code interpreter tool.
      */
+    @Suppress("unused")
     @Serializable
     @SerialName(CODE_INTERPRETER)
     data object CodeInterpreterTool : Tool()
@@ -25,6 +26,7 @@ sealed class Tool {
     /**
      * Represents a file search tool with optional configuration.
      */
+    @Suppress("unused")
     @Serializable
     @SerialName(FILE_SEARCH)
     data class FileSearchTool(

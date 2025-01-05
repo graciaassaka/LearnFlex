@@ -57,10 +57,10 @@ class CountModulesByStatusUseCaseTest {
         private val modules = listOf(
             Module(
                 id = "module1",
-                imageUrl = "https://example.com/image1.jpg",
                 title = "Introduction to Programming",
                 description = "Learn the basics of programming.",
                 index = 1,
+                content = listOf("Lesson 1", "Lesson 2"),
                 quizScore = 85,
                 quizScoreMax = 100,
                 createdAt = 1640995200000,
@@ -68,10 +68,10 @@ class CountModulesByStatusUseCaseTest {
             ),
             Module(
                 id = "module2",
-                imageUrl = "https://example.com/image2.jpg",
                 title = "Advanced Programming Concepts",
                 description = "Explore advanced topics in programming.",
                 index = 2,
+                content = listOf("Lesson 1", "Lesson 2", "Lesson 3"),
                 quizScore = 90,
                 quizScoreMax = 100,
                 createdAt = 1643587200000,
@@ -79,10 +79,10 @@ class CountModulesByStatusUseCaseTest {
             ),
             Module(
                 id = "module3",
-                imageUrl = "https://example.com/image3.jpg",
                 title = "Data Structures",
                 description = "Understand data structures and their applications.",
                 index = 3,
+                content = listOf("Lesson 1", "Lesson 2", "Lesson 3", "Lesson 4"),
                 quizScore = 95,
                 quizScoreMax = 100,
                 createdAt = 1646188800000,

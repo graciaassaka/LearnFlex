@@ -14,19 +14,19 @@ sealed class CreateUserProfileAction {
      * Action to handle changes in the username.
      * @param username The new username.
      */
-    data class HandleUsernameChanged(val username: String) : CreateUserProfileAction()
+    data class EditUsername(val username: String) : CreateUserProfileAction()
 
     /**
      * Action to handle changes in the field.
      * @param field The new field.
      */
-    data class HandleFieldChanged(val field: Field) : CreateUserProfileAction()
+    data class SelectField(val field: Field) : CreateUserProfileAction()
 
     /**
      * Action to handle changes in the level.
      * @param level The new level.
      */
-    data class HandleLevelChanged(val level: Level) : CreateUserProfileAction()
+    data class SelectLevel(val level: Level) : CreateUserProfileAction()
 
     /**
      * Action to toggle the visibility of the level dropdown.
@@ -37,19 +37,19 @@ sealed class CreateUserProfileAction {
      * Action to handle changes in the goal.
      * @param goal The new goal.
      */
-    data class HandleGoalChanged(val goal: String) : CreateUserProfileAction()
+    data class EditGoal(val goal: String) : CreateUserProfileAction()
 
     /**
      * Action to handle uploading a profile picture.
      * @param imageData The image data of the profile picture.
      * @param successMessage The success message to display.
      */
-    data class HandleUploadProfilePicture(val imageData: ByteArray, val successMessage: String) : CreateUserProfileAction() {
+    data class UploadProfilePicture(val imageData: ByteArray, val successMessage: String) : CreateUserProfileAction() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
-            other as HandleUploadProfilePicture
+            other as UploadProfilePicture
 
             if (!imageData.contentEquals(other.imageData)) return false
             if (successMessage != other.successMessage) return false
@@ -68,7 +68,7 @@ sealed class CreateUserProfileAction {
      * Action to handle deletion of the profile picture.
      * @param successMessage The success message to display.
      */
-    data class HandleProfilePictureDeleted(val successMessage: String) : CreateUserProfileAction()
+    data class DeleteProfilePicture(val successMessage: String) : CreateUserProfileAction()
 
     /**
      * Action to handle the creation of the profile.

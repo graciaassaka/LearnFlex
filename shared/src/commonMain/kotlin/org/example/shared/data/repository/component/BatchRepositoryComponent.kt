@@ -147,16 +147,18 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
                 entities
                     ?.map(config.modelMapper::toModel)
                     ?.let { models ->
-                        if (models != lastEmitted && models.isNotEmpty()) {
+                        if (models != lastEmitted) {
                             send(Result.success(models))
-                            config.syncManager.queueOperation(
-                                createSyncOperation(
-                                    type = SyncOperation.SyncOperationType.SYNC,
-                                    path = path,
-                                    items = models,
-                                    timestamp = System.currentTimeMillis()
+                            if (models.isNotEmpty()) {
+                                config.syncManager.queueOperation(
+                                    createSyncOperation(
+                                        type = SyncOperation.SyncOperationType.SYNC,
+                                        path = path,
+                                        items = models,
+                                        timestamp = System.currentTimeMillis()
+                                    )
                                 )
-                            )
+                            }
                             onEmit(models)
                         }
                     }
@@ -182,19 +184,20 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
         require(config.localDao is ExtendedLocalDao) {
             "LocalDao must implement ExtendedLocalDao to support batch operations"
         }
-
         remoteDataFlow.collect { result ->
             result.onSuccess { models ->
-                if (models != lastEmitted && models.isNotEmpty()) {
+                if (models != lastEmitted) {
                     send(Result.success(models))
-                    config.syncManager.queueOperation(
-                        createSyncOperation(
-                            type = SyncOperation.SyncOperationType.SYNC,
-                            path = path,
-                            items = models,
-                            timestamp = System.currentTimeMillis()
+                    if (models.isNotEmpty()) {
+                        config.syncManager.queueOperation(
+                            createSyncOperation(
+                                type = SyncOperation.SyncOperationType.SYNC,
+                                path = path,
+                                items = models,
+                                timestamp = System.currentTimeMillis()
+                            )
                         )
-                    )
+                    }
                     onEmit(models)
                 }
             }.onFailure { error ->

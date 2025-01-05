@@ -4,20 +4,19 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeout
 import org.example.shared.domain.constant.Collection
 import org.example.shared.domain.constant.Status
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.sync.SyncManager
+import org.example.shared.domain.use_case.activity.GetWeeklyActivityUseCase
 import org.example.shared.domain.use_case.curriculum.GetActiveCurriculumUseCase
 import org.example.shared.domain.use_case.curriculum.GetAllCurriculaUseCase
 import org.example.shared.domain.use_case.lesson.CountLessonsByStatusUseCase
 import org.example.shared.domain.use_case.lesson.GetAllLessonsUseCase
 import org.example.shared.domain.use_case.module.CountModulesByStatusUseCase
 import org.example.shared.domain.use_case.module.GetAllModulesUseCase
-import org.example.shared.domain.use_case.other.GetWeeklyActivityUseCase
 import org.example.shared.domain.use_case.path.*
 import org.example.shared.domain.use_case.profile.GetProfileUseCase
 import org.example.shared.domain.use_case.section.CountSectionsByStatusUseCase
@@ -26,7 +25,6 @@ import org.example.shared.domain.use_case.session.GetAllSessionsUseCase
 import org.example.shared.presentation.action.DashboardAction
 import org.example.shared.presentation.state.DashboardUIState
 import java.time.DayOfWeek
-import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * ViewModel responsible for managing the dashboard data.
@@ -80,7 +78,7 @@ class DashboardViewModel(
      * Publicly exposed state flow for the UI to observe.
      */
     val state = _state
-        .onStart { fetchAllUserData() }
+        .onStart { refresh() }
         .stateIn(viewModelScope, sharingStarted, _state.value)
 
     /**
@@ -90,9 +88,10 @@ class DashboardViewModel(
      */
     fun handleAction(action: DashboardAction) {
         when (action) {
-            is DashboardAction.LoadData -> fetchAllUserData()
-            is DashboardAction.OpenCurriculum -> opentCurriculum(action.curriculumId)
+            is DashboardAction.Refresh -> refresh()
+            is DashboardAction.OpenCurriculum -> openCurriculum(action.curriculumId)
             is DashboardAction.OpenModule -> openModule(action.moduleId)
+            is DashboardAction.Navigate -> navigate(action.destination)
         }
     }
 
@@ -100,31 +99,29 @@ class DashboardViewModel(
      * Initiates the entire data fetching process for the dashboard.
      * This function is non-suspending and safely launches a coroutine.
      */
-    fun fetchAllUserData() {
+    private fun refresh() {
         _state.update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
             try {
-                val profile = getProfileUseCase(buildProfilePathUseCase()).first().getOrThrow()
+                val profile = getProfileUseCase(buildProfilePathUseCase()).getOrThrow()
                 _state.update { it.copy(profile = profile) }
 
-                withTimeout(FETCH_TIMEOUT) {
-                    getAllSessionsUseCase(buildSessionPathUseCase(profile.id)).first().getOrNull()
+                getAllSessionsUseCase(buildSessionPathUseCase(profile.id)).getOrThrow()
 
-                    val weeklyActivity = getWeeklyActivityUseCase(System.currentTimeMillis()).getOrNull() ?: emptyMap()
-                    updateWeeklyActivity(weeklyActivity)
+                val weeklyActivity = getWeeklyActivityUseCase(System.currentTimeMillis()).getOrThrow()
+                updateWeeklyActivity(weeklyActivity)
 
-                    val curricula = getAllCurriculaUseCase(buildCurriculumPathUseCase(profile.id)).first().getOrNull() ?: emptyList()
-                    _state.update { it.copy(curricula = curricula) }
+                val curricula = getAllCurriculaUseCase(buildCurriculumPathUseCase(profile.id)).getOrThrow()
+                _state.update { it.copy(curricula = curricula) }
 
-                    val activeCurriculum = getActiveCurriculumUseCase(buildCurriculumPathUseCase(profile.id)).first().getOrNull()
-                    _state.update { it.copy(activeCurriculum = activeCurriculum) }
+                val activeCurriculum = getActiveCurriculumUseCase(buildCurriculumPathUseCase(profile.id)).getOrThrow()
+                _state.update { it.copy(activeCurriculum = activeCurriculum) }
 
-                    if (activeCurriculum != null) fetchActiveCurriculumData(profile.id, activeCurriculum)
-                    updateItemsCompletion()
-                }
-            } catch (exception: Exception) {
-                if (exception !is CancellationException) handleError(exception)
+                if (activeCurriculum != null) fetchActiveCurriculumData(profile.id, activeCurriculum)
+                updateItemsCompletion()
+            } catch (e: Exception) {
+                handleError(e)
             } finally {
                 _state.update { it.copy(isLoading = false) }
             }
@@ -157,7 +154,7 @@ class DashboardViewModel(
      * @param curriculum The active curriculum.
      */
     private suspend fun fetchActiveCurriculumData(profileId: String, curriculum: Curriculum) {
-        val modules = getAllModulesUseCase(buildModulePathUseCase(profileId, curriculum.id)).first().getOrThrow()
+        val modules = getAllModulesUseCase(buildModulePathUseCase(profileId, curriculum.id)).getOrThrow()
         _state.update { it.copy(modules = modules) }
         _state.update { it.copy(moduleCountByStatus = countModulesByStatusUseCase(curriculum.id).getOrThrow()) }
         modules.forEach { module -> fetchLessons(profileId, curriculum.id, module) }
@@ -171,7 +168,7 @@ class DashboardViewModel(
      * @param module The module for which to fetch lessons.
      */
     private suspend fun fetchLessons(userId: String, curriculumId: String, module: Module) {
-        val lessons = getAllLessonsUseCase(buildLessonPathUseCase(userId, curriculumId, module.id)).first().getOrThrow()
+        val lessons = getAllLessonsUseCase(buildLessonPathUseCase(userId, curriculumId, module.id)).getOrThrow()
         _state.update { it.copy(lessonCountByStatus = countLessonsByStatusUseCase(curriculumId).getOrThrow()) }
         lessons.forEach { lesson -> fetchSections(userId, curriculumId, module.id, lesson.id) }
     }
@@ -185,7 +182,7 @@ class DashboardViewModel(
      * @param lessonId The ID of the lesson.
      */
     private suspend fun fetchSections(userId: String, curriculumId: String, moduleId: String, lessonId: String) {
-        getAllSectionsUseCase(buildSectionPathUseCase(userId, curriculumId, moduleId, lessonId)).first().getOrThrow()
+        getAllSectionsUseCase(buildSectionPathUseCase(userId, curriculumId, moduleId, lessonId)).getOrThrow()
         _state.update { it.copy(sectionCountByStatus = countSectionsByStatusUseCase(curriculumId).getOrThrow()) }
     }
 
@@ -216,16 +213,11 @@ class DashboardViewModel(
         }
     }
 
-
-    fun openModule(moduleId: String) {
+    private fun openModule(moduleId: String) {
         TODO("Navigate to module details screen")
     }
 
-    fun opentCurriculum(curriculumId: String) {
+    private fun openCurriculum(curriculumId: String) {
         TODO("Navigate to curriculum details screen")
-    }
-
-    companion object {
-        private const val FETCH_TIMEOUT = 5000L
     }
 }

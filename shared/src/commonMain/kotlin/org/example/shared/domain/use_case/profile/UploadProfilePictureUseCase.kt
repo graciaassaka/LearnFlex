@@ -1,7 +1,6 @@
 package org.example.shared.domain.use_case.profile
 
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import org.example.shared.domain.client.AuthClient
 import org.example.shared.domain.client.StorageClient
 import org.example.shared.domain.constant.FileType
@@ -29,7 +28,7 @@ class UploadProfilePictureUseCase(
      */
     suspend operator fun invoke(path: String, image: ByteArray) = runCatching {
         val user = authClient.getUserData().getOrThrow()
-        val profile = getProfileUseCase(path).first().getOrNull()
+        val profile = getProfileUseCase(path).getOrNull()
 
         var fileUploaded = false
         var authUpdated = false

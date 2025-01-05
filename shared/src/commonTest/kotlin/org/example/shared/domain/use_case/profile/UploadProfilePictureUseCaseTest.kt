@@ -4,7 +4,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
 import io.mockk.mockk
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.client.AuthClient
 import org.example.shared.domain.client.StorageClient
@@ -43,7 +42,7 @@ class UploadProfilePictureUseCaseTest {
         val newImageUrl = "new_image_url.jpg"
 
         coEvery { authClient.getUserData() } returns Result.success(user)
-        coEvery { getProfileUseCase(TEST_PATH) } returns flowOf(Result.success(profile))
+        coEvery { getProfileUseCase(TEST_PATH) } returns Result.success(profile)
         coEvery {
             storageClient.uploadFile(imageData, "profile_pictures/${user.localId}.jpg", FileType.IMAGE)
         } returns Result.success(newImageUrl)
@@ -69,7 +68,7 @@ class UploadProfilePictureUseCaseTest {
         val newImageUrl = "new_image_url.jpg"
 
         coEvery { authClient.getUserData() } returns Result.success(user)
-        coEvery { getProfileUseCase(TEST_PATH) } returns flowOf(Result.success(profile))
+        coEvery { getProfileUseCase(TEST_PATH) } returns Result.success(profile)
         coEvery {
             storageClient.uploadFile(imageData, "profile_pictures/${user.localId}.jpg", FileType.IMAGE)
         } returnsMany listOf(
@@ -96,7 +95,7 @@ class UploadProfilePictureUseCaseTest {
         val error = RuntimeException("Update failed")
 
         coEvery { authClient.getUserData() } returns Result.success(user)
-        coEvery { getProfileUseCase(TEST_PATH) } returns flowOf(Result.success(profile))
+        coEvery { getProfileUseCase(TEST_PATH) } returns Result.success(profile)
         coEvery {
             storageClient.uploadFile(imageData, "profile_pictures/${user.localId}.jpg", FileType.IMAGE)
         } returns Result.success(newImageUrl)
@@ -125,7 +124,7 @@ class UploadProfilePictureUseCaseTest {
         val rollbackError = RuntimeException("Rollback failed")
 
         coEvery { authClient.getUserData() } returns Result.success(user)
-        coEvery { getProfileUseCase(TEST_PATH) } returns flowOf(Result.success(profile))
+        coEvery { getProfileUseCase(TEST_PATH) } returns Result.success(profile)
         coEvery {
             storageClient.uploadFile(imageData, "profile_pictures/${user.localId}.jpg", FileType.IMAGE)
         } returns Result.success(newImageUrl)

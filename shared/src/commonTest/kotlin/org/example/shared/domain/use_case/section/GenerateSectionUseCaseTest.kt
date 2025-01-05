@@ -41,7 +41,7 @@ class GenerateSectionUseCaseTest {
         val profile = Profile(
             username = "testUser",
             email = "test@example.com",
-            photoUrl = "http://example.com/photo.jpg",
+            photoUrl = "https://example.com/photo.jpg",
             preferences = Profile.LearningPreferences(
                 field = "Computer Science",
                 level = "Beginner",
@@ -58,22 +58,22 @@ class GenerateSectionUseCaseTest {
         val curriculum = Curriculum(
             title = "Kotlin Programming Curriculum",
             description = "A comprehensive curriculum for learning Kotlin.",
-            imageUrl = "http://example.com/curriculum.jpg",
+            content = listOf("Introduction to Kotlin", "Kotlin Basics"),
             status = "active"
         )
         val module = Module(
             title = "Module 1: Coroutines Basics",
             description = "Understanding the fundamentals of coroutines.",
-            imageUrl = "http://example.com/module1.jpg",
             index = 1,
+            content = listOf("Coroutines Setup", "Basic Usage"),
             quizScore = 85,
             quizScoreMax = 100
         )
         val lesson = Lesson(
             title = "Lesson 1: What are Coroutines?",
             description = "An introduction to coroutines in Kotlin.",
-            imageUrl = "http://example.com/lesson1.jpg",
             index = 1,
+            content = listOf("Coroutines Overview", "Coroutine Lifecycle"),
             quizScore = 90,
             quizScoreMax = 100
         )
@@ -81,7 +81,6 @@ class GenerateSectionUseCaseTest {
         // Mock the generateContent method to return a successful GeneratedResponse
         val generatedResponse = ContentGeneratorClient.GeneratedResponse(
             title = title,
-            imagePrompt = "An illustration of Kotlin coroutines in action",
             description = "This section covers the basics of Kotlin coroutines, including setup and simple usage.",
             content = listOf("Introduction to Coroutines", "Coroutine Builders", "Suspending Functions")
         )
@@ -99,7 +98,6 @@ class GenerateSectionUseCaseTest {
                 match { context ->
                     context.field == profile.preferences.field &&
                             context.level == profile.preferences.level &&
-                            context.goal == profile.preferences.goal &&
                             context.style == profile.learningStyle &&
                             context.type == ContentType.SECTION &&
                             context.contentDescriptors.size == 4 &&
@@ -134,7 +132,7 @@ class GenerateSectionUseCaseTest {
         val profile = Profile(
             username = "advancedUser",
             email = "advanced@example.com",
-            photoUrl = "http://example.com/photo2.jpg",
+            photoUrl = "https://example.com/photo2.jpg",
             preferences = Profile.LearningPreferences(
                 field = "Engineering",
                 level = "Intermediate",
@@ -151,29 +149,28 @@ class GenerateSectionUseCaseTest {
         val curriculum = Curriculum(
             title = "Advanced Kotlin Curriculum",
             description = "An advanced curriculum focusing on Kotlin's concurrency features.",
-            imageUrl = "http://example.com/curriculum2.jpg",
+            content = listOf("Advanced Coroutines", "Concurrency Patterns"),
             status = "active"
         )
         val module = Module(
             title = "Module 2: Coroutine Scope and Context",
             description = "Deep dive into coroutine scopes and context management.",
-            imageUrl = "http://example.com/module2.jpg",
             index = 2,
+            content = listOf("CoroutineScope", "CoroutineContext", "Structured Concurrency"),
             quizScore = 90,
             quizScoreMax = 100
         )
         val lesson = Lesson(
             title = "Lesson 2: CoroutineScope",
             description = "Understanding CoroutineScope in Kotlin.",
-            imageUrl = "http://example.com/lesson2.jpg",
             index = 2,
+            content = listOf("CoroutineScope Basics", "CoroutineScope Hierarchy"),
             quizScore = 95,
             quizScoreMax = 100
         )
 
         val generatedResponse = ContentGeneratorClient.GeneratedResponse(
             title = title,
-            imagePrompt = "A diagram showing coroutine scopes",
             description = "This section explores coroutine scopes, context, and best practices for managing them.",
             content = listOf("CoroutineScope", "CoroutineContext", "Structured Concurrency")
         )
@@ -202,7 +199,7 @@ class GenerateSectionUseCaseTest {
         val profile = Profile(
             username = "expertUser",
             email = "expert@example.com",
-            photoUrl = "http://example.com/photo3.jpg",
+            photoUrl = "https://example.com/photo3.jpg",
             preferences = Profile.LearningPreferences(
                 field = "Health",
                 level = "Advanced",
@@ -219,22 +216,22 @@ class GenerateSectionUseCaseTest {
         val curriculum = Curriculum(
             title = "Expert Kotlin Curriculum",
             description = "An expert-level curriculum for optimizing Kotlin applications.",
-            imageUrl = "http://example.com/curriculum3.jpg",
+            content = listOf("Advanced Coroutines", "Performance Tuning"),
             status = "active"
         )
         val module = Module(
             title = "Module 3: Exception Handling in Coroutines",
             description = "Handling exceptions within coroutines effectively.",
-            imageUrl = "http://example.com/module3.jpg",
             index = 3,
+            content = listOf("Coroutine Exceptions", "SupervisorScope"),
             quizScore = 95,
             quizScoreMax = 100
         )
         val lesson = Lesson(
             title = "Lesson 3: Coroutine Exceptions",
             description = "Advanced techniques for managing exceptions in coroutines.",
-            imageUrl = "http://example.com/lesson3.jpg",
             index = 3,
+            content = listOf("CoroutineExceptionHandler", "SupervisorJob"),
             quizScore = 100,
             quizScoreMax = 100
         )

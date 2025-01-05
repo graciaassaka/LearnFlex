@@ -8,17 +8,16 @@ import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.*
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.layout.AnimatedPane
+import androidx.compose.material3.adaptive.layout.SupportingPaneScaffold
+import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope
+import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.*
@@ -45,11 +44,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import coil3.compose.AsyncImage
-import coil3.compose.LocalPlatformContext
-import coil3.request.ImageRequest
-import coil3.request.crossfade
+import io.github.alexzhirkevich.compottie.*
 import kotlinx.coroutines.delay
 import learnflex.composeapp.generated.resources.*
 import org.example.composeApp.component.*
@@ -68,9 +65,12 @@ import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.state.DashboardUIState
 import org.example.shared.presentation.util.SnackbarType
 import org.example.shared.presentation.viewModel.DashboardViewModel
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import java.text.SimpleDateFormat
 import java.time.DayOfWeek
+import java.util.*
 import kotlin.random.Random
 
 /**
@@ -81,11 +81,23 @@ import kotlin.random.Random
  */
 private enum class Dimensions(val dp: Dp) {
     MIN_GRID_CELL_SIZE(200.dp),
-    WELCOME_SECTION_HEIGHT(200.dp),
     WEEKLY_ACTIVITY_SECTION_HEIGHT(200.dp),
-    MODULE_CARD_HEIGHT(250.dp),
+    MODULE_CARD_HEIGHT(150.dp),
     PROGRESS_INDICATOR_STROKE_WIDTH(12.dp),
 }
+
+/**
+ * A private list of file paths referencing specific Lottie animation files.
+ * These files are associated with certain activities such as meditation,
+ * reading, teaching, studying, and online tests.
+ */
+private val lottieFiles = listOf(
+    "files/meditation.json",
+    "files/reading.json",
+    "files/teaching.json",
+    "files/studying.json",
+    "files/online_test.json",
+)
 
 /**
  * A list of drawable resources representing various images of owls in a library setting.
@@ -105,6 +117,7 @@ private val backgroundPictures = listOf(
  * @param navController The navigation controller used to navigate between screens in the app.
  * @param viewModel The ViewModel that manages the state and logic for the Dashboard screen.
  */
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun DashboardScreen(
     windowSizeClass: WindowSizeClass,
@@ -115,142 +128,153 @@ fun DashboardScreen(
         windowSizeClass = windowSizeClass,
         snackbarHostState = remember { SnackbarHostState() },
         snackbarType = remember { mutableStateOf(SnackbarType.Info) },
-        uiState = viewModel.state.collectAsState(),
-        isScreenVisible = viewModel.isScreenVisible.collectAsState()
+        uiState = viewModel.state.collectAsStateWithLifecycle(),
+        isScreenVisible = viewModel.isScreenVisible.collectAsStateWithLifecycle()
     )
+    val navigator = rememberSupportingPaneScaffoldNavigator()
+    ThreePaneBackHandler(navigator = navigator)
 
     HandleUIEvents(Route.CreateProfile, navController, viewModel, screenConfig.snackbarHostState) { screenConfig.snackbarType.value = it }
-
-    val fabInteractionSource = remember { MutableInteractionSource() }
-    val isFabHovered by fabInteractionSource.collectIsHoveredAsState()
-    val lazyGridState = rememberLazyGridState()
 
     CustomScaffold(
         snackbarHostState = screenConfig.snackbarHostState,
         snackbarType = screenConfig.snackbarType.value,
         currentDestination = AppDestination.Dashboard,
-        onDestinationSelected = { viewModel.navigate(it.route, true) },
-        enabled = !screenConfig.uiState.value.isLoading,
+        onDestinationSelected = { viewModel.handleAction(DashboardAction.Navigate(it.route)) },
+        enabled = !screenConfig.uiState.value.isLoading
     ) { paddingValues ->
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
-            verticalAlignment = Alignment.Top
-        ) {
-            Box(
-                modifier = Modifier
-                    .weight(2f)
-                    .fillMaxHeight()
-            ) {
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(Dimensions.MIN_GRID_CELL_SIZE.dp),
-                    contentPadding = PaddingValues(Padding.MEDIUM.dp),
-                    state = lazyGridState
-                ) {
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        WelcomeSection(
-                            screenConfig = screenConfig,
-                            handleAction = viewModel::handleAction,
-                            modifier = Modifier.testTag(TestTags.DASHBOARD_WELCOME_SECTION.tag)
-                        )
-                    }
-
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
-                    }
-
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        Text(
-                            text = stringResource(Res.string.weekly_activity),
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.titleMedium,
-                            textAlign = TextAlign.Start,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        Spacer(modifier = Modifier.height(Spacing.MEDIUM.dp))
-                    }
-
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        WeeklyActivitiesSection(
-                            screenConfig = screenConfig,
-                            modifier = Modifier.testTag(TestTags.DASHBOARD_WEEKLY_ACTIVITY_SECTION.tag)
-                        )
-                    }
-
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
-                    }
-
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        Text(
-                            text = stringResource(Res.string.modules),
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.titleMedium,
-                            textAlign = TextAlign.Start,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        Spacer(modifier = Modifier.height(Spacing.MEDIUM.dp))
-                    }
-
-                    items(screenConfig.uiState.value.modules) { module ->
-                        ModuleCard(
-                            isLoading = screenConfig.uiState.value.isLoading,
-                            module = module,
-                            modifier = Modifier
-                                .padding(Padding.SMALL.dp)
-                                .testTag("module_card_${module.id}"),
-                            onModuleClicked = viewModel::openModule
-                        )
-                    }
-                }
-                CustomVerticalScrollbar(
-                    lazyGridState = lazyGridState,
-                    modifier = Modifier.align(Alignment.CenterEnd)
-                )
-                FloatingActionButton(
-                    onClick = { viewModel.fetchAllUserData() },
-                    interactionSource = fabInteractionSource,
-                    modifier = Modifier
-                        .padding(Padding.MEDIUM.dp)
-                        .align(Alignment.BottomEnd)
-                        .hoverable(interactionSource = fabInteractionSource)
-                        .testTag(TestTags.DASHBOARD_REFRESH_FAB.tag)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .padding(Padding.SMALL.dp)
-                            .animateContentSize(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Icon(Icons.Default.Refresh, stringResource(Res.string.refresh_button_label))
-                        if (isFabHovered) Text(stringResource(Res.string.refresh_button_label))
-                    }
-                }
-            }
-            if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded) Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-            ) {
-                CurriculumSection(
+        SupportingPaneScaffold(
+            directive = navigator.scaffoldDirective,
+            value = navigator.scaffoldValue,
+            mainPane = {
+                MainPane(
                     screenConfig = screenConfig,
                     handleAction = viewModel::handleAction,
-                    modifier = Modifier.testTag(TestTags.DASHBOARD_CURRICULUM_SECTION.tag)
+                    modifier = Modifier.padding(paddingValues)
                 )
+            },
+            supportingPane = {
+                SupportingPane(
+                    screenConfig = screenConfig,
+                    paddingValues = paddingValues
+                )
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@Composable
+private fun ThreePaneScaffoldScope.MainPane(
+    screenConfig: ScreenConfig<DashboardUIState>,
+    handleAction: (DashboardAction) -> Unit,
+    modifier: Modifier = Modifier,
+) = with(screenConfig) {
+    val fabInteractionSource = remember { MutableInteractionSource() }
+    val isFabHovered by fabInteractionSource.collectIsHoveredAsState()
+    val lazyGridState = rememberLazyGridState()
+
+    AnimatedPane(modifier = modifier.fillMaxWidth()) {
+        RefreshBox(
+            modifier = modifier.fillMaxSize(),
+            isRefreshing = uiState.value.isLoading,
+            onRefresh = { handleAction(DashboardAction.Refresh) }
+        ) {
+            DashboardContent(
+                screenConfig = screenConfig,
+                handleAction = handleAction,
+                lazyGridState = lazyGridState
+            )
+            CustomVerticalScrollbar(
+                lazyGridState = lazyGridState,
+                modifier = Modifier.align(Alignment.CenterEnd)
+            )
+            if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded) FloatingActionButton(
+                onClick = { handleAction(DashboardAction.Refresh) },
+                interactionSource = fabInteractionSource,
+                modifier = Modifier
+                    .padding(Padding.MEDIUM.dp)
+                    .align(Alignment.BottomEnd)
+                    .hoverable(interactionSource = fabInteractionSource)
+                    .testTag(TestTags.DASHBOARD_REFRESH_FAB.tag)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .padding(Padding.SMALL.dp)
+                        .animateContentSize(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(Icons.Default.Refresh, stringResource(Res.string.refresh_button_label))
+                    if (isFabHovered) Text(stringResource(Res.string.refresh_button_label))
+                }
             }
         }
     }
 }
 
+@Composable
+fun DashboardContent(
+    screenConfig: ScreenConfig<DashboardUIState>,
+    handleAction: (DashboardAction) -> Unit,
+    lazyGridState: LazyGridState,
+    modifier: Modifier = Modifier
+) = LazyVerticalGrid(
+    columns = GridCells.Adaptive(Dimensions.MIN_GRID_CELL_SIZE.dp),
+    contentPadding = PaddingValues(Padding.MEDIUM.dp),
+    state = lazyGridState,
+    modifier = modifier
+) {
+    item(span = { GridItemSpan(maxLineSpan) }) {
+        WelcomeSection(
+            screenConfig = screenConfig,
+            handleAction = handleAction,
+            modifier = Modifier.testTag(TestTags.DASHBOARD_WELCOME_SECTION.tag)
+        )
+    }
+    item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(Spacing.LARGE.dp)) }
+    item(span = { GridItemSpan(maxLineSpan) }) {
+        Text(
+            text = stringResource(Res.string.weekly_activity),
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Start,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+    item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(Spacing.MEDIUM.dp)) }
+    item(span = { GridItemSpan(maxLineSpan) }) {
+        WeeklyActivitiesSection(
+            screenConfig = screenConfig,
+            modifier = Modifier.testTag(TestTags.DASHBOARD_WEEKLY_ACTIVITY_SECTION.tag)
+        )
+    }
+    item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(Spacing.LARGE.dp)) }
+    item(span = { GridItemSpan(maxLineSpan) }) {
+        Text(
+            text = stringResource(Res.string.modules),
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Start,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+    item(span = { GridItemSpan(maxLineSpan) }) {
+        Spacer(modifier = Modifier.height(Spacing.MEDIUM.dp))
+    }
+    items(screenConfig.uiState.value.modules) { module ->
+        ModuleCard(
+            isLoading = screenConfig.uiState.value.isLoading,
+            module = module,
+            modifier = Modifier
+                .padding(Padding.SMALL.dp)
+                .testTag("module_card_${module.id}"),
+            onModuleClicked = { handleAction(DashboardAction.OpenModule(it)) }
+        )
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun WelcomeSection(
     screenConfig: ScreenConfig<DashboardUIState>,
@@ -258,17 +282,24 @@ private fun WelcomeSection(
     modifier: Modifier = Modifier
 ) = with(screenConfig) {
     val visible by remember { mutableStateOf(isScreenVisible.value) }
-
+    val lottieComposition by rememberLottieComposition {
+        LottieCompositionSpec.JsonString(Res.readBytes(lottieFiles[Random.nextInt(0, lottieFiles.size)]).decodeToString())
+    }
+    val lottiAnimProgress by animateLottieCompositionAsState(
+        composition = lottieComposition,
+        iterations = Compottie.IterateForever,
+    )
+    val boxModifier = if (windowSizeClass.widthSizeClass != WindowWidthSizeClass.Expanded) {
+        modifier.fillMaxWidth()
+    } else {
+        modifier.fillMaxWidth().height(200.dp)
+    }
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(animationSpec = tween(durationMillis = 1000)),
         exit = fadeOut(animationSpec = tween(durationMillis = 1000))
     ) {
-        BoxWithConstraints(
-            modifier = modifier
-                .height(Dimensions.WELCOME_SECTION_HEIGHT.dp)
-                .fillMaxWidth()
-        ) {
+        BoxWithConstraints(modifier = boxModifier) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
                 horizontalAlignment = Alignment.Start
@@ -290,11 +321,9 @@ private fun WelcomeSection(
                 )
             }
             Image(
-                painter = painterResource(Res.drawable.welcome),
+                painter = rememberLottiePainter(composition = lottieComposition, progress = { lottiAnimProgress }),
                 contentDescription = null,
-                modifier = Modifier
-                    .size(minOf(maxWidth / 3, maxHeight))
-                    .align(Alignment.CenterEnd)
+                modifier = Modifier.size(minOf(maxWidth / 3, maxHeight)).align(Alignment.CenterEnd)
             )
         }
     }
@@ -583,30 +612,27 @@ private fun ModuleCard(
             ),
             elevation = CardDefaults.cardElevation(Elevation.SMALL.dp)
         ) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalPlatformContext.current)
-                    .data(module.imageUrl)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                modifier = Modifier.weight(0.75f),
-                contentScale = ContentScale.Crop
-            )
             Column(
                 modifier = Modifier
                     .weight(1 / 4f)
                     .padding(Padding.SMALL.dp)
                     .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(Spacing.SMALL.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                horizontalAlignment = Alignment.Start,
             ) {
                 Text(
                     text = module.title,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                     style = MaterialTheme.typography.titleSmall,
                 )
+                Spacer(modifier = Modifier.weight(1f))
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
                 Text(
                     text = "${stringResource(Res.string.best_quiz_score)} ${module.quizScore}",
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    text = "Last Active On:  ${SimpleDateFormat("dd-MM-yy", Locale.getDefault()).format(Date(module.lastUpdated))}",
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -615,15 +641,34 @@ private fun ModuleCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@Composable
+private fun ThreePaneScaffoldScope.SupportingPane(
+    screenConfig: ScreenConfig<DashboardUIState>,
+    paddingValues: PaddingValues,
+    modifier: Modifier = Modifier,
+) = AnimatedPane(modifier = modifier.safeContentPadding()) {
+    Row(
+        modifier = Modifier.fillMaxSize().padding(paddingValues),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+        Box(modifier = Modifier.fillMaxHeight()) {
+            CurriculumSection(
+                screenConfig = screenConfig,
+                modifier = Modifier.testTag(TestTags.DASHBOARD_CURRICULUM_SECTION.tag)
+            )
+        }
+    }
+}
+
 @Composable
 private fun CurriculumSection(
     screenConfig: ScreenConfig<DashboardUIState>,
-    handleAction: (DashboardAction) -> Unit,
     modifier: Modifier = Modifier
 ) = if (screenConfig.uiState.value.isLoading) {
     Box(modifier = modifier.fillMaxSize().shimmerEffect())
 } else {
-    val lazyState = rememberLazyListState()
     val brushColors = listOf(
         MaterialTheme.colorScheme.primaryContainer,
         MaterialTheme.colorScheme.secondaryContainer
@@ -639,19 +684,9 @@ private fun CurriculumSection(
         ),
         label = "offset"
     )
-
     Box(modifier = modifier.fillMaxSize()) {
         AnimatedBackground(brushColors, offset)
-        CurriculumContent(
-            curricula = screenConfig.uiState.value.curricula,
-            itemCompletions = screenConfig.uiState.value.itemsCompletion,
-            onCurriculumClicked = { handleAction(DashboardAction.OpenCurriculum(it)) },
-            lazyState = lazyState
-        )
-        CustomVerticalScrollbar(
-            lazyListState = lazyState,
-            modifier = Modifier.align(Alignment.CenterEnd)
-        )
+        SyllabusSection(screenConfig.uiState.value.itemsCompletion)
     }
 }
 
@@ -678,22 +713,24 @@ private fun AnimatedBackground(
         }
 )
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
-private fun CurriculumContent(
-    curricula: List<Curriculum>,
+private fun SyllabusSection(
     itemCompletions: List<Triple<String, Int, Int>>,
-    onCurriculumClicked: (String) -> Unit,
-    lazyState: LazyListState,
     modifier: Modifier = Modifier
-) = LazyColumn(
-    modifier = modifier
-        .fillMaxSize()
-        .padding(horizontal = Padding.MEDIUM.dp),
-    state = lazyState,
-    verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
-    horizontalAlignment = Alignment.CenterHorizontally
 ) {
-    item {
+    val composition = rememberLottieComposition {
+        LottieCompositionSpec.JsonString(
+            Res.readBytes("files/library.json").decodeToString()
+        )
+    }
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = Padding.MEDIUM.dp),
+        verticalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Text(
             text = stringResource(Res.string.curriculum_progress),
             style = MaterialTheme.typography.titleMedium,
@@ -701,21 +738,16 @@ private fun CurriculumContent(
             textAlign = TextAlign.Start,
             modifier = Modifier.fillMaxWidth()
         )
-    }
-    item { CompletionCard(itemCompletions) }
-    item {
-        Text(
-            text = stringResource(Res.string.completed_curricula),
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
-            style = MaterialTheme.typography.titleMedium,
-            textAlign = TextAlign.Start,
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
-    items(curricula) { curriculum ->
-        CurriculumCard(
-            curriculum = curriculum,
-            onCurriculumClicked = onCurriculumClicked
+        CompletionCard(itemCompletions)
+        Image(
+            painter = rememberLottiePainter(
+                composition = composition.value,
+                isPlaying = true,
+                iterations = Compottie.IterateForever
+            ),
+            contentDescription = null,
+            modifier = modifier,
+            contentScale = ContentScale.Fit
         )
     }
 }
@@ -726,7 +758,6 @@ private fun CompletionCard(
     modifier: Modifier = Modifier
 ) {
     val barColors = MutableList(itemCompletions.size) { i -> remember(i) { mutableStateOf(Color.Gray) } }
-
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -794,32 +825,13 @@ private fun CompletionStatus(
 ) {
     Layout(
         content = {
-            Box(
-                modifier = Modifier
-                    .width(Padding.SMALL.dp)
-                    .background(
-                        color = barColor,
-                        shape = RoundedCornerShape(Dimension.CORNER_RADIUS_SMALL.dp)
-                    )
-                    .layoutId("bar")
+            CompletionStatusBar(
+                completed = completed,
+                total = total,
+                label = label,
+                textColor = textColor,
+                barColor = barColor
             )
-            Column(
-                modifier = Modifier.layoutId("text"),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "$completed/$total",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Bold,
-                    color = textColor
-                )
-            }
         }
     ) { measurables, constraints ->
         val barMeasurable = measurables.find { it.layoutId == "bar" }!!
@@ -834,7 +846,6 @@ private fun CompletionStatus(
                 maxWidth = (constraints.maxWidth * (textWeight / totalWeight)).toInt()
             )
         )
-
         val barPlaceable = barMeasurable.measure(
             constraints.copy(
                 maxWidth = (constraints.maxWidth * (barWeight / totalWeight)).toInt(),
@@ -842,7 +853,6 @@ private fun CompletionStatus(
                 maxHeight = textPlaceable.height
             )
         )
-
         val totalWidth = barPlaceable.width + textPlaceable.width
         val totalHeight = textPlaceable.height
 
@@ -861,66 +871,34 @@ private fun CompletionStatus(
 }
 
 @Composable
-private fun CurriculumCard(
-    curriculum: Curriculum,
-    onCurriculumClicked: (String) -> Unit,
-    modifier: Modifier = Modifier
+fun CompletionStatusBar(
+    completed: Int,
+    total: Int,
+    label: String,
+    textColor: Color,
+    barColor: Color
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    val containerColor by animateColorAsState(
-        targetValue = if (expanded) MaterialTheme.colorScheme.surfaceContainerHighest else MaterialTheme.colorScheme.background,
-        animationSpec = tween(durationMillis = 300)
+    Box(
+        modifier = Modifier
+            .width(Padding.SMALL.dp)
+            .background(color = barColor, shape = RoundedCornerShape(Dimension.CORNER_RADIUS_SMALL.dp))
+            .layoutId("bar")
     )
-    val contentColor by animateColorAsState(
-        targetValue = if (expanded) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onBackground,
-        animationSpec = tween(durationMillis = 300)
-    )
-
-    Card(
-        onClick = { onCurriculumClicked(curriculum.id) },
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = containerColor,
-            contentColor = contentColor
-        ),
-        shape = RectangleShape,
-        elevation = CardDefaults.cardElevation(Elevation.SMALL.dp)
+    Column(
+        modifier = Modifier.layoutId("text"),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = Padding.SMALL.dp, horizontal = Padding.MEDIUM.dp),
-            verticalArrangement = Arrangement.spacedBy(Spacing.SMALL.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = curriculum.title,
-                    style = MaterialTheme.typography.titleSmall
-                )
-                IconButton(
-                    onClick = { expanded = !expanded }
-                ) {
-                    Icon(
-                        imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                        contentDescription = if (expanded) stringResource(Res.string.show_less_button_label)
-                        else stringResource(Res.string.show_more_button_label)
-                    )
-                }
-            }
-            AnimatedVisibility(
-                visible = expanded,
-                enter = expandVertically() + fadeIn(),
-                exit = shrinkVertically() + fadeOut()
-            ) {
-                Text(
-                    text = curriculum.description,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-        }
+        Text(
+            text = "$completed/$total",
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.Bold,
+            color = textColor
+        )
     }
 }

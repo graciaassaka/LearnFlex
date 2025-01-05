@@ -3,6 +3,7 @@ package org.example.shared.domain.use_case.lesson
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.client.ContentGeneratorClient
@@ -56,14 +57,14 @@ class GenerateLessonUseCaseTest {
         val curriculum = Curriculum(
             title = "Kotlin Programming Curriculum",
             description = "A comprehensive curriculum for learning Kotlin.",
-            imageUrl = "https://example.com/curriculum.jpg",
+            content = listOf("Introduction to Kotlin", "Kotlin Basics"),
             status = "active"
         )
         val module = Module(
             title = "Module 1: Coroutines Basics",
             description = "Understanding the fundamentals of coroutines.",
-            imageUrl = "https://example.com/module1.jpg",
             index = 1,
+            content = listOf("What are Coroutines?", "Coroutine Builders"),
             quizScore = 85,
             quizScoreMax = 100
         )
@@ -71,7 +72,6 @@ class GenerateLessonUseCaseTest {
         // Mock the generateContent method to return a successful GeneratedResponse
         val generatedResponse = ContentGeneratorClient.GeneratedResponse(
             title = title,
-            imagePrompt = "An illustration of Kotlin coroutines in action",
             description = "This lesson covers the basics of Kotlin coroutines, including setup and simple usage.",
             content = listOf("What are Coroutines?", "Coroutine Builders", "Suspending Functions")
         )
@@ -80,7 +80,7 @@ class GenerateLessonUseCaseTest {
         } returns flowOf(Result.success(generatedResponse))
 
         // Act
-        val result = generateLessonUseCase.invoke(title, profile, curriculum, module)
+        val result = generateLessonUseCase.invoke(title, profile, curriculum, module).first()
 
         // Assert
         // Verify that generateContent was called exactly once with the correct context
@@ -89,7 +89,6 @@ class GenerateLessonUseCaseTest {
                 match { context ->
                     context.field == profile.preferences.field &&
                             context.level == profile.preferences.level &&
-                            context.goal == profile.preferences.goal &&
                             context.style == profile.learningStyle &&
                             context.type == ContentType.LESSON &&
                             context.contentDescriptors.size == 3 &&
@@ -138,21 +137,20 @@ class GenerateLessonUseCaseTest {
         val curriculum = Curriculum(
             title = "Advanced Kotlin Curriculum",
             description = "An advanced curriculum focusing on Kotlin's concurrency features.",
-            imageUrl = "https://example.com/curriculum2.jpg",
+            content = listOf("Advanced Coroutines", "Coroutines in Practice"),
             status = "active"
         )
         val module = Module(
             title = "Module 2: Coroutine Scope and Context",
             description = "Deep dive into coroutine scopes and context management.",
-            imageUrl = "https://example.com/module2.jpg",
             index = 2,
+            content = listOf("CoroutineScope", "CoroutineContext", "Structured Concurrency"),
             quizScore = 90,
             quizScoreMax = 100
         )
 
         val generatedResponse = ContentGeneratorClient.GeneratedResponse(
             title = title,
-            imagePrompt = "A diagram showing coroutine scopes",
             description = "This lesson explores coroutine scopes, context, and best practices for managing them.",
             content = listOf("CoroutineScope", "CoroutineContext", "Structured Concurrency")
         )
@@ -163,7 +161,7 @@ class GenerateLessonUseCaseTest {
         } returns flowOf(Result.success(generatedResponse))
 
         // Act
-        val result = generateLessonUseCase.invoke(title, profile, curriculum, module)
+        val result = generateLessonUseCase.invoke(title, profile, curriculum, module).first()
 
         // Assert
         // Verify that the result is successful and matches the mocked response
@@ -198,14 +196,14 @@ class GenerateLessonUseCaseTest {
         val curriculum = Curriculum(
             title = "Expert Kotlin Curriculum",
             description = "An expert-level curriculum for optimizing Kotlin applications.",
-            imageUrl = "https://example.com/curriculum3.jpg",
+            content = listOf("Advanced Coroutines", "Coroutines in Practice", "Exception Handling"),
             status = "active"
         )
         val module = Module(
             title = "Module 3: Exception Handling in Coroutines",
             description = "Handling exceptions within coroutines effectively.",
-            imageUrl = "https://example.com/module3.jpg",
             index = 3,
+            content = listOf("CoroutineExceptionHandler", "SupervisorScope", "Exception Handling Strategies"),
             quizScore = 95,
             quizScoreMax = 100
         )
@@ -218,7 +216,7 @@ class GenerateLessonUseCaseTest {
         } returns flowOf(Result.failure(exception))
 
         // Act
-        val result = generateLessonUseCase.invoke(title, profile, curriculum, module)
+        val result = generateLessonUseCase.invoke(title, profile, curriculum, module).first()
 
         // Assert
         // Verify that the result is a failure and contains the expected exception

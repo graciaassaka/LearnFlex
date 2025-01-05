@@ -7,10 +7,9 @@ import kotlinx.coroutines.launch
 import org.example.shared.domain.constant.Field
 import org.example.shared.domain.constant.Level
 import org.example.shared.domain.constant.Style
-import org.example.shared.domain.model.*
+import org.example.shared.domain.model.Profile
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.sync.SyncManager
-import org.example.shared.domain.use_case.*
 import org.example.shared.domain.use_case.auth.GetUserDataUseCase
 import org.example.shared.domain.use_case.path.BuildProfilePathUseCase
 import org.example.shared.domain.use_case.profile.*
@@ -88,13 +87,13 @@ class CreateUserProfileViewModel(
      */
     fun handleAction(action: Action) {
         when (action) {
-            is Action.HandleUsernameChanged -> handleUsernameChanged(action.username)
-            is Action.HandleFieldChanged -> handleFieldChanged(action.field)
-            is Action.HandleLevelChanged -> handleLevelChanged(action.level)
+            is Action.EditUsername -> editUsername(action.username)
+            is Action.SelectField -> selectField(action.field)
+            is Action.SelectLevel -> SelectLevel(action.level)
             is Action.ToggleLevelDropdownVisibility -> toggleLevelDropdownVisibility()
-            is Action.HandleGoalChanged -> handleGoalChanged(action.goal)
-            is Action.HandleUploadProfilePicture -> handleUploadProfilePicture(action.imageData, action.successMessage)
-            is Action.HandleProfilePictureDeleted -> handleProfilePictureDeleted(action.successMessage)
+            is Action.EditGoal -> editGoal(action.goal)
+            is Action.UploadProfilePicture -> uploadProfilePicture(action.imageData, action.successMessage)
+            is Action.DeleteProfilePicture -> DeleteProfilePicture(action.successMessage)
             is Action.CreateProfile -> createProfile(action.successMessage)
             is Action.StartStyleQuestionnaire -> startStyleQuestionnaire()
             is Action.HandleQuestionAnswered -> handleQuestionAnswered(action.style)
@@ -111,7 +110,7 @@ class CreateUserProfileViewModel(
      *
      * @param username The new username input.
      */
-    private fun handleUsernameChanged(username: String) = _state.update {
+    private fun editUsername(username: String) = _state.update {
         with(validateUsernameUseCase(username)) {
             when (this@with) {
                 is ValidationResult.Valid -> it.copy(username = value, usernameError = null)
@@ -125,14 +124,14 @@ class CreateUserProfileViewModel(
      *
      * @param field The selected learning field.
      */
-    private fun handleFieldChanged(field: Field) = _state.update { it.copy(field = field) }
+    private fun selectField(field: Field) = _state.update { it.copy(field = field) }
 
     /**
      * Handles changes to the learning level selection.
      *
      * @param level The selected learning level.
      */
-    private fun handleLevelChanged(level: Level) = _state.update { it.copy(level = level) }
+    private fun SelectLevel(level: Level) = _state.update { it.copy(level = level) }
 
     /**
      * Handles changes to the learning level dropdown visibility.
@@ -145,7 +144,7 @@ class CreateUserProfileViewModel(
      *
      * @param goal The new learning goal input.
      */
-    private fun handleGoalChanged(goal: String) = _state.update { it.copy(goal = goal) }
+    private fun editGoal(goal: String) = _state.update { it.copy(goal = goal) }
 
     /**
      * Handles the upload of a profile picture.
@@ -153,7 +152,7 @@ class CreateUserProfileViewModel(
      * @param imageData The image data of the profile picture.
      * @param successMessage The message to show on successful upload.
      */
-    private fun handleUploadProfilePicture(imageData: ByteArray, successMessage: String) = with(_state) {
+    private fun uploadProfilePicture(imageData: ByteArray, successMessage: String) = with(_state) {
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
@@ -174,7 +173,7 @@ class CreateUserProfileViewModel(
      *
      * @param successMessage The message to show on successful deletion.
      */
-    private fun handleProfilePictureDeleted(successMessage: String) = with(_state) {
+    private fun DeleteProfilePicture(successMessage: String) = with(_state) {
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
@@ -198,7 +197,7 @@ class CreateUserProfileViewModel(
     private fun createProfile(successMessage: String) = with(_state) {
         update { it.copy(isLoading = true) }
 
-        handleUsernameChanged(value.username)
+        editUsername(value.username)
 
         if (value.usernameError.isNullOrBlank()) viewModelScope.launch(dispatcher) {
             createProfileUseCase(

@@ -1,6 +1,5 @@
 package org.example.shared.domain.use_case.lesson
 
-import kotlinx.coroutines.flow.first
 import org.example.shared.domain.client.ContentGeneratorClient
 import org.example.shared.domain.constant.ContentType
 import org.example.shared.domain.model.Curriculum
@@ -23,7 +22,7 @@ class GenerateLessonUseCase(
      * @param curriculum The curriculum associated with the lesson.
      * @param module The module associated with the lesson.
      */
-    suspend operator fun invoke(
+    operator fun invoke(
         title: String,
         profile: Profile,
         curriculum: Curriculum,
@@ -32,7 +31,6 @@ class GenerateLessonUseCase(
         context = ContentGeneratorClient.Context(
             field = profile.preferences.field,
             level = profile.preferences.level,
-            goal = profile.preferences.goal,
             style = profile.learningStyle,
             type = ContentType.LESSON,
             contentDescriptors = listOf(
@@ -53,5 +51,5 @@ class GenerateLessonUseCase(
                 )
             )
         )
-    ).first()
+    )
 }

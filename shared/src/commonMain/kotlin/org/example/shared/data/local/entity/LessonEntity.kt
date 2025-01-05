@@ -15,11 +15,12 @@ import kotlin.uuid.Uuid
  *
  * @property id The unique identifier of the lesson.
  * @property moduleId The identifier of the module this lesson belongs to.
- * @property imageUrl The URL of the lesson's image.
+ * @property index The index position of the lesson within the module.
  * @property title The title of the lesson.
  * @property description A brief description of the lesson.
- * @property index The index position of the lesson within the module.
+ * @property content The content of the lesson.
  * @property quizScore The score of the quiz associated with the lesson.
+ * @property quizScoreMax The maximum score possible for the quiz.
  * @property createdAt The timestamp when the lesson was created.
  * @property lastUpdated The timestamp when the lesson was last updated.
  */
@@ -45,9 +46,6 @@ data class LessonEntity(
     )
     val moduleId: String,
 
-    @ColumnInfo(name = "image_url")
-    val imageUrl: String,
-
     @ColumnInfo(name = "title")
     val title: String,
 
@@ -57,10 +55,19 @@ data class LessonEntity(
     @ColumnInfo(name = "index")
     val index: Int,
 
-    @ColumnInfo(name = "quiz_score")
+    @ColumnInfo(name = "content")
+    val content: List<String>,
+
+    @ColumnInfo(
+        name = "quiz_score",
+        defaultValue = "0"
+    )
     override val quizScore: Int,
 
-    @ColumnInfo(name = "quiz_score_max")
+    @ColumnInfo(
+        name = "quiz_score_max",
+        defaultValue = "10"
+    )
     override val quizScoreMax: Int,
 
     @ColumnInfo(

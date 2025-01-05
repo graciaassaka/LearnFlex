@@ -61,10 +61,9 @@ class CountLessonsByStatusUseCaseTest {
                 id = "1",
                 title = "Lesson 1",
                 description = "Description 1",
-                imageUrl = "https://example.com/image1.png",
                 index = 1,
+                content = emptyList(),
                 quizScore = 5,
-                quizScoreMax = 10,
                 createdAt = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
                 lastUpdated = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
             ),
@@ -72,10 +71,9 @@ class CountLessonsByStatusUseCaseTest {
                 id = "2",
                 title = "Lesson 2",
                 description = "Description 2",
-                imageUrl = "https://example.com/image2.png",
                 index = 2,
+                content = emptyList(),
                 quizScore = 6,
-                quizScoreMax = 10,
                 createdAt = System.currentTimeMillis(),
                 lastUpdated = System.currentTimeMillis()
             ),
@@ -83,10 +81,9 @@ class CountLessonsByStatusUseCaseTest {
                 id = "3",
                 title = "Lesson 3",
                 description = "Description 3",
-                imageUrl = "https://example.com/image3.png",
                 index = 3,
+                content = emptyList(),
                 quizScore = 7,
-                quizScoreMax = 10,
                 createdAt = System.currentTimeMillis(),
                 lastUpdated = System.currentTimeMillis()
             )

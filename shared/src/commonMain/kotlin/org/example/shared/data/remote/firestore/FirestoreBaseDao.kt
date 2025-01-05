@@ -28,7 +28,7 @@ open class FirestoreBaseDao<Model : DatabaseRecord>(
      */
     override suspend fun insert(path: String, item: Model, timestamp: Long) = firestore.batch().runCatching {
         set(firestore.collection(path).document(item.id), serializer, item) { encodeDefaults = true }
-        updateTimestamps(path + item.id, timestamp)
+        updateTimestamps(path + "/${item.id}", timestamp)
         commit()
     }
 
@@ -50,7 +50,6 @@ open class FirestoreBaseDao<Model : DatabaseRecord>(
             }
         }
 
-
     /**
      * Updates an item in the Firestore collection.
      *
@@ -60,7 +59,7 @@ open class FirestoreBaseDao<Model : DatabaseRecord>(
      */
     override suspend fun update(path: String, item: Model, timestamp: Long) = firestore.batch().runCatching {
         update(firestore.collection(path).document(item.id), serializer, item) { encodeDefaults = true }
-        updateTimestamps(path + item.id, timestamp)
+        updateTimestamps(path + "/${item.id}", timestamp)
         commit()
     }
 
@@ -72,7 +71,7 @@ open class FirestoreBaseDao<Model : DatabaseRecord>(
      * @return A [Result] indicating success or failure.
      */
     override suspend fun delete(path: String, item: Model, timestamp: Long) = firestore.batch().runCatching {
-        updateTimestamps(path + item.id, timestamp)
+        updateTimestamps(path + "/${item.id}", timestamp)
         delete(firestore.collection(path).document(item.id))
         commit()
     }
@@ -84,9 +83,9 @@ open class FirestoreBaseDao<Model : DatabaseRecord>(
      * @param timestamp The timestamp to associate with the operation.
      */
     protected fun WriteBatch.updateTimestamps(path: String, timestamp: Long) {
-        val segments = path.split("/")
+        val segments = path.split("/").filter { it.isNotBlank() }
 
-        if (segments.size > 1) for (endIndex in segments.size downTo 0 step 2) {
+        if (segments.isNotEmpty()) for (endIndex in segments.size downTo 1 step 2) {
             val parentPath = segments.take(endIndex).joinToString("/")
             val parentRef = firestore.document(parentPath)
 

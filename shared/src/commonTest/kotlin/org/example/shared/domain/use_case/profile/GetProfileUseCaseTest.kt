@@ -3,7 +3,6 @@ package org.example.shared.domain.use_case.profile
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.model.Profile
@@ -41,7 +40,7 @@ class GetProfileUseCaseTest {
         every { repository.get(PATH, "test_user_id") } returns flowOf(Result.success(expectedProfile))
 
         // Act
-        val result = getProfileUseCase(PATH).first()
+        val result = getProfileUseCase(PATH)
 
         // Assert
         assertTrue(result.isSuccess)
@@ -55,7 +54,7 @@ class GetProfileUseCaseTest {
         coEvery { getUserDataUseCase() } returns Result.failure(exception)
 
         // Act
-        val result = getProfileUseCase(PATH).first()
+        val result = getProfileUseCase(PATH)
 
         // Assert
         assertTrue(result.isFailure)
@@ -70,7 +69,7 @@ class GetProfileUseCaseTest {
         coEvery { getUserDataUseCase() } returns Result.success(userData)
 
         // Act
-        val result = getProfileUseCase(PATH).first()
+        val result = getProfileUseCase(PATH)
 
         // Assert
         assertTrue(result.isFailure)

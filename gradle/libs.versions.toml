@@ -30,14 +30,15 @@ firebase-boom = "33.7.0"
 gitlive = "2.1.0"
 gitlive-java = "0.4.6"
 google-services = "4.4.2"
+jacoco = "0.8.12"
 jsoup = "1.16.1"
 junit = "4.13.2"
 koin = "4.0.0"
-kotlin = "2.0.21"
+kotlin = "2.1.0"
 kotlin-serialization = "1.7.3"
 kotlin-serialization-plugin = "1.9.10"
 kotlinx-coroutines-test = "1.9.0"
-ksp = "2.0.21-1.0.28"
+ksp = "2.1.0-1.0.29"
 ktor = "3.0.1"
 lifecycle-viewmodel = "2.8.3-rc01"
 mockito = "5.12.0"
@@ -79,6 +80,8 @@ androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-mani
 androidx-test-orchestrator = { group = "androidx.test", name = "orchestrator", version.ref = "androidx-test-orchestrator" }
 wiremock = { group = "com.github.tomakehurst", name = "wiremock-jre8-standalone", version.ref = "wiremock" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "roboletric" }
+jacoco-core = { group = "org.jacoco", name = "org.jacoco.core", version.ref = "jacoco" }
+jacoco-agent = { group = "org.jacoco", name = "org.jacoco.agent", version.ref = "jacoco" }
 
 # Android libraries
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core-ktx" }

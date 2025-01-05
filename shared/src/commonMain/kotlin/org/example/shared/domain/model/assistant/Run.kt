@@ -4,23 +4,30 @@ import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.descriptors.buildSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.*
 import org.example.shared.domain.constant.interfaces.ValuableEnum
+import org.example.shared.domain.model.assistant.ResponseFormat.ResponseFormatSerializer
 
 /**
  * Represents a request to create a run.
  */
 @Serializable
 data class RunRequestBody(
-    @SerialName("assistant_id") val assistantId: String,
-    @SerialName("instructions") val instructions: String,
-    @SerialName("tools") val tools: List<Tool> = emptyList(),
+    @SerialName("assistant_id")
+    val assistantId: String,
+
+    @SerialName("instructions")
+    val instructions: String,
+
+    @SerialName("tools")
+    val tools: List<Tool> = emptyList(),
+
+    @SerialName("max_completion_tokens")
+    val maxCompletionTokens: Int? = null
 )
 
 /**
@@ -53,12 +60,96 @@ data class Run(
     @SerialName("max_prompt_tokens") val maxPromptTokens: Int? = null,
     @SerialName("max_completion_tokens") val maxCompletionTokens: Int? = null,
     @SerialName("truncation_strategy") val truncationStrategy: TruncationStrategy,
-    @SerialName("tool_choice") val toolChoice: String = ToolChoice.Auto.value,
+    @SerialName("tool_choice") @Serializable(with = ToolChoiceSerializer::class) val toolChoice: ToolChoice = ToolChoice.Auto,
     @SerialName("parallel_tool_calls") val parallelToolCalls: Boolean = false,
-    @SerialName("response_format")
-    @Serializable(with = ResponseFormat.ResponseFormatSerializer::class)
-    val responseFormat: ResponseFormat = ResponseFormat.Auto
+    @SerialName("response_format") @Serializable(with = ResponseFormatSerializer::class) val responseFormat: ResponseFormat = ResponseFormat.Auto
 )
+
+@Serializable(with = ToolChoiceSerializer::class)
+sealed class ToolChoice {
+    /** The model calls no tools. */
+    object None : ToolChoice()
+
+    /** The model chooses on its own whether to call tools or not. */
+    object Auto : ToolChoice()
+
+    /** The model is required to call one or more tools. */
+    object Required : ToolChoice()
+
+    /**
+     * The model is forced to use a particular tool:
+     * e.g., {"type": "file_search"} or {"type": "function", "function": {...}}
+     */
+    data class ForcedTool(
+        val type: String
+    ) : ToolChoice()
+}
+
+/**
+ * Represents the `function` field if `type = "function"`.
+ */
+@Suppress("unused")
+@Serializable
+data class FunctionSpec(
+    val name: String
+)
+
+/**
+ * Custom serializer for [ToolChoice] to handle both string and object cases
+ */
+object ToolChoiceSerializer : KSerializer<ToolChoice> {
+    override val descriptor: SerialDescriptor =
+        buildClassSerialDescriptor("ToolChoice")
+
+    override fun serialize(encoder: Encoder, value: ToolChoice) {
+        val output = encoder as? JsonEncoder
+            ?: throw SerializationException("ToolChoice only supports Json encoding.")
+
+        val json = when (value) {
+            is ToolChoice.None -> JsonPrimitive("none")
+            is ToolChoice.Auto -> JsonPrimitive("auto")
+            is ToolChoice.Required -> JsonPrimitive("required")
+            is ToolChoice.ForcedTool -> {
+                buildJsonObject {
+                    put("type", value.type)
+                }
+            }
+        }
+
+        output.encodeJsonElement(json)
+    }
+
+    override fun deserialize(decoder: Decoder): ToolChoice {
+        val input = decoder as? JsonDecoder
+            ?: throw SerializationException("ToolChoice only supports Json decoding.")
+
+        val element = input.decodeJsonElement()
+
+        return when (element) {
+            is JsonPrimitive -> {
+                val value = element.content.lowercase()
+                when (value) {
+                    "none" -> ToolChoice.None
+                    "auto" -> ToolChoice.Auto
+                    "required" -> ToolChoice.Required
+                    else -> throw SerializationException("Unknown tool_choice string: $value")
+                }
+            }
+
+            is JsonObject -> {
+                val type = element["type"]?.jsonPrimitive?.content
+                    ?: throw SerializationException("Object is missing 'type' field.")
+
+                ToolChoice.ForcedTool(type)
+            }
+
+            else -> {
+                throw SerializationException("tool_choice must be string or object.")
+            }
+        }
+    }
+}
+
 
 /**
  * Enum representing the status of a run.
@@ -197,86 +288,86 @@ enum class TruncationType(val value: String) {
     LAST_MESSAGES("last_messages")
 }
 
-@Suppress("unused")
-enum class ToolChoice(val value: String) {
-    None("none"),
-    Auto("auto"),
-    Required("required")
-}
-
-/**
- * Represents a function associated with a tool choice.
- */
-@Serializable
-data class ToolChoiceFunction(
-    @SerialName("name") val name: String
-)
-
-/**
- * Sealed class representing the response format.
- */
 @Serializable
 sealed interface ResponseFormat {
     companion object {
+        const val TYPE_AUTO = "auto"
         const val TYPE_JSON_OBJECT = "json_object"
         const val TYPE_JSON_SCHEMA = "json_schema"
+        const val TYPE_TEXT = "text"
     }
 
-    /**
-     * Custom serializer for ResponseFormat to handle both string and object cases
-     */
+    val type: String
+        get() = when (this) {
+            is Auto -> TYPE_AUTO
+            is Text -> TYPE_TEXT
+            is JsonObjectFormat -> TYPE_JSON_OBJECT
+            is JsonSchemaFormat -> TYPE_JSON_SCHEMA
+        }
+
+    @Serializable
+    object Auto : ResponseFormat
+
+    @Serializable
+    object Text : ResponseFormat
+
+    @Serializable
+    object JsonObjectFormat : ResponseFormat
+
+    @Serializable
+    data class JsonSchemaFormat(
+        @SerialName("json_schema") val jsonSchema: JsonSchema = JsonSchema()
+    ) : ResponseFormat
+
     @OptIn(ExperimentalSerializationApi::class)
     object ResponseFormatSerializer : KSerializer<ResponseFormat> {
         @OptIn(InternalSerializationApi::class)
         override val descriptor: SerialDescriptor = buildSerialDescriptor("ResponseFormat", SerialKind.CONTEXTUAL) {
             element("type", String.serializer().descriptor)
-            element("json_schema", JsonElement.serializer().descriptor, isOptional = true)
+            element("json_schema", JsonSchema.serializer().descriptor, isOptional = true)
         }
 
         override fun serialize(encoder: Encoder, value: ResponseFormat) {
+            val composite = encoder.beginStructure(descriptor)
             when (value) {
-                is Auto -> encoder.encodeString("auto")
-                is JsonObjectFormat -> {
-                    val composite = encoder.beginStructure(descriptor)
-                    composite.encodeStringElement(descriptor, 0, TYPE_JSON_OBJECT)
-                    composite.endStructure(descriptor)
-                }
-
+                is Auto -> composite.encodeStringElement(descriptor, 0, TYPE_AUTO)
+                is Text -> composite.encodeStringElement(descriptor, 0, TYPE_TEXT)
+                is JsonObjectFormat -> composite.encodeStringElement(descriptor, 0, TYPE_JSON_OBJECT)
                 is JsonSchemaFormat -> {
-                    val composite = encoder.beginStructure(descriptor)
                     composite.encodeStringElement(descriptor, 0, TYPE_JSON_SCHEMA)
-                    composite.encodeSerializableElement(descriptor, 1, JsonElement.serializer(), value.jsonSchema)
-                    composite.endStructure(descriptor)
+                    composite.encodeSerializableElement(descriptor, 1, JsonSchema.serializer(), value.jsonSchema)
                 }
             }
+            composite.endStructure(descriptor)
         }
 
         override fun deserialize(decoder: Decoder): ResponseFormat {
             val input = decoder.decodeSerializableValue(JsonElement.serializer())
             return when {
-                input is JsonPrimitive && input.isString && input.content == "auto" -> Auto
-                input is JsonObject && input["type"]?.jsonPrimitive?.content == TYPE_JSON_OBJECT ->
-                    JsonObjectFormat()
+                input is JsonObject && input["type"]?.jsonPrimitive?.content == TYPE_AUTO -> Auto
+                input is JsonObject && input["type"]?.jsonPrimitive?.content == TYPE_TEXT -> Text
+                input is JsonObject && input["type"]?.jsonPrimitive?.content == TYPE_JSON_OBJECT -> JsonObjectFormat
+                input is JsonObject && input["type"]?.jsonPrimitive?.content == TYPE_JSON_SCHEMA -> {
+                    val jsonSchema = input["json_schema"]?.let {
+                        Json.decodeFromJsonElement(JsonSchema.serializer(), it)
+                    } ?: throw SerializationException("JsonSchema is missing.")
+                    JsonSchemaFormat(jsonSchema = jsonSchema)
+                }
 
-                input is JsonObject && input["type"]?.jsonPrimitive?.content == TYPE_JSON_SCHEMA ->
-                    JsonSchemaFormat(jsonSchema = input["json_schema"] ?: JsonObject(emptyMap()))
-
-                else -> throw SerializationException("Unknown ResponseFormat format")
+                else -> throw SerializationException("Unknown ResponseFormat format: $input")
             }
         }
     }
-
-    @Serializable
-    data object Auto : ResponseFormat
-
-    @Serializable
-    data class JsonObjectFormat(
-        @SerialName("type") val type: String = TYPE_JSON_OBJECT
-    ) : ResponseFormat
-
-    @Serializable
-    data class JsonSchemaFormat(
-        @SerialName("type") val type: String = TYPE_JSON_SCHEMA,
-        @SerialName("json_schema") val jsonSchema: JsonElement
-    ) : ResponseFormat
 }
+
+/**
+ * Represents the JSON schema for the response format.
+ */
+@Serializable
+@SerialName("json_schema")
+data class JsonSchema(
+    @SerialName("description") val description: String? = null,
+    @SerialName("name") val name: String = "",
+    @SerialName("schema") val schema: JsonObject = JsonObject(emptyMap()),
+    @SerialName("strict") val strict: Boolean = false
+)

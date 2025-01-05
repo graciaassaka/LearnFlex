@@ -1,7 +1,6 @@
 package org.example.shared.domain.use_case.profile
 
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.first
 import org.example.shared.domain.repository.ProfileRepository
 import org.example.shared.domain.use_case.auth.GetUserDataUseCase
 
@@ -15,24 +14,20 @@ class GetProfileUseCase(
     private val getUserDataUseCase: GetUserDataUseCase,
     private val repository: ProfileRepository
 ) {
+
     /**
-     * Retrieves a user's profile by first getting their user data and then
-     * fetching their profile from the repository.
+     * Invokes the use case to get a user's profile.
      *
-     * @param path The repository path where profiles are stored
-     * @return A Flow emitting Results containing either the Profile or an error
+     * @param path The path to the user's profile.
+     * @return The result of the profile fetch operation.
      */
-    operator fun invoke(path: String) = flow {
+    suspend operator fun invoke(path: String) = runCatching {
         val userData = getUserDataUseCase().getOrThrow()
         val userId = requireNotNull(userData.localId) {
             USER_ID_REQUIRED_MESSAGE
         }
 
-        repository.get(path, userId).collect { result ->
-            emit(result)
-        }
-    }.catch { error ->
-        emit(Result.failure(error))
+        repository.get(path, userId).first().getOrThrow()
     }
 
     companion object {

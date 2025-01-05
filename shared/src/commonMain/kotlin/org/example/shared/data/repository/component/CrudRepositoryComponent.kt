@@ -30,7 +30,7 @@ class CrudRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      * @return A [Result] indicating success or failure.
      */
     override suspend fun insert(path: String, item: Model, timestamp: Long): Result<Unit> = config.runCatching {
-        localDao.insert(path, modelMapper.toEntity(item), timestamp)
+        localDao.insert(path, modelMapper.toEntity(item, extractParentId(path)), timestamp)
         syncManager.queueOperation(createSyncOperation(SyncOperation.SyncOperationType.INSERT, path, listOf(item), timestamp))
     }
 
@@ -43,7 +43,7 @@ class CrudRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      * @return A [Result] indicating success or failure.
      */
     override suspend fun update(path: String, item: Model, timestamp: Long): Result<Unit> = config.runCatching {
-        localDao.update(path, modelMapper.toEntity(item), timestamp)
+        localDao.update(path, modelMapper.toEntity(item, extractParentId(path)), timestamp)
         syncManager.queueOperation(createSyncOperation(SyncOperation.SyncOperationType.UPDATE, path, listOf(item), timestamp))
     }
 
@@ -120,9 +120,20 @@ class CrudRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      * @return A [Result] indicating success or failure.
      */
     override suspend fun delete(path: String, item: Model, timestamp: Long): Result<Unit> = config.runCatching {
-        localDao.delete(path, modelMapper.toEntity(item), timestamp)
+        localDao.delete(path, modelMapper.toEntity(item, extractParentId(path)), timestamp)
         syncManager.queueOperation(createSyncOperation(SyncOperation.SyncOperationType.DELETE, path, listOf(item), timestamp))
     }
+
+    /**
+     * Extracts the parent ID from the given path.
+     *
+     * @param path The path to extract the parent ID from.
+     * @return The extracted parent ID or null if not found.
+     */
+    private fun extractParentId(path: String) = path.split("/").run {
+        if (size >= 3) get(size - 2) else null
+    }
+
 
     /**
      * Creates a sync operation for the given type, path, and items.

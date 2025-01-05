@@ -1,6 +1,7 @@
 package org.example.shared.data.remote.assistant.generator
 
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.*
 import org.example.shared.data.remote.assistant.util.CompletionProcessor
@@ -53,15 +54,14 @@ class StyleQuizGeneratorClientImpl(
                     }.onFailure {
                         emit(Result.failure(it))
                     }
-
                     if (count < number - 1) createMessage(thread.id, message).getOrThrow()
                 }
-            } catch (e: Exception) {
-                emit(Result.failure(e))
             } finally {
                 thread?.let { t -> deleteThread(t.id).onFailure { emit(Result.failure(it)) } }
             }
         }
+    }.catch { e ->
+        emit(Result.failure(e))
     }
 
     /**
@@ -92,11 +92,8 @@ class StyleQuizGeneratorClientImpl(
                 }
             } catch (e: Exception) {
                 Result.failure(e)
-            } finally {
-                cancelRun(thread.id, currentRun.id).onFailure { Result.failure<Throwable>(it) }
             }
         }
-
 
     /**
      * Initiates the creation of a new run for a specified thread, incorporating previous scenarios into the run instructions.
@@ -156,7 +153,6 @@ class StyleQuizGeneratorClientImpl(
             additionalProperties = false
         )
     )
-
 
     /**
      * Determines if the given run status is active.
@@ -224,14 +220,16 @@ class StyleQuizGeneratorClientImpl(
      * @throws IllegalArgumentException if the responses list is empty.
      */
     override fun evaluateResponses(responses: List<Style>) =
-        responses.groupingBy { it.value }.eachCount().runCatching {
-            if (responses.isEmpty()) throw IllegalArgumentException("Responses cannot be empty")
-            Profile.LearningStyle(
-                dominant = maxBy { it.value }.key,
-                breakdown = Profile.LearningStyleBreakdown(
-                    reading = getOrDefault(Style.READING.value, 0) * 100 / responses.size,
-                    kinesthetic = getOrDefault(Style.KINESTHETIC.value, 0) * 100 / responses.size
+        responses.groupingBy { it.value }
+            .eachCount()
+            .runCatching {
+                if (responses.isEmpty()) throw IllegalArgumentException("Responses cannot be empty")
+                Profile.LearningStyle(
+                    dominant = maxBy { it.value }.key,
+                    breakdown = Profile.LearningStyleBreakdown(
+                        reading = getOrDefault(Style.READING.value, 0) * 100 / responses.size,
+                        kinesthetic = getOrDefault(Style.KINESTHETIC.value, 0) * 100 / responses.size
+                    )
                 )
-            )
-        }
+            }
 }

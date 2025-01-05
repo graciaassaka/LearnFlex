@@ -535,7 +535,9 @@ class OpenAIAssistantClientTest {
                                     "type": "auto",
                                     "last_messages": null
                                 },
-                                "response_format": "auto",
+                                "response_format": {
+                                    "type": "auto"
+                                },
                                 "tool_choice": "auto",
                                 "parallel_tool_calls": true
                             }
@@ -641,7 +643,9 @@ class OpenAIAssistantClientTest {
                                     "type": "auto",
                                     "last_messages": null
                                   },
-                                  "response_format": "auto",
+                                  "response_format": {
+                                    "type": "auto"
+                                  },
                                   "tool_choice": "auto",
                                   "parallel_tool_calls": true
                                 }
@@ -768,7 +772,9 @@ class OpenAIAssistantClientTest {
                                 "type": "auto",
                                 "last_messages": null
                               },
-                              "response_format": "auto",
+                              "response_format": {
+                                "type": "auto"
+                              },
                               "tool_choice": "auto",
                               "parallel_tool_calls": true
                             }

@@ -4,7 +4,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
 import io.mockk.mockk
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.client.AuthClient
 import org.example.shared.domain.client.StorageClient
@@ -40,7 +39,7 @@ class DeleteProfilePictureUseCaseTest {
         val profile = testProfile()
 
         coEvery { authClient.getUserData() } returns Result.success(user)
-        coEvery { getProfileUseCase(TEST_PATH) } returns flowOf(Result.success(profile))
+        coEvery { getProfileUseCase(TEST_PATH) } returns Result.success(profile)
         coEvery { authClient.updatePhotoUrl("") } returns Result.success(Unit)
         coEvery { updateProfileUseCase(TEST_PATH, profile.copy(photoUrl = "")) } returns Result.success(Unit)
         coEvery { storageClient.deleteFile(any()) } returns Result.success(Unit)
@@ -61,7 +60,7 @@ class DeleteProfilePictureUseCaseTest {
         val profile = testProfile()
 
         coEvery { authClient.getUserData() } returns Result.success(user)
-        coEvery { getProfileUseCase(TEST_PATH) } returns flowOf(Result.success(profile))
+        coEvery { getProfileUseCase(TEST_PATH) } returns Result.success(profile)
         coEvery { authClient.updatePhotoUrl("") } returnsMany listOf(
             Result.failure(Exception("Temporary error")),
             Result.success(Unit)
@@ -82,7 +81,7 @@ class DeleteProfilePictureUseCaseTest {
         val error = RuntimeException("Update failed")
 
         coEvery { authClient.getUserData() } returns Result.success(user)
-        coEvery { getProfileUseCase(TEST_PATH) } returns flowOf(Result.success(profile))
+        coEvery { getProfileUseCase(TEST_PATH) } returns Result.success(profile)
         coEvery { authClient.updatePhotoUrl("") } returns Result.success(Unit)
         coEvery { updateProfileUseCase(TEST_PATH, profile.copy(photoUrl = "")) } returns Result.success(Unit)
         coEvery { updateProfileUseCase(TEST_PATH, profile) } returns Result.success(Unit)
@@ -107,7 +106,7 @@ class DeleteProfilePictureUseCaseTest {
         val rollbackError = RuntimeException("Rollback failed")
 
         coEvery { authClient.getUserData() } returns Result.success(user)
-        coEvery { getProfileUseCase(TEST_PATH) } returns flowOf(Result.success(profile))
+        coEvery { getProfileUseCase(TEST_PATH) } returns Result.success(profile)
         coEvery { authClient.updatePhotoUrl("") } returns Result.success(Unit)
         coEvery { authClient.updatePhotoUrl(profile.photoUrl) } returns Result.failure(rollbackError)
         coEvery { updateProfileUseCase(TEST_PATH, any()) } returns Result.failure(originalError)

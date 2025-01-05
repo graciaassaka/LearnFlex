@@ -36,7 +36,6 @@ class GenerateSectionUseCase(
         context = ContentGeneratorClient.Context(
             field = profile.preferences.field,
             level = profile.preferences.level,
-            goal = profile.preferences.goal,
             style = profile.learningStyle,
             type = ContentType.SECTION,
             contentDescriptors = listOf(

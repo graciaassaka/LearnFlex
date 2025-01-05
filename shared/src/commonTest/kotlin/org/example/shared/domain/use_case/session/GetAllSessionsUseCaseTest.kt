@@ -3,7 +3,6 @@ package org.example.shared.domain.use_case.session
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.example.shared.data.remote.firestore.FirestorePathBuilder
@@ -33,13 +32,11 @@ class GetAllSessionsUseCaseTest {
         every { repository.getAll(path) } returns sessionsFlow
 
         // Act
-        val emissions = mutableListOf<Result<List<Session>>>()
-        useCase(path).collect { emissions.add(it) }
+        val result = useCase(path)
 
         // Assert
         verify(exactly = 1) { repository.getAll(path) }
-        assertEquals(1, emissions.size)
-        assertEquals(Result.success(sessions), emissions.first())
+        assertEquals(Result.success(sessions), result)
     }
 
     @Test
@@ -51,14 +48,11 @@ class GetAllSessionsUseCaseTest {
         every { repository.getAll(path) } returns errorFlow
 
         // Act
-        val emissions = mutableListOf<Result<List<Session>>>()
-        useCase(path).collect { emissions.add(it) }
+        val result = useCase(path)
 
         // Assert
         verify(exactly = 1) { repository.getAll(path) }
-        assertEquals(1, emissions.size)
-        assert(emissions.first().isFailure)
-        assertEquals(exception, emissions.first().exceptionOrNull())
+        assertEquals(exception.message, result.exceptionOrNull()?.message)
     }
 
     @Test
@@ -69,7 +63,7 @@ class GetAllSessionsUseCaseTest {
         // Act & Assert
         assertFailsWith<IllegalArgumentException> {
             runTest {
-                useCase(path).first().getOrThrow()
+                useCase(path).getOrThrow()
             }
         }
     }

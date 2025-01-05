@@ -55,19 +55,19 @@ class AuthViewModel(
      */
     fun handleAction(action: AuthAction) {
         when (action) {
-            is AuthAction.HandleSignInEmailChanged -> handleSignInEmailChanged(action.email)
-            is AuthAction.HandleSignInPasswordChanged -> handleSignInPasswordChanged(action.password)
+            is AuthAction.EditSignInEmail -> editSignInEmail(action.email)
+            is AuthAction.EditSignInPassword -> editSignInPassword(action.password)
             is AuthAction.ToggleSignInPasswordVisibility -> toggleSignInPasswordVisibility()
             is AuthAction.SignIn -> signIn(action.successMessage)
-            is AuthAction.HandleSignUpEmailChanged -> handleSignUpEmailChanged(action.email)
-            is AuthAction.HandleSignUpPasswordChanged -> handleSignUpPasswordChanged(action.password)
+            is AuthAction.EditSignUpEmail -> editSignUpEmail(action.email)
+            is AuthAction.EditSignUpPassword -> editSignUpPassword(action.password)
             is AuthAction.ToggleSignUpPasswordVisibility -> toggleSignUpPasswordVisibility()
-            is AuthAction.HandleSignUpPasswordConfirmationChanged -> handleSignUpPasswordConfirmationChanged(action.password)
+            is AuthAction.EditSignUpPasswordConfirmation -> editSignUpPasswordConfirmation(action.password)
             is AuthAction.SignUp -> signUp(action.successMessage)
             is AuthAction.ResendVerificationEmail -> resendVerificationEmail(action.successMessage)
             is AuthAction.VerifyEmail -> verifyEmail()
             is AuthAction.DeleteUser -> deleteUser(action.successMessage)
-            is AuthAction.HandlePasswordResetEmailChanged -> handlePasswordResetEmailChanged(action.email)
+            is AuthAction.EditPasswordResetEmail -> editPasswordResetEmail(action.email)
             is AuthAction.SendPasswordResetEmail -> sendPasswordResetEmail(action.successMessage)
             is AuthAction.DisplayAuthForm -> displayAuthForm(action.form)
             is AuthAction.HandleAnimationEnd -> handleExitAnimationFinished()
@@ -79,7 +79,7 @@ class AuthViewModel(
      *
      * @param email The new email to validate and update.
      */
-    private fun handleSignInEmailChanged(email: String) = with(validateEmailUseCase(email)) {
+    private fun editSignInEmail(email: String) = with(validateEmailUseCase(email)) {
         when (this@with) {
             is ValidationResult.Valid -> _state.update { it.copy(signInEmail = email, signInEmailError = null) }
             is ValidationResult.Invalid -> _state.update { it.copy(signInEmail = email, signInEmailError = message) }
@@ -91,7 +91,7 @@ class AuthViewModel(
      *
      * @param password The new password to validate and update.
      */
-    private fun handleSignInPasswordChanged(password: String) = with(validatePasswordUseCase(password)) {
+    private fun editSignInPassword(password: String) = with(validatePasswordUseCase(password)) {
         when (this@with) {
             is ValidationResult.Valid -> _state.update {
                 it.copy(
@@ -121,8 +121,8 @@ class AuthViewModel(
     private fun signIn(successMessage: String) = with(_state) {
         update { it.copy(isLoading = true) }
 
-        handleSignInEmailChanged(value.signInEmail)
-        handleSignInPasswordChanged(value.signInPassword)
+        editSignInEmail(value.signInEmail)
+        editSignInPassword(value.signInPassword)
 
         if (value.signInEmailError.isNullOrBlank() && value.signInPasswordError.isNullOrBlank()) viewModelScope.launch(
             dispatcher
@@ -147,7 +147,7 @@ class AuthViewModel(
      *
      * @param email The new email to validate and update.
      */
-    private fun handleSignUpEmailChanged(email: String) = with(validateEmailUseCase(email)) {
+    private fun editSignUpEmail(email: String) = with(validateEmailUseCase(email)) {
         when (this@with) {
             is ValidationResult.Valid -> _state.update { it.copy(signUpEmail = email, signUpEmailError = null) }
             is ValidationResult.Invalid -> _state.update { it.copy(signUpEmail = email, signUpEmailError = message) }
@@ -159,7 +159,7 @@ class AuthViewModel(
      *
      * @param password The new password to validate and update.
      */
-    private fun handleSignUpPasswordChanged(password: String) = with(validatePasswordUseCase(password)) {
+    private fun editSignUpPassword(password: String) = with(validatePasswordUseCase(password)) {
         when (this@with) {
             is ValidationResult.Valid -> _state.update {
                 it.copy(
@@ -188,7 +188,7 @@ class AuthViewModel(
      *
      * @param password The new password confirmation to validate and update.
      */
-    private fun handleSignUpPasswordConfirmationChanged(password: String) =
+    private fun editSignUpPasswordConfirmation(password: String) =
         with(validatePasswordConfirmationUseCase(_state.value.signUpPassword, password)) {
             when (this@with) {
                 is ValidationResult.Valid ->
@@ -215,9 +215,9 @@ class AuthViewModel(
     private fun signUp(successMessage: String) = with(_state) {
         update { it.copy(isLoading = true) }
 
-        handleSignUpEmailChanged(value.signUpEmail)
-        handleSignUpPasswordChanged(value.signUpPassword)
-        handleSignUpPasswordConfirmationChanged(value.signUpPasswordConfirmation)
+        editSignUpEmail(value.signUpEmail)
+        editSignUpPassword(value.signUpPassword)
+        editSignUpPasswordConfirmation(value.signUpPasswordConfirmation)
 
         if (
             value.signUpEmailError.isNullOrBlank() &&
@@ -303,7 +303,7 @@ class AuthViewModel(
      *
      * @param email The new email to validate and update.
      */
-    private fun handlePasswordResetEmailChanged(email: String) = with(validateEmailUseCase(email)) {
+    private fun editPasswordResetEmail(email: String) = with(validateEmailUseCase(email)) {
         when (this@with) {
             is ValidationResult.Valid -> _state.update {
                 it.copy(
@@ -334,7 +334,7 @@ class AuthViewModel(
     private fun sendPasswordResetEmail(successMessage: String) = with(_state) {
         update { it.copy(isLoading = true) }
 
-        handlePasswordResetEmailChanged(value.resetPasswordEmail)
+        editPasswordResetEmail(value.resetPasswordEmail)
 
         if (value.resetPasswordEmailError.isNullOrBlank()) viewModelScope.launch(dispatcher) {
             sendPasswordResetEmailUseCase(value.resetPasswordEmail).onSuccess {

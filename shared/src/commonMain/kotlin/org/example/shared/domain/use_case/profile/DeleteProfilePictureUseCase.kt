@@ -1,7 +1,6 @@
 package org.example.shared.domain.use_case.profile
 
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import org.example.shared.domain.client.AuthClient
 import org.example.shared.domain.client.StorageClient
 import org.example.shared.domain.model.Profile
@@ -26,7 +25,7 @@ class DeleteProfilePictureUseCase(
      */
     suspend operator fun invoke(path: String) = runCatching {
         val user = authClient.getUserData().getOrThrow()
-        val profile = getProfileUseCase(path).first().getOrThrow()
+        val profile = getProfileUseCase(path).getOrThrow()
 
         var isProfileUpdated = false
         var isAuthUpdated = false

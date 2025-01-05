@@ -1,27 +1,29 @@
 package org.example.composeApp.component
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 import androidx.window.core.layout.WindowWidthSizeClass
-import org.example.composeApp.dimension.Padding
 import org.example.composeApp.navigation.AppDestination
 import org.example.shared.presentation.util.SnackbarType
 
 /**
- * Custom scaffold composable function.
+ * A custom scaffold composable function that provides a structured layout with navigation items, a snackbar, and content.
+ * It supports adaptive design based on the window size class.
  *
- * @param currentDestination AppDestination
- * @param onDestinationSelected Function1<AppDestination, Unit>
- * @param enabled Boolean
- * @param modifier Modifier
- * @param content @Composable () -> Unit
+ * @param snackbarHostState The state of the SnackbarHost that manages snackbar messages.
+ * @param snackbarType The type of snackbar to be displayed, such as Info, Success, Error, or Warning.
+ * @param currentDestination The current app destination selected from the navigation items.
+ * @param onDestinationSelected A callback function invoked when a navigation item is selected.
+ * @param enabled A boolean indicating whether the navigation items are enabled.
+ * @param modifier An optional modifier to be applied to the CustomScaffold layout.
+ * @param content The main content to be displayed within the scaffold, which receives PaddingValues as a parameter.
  */
 @Composable
 fun CustomScaffold(
@@ -77,20 +79,11 @@ fun CustomScaffold(
         containerColor = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) {
-        Box(modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
-            content(
-                PaddingValues.Absolute(
-                    left = Padding.MEDIUM.dp,
-                    right = Padding.MEDIUM.dp
-                )
-            )
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.align(Alignment.BottomCenter),
-            ) {
-                CustomSnackbar(it, snackbarType)
-            }
-        }
+        Scaffold(
+            modifier = Modifier.safeDrawingPadding(),
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) { CustomSnackbar(it, snackbarType) } },
+            content = { content(it) }
+        )
     }
 }
 

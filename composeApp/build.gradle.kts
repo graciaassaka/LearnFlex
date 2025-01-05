@@ -10,24 +10,28 @@ plugins {
     alias(libs.plugins.googleServices)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.kotlinx.parcelize)
+    jacoco
 }
 
 kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+        freeCompilerArgs.add("-Xwhen-guards")
+        freeCompilerArgs.add("-Xnon-local-break-continue")
+        freeCompilerArgs.add("-Xmulti-dollar-interpolation")
+    }
+
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "11"
-            }
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
         }
     }
 
     jvm("desktop") {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "11"
-            }
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
         }
     }
 
@@ -70,6 +74,7 @@ kotlin {
             }
         }
 
+        @Suppress("Unused")
         val androidMain by getting {
             resources.srcDirs(commonMain.resources.srcDirs)
             dependencies {
@@ -94,6 +99,7 @@ kotlin {
             }
         }
 
+        @Suppress("Unused")
         val desktopMain by getting {
             resources.srcDirs(commonMain.resources.srcDirs)
             dependencies {
@@ -101,6 +107,7 @@ kotlin {
             }
         }
 
+        @Suppress("Unused")
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
@@ -116,9 +123,12 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.koin.test)
                 implementation(libs.slf4j)
+                implementation(libs.jacoco.core)
+                implementation(libs.jacoco.agent)
             }
         }
 
+        @Suppress("Unused")
         val desktopTest by getting {
             dependencies {
                 implementation(compose.desktop.currentOs)
@@ -188,14 +198,6 @@ android {
         kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
 
-    testOptions {
-        execution = "ANDROIDX_TEST_ORCHESTRATOR"
-        animationsDisabled = true
-        unitTests {
-            isIncludeAndroidResources = true
-        }
-    }
-
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -226,13 +228,6 @@ compose.desktop {
             packageName = "org.example.learnflex"
             packageVersion = "1.0.0"
         }
-    }
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = "11"
-        freeCompilerArgs += listOf("-Xexpect-actual-classes")
     }
 }
 

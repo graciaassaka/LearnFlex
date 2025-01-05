@@ -1,7 +1,6 @@
 package org.example.shared.domain.use_case.lesson
 
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.first
 import org.example.shared.domain.constant.Collection
 import org.example.shared.domain.repository.LessonRepository
 
@@ -13,19 +12,16 @@ import org.example.shared.domain.repository.LessonRepository
 class GetLessonUseCase(private val repository: LessonRepository) {
 
     /**
-     * Invokes the use case to get lesson data.
+     * Retrieves a lesson by its ID.
      *
-     * @param path The path to the lesson data.
-     * @param id The ID of the lesson data.
-     * @return A [Flow] emitting a [Result] containing the lesson data.
-     * @throws IllegalArgumentException If the path does not end with [Collection.LESSONS].
+     * @param path The path in the repository where the lesson should be retrieved from.
+     * @param id The ID of the lesson to be retrieved.
+     * @return The lesson data.
      */
-    operator fun invoke(path: String, id: String) = flow {
+    suspend operator fun invoke(path: String, id: String) = runCatching {
         require(path.split("/").last() == Collection.LESSONS.value) {
             "The path must end with ${Collection.LESSONS.value}"
         }
-        repository.get(path, id).collect(::emit)
-    }.catch {
-        emit(Result.failure(it))
+        repository.get(path, id).first().getOrThrow()
     }
 }

@@ -20,7 +20,6 @@ object HttpClientConfig {
             connectTimeoutMillis = 60000L
             socketTimeoutMillis = 60000L
         }
-
         install(ContentNegotiation) {
             json(Json {
                 prettyPrint = true
@@ -28,12 +27,10 @@ object HttpClientConfig {
                 ignoreUnknownKeys = true
             })
         }
-
         install(Logging) {
             logger = Logger.DEFAULT
             level = LogLevel.NONE
         }
-
         install(HttpRequestRetry) {
             maxRetries = 3
             retryIf { _, httpResponse ->
@@ -46,7 +43,6 @@ object HttpClientConfig {
                 retry * 3000L
             }
         }
-
         engine {
             config {
                 retryOnConnectionFailure(true)

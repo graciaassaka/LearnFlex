@@ -14,14 +14,12 @@ interface ContentGeneratorClient {
      * Represents the response from content generation.
      *
      * @property title The title of the generated content.
-     * @property imagePrompt The image prompt for the generated content.
      * @property description The description of the generated content.
      * @property content The generated content.
      */
     @Serializable
     data class GeneratedResponse(
         val title: String,
-        val imagePrompt: String,
         val description: String,
         val content: List<String>
     )
@@ -31,16 +29,14 @@ interface ContentGeneratorClient {
      *
      * @property field The field of the context.
      * @property level The level of the context.
-     * @property goal The goal of the context.
      * @property style The learning style of the context.
-     * @property type The type of the context.
+     * @property type The type of the content.
      * @property contentDescriptors The content descriptors of the context.
      */
     @Serializable
     data class Context(
         val field: String,
         val level: String,
-        val goal: String,
         val style: Profile.LearningStyle,
         val type: ContentType,
         val contentDescriptors: List<ContentDescriptor>

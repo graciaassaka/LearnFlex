@@ -98,7 +98,7 @@ class CreateProfileScreenTest {
     @Test
     fun usernameTextField_calls_viewModel_onUsernameChanged_whenTextEntered() {
         val username = "TestUser"
-        every { viewModel.handleAction(Action.HandleUsernameChanged(username)) } answers {
+        every { viewModel.handleAction(Action.EditUsername(username)) } answers {
             with(validateUsernameUseCase(username)) {
                 when (this@with) {
                     is ValidationResult.Valid -> uiState.update { it.copy(username = value, usernameError = null) }
@@ -109,7 +109,7 @@ class CreateProfileScreenTest {
 
         composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_USERNAME_TEXT_FIELD.tag).performTextInput(username)
 
-        verify { viewModel.handleAction(Action.HandleUsernameChanged(username)) }
+        verify { viewModel.handleAction(Action.EditUsername(username)) }
         composeTestRule.onNodeWithText(username).assertIsDisplayed()
     }
 
@@ -117,7 +117,7 @@ class CreateProfileScreenTest {
     fun usernameTextField_displaysError_whenInvalidUsernameEntered() {
         val username = "Test User"
         val errorMessage = (validateUsernameUseCase(username) as ValidationResult.Invalid).message
-        every { viewModel.handleAction(Action.HandleUsernameChanged(username)) } answers {
+        every { viewModel.handleAction(Action.EditUsername(username)) } answers {
             with(validateUsernameUseCase(username)) {
                 when (this@with) {
                     is ValidationResult.Valid -> uiState.update { it.copy(username = value, usernameError = null) }
@@ -130,27 +130,27 @@ class CreateProfileScreenTest {
 
         composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_USERNAME_TEXT_FIELD.tag).performTextInput(username)
 
-        verify { viewModel.handleAction(Action.HandleUsernameChanged(username)) }
+        verify { viewModel.handleAction(Action.EditUsername(username)) }
         composeTestRule.onNodeWithText(errorMessage).assertIsDisplayed()
     }
 
     @Test
     fun goalTextField_calls_viewModel_onGoalChanged_whenTextEntered() {
         val goal = "TestGoal"
-        every { viewModel.handleAction(Action.HandleGoalChanged(goal)) } answers {
+        every { viewModel.handleAction(Action.EditGoal(goal)) } answers {
             uiState.update { it.copy(goal = goal) }
         }
 
         composeTestRule.onNodeWithTag(TestTags.PERSONAL_INFO_GOAL_TEXT_FIELD.tag).performTextInput(goal)
 
-        verify { viewModel.handleAction(Action.HandleGoalChanged(goal)) }
+        verify { viewModel.handleAction(Action.EditGoal(goal)) }
         composeTestRule.onNodeWithText(goal).assertIsDisplayed()
     }
 
     @Test
     fun goalTextField_displays_character_count() {
         val goal = "TestGoal"
-        every { viewModel.handleAction(Action.HandleGoalChanged(goal)) } answers {
+        every { viewModel.handleAction(Action.EditGoal(goal)) } answers {
             uiState.update { it.copy(goal = goal) }
         }
 
@@ -168,7 +168,7 @@ class CreateProfileScreenTest {
         } answers {
             uiState.update { it.copy(isLevelDropdownVisible = !it.isLevelDropdownVisible) }
         }
-        every { viewModel.handleAction(Action.HandleLevelChanged(level)) } answers {
+        every { viewModel.handleAction(Action.SelectLevel(level)) } answers {
             uiState.update { it.copy(level = level) }
         }
 
@@ -176,7 +176,7 @@ class CreateProfileScreenTest {
         verify { viewModel.handleAction(Action.ToggleLevelDropdownVisibility) }
 
         composeTestRule.onNodeWithText(Level.ADVANCED.value).performClick()
-        verify { viewModel.handleAction(Action.HandleLevelChanged(level)) }
+        verify { viewModel.handleAction(Action.SelectLevel(level)) }
 
         composeTestRule.onNodeWithText(Level.ADVANCED.value).assertIsDisplayed()
     }
@@ -193,7 +193,7 @@ class CreateProfileScreenTest {
         verify {
             viewModel.handleAction(
                 match {
-                    it is Action.HandleFieldChanged
+                    it is Action.SelectField
                 }
             )
         }

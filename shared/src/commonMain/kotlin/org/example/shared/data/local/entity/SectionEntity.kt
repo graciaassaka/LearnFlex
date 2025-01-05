@@ -15,12 +15,10 @@ import kotlin.uuid.Uuid
  *
  * @property id The unique identifier of the section.
  * @property lessonId The identifier of the lesson this section belongs to.
- * @property imageUrl The URL of the section's image.
  * @property index The index position of the section within the lesson.
  * @property title The title of the section.
  * @property description A brief description of the section.
  * @property content The content of the section.
- * @property imageUrl The URL of the section's image.
  * @property quizScore The score of the quiz associated with the section.
  * @property createdAt The timestamp when the section was created.
  * @property lastUpdated The timestamp when the section was last updated.
@@ -47,9 +45,6 @@ data class SectionEntity(
     )
     val lessonId: String,
 
-    @ColumnInfo(name = "image_url")
-    val imageUrl: String,
-
     @ColumnInfo(name = "index")
     val index: Int,
 
@@ -62,10 +57,16 @@ data class SectionEntity(
     @ColumnInfo(name = "content")
     val content: String,
 
-    @ColumnInfo(name = "quiz_score")
+    @ColumnInfo(
+        name = "quiz_score",
+        defaultValue = "0"
+    )
     override val quizScore: Int,
 
-    @ColumnInfo(name = "quiz_score_max")
+    @ColumnInfo(
+        name = "quiz_score_max",
+        defaultValue = "10"
+    )
     override val quizScoreMax: Int,
 
     @ColumnInfo(

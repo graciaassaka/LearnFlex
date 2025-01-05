@@ -60,19 +60,22 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 }
 
 kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+        freeCompilerArgs.add("-Xwhen-guards")
+        freeCompilerArgs.add("-Xnon-local-break-continue")
+        freeCompilerArgs.add("-Xmulti-dollar-interpolation")
+    }
+
     androidTarget {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "17"
-            }
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
         }
     }
 
     jvm("desktop") {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "17"
-            }
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
         }
 
         compilations["main"].compileTaskProvider.configure {
@@ -84,6 +87,8 @@ kotlin {
         all {
             applyOptIns()
         }
+
+        @Suppress("Unused")
         val commonMain by getting {
             kotlin.srcDir(layout.buildDirectory.dir("generated/kotlin"))
             dependencies {
@@ -106,6 +111,7 @@ kotlin {
             }
         }
 
+        @Suppress("Unused")
         val commonTest by getting {
             dependencies {
                 implementation(libs.junit)
@@ -123,6 +129,7 @@ kotlin {
             }
         }
 
+        @Suppress("Unused")
         val androidMain by getting {
             dependencies {
                 implementation(libs.koin.android)
@@ -134,6 +141,7 @@ kotlin {
             }
         }
 
+        @Suppress("Unused")
         val androidUnitTest by getting {
             dependencies {
                 implementation(libs.junit)
@@ -156,6 +164,7 @@ kotlin {
             }
         }
 
+        @Suppress("Unused")
         val desktopMain by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.swing)
@@ -166,6 +175,7 @@ kotlin {
             }
         }
 
+        @Suppress("Unused")
         val desktopTest by getting {
             dependencies {
                 implementation(libs.junit)
@@ -225,12 +235,6 @@ dependencies {
     add("kspAndroid", libs.room.compiler)
     add("kspDesktop", libs.room.compiler)
     androidTestImplementation(libs.room.testing)
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs += listOf("-Xexpect-actual-classes")
-    }
 }
 
 fun org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet.applyOptIns() {

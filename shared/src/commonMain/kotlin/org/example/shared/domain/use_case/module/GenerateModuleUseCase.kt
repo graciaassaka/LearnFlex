@@ -1,6 +1,5 @@
 package org.example.shared.domain.use_case.module
 
-import kotlinx.coroutines.flow.first
 import org.example.shared.domain.client.ContentGeneratorClient
 import org.example.shared.domain.constant.ContentType
 import org.example.shared.domain.model.Curriculum
@@ -22,7 +21,7 @@ class GenerateModuleUseCase(
      * @param curriculum The curriculum associated with the module.
      * @return The generated content.
      */
-    suspend operator fun invoke(
+    operator fun invoke(
         tile: String,
         profile: Profile,
         curriculum: Curriculum
@@ -30,7 +29,6 @@ class GenerateModuleUseCase(
         context = ContentGeneratorClient.Context(
             field = profile.preferences.field,
             level = profile.preferences.level,
-            goal = profile.preferences.goal,
             style = profile.learningStyle,
             type = ContentType.MODULE,
             contentDescriptors = listOf(
@@ -42,9 +40,9 @@ class GenerateModuleUseCase(
                 ContentGeneratorClient.ContentDescriptor(
                     type = ContentType.MODULE,
                     title = tile,
-                    description = "Not provided"
+                    description = "No description provided"
                 )
             )
         )
-    ).first()
+    )
 }

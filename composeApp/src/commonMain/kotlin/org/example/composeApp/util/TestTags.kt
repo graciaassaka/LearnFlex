@@ -52,4 +52,10 @@ enum class TestTags(val tag: String) {
     DASHBOARD_CURRICULUM_SECTION("curriculum_section"),
     DASHBOARD_TITLE_SECTION("title_section"),
     DASHBOARD_WELCOME_CARD("welcome_card"),
+    LIBRARY_SCREEN_MAIN_PANEL("library_screen_main_panel"),
+    LIBRARY_SCREEN_SUPPORTING_PANEL("library_screen_supporting_panel"),
+    LIBRARY_SCREEN_MAIN_PANEL_GENERATED_CONTENT_SECTION("library_screen_main_panel_generated_content_section"),
+    LIBRARY_SCREEN_MAIN_PANEL_SUPPORTING_PANE_BUTTON("library_screen_main_panel_supporting_pane_button"),
+    LIBRARY_SCREEN_SUPPORTING_PANEL_FILTER_BAR("library_screen_supporting_panel_filter_bar"),
+    LIBRARY_SCREEN_SUPPORTING_PANEL_CURRICULA_LIST("library_screen_supporting_panel_curricula_list"),
 }

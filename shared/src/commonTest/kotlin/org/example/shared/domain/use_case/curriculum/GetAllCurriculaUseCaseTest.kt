@@ -3,12 +3,12 @@ package org.example.shared.domain.use_case.curriculum
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.example.shared.data.remote.firestore.FirestorePathBuilder
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.repository.CurriculumRepository
+import org.junit.Assert.assertTrue
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -33,13 +33,12 @@ class GetAllCurriculaUseCaseTest {
         every { repository.getAll(path) } returns curriculaFlow
 
         // Act
-        val emissions = mutableListOf<Result<List<Curriculum>>>()
-        useCase(path).collect { emissions.add(it) }
+        val result = useCase(path)
 
         // Assert
         verify(exactly = 1) { repository.getAll(path) }
-        assertEquals(1, emissions.size)
-        assertEquals(Result.success(curricula), emissions.first())
+        assertEquals(1, result.getOrNull()?.size)
+        assertEquals(curricula, result.getOrNull())
     }
 
     @Test
@@ -51,14 +50,12 @@ class GetAllCurriculaUseCaseTest {
         every { repository.getAll(path) } returns errorFlow
 
         // Act
-        val emissions = mutableListOf<Result<List<Curriculum>>>()
-        useCase(path).collect { emissions.add(it) }
+        val result = useCase(path)
 
         // Assert
         verify(exactly = 1) { repository.getAll(path) }
-        assertEquals(1, emissions.size)
-        assert(emissions.first().isFailure)
-        assertEquals(exception, emissions.first().exceptionOrNull())
+        assertTrue(result.isFailure)
+        assertEquals(exception.message, result.exceptionOrNull()?.message)
     }
 
     @Test
@@ -69,7 +66,7 @@ class GetAllCurriculaUseCaseTest {
         // Act & Assert
         assertFailsWith<IllegalArgumentException> {
             runTest {
-                useCase(path).first().getOrThrow()
+                useCase(path).getOrThrow()
             }
         }
     }

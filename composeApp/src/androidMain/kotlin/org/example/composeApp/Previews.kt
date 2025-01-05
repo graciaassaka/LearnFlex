@@ -13,9 +13,7 @@ import org.example.composeApp.theme.LearnFlexTheme
 )
 @Composable
 private fun DesktopDefaultPreview() {
-    LearnFlexTheme {
 
-    }
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -27,6 +25,7 @@ private fun DesktopDefaultPreview() {
 @Composable
 private fun TabletDefaultPreview() {
     LearnFlexTheme {
+
     }
 }
 
@@ -38,8 +37,5 @@ private fun TabletDefaultPreview() {
 )
 @Composable
 private fun PhoneDefaultPreview() {
-    LearnFlexTheme {
-
-    }
 }
 

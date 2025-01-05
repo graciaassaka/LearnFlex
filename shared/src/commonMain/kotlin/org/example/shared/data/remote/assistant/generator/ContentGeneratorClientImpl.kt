@@ -1,6 +1,7 @@
 package org.example.shared.data.remote.assistant.generator
 
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.*
 import org.example.shared.data.remote.assistant.util.CompletionProcessor
@@ -30,36 +31,51 @@ class ContentGeneratorClientImpl(
      * @param context The context for content generation.
      * @return A flow emitting the result of the content generation.
      */
-    override fun generateContent(context: ContentGeneratorClient.Context) = with(assistantClient) {
-        flow<Result<ContentGeneratorClient.GeneratedResponse>> {
+    override fun generateContent(context: ContentGeneratorClient.Context) =
+        with(assistantClient) {
+            flow<Result<ContentGeneratorClient.GeneratedResponse>> {
+                emit(Result.success(processRun(context, 0)))
+            }
+        }.catch { e ->
+            emit(Result.failure(e))
+        }
+
+    /**
+     * Processes a run within the content generation workflow. This method manages the lifecycle of a run, including
+     * creating threads, handling required actions, and polling for completion. It also includes retry logic for handling
+     * failures.
+     *
+     * @param context The context for content generation. This provides the necessary parameters for running the process.
+     * @param attempt The current attempt count for processing the run. Used in retry logic to limit retries in case of errors.
+     * @return A [ContentGeneratorClient.GeneratedResponse] containing the result of the content generation if the process completes successfully.
+     * @throws IllegalStateException If the run fails or exceeds the polling limit.
+     * @throws Exception If the maximum retry attempts are exceeded or an unexpected error occurs.
+     */
+    private suspend fun processRun(context: ContentGeneratorClient.Context, attempt: Int): ContentGeneratorClient.GeneratedResponse =
+        with(assistantClient) {
             var thread: Thread? = null
 
             try {
                 thread = createThread(ThreadRequestBody()).getOrThrow()
+                var run = createRun(thread.id, context).getOrThrow()
 
-                var currentRun = createRun(thread.id, context).getOrThrow()
-
-                while (RunStatus.valueOf(currentRun.status.uppercase()).isRunActive()) {
-                    if (currentRun.status == RunStatus.REQUIRES_ACTION.value) {
-                        RequiredActionHandler(currentRun, thread.id, context, ::submitToolOutputs).getOrThrow()
+                while (RunStatus.valueOf(run.status.uppercase()).isRunActive()) {
+                    if (run.status == RunStatus.REQUIRES_ACTION.value) {
+                        RequiredActionHandler(run, thread.id, context, ::submitToolOutputs).getOrThrow()
                         delay(1000L)
                     }
-
-                    currentRun = retrieveRun(thread.id, currentRun.id).getOrThrow()
+                    run = retrieveRun(thread.id, run.id).getOrThrow()
                 }
-
-                if (currentRun.status == RunStatus.COMPLETED.value) {
-                    emit(Result.success(CompletionProcessor(assistantClient, currentRun, thread.id)))
-                } else {
-                    emit(Result.failure(IllegalStateException("Run failed: ${currentRun.lastError?.message}")))
-                }
+                if (run.status != RunStatus.COMPLETED.value) throw IllegalStateException("Run failed: ${run.lastError?.message}")
+                CompletionProcessor<ContentGeneratorClient.GeneratedResponse>(this, run, thread.id)
             } catch (e: Exception) {
-                emit(Result.failure(e))
+                if (attempt >= 3) throw e
+                delay(1000L * attempt)
+                processRun(context, attempt + 1)
             } finally {
-                thread?.let { t -> deleteThread(t.id).onFailure { emit(Result.failure(it)) } }
+                thread?.let { t -> deleteThread(t.id).getOrThrow() }
             }
         }
-    }
 
     /**
      * Creates a new run for the given thread and context.
@@ -73,9 +89,7 @@ class ContentGeneratorClientImpl(
         requestBody = RunRequestBody(
             assistantId = assistantId,
             instructions = getRunInstructions(context),
-            tools = listOf(
-                Tool.FunctionTool(constructFunction())
-            )
+            tools = listOf(Tool.FunctionTool(constructFunction()))
         )
     )
 
@@ -85,8 +99,7 @@ class ContentGeneratorClientImpl(
      * @param context The context for content generation.
      * @return A string containing the run instructions.
      */
-    private fun getRunInstructions(context: ContentGeneratorClient.Context) =
-        """
+    private fun getRunInstructions(context: ContentGeneratorClient.Context) = """
             Generate ${context.type} content based on the following descriptors:
             ${context.contentDescriptors.joinToString("\n") { "- ${it.type}: ${it.title}" }}
         """.trimIndent()
@@ -97,10 +110,7 @@ class ContentGeneratorClientImpl(
      * @return `true` if the run status is either QUEUED, IN_PROGRESS, or REQUIRES_ACTION, `false` otherwise.
      */
     private fun RunStatus.isRunActive(): Boolean = when (this) {
-        RunStatus.QUEUED,
-        RunStatus.IN_PROGRESS,
-        RunStatus.REQUIRES_ACTION -> true
-
+        RunStatus.QUEUED, RunStatus.IN_PROGRESS, RunStatus.REQUIRES_ACTION -> true
         else -> false
     }
 
@@ -110,18 +120,13 @@ class ContentGeneratorClientImpl(
      * @return A [Function] object representing the content generation function.
      */
     private fun constructFunction() = Function(
-        name = "get_context",
-        description = "Get the curriculum context",
-        strict = true,
-        parameters = Parameters(
-            type = "object",
-            properties = buildJsonObject {
+        name = "get_context", description = "Get the curriculum context", strict = true, parameters = Parameters(
+            type = "object", properties = buildJsonObject {
                 put("context", buildJsonObject {
                     put("type", JsonPrimitive("object"))
                     put("required", buildJsonArray {
                         add(JsonPrimitive("field"))
                         add(JsonPrimitive("level"))
-                        add(JsonPrimitive("goal"))
                         add(JsonPrimitive("style"))
                         add(JsonPrimitive("type"))
                         add(JsonPrimitive("contentDescriptors"))
@@ -136,10 +141,6 @@ class ContentGeneratorClientImpl(
                             put("type", JsonPrimitive("string"))
                             put("description", JsonPrimitive("The user's level of expertise"))
                             put("enum", buildJsonArray { Level.entries.forEach { add(JsonPrimitive(it.name)) } })
-                        })
-                        put("goal", buildJsonObject {
-                            put("type", JsonPrimitive("string"))
-                            put("description", JsonPrimitive("The user's learning goal"))
                         })
                         put("style", buildJsonObject {
                             put("type", JsonPrimitive("object"))
@@ -208,9 +209,7 @@ class ContentGeneratorClientImpl(
                     })
                     put("additionalProperties", JsonPrimitive(false))
                 })
-            },
-            required = listOf("context"),
-            additionalProperties = false
+            }, required = listOf("context"), additionalProperties = false
         )
     )
 
@@ -223,23 +222,15 @@ class ContentGeneratorClientImpl(
      * @param output The context containing the tool outputs.
      */
     private suspend fun submitToolOutputs(
-        threadId: String,
-        runId: String,
-        toolCallId: String,
-        output: ContentGeneratorClient.Context
+        threadId: String, runId: String, toolCallId: String, output: ContentGeneratorClient.Context
     ) = assistantClient.submitToolOutput(
-        threadId = threadId,
-        runId = runId,
-        requestBody = SubmitToolOutputsRequestBody(
+        threadId = threadId, runId = runId, requestBody = SubmitToolOutputsRequestBody(
             listOf(
                 ToolOutput(
-                    toolCallId = toolCallId,
-                    output = Json.encodeToString(
-                        serializer = JsonObject.serializer(),
-                        value = buildJsonObject {
+                    toolCallId = toolCallId, output = Json.encodeToString(
+                        serializer = JsonObject.serializer(), value = buildJsonObject {
                             put("field", JsonPrimitive(output.field))
                             put("level", JsonPrimitive(output.level))
-                            put("goal", JsonPrimitive(output.goal))
                             put("style", buildJsonObject {
                                 put("dominant", JsonPrimitive(output.style.dominant))
                                 put("breakdown", buildJsonObject {
@@ -257,8 +248,7 @@ class ContentGeneratorClientImpl(
                                     })
                                 }
                             })
-                        }
-                    )
+                        })
                 )
             )
         )

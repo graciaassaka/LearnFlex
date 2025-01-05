@@ -15,9 +15,10 @@ import kotlin.uuid.Uuid
  *
  * @property id The unique identifier of the curriculum.
  * @property userId The identifier of the user this curriculum belongs to.
- * @property imageUrl The URL of the curriculum's image.
- * @property title The detailed title of the curriculum.
- * @property status The current status of the curriculum.
+ * @property title The title of the curriculum.
+ * @property description A brief description of the curriculum.
+ * @property content The content of the curriculum.
+ * @property status The status of the curriculum.
  * @property createdAt The timestamp when the curriculum was created.
  * @property lastUpdated The timestamp when the curriculum was last updated.
  */
@@ -40,16 +41,19 @@ data class CurriculumEntity(
     @ColumnInfo(name = "user_id", index = true)
     val userId: String,
 
-    @ColumnInfo(name = "image_url")
-    val imageUrl: String,
-
     @ColumnInfo(name = "title")
     val title: String,
 
     @ColumnInfo(name = "description")
     val description: String,
 
-    @ColumnInfo(name = "status")
+    @ColumnInfo(name = "content")
+    val content: List<String>,
+
+    @ColumnInfo(
+        name = "status",
+        defaultValue = "UNFINISHED"
+    )
     override val status: String,
 
     @ColumnInfo(

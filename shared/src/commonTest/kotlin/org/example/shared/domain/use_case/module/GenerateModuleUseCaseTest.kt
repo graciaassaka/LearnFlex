@@ -4,6 +4,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.client.ContentGeneratorClient
@@ -54,16 +55,15 @@ class GenerateModuleUseCaseTest {
             )
         )
         val curriculum = Curriculum(
-            imageUrl = "https://example.com/image.jpg",
             title = "Kotlin Basics",
             description = "A beginner-friendly introduction to Kotlin.",
+            content = listOf("Variables", "Control Structures", "Functions"),
             status = "active"
         )
 
         // Mock the generateContent method to return a successful flow
         val generatedResponse = ContentGeneratorClient.GeneratedResponse(
             title = "Module 1: Introduction to Kotlin",
-            imagePrompt = "An illustration of Kotlin basics",
             description = "This module covers the fundamentals of Kotlin programming.",
             content = listOf("Variables and Types", "Control Structures", "Functions")
         )
@@ -72,7 +72,7 @@ class GenerateModuleUseCaseTest {
         } returns flowOf(Result.success(generatedResponse))
 
         // Act
-        val result = generateModuleUseCase.invoke(tile, profile, curriculum)
+        val result = generateModuleUseCase.invoke(tile, profile, curriculum).first()
 
         // Assert
         // Verify that generateContent was called exactly once with the correct context
@@ -81,7 +81,6 @@ class GenerateModuleUseCaseTest {
                 match {
                     it.field == profile.preferences.field &&
                             it.level == profile.preferences.level &&
-                            it.goal == profile.preferences.goal &&
                             it.style == profile.learningStyle &&
                             it.type == ContentType.MODULE &&
                             it.contentDescriptors.size == 2 &&
@@ -90,7 +89,7 @@ class GenerateModuleUseCaseTest {
                             it.contentDescriptors[0].description == curriculum.description &&
                             it.contentDescriptors[1].type == ContentType.MODULE &&
                             it.contentDescriptors[1].title == tile &&
-                            it.contentDescriptors[1].description == "Not provided"
+                            it.contentDescriptors[1].description == "No description provided"
                 }
             )
         }
@@ -131,7 +130,6 @@ class GenerateModuleUseCaseTest {
 
         val generatedResponse = ContentGeneratorClient.GeneratedResponse(
             title = "Module 2: Advanced Kotlin Features",
-            imagePrompt = "A diagram of Kotlin coroutines",
             description = "This module delves into Kotlin's advanced features, including coroutines and concurrency.",
             content = listOf("Coroutines Basics", "Advanced Coroutine Builders", "Error Handling in Coroutines")
         )
@@ -142,7 +140,7 @@ class GenerateModuleUseCaseTest {
         } returns flowOf(Result.success(generatedResponse))
 
         // Act
-        val result = generateModuleUseCase.invoke(tile, profile, curriculum)
+        val result = generateModuleUseCase.invoke(tile, profile, curriculum).first()
 
         // Assert
         // Verify that the result is successful and matches the mocked response
@@ -187,7 +185,7 @@ class GenerateModuleUseCaseTest {
         } returns flowOf(Result.failure(exception))
 
         // Act
-        val result = generateModuleUseCase.invoke(tile, profile, curriculum)
+        val result = generateModuleUseCase.invoke(tile, profile, curriculum).first()
 
         // Assert
         // Verify that the result is a failure and contains the expected exception

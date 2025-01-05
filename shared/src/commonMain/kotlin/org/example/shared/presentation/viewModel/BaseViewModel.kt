@@ -48,7 +48,7 @@ open class BaseViewModel(
      * @param destination The route to navigate to.
      * @param waitForAnimation Whether to wait for the exit animation to finish before navigating.
      */
-    fun navigate(destination: Route, waitForAnimation: Boolean) {
+    fun navigate(destination: Route, waitForAnimation: Boolean = false) {
         if (waitForAnimation) {
             navDestination = destination
             _isScreenVisible.update { false }

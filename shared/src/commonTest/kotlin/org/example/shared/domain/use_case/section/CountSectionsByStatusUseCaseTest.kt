@@ -59,39 +59,33 @@ class CountSectionsByStatusUseCaseTest {
         private val sections = listOf(
             Section(
                 id = "1",
+                index = 1,
                 title = "Section 1",
                 description = "Description 1",
-                imageUrl = "https://example.com/image1.png",
-                index = 1,
+                content = "Content 1",
                 quizScore = 5,
-                quizScoreMax = 10,
                 createdAt = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
-                lastUpdated = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
-                content = "Content 1"
+                lastUpdated = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
             ),
             Section(
                 id = "2",
+                index = 2,
                 title = "Section 2",
                 description = "Description 2",
-                imageUrl = "https://example.com/image2.png",
-                index = 2,
+                content = "Content 2",
                 quizScore = 6,
-                quizScoreMax = 10,
                 createdAt = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
-                lastUpdated = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
-                content = "Content 2"
+                lastUpdated = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
             ),
             Section(
                 id = "3",
+                index = 3,
                 title = "Section 3",
                 description = "Description 3",
-                imageUrl = "https://example.com/image3.png",
-                index = 3,
+                content = "Content 3",
                 quizScore = 7,
-                quizScoreMax = 10,
                 createdAt = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
-                lastUpdated = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
-                content = "Content 3"
+                lastUpdated = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
             )
         )
     }

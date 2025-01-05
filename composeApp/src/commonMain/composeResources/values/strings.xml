@@ -27,6 +27,18 @@
     <string name="show_less_button_label">Show Less</string>
     <string name="show_more_button_label">Show More</string>
     <string name="refresh_button_label">Refresh</string>
+    <string name="display_supporting_panel_button_label">Display Supporting Panel</string>
+    <string name="generate_content_button_label">Generate</string>
+    <string name="discard_content_button_label">Discard</string>
+    <string name="save_content_button_label">Save</string>
+    <string name="search_button_label">Search</string>
+    <string name="filter_button_label">Filter</string>
+    <string name="clear_search_query_button_label">Clear Search Query</string>
+    <string name="delete_button_label">Delete</string>
+    <string name="remove_lesson_button_label">Remove Lesson</string>
+    <string name="remove_module_button_label">Remove Module</string>
+    <string name="cancel_button_label">Cancel</string>
+    <string name="discard_button_label">Discard</string>
 
     <!-- Form Labels -->
     <string name="email_label">Email</string>
@@ -38,6 +50,7 @@
     <string name="field_label">What's your field of study?</string>
     <string name="level_label">What's your level of study?</string>
     <string name="goals_label">What are your learning goals?</string>
+    <string name="syllabus_description_label">What are you studying?</string>
 
     <!-- Screen Descriptions -->
     <string name="verify_email_screen_description">A verification email has been sent to the email address below. Please
@@ -54,6 +67,7 @@
     <string name="update_photo_success">Photo updated</string>
     <string name="delete_photo_success">Photo deleted</string>
     <string name="set_learning_style_success">Learning style set</string>
+    <string name="content_saved_success">Content saved</string>
 
     <!-- Error Messages -->
     <string name="file_too_large_error">File too large</string>
@@ -68,10 +82,16 @@
     <string name="welcome_message">Transform any learning material into an interactive, personalized experience.
     </string>
 
-    <!-- Curriculum -->
-    <string name="curriculum_progress">Curriculum Progress</string>
-    <string name="completed_curricula">Completed Curricula</string>
+    <!-- Learning Items -->
+    <string name="syllabus">Syllabus</string>
+    <string name="curriculum">Curriculum</string>
     <string name="modules">Modules</string>
+    <string name="lessons">Lessons</string>
+
+    <!-- Curriculum -->
+    <string name="no_curricula_found">No curricula found</string>
+    <string name="curriculum_progress">Curriculum Progress</string>
+    <string name="curriculum_description">Curriculum Description</string>
 
     <!-- Weekly Activity -->
     <string name="total_minutes">Minutes</string>
@@ -79,9 +99,19 @@
     <string name="activity_summary">Summary</string>
     <string name="sessions">Sessions</string>
 
+    <!-- Date -->
+    <string name="created_on">Created on</string>
+
+    <!-- Upload -->
+    <string name="uploading_document">Uploading Document</string>
+    <string name="upload_document">Upload Document</string>
+
     <!-- Other -->
     <string name="weekly_activity">Weekly Activity</string>
     <string name="best_quiz_score">Best Quiz Score:</string>
     <string name="upload_photo_text">Upload Profile Photo</string>
     <string name="style_result_dialog_title">Your Learning Style</string>
+    <string name="discard_warning_dialog_title">Discard Changes?</string>
+    <string name="discard_warning_dialog_message">Are you sure you want to discard your changes?</string>
+
 </resources>

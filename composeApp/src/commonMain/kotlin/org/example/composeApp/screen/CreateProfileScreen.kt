@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import learnflex.composeapp.generated.resources.*
 import org.example.composeApp.component.*
@@ -60,8 +61,8 @@ fun CreateProfileScreen(
         windowSizeClass = windowSizeClass,
         snackbarHostState = remember { SnackbarHostState() },
         snackbarType = remember { mutableStateOf(SnackbarType.Info) },
-        uiState = viewModel.state.collectAsState(),
-        isScreenVisible = viewModel.isScreenVisible.collectAsState()
+        uiState = viewModel.state.collectAsStateWithLifecycle(),
+        isScreenVisible = viewModel.isScreenVisible.collectAsStateWithLifecycle()
     )
 
     HandleUIEvents(Route.CreateProfile, navController, viewModel, screenConfig.snackbarHostState) { screenConfig.snackbarType.value = it }
@@ -124,10 +125,6 @@ private fun PersonalInfoScreen(
         modifier = modifier
     ) {
         Box(modifier = modifier.fillMaxSize()) {
-            CustomVerticalScrollbar(
-                scrollState = scrollState,
-                modifier = Modifier.align(Alignment.CenterEnd)
-            )
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -139,21 +136,15 @@ private fun PersonalInfoScreen(
                 Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
                 ImageUpload(
                     enabled = !uiState.value.isLoading,
-                    onImageSelected = { imageData ->
-                        handleAction(Action.HandleUploadProfilePicture(imageData, uploadPhotoSuccessMsg))
-                    },
-                    onImageDeleted = {
-                        handleAction(Action.HandleProfilePictureDeleted(deletePhotoSuccessMsg))
-                    },
-                    handleError = { error: Throwable ->
-                        handleAction(Action.HandleError(error))
-                    },
+                    onImageSelected = { imageData -> handleAction(Action.UploadProfilePicture(imageData, uploadPhotoSuccessMsg)) },
+                    onImageDeleted = { handleAction(Action.DeleteProfilePicture(deletePhotoSuccessMsg)) },
+                    handleError = { error: Throwable -> handleAction(Action.HandleError(error)) },
                     modifier = Modifier.testTag(TestTags.PERSONAL_INFO_IMAGE_UPLOAD.tag),
                     isUploaded = uiState.value.photoUrl.isBlank().not()
                 )
                 TextField(
                     value = uiState.value.username,
-                    onValueChange = { handleAction(Action.HandleUsernameChanged(it)) },
+                    onValueChange = { handleAction(Action.EditUsername(it)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag(TestTags.PERSONAL_INFO_USERNAME_TEXT_FIELD.tag),
@@ -167,7 +158,7 @@ private fun PersonalInfoScreen(
                 TextField(
                     value = uiState.value.goal,
                     onValueChange = {
-                        if (it.length < maxGoalLen) handleAction(Action.HandleGoalChanged(it))
+                        if (it.length < maxGoalLen) handleAction(Action.EditGoal(it))
                         goalCharCount = it.length
                     },
                     modifier = Modifier
@@ -190,13 +181,13 @@ private fun PersonalInfoScreen(
                     selected = uiState.value.level,
                     isDropDownVisible = uiState.value.isLevelDropdownVisible,
                     onDropDownVisibilityChanged = { handleAction(Action.ToggleLevelDropdownVisibility) },
-                    onSelected = { handleAction(Action.HandleLevelChanged(it)) },
+                    onSelected = { handleAction(Action.SelectLevel(it)) },
                     enabled = !uiState.value.isLoading,
                     modifier = Modifier.testTag(TestTags.PERSONAL_INFO_LEVEL_DROPDOWN.tag)
                 )
                 EnumScrollablePickerLayout<Field>(
                     label = stringResource(Res.string.field_label),
-                    onChange = { handleAction(Action.HandleFieldChanged(it)) },
+                    onChange = { handleAction(Action.SelectField(it)) },
                     enabled = !uiState.value.isLoading,
                     modifier = Modifier.testTag(TestTags.PERSONAL_INFO_FIELD_PICKER.tag)
                 )
@@ -212,6 +203,10 @@ private fun PersonalInfoScreen(
                 )
                 Spacer(modifier = Modifier.height(Spacing.LARGE.dp))
             }
+            CustomVerticalScrollbar(
+                scrollState = scrollState,
+                modifier = Modifier.align(Alignment.CenterEnd)
+            )
         }
     }
 }
@@ -296,10 +291,6 @@ private fun QuestionContent(
     val scrollState = rememberScrollState()
 
     Box(modifier = modifier.fillMaxSize()) {
-        CustomVerticalScrollbar(
-            scrollState = scrollState,
-            modifier = Modifier.align(Alignment.CenterEnd)
-        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -327,6 +318,10 @@ private fun QuestionContent(
                 )
             }
         }
+        CustomVerticalScrollbar(
+            scrollState = scrollState,
+            modifier = Modifier.align(Alignment.CenterEnd)
+        )
     }
 }
 

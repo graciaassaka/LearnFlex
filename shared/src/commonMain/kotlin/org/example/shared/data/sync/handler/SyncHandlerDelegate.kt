@@ -18,6 +18,7 @@ import org.example.shared.domain.sync.SyncOperation
  * @param Entity The type of the entity in the local database.
  * @property remoteDao The remote data access object for the model.
  * @property localDao The local data access object for the entity.
+ * @property getStrategy The query strategy to get a single entity from the local database.
  * @property modelMapper The mapper to convert between model and entity.
  */
 class SyncHandlerDelegate<Model : DatabaseRecord, Entity : RoomEntity>(
@@ -93,6 +94,6 @@ class SyncHandlerDelegate<Model : DatabaseRecord, Entity : RoomEntity>(
      * @return The extracted parent ID or null if not found.
      */
     private fun extractParentId(path: String) = path.split("/").run {
-        if (size < 3) null else get(size - 2)
+        if (size >= 3) get(size - 2) else null
     }
 }

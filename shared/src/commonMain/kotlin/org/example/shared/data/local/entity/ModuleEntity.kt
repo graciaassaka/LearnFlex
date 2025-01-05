@@ -15,11 +15,12 @@ import kotlin.uuid.Uuid
  *
  * @property id The unique identifier of the module.
  * @property curriculumId The identifier of the curriculum this module belongs to.
- * @property imageUrl The URL of the module's image.
+ * @property index The index position of the module within the curriculum.
  * @property title The title of the module.
  * @property description A brief description of the module.
- * @property index The index position of the module within the curriculum.
+ * @property content The content of the module.
  * @property quizScore The score of the quiz associated with the module.
+ * @property quizScoreMax The maximum score possible for the quiz.
  * @property createdAt The timestamp when the module was created.
  * @property lastUpdated The timestamp when the module was last updated.
  */
@@ -45,9 +46,6 @@ data class ModuleEntity(
     )
     val curriculumId: String,
 
-    @ColumnInfo(name = "image_url")
-    val imageUrl: String,
-
     @ColumnInfo(name = "title")
     val title: String,
 
@@ -57,10 +55,19 @@ data class ModuleEntity(
     @ColumnInfo(name = "index")
     val index: Int,
 
-    @ColumnInfo(name = "quiz_score")
+    @ColumnInfo(name = "content")
+    val content: List<String>,
+
+    @ColumnInfo(
+        name = "quiz_score",
+        defaultValue = "0"
+    )
     override val quizScore: Int,
 
-    @ColumnInfo(name = "quiz_score_max")
+    @ColumnInfo(
+        name = "quiz_score_max",
+        defaultValue = "10"
+    )
     override val quizScoreMax: Int,
 
     @ColumnInfo(

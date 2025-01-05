@@ -1,11 +1,9 @@
 package org.example.shared.domain.use_case.curriculum
 
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.model.Curriculum
 import kotlin.test.BeforeTest
@@ -37,17 +35,15 @@ class GetActiveCurriculumUseCaseTest {
         every { curriculum3.lastUpdated } returns 1500L
 
         val curriculaList = listOf(curriculum1, curriculum2, curriculum3)
-        val resultFlow: Flow<Result<List<Curriculum>>> = flowOf(Result.success(curriculaList))
-        coEvery { getAllCurriculaUseCase.invoke(path) } returns resultFlow
+        val expectedResult: Result<List<Curriculum>> = Result.success(curriculaList)
+        coEvery { getAllCurriculaUseCase.invoke(path) } returns expectedResult
 
         // Act
-        val emissions = mutableListOf<Result<Curriculum?>>()
-        useCase(path).collect { emissions.add(it) }
+        val result = useCase(path)
 
         // Assert
-        verify(exactly = 1) { getAllCurriculaUseCase.invoke(path) }
-        assertEquals(1, emissions.size)
-        assertEquals(Result.success(curriculum2), emissions.first())
+        coVerify(exactly = 1) { getAllCurriculaUseCase.invoke(path) }
+        assertEquals(Result.success(curriculum2), result)
     }
 
     @Test
@@ -55,17 +51,15 @@ class GetActiveCurriculumUseCaseTest {
         // Arrange
         val path = "some/path"
         val emptyList: List<Curriculum> = emptyList()
-        val resultFlow: Flow<Result<List<Curriculum>>> = flowOf(Result.success(emptyList))
-        coEvery { getAllCurriculaUseCase.invoke(path) } returns resultFlow
+        val expectedResult: Result<List<Curriculum>> = Result.success(emptyList)
+        coEvery { getAllCurriculaUseCase.invoke(path) } returns expectedResult
 
         // Act
-        val emissions = mutableListOf<Result<Curriculum?>>()
-        useCase(path).collect { emissions.add(it) }
+        val result = useCase(path)
 
         // Assert
-        verify(exactly = 1) { getAllCurriculaUseCase.invoke(path) }
-        assertEquals(1, emissions.size)
-        assertEquals(Result.success(null), emissions.first())
+        coVerify(exactly = 1) { getAllCurriculaUseCase.invoke(path) }
+        assertEquals(Result.success(null), result)
     }
 
     @Test
@@ -73,17 +67,14 @@ class GetActiveCurriculumUseCaseTest {
         // Arrange
         val path = "some/path"
         val exception = RuntimeException("Failed to retrieve curricula")
-        val resultFlow: Flow<Result<List<Curriculum>>> = flowOf(Result.failure(exception))
-        coEvery { getAllCurriculaUseCase.invoke(path) } returns resultFlow
+        val expectedResult: Result<List<Curriculum>> = Result.failure(exception)
+        coEvery { getAllCurriculaUseCase.invoke(path) } returns expectedResult
 
         // Act
-        val emissions = mutableListOf<Result<Curriculum?>>()
-        useCase(path).collect { emissions.add(it) }
+        val result = useCase(path)
 
         // Assert
-        verify(exactly = 1) { getAllCurriculaUseCase.invoke(path) }
-        assertEquals(1, emissions.size)
-        val result = emissions.first()
+        coVerify(exactly = 1) { getAllCurriculaUseCase.invoke(path) }
         assert(result.isFailure)
         assertEquals(exception, result.exceptionOrNull())
     }
@@ -98,9 +89,9 @@ class GetActiveCurriculumUseCaseTest {
         // Act & Assert
         assertFailsWith<IllegalArgumentException> {
             runTest {
-                useCase(path).collect { /* No-op */ }
+                useCase(path).getOrThrow()
             }
         }
-        verify(exactly = 1) { getAllCurriculaUseCase.invoke(path) }
+        coVerify(exactly = 1) { getAllCurriculaUseCase.invoke(path) }
     }
 }

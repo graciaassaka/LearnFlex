@@ -1,11 +1,14 @@
 package org.example.shared.data.remote.assistant.summarizer
 
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.retry
 import org.example.shared.data.remote.assistant.util.CompletionProcessor
 import org.example.shared.domain.client.AIAssistantClient
 import org.example.shared.domain.client.SyllabusSummarizerClient
 import org.example.shared.domain.model.assistant.*
+import org.example.shared.domain.model.assistant.AttachmentTool.FileSearchTool
 import java.io.File
 
 /**
@@ -32,20 +35,25 @@ class SyllabusSummarizerClientImpl(
             val fileUploadResponse = assistantClient.uploadFile(syllabus, FilePurpose.ASSISTANTS).getOrThrow()
             thread = createThread(fileUploadResponse.id).getOrThrow()
 
-            val run = createRun(thread.id).getOrThrow()
+            var run = createRun(thread.id).getOrThrow()
 
-            while (RunStatus.valueOf(run.status.uppercase()).isRunActive()) delay(1000)
+            while (RunStatus.valueOf(run.status.uppercase()).isRunActive()) {
+                delay(1000)
+                run = assistantClient.retrieveRun(thread.id, run.id).getOrThrow()
+            }
 
             if (run.status == RunStatus.COMPLETED.value) {
                 emit(Result.success(CompletionProcessor(assistantClient, run, thread.id)))
             } else {
-                emit(Result.failure(IllegalStateException("Run failed: ${run.lastError?.message}")))
+                throw IllegalStateException("Run failed: ${run.lastError?.message}")
             }
-        } catch (e: Exception) {
-            emit(Result.failure(e))
         } finally {
             thread?.let { t -> assistantClient.deleteThread(t.id).onFailure { emit(Result.failure(it)) } }
         }
+    }.retry(3) {
+        it is IllegalStateException
+    }.catch { e ->
+        emit(Result.failure(e))
     }
 
     /**
@@ -63,7 +71,7 @@ class SyllabusSummarizerClientImpl(
                     attachments = listOf(
                         Attachment(
                             fileId = fileId,
-                            tools = listOf(AttachmentTool.FileSearchTool)
+                            tools = listOf(FileSearchTool)
                         )
                     )
                 )
@@ -81,7 +89,8 @@ class SyllabusSummarizerClientImpl(
         threadId = threadId,
         requestBody = RunRequestBody(
             assistantId = assistantId,
-            instructions = SUMMARIZE_INSTRUCTIONS
+            instructions = SUMMARIZE_INSTRUCTIONS,
+            maxCompletionTokens = 600
         )
     )
 

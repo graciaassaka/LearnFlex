@@ -3,7 +3,6 @@ package org.example.shared.domain.use_case.module
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.example.shared.data.remote.firestore.FirestorePathBuilder
@@ -33,13 +32,11 @@ class GetModuleUseCaseTest {
         every { repository.get(path, "moduleId") } returns moduleFlow
 
         // Act
-        val emissions = mutableListOf<Result<Module>>()
-        useCase(path, "moduleId").collect { emissions.add(it) }
+        val result = useCase(path, "moduleId")
 
         // Assert
         verify(exactly = 1) { repository.get(path, "moduleId") }
-        assertEquals(1, emissions.size)
-        assertEquals(Result.success(module), emissions.first())
+        assertEquals(Result.success(module), result)
     }
 
     @Test
@@ -51,14 +48,11 @@ class GetModuleUseCaseTest {
         every { repository.get(path, "moduleId") } returns errorFlow
 
         // Act
-        val emissions = mutableListOf<Result<Module>>()
-        useCase(path, "moduleId").collect { emissions.add(it) }
+        val result = useCase(path, "moduleId")
 
         // Assert
         verify(exactly = 1) { repository.get(path, "moduleId") }
-        assertEquals(1, emissions.size)
-        assert(emissions.first().isFailure)
-        assertEquals(exception, emissions.first().exceptionOrNull())
+        assertEquals(Result.failure(exception), result)
     }
 
     @Test
@@ -69,7 +63,7 @@ class GetModuleUseCaseTest {
         // Act & Assert
         assertFailsWith<IllegalArgumentException> {
             runTest {
-                useCase(path, "moduleId").first().getOrThrow()
+                useCase(path, "moduleId").getOrThrow()
             }
         }
     }

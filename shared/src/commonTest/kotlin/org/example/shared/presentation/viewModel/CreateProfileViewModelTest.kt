@@ -64,6 +64,7 @@ class CreateProfileViewModelTest {
         updateProfileUseCase = mockk(relaxed = true)
         validateUsernameUseCase = ValidateUsernameUseCase()
         buildProfilePathUseCase = mockk(relaxed = true)
+
         viewModel = CreateUserProfileViewModel(
             getUserDataUseCase,
             createProfileUseCase,
@@ -151,13 +152,13 @@ class CreateProfileViewModelTest {
     }
 
     @Test
-    fun `onUsernameChanged should update username in state when username is valid`() = runTest {
+    fun `editUsername should update username in state when username is valid`() = runTest {
         // Given
         val username = "TestUser_1"
 
         // When
         advanceUntilIdle()
-        viewModel.handleAction(Action.HandleUsernameChanged(username))
+        viewModel.handleAction(Action.EditUsername(username))
         advanceUntilIdle()
 
         // Then
@@ -166,13 +167,13 @@ class CreateProfileViewModelTest {
     }
 
     @Test
-    fun `onUsernameChanged should update username and display error message when username is invalid`() = runTest {
+    fun `editUsername should update username and display error message when username is invalid`() = runTest {
         // Given
         val username = ""
 
         // When
         advanceUntilIdle()
-        viewModel.handleAction(Action.HandleUsernameChanged(username))
+        viewModel.handleAction(Action.EditUsername(username))
         advanceUntilIdle()
 
         // Then
@@ -181,12 +182,12 @@ class CreateProfileViewModelTest {
     }
 
     @Test
-    fun `onFieldChanged should update field in state`() = runTest {
+    fun `selectField should update field in state`() = runTest {
         // Given
         val field = Field.COMPUTER_SCIENCE
 
         // When
-        viewModel.handleAction(Action.HandleFieldChanged(field))
+        viewModel.handleAction(Action.SelectField(field))
         advanceUntilIdle()
 
         // Then
@@ -194,12 +195,12 @@ class CreateProfileViewModelTest {
     }
 
     @Test
-    fun `onLevelChanged should update level in state`() = runTest {
+    fun `SelectLevel should update level in state`() = runTest {
         // Given
         val level = Level.BEGINNER
 
         // When
-        viewModel.handleAction(Action.HandleLevelChanged(level))
+        viewModel.handleAction(Action.SelectLevel(level))
         advanceUntilIdle()
 
         // Then
@@ -221,12 +222,12 @@ class CreateProfileViewModelTest {
 
 
     @Test
-    fun `onGoalChanged should update goal in state`() = runTest {
+    fun `editGoal should update goal in state`() = runTest {
         // Given
         val goal = "Learn something new"
 
         // When
-        viewModel.handleAction(Action.HandleGoalChanged(goal))
+        viewModel.handleAction(Action.EditGoal(goal))
         advanceUntilIdle()
 
         // Then
@@ -234,7 +235,7 @@ class CreateProfileViewModelTest {
     }
 
     @Test
-    fun `onUploadProfilePicture should update state with photoUrl and show successMessage when uploadProfilePictureUseCase returns success`() =
+    fun `uploadProfilePicture should update state with photoUrl and show successMessage when uploadProfilePictureUseCase returns success`() =
         runTest {
             // Given
             val imageData = byteArrayOf(0x00, 0x01, 0x02, 0x03)
@@ -250,7 +251,7 @@ class CreateProfileViewModelTest {
             coEvery { uploadProfilePictureUseCase(TEST_PATH, imageData) } returns Result.success(photoUrl)
 
             // When
-            viewModel.handleAction(Action.HandleUploadProfilePicture(imageData, successMessage))
+            viewModel.handleAction(Action.UploadProfilePicture(imageData, successMessage))
             advanceUntilIdle()
 
             // Then
@@ -263,7 +264,7 @@ class CreateProfileViewModelTest {
         }
 
     @Test
-    fun `onUploadProfilePicture should show error message when uploadProfilePictureUseCase returns failure`() =
+    fun `uploadProfilePicture should show error message when uploadProfilePictureUseCase returns failure`() =
         runTest {
             // Given
             val imageData = byteArrayOf(0x00, 0x01, 0x02, 0x03)
@@ -278,7 +279,7 @@ class CreateProfileViewModelTest {
             coEvery { uploadProfilePictureUseCase(TEST_PATH, imageData) } returns Result.failure(Exception(errorMessage))
 
             // When
-            viewModel.handleAction(Action.HandleUploadProfilePicture(imageData, "Success message"))
+            viewModel.handleAction(Action.UploadProfilePicture(imageData, "Success message"))
             advanceUntilIdle()
 
             // Then
@@ -290,7 +291,7 @@ class CreateProfileViewModelTest {
         }
 
     @Test
-    fun `onProfilePictureDeleted should update state with empty photoUrl and show successMessage when deleteProfilePictureUseCase returns success`() =
+    fun `DeleteProfilePicture should update state with empty photoUrl and show successMessage when deleteProfilePictureUseCase returns success`() =
         runTest {
             // Given
             val successMessage = "Profile picture deleted successfully"
@@ -302,7 +303,7 @@ class CreateProfileViewModelTest {
             coEvery { deleteProfilePictureUseCase(any()) } returns Result.success(Unit)
 
             // When
-            viewModel.handleAction(Action.HandleProfilePictureDeleted(successMessage))
+            viewModel.handleAction(Action.DeleteProfilePicture(successMessage))
             advanceUntilIdle()
 
             // Then
@@ -315,7 +316,7 @@ class CreateProfileViewModelTest {
         }
 
     @Test
-    fun `onProfilePictureDeleted should show error message when deleteProfilePictureUseCase returns failure`() =
+    fun `DeleteProfilePicture should show error message when deleteProfilePictureUseCase returns failure`() =
         runTest {
             // Given
             val errorMessage = "Failed to delete profile picture"
@@ -327,7 +328,7 @@ class CreateProfileViewModelTest {
             coEvery { deleteProfilePictureUseCase(any()) } returns Result.failure(Exception(errorMessage))
 
             // When
-            viewModel.handleAction(Action.HandleProfilePictureDeleted("Success message"))
+            viewModel.handleAction(Action.DeleteProfilePicture("Success message"))
             advanceUntilIdle()
 
             // Then
@@ -345,7 +346,7 @@ class CreateProfileViewModelTest {
         coEvery { createProfileUseCase(any(), any()) } returns Result.success(Unit)
 
         // When
-        viewModel.handleAction(Action.HandleUsernameChanged(username))
+        viewModel.handleAction(Action.EditUsername(username))
         viewModel.handleAction(Action.CreateProfile("Success message"))
         advanceUntilIdle()
 
@@ -361,7 +362,7 @@ class CreateProfileViewModelTest {
         coEvery { buildProfilePathUseCase() } returns path
 
         // When
-        viewModel.handleAction(Action.HandleUsernameChanged(username))
+        viewModel.handleAction(Action.EditUsername(username))
         viewModel.handleAction(Action.CreateProfile("Success message"))
         advanceUntilIdle()
 
@@ -381,7 +382,7 @@ class CreateProfileViewModelTest {
         coEvery { createProfileUseCase(any(), any()) } returns Result.success(Unit)
 
         // When
-        viewModel.handleAction(Action.HandleUsernameChanged("TestUser"))
+        viewModel.handleAction(Action.EditUsername("TestUser"))
         viewModel.handleAction(Action.CreateProfile(successMessage))
         advanceUntilIdle()
 
@@ -405,7 +406,7 @@ class CreateProfileViewModelTest {
         coEvery { createProfileUseCase(any(), any()) } returns Result.failure(Exception(errorMessage))
 
         // When
-        viewModel.handleAction(Action.HandleUsernameChanged("TestUser"))
+        viewModel.handleAction(Action.EditUsername("TestUser"))
         viewModel.handleAction(Action.CreateProfile("Success message"))
         advanceUntilIdle()
 

@@ -1,7 +1,8 @@
 package org.example.shared.domain.use_case.module
 
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeoutOrNull
 import org.example.shared.domain.constant.Collection
 import org.example.shared.domain.repository.ModuleRepository
 
@@ -13,18 +14,17 @@ import org.example.shared.domain.repository.ModuleRepository
 class GetAllModulesUseCase(private val repository: ModuleRepository) {
 
     /**
-     * Invokes the use case to retrieve all modules from the specified path.
+     * Retrieves all modules.
      *
-     * @param path The path from where the modules should be retrieved.
-     * @return A [Flow] emitting a [Result] containing the list of modules.
-     * @throws IllegalArgumentException If the path does not end with [Collection.MODULES].
+     * @param path The path in the repository where the modules should be retrieved from.
+     * @return The module data.
      */
-    operator fun invoke(path: String) = flow {
+    suspend operator fun invoke(path: String) = runCatching {
         require(path.split("/").last() == Collection.MODULES.value) {
             "The path must end with ${Collection.MODULES.value}"
         }
-        repository.getAll(path).collect(::emit)
-    }.catch {
-        emit(Result.failure(it))
+        withTimeoutOrNull(500L) { repository.getAll(path).filter { it.getOrThrow().isNotEmpty() == true }.first() }
+            ?.getOrNull()
+            ?: emptyList()
     }
 }

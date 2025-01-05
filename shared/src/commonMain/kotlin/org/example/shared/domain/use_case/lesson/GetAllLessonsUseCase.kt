@@ -1,7 +1,8 @@
 package org.example.shared.domain.use_case.lesson
 
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeoutOrNull
 import org.example.shared.domain.constant.Collection
 import org.example.shared.domain.repository.LessonRepository
 
@@ -13,18 +14,17 @@ import org.example.shared.domain.repository.LessonRepository
 class GetAllLessonsUseCase(private val repository: LessonRepository) {
 
     /**
-     * Invokes the use case to retrieve all lessons from the specified path.
+     * Retrieves all lessons from the repository.
      *
-     * @param path The path from where the lessons should be retrieved.
-     * @return A [Flow] emitting a [Result] containing the list of lessons.
-     * @throws IllegalArgumentException If the path does not end with [Collection.LESSONS].
+     * @param path The path to the lessons collection.
+     * @return A list of lessons.
      */
-    operator fun invoke(path: String) = flow {
+    suspend operator fun invoke(path: String) = runCatching {
         require(path.split("/").last() == Collection.LESSONS.value) {
             "The path must end with ${Collection.LESSONS.value}"
         }
-        repository.getAll(path).collect(::emit)
-    }.catch {
-        emit(Result.failure(it))
+        withTimeoutOrNull(500L) { repository.getAll(path).filter { it.getOrThrow().isNotEmpty() == true }.first() }
+            ?.getOrNull()
+            ?: emptyList()
     }
 }

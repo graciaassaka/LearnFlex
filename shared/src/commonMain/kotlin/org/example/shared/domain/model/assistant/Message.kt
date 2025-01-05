@@ -154,6 +154,7 @@ sealed class TextAnnotation {
      * Represents a text file citation annotation.
      */
     @Serializable
+    @SerialName("file_citation")
     data class TextFileCitation(
         @SerialName("type") val type: String,
         @SerialName("text") val text: String,
@@ -166,6 +167,7 @@ sealed class TextAnnotation {
      * Represents a text file path annotation.
      */
     @Serializable
+    @SerialName("file_path")
     data class TextFilePath(
         @SerialName("type") val type: String,
         @SerialName("text") val text: String,
@@ -178,6 +180,7 @@ sealed class TextAnnotation {
 /**
  * Represents a file path.
  */
+@Suppress("unused")
 @Serializable
 @SerialName("file_path")
 class FilePath(
@@ -214,7 +217,7 @@ data class ImageUrl(
 )
 
 /**
- * Represents an attachment.
+ * Represents an attachment with a file ID and a list of tools.
  */
 @Serializable
 data class Attachment(
@@ -223,20 +226,28 @@ data class Attachment(
 )
 
 /**
- * Represents a tool.
+ * Represents a tool that can be attached to a message.
  */
 @Serializable
 sealed class AttachmentTool {
     companion object {
-        private const val CODE_INTERPRETER = "code_interpreter"
-        private const val FILE_SEARCH = "file_search"
+        const val FILE_SEARCH = "file_search"
+        const val CODE_INTERPRETER = "code_interpreter"
     }
 
+    @SerialName("type")
     val type: String
         get() = when (this) {
-            is CodeInterpreterTool -> CODE_INTERPRETER
             is FileSearchTool -> FILE_SEARCH
+            is CodeInterpreterTool -> CODE_INTERPRETER
         }
+
+    /**
+     * Represents a file search tool.
+     */
+    @Serializable
+    @SerialName(FILE_SEARCH)
+    data object FileSearchTool : AttachmentTool()
 
     /**
      * Represents a code interpreter tool.
@@ -244,13 +255,6 @@ sealed class AttachmentTool {
     @Serializable
     @SerialName(CODE_INTERPRETER)
     data object CodeInterpreterTool : AttachmentTool()
-
-    /**
-     * Represents a file search tool with optional configuration.
-     */
-    @Serializable
-    @SerialName(FILE_SEARCH)
-    data object FileSearchTool : AttachmentTool()
 }
 
 /**
