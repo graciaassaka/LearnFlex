@@ -30,7 +30,7 @@ class FetchSectionsByLessonUseCase(private val repository: SectionRepository) {
             .document(lessonId)
             .collection(Collection.SECTIONS)
             .build()
-        withTimeoutOrNull(500L) {
+        withTimeoutOrNull(2500L) {
             repository.getAll(path).filter { it.getOrThrow().isNotEmpty() == true }.first()
         } ?: Result.success(emptyList())
     } catch (e: Exception) {

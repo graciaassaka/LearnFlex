@@ -25,7 +25,7 @@ class FetchCurriculaByUserUseCase(private val repository: CurriculumRepository) 
             .document(userId)
             .collection(Collection.CURRICULA)
             .build()
-        withTimeout(500L) {
+        withTimeout(2500L) {
             repository.getAll(path).filter { it.getOrThrow().isNotEmpty() }.first()
         }
     } catch (_: TimeoutCancellationException) {

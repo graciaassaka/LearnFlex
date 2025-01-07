@@ -9,6 +9,7 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import org.example.composeApp.App
+import org.example.composeApp.injection.initKoin
 
 /**
  * MainActivity is the entry point of the Android application.
@@ -18,6 +19,8 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        initKoin(this)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 

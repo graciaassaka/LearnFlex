@@ -31,7 +31,7 @@ class FetchModulesByCurriculumUseCase(private val repository: ModuleRepository) 
             .document(curriculumId)
             .collection(Collection.MODULES)
             .build()
-        withTimeout(500L) {
+        withTimeout(2500L) {
             repository.getAll(path).filter { it.getOrThrow().isNotEmpty() }.first()
         }
     } catch (_: TimeoutCancellationException) {

@@ -144,9 +144,8 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
                     ?.let { models ->
                         if (models != lastEmitted) {
                             send(Result.success(models))
-                            if (models.isNotEmpty()) {
-                                config.syncManager.queueOperation(SyncOperation(SyncOperation.Type.SYNC, path, models))
-                            }
+                            if (models.isNotEmpty()) config.syncManager
+                                .queueOperation(SyncOperation(SyncOperation.Type.SYNC, path, models))
                             onEmit(models)
                         }
                     }
@@ -173,9 +172,8 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
             result.onSuccess { models ->
                 if (models != lastEmitted) {
                     send(Result.success(models))
-                    if (models.isNotEmpty()) {
-                        config.syncManager.queueOperation(SyncOperation(SyncOperation.Type.SYNC, path, models))
-                    }
+                    if (models.isNotEmpty()) config.syncManager
+                        .queueOperation(SyncOperation(SyncOperation.Type.SYNC, path, models))
                     onEmit(models)
                 }
             }.onFailure { error ->

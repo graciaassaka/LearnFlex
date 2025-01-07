@@ -19,7 +19,7 @@ class FetchSessionsByUserUseCase(private val repository: SessionRepository) {
             .document(userId)
             .collection(Collection.SESSIONS)
             .build()
-        withTimeoutOrNull(500L) {
+        withTimeoutOrNull(2500L) {
             repository.getAll(path).filter { it.getOrThrow().isNotEmpty() == true }.first()
         } ?: Result.success(emptyList<Session>())
     } catch (e: Exception) {

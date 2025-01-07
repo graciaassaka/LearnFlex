@@ -9,6 +9,7 @@ import org.example.shared.domain.dao.ExtendedDao
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.repository.util.ModelMapper
 import org.example.shared.domain.storage_operations.util.Path
+import org.example.shared.domain.storage_operations.util.PathBuilder
 import org.example.shared.domain.sync.SyncHandler
 import org.example.shared.domain.sync.SyncOperation
 
@@ -72,19 +73,17 @@ class SyncHandlerDelegate<Model : DatabaseRecord, Entity : RoomEntity>(
      * @param id The ID of the data to be synchronized.
      */
     private suspend fun sync(path: Path, id: String) {
-        val remote = remoteDao.get(path).first().getOrNull()
+        val documentPath = if (path.isDocumentPath()) path else PathBuilder(path).document(id).build()
+        val remote = remoteDao.get(documentPath).first().getOrNull()
         val local = getStrategy.setId(id).execute().first()
 
         if (remote != null && local != null) {
-            if (remote.lastUpdated > local.lastUpdated) {
-                localDao.update(path, modelMapper.toEntity(remote, path.getParentId()), remote.lastUpdated)
-            } else {
-                remoteDao.update(modelMapper.toModel(local), path, local.lastUpdated)
-            }
+            if (remote.lastUpdated <= local.lastUpdated) remoteDao.update(modelMapper.toModel(local), documentPath, local.lastUpdated)
+            else localDao.update(documentPath, modelMapper.toEntity(remote, documentPath.getParentId()), remote.lastUpdated)
         } else if (remote != null) {
-            localDao.insert(path, modelMapper.toEntity(remote, path.getParentId()), remote.lastUpdated)
+            localDao.insert(documentPath, modelMapper.toEntity(remote, documentPath.getParentId()), remote.lastUpdated)
         } else if (local != null) {
-            remoteDao.insert(modelMapper.toModel(local), path, local.lastUpdated)
+            remoteDao.insert(modelMapper.toModel(local), documentPath, local.lastUpdated)
         }
     }
 }
