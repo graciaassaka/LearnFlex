@@ -18,8 +18,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.test.runTest
 import learnflex.composeapp.generated.resources.*
-import org.example.composeApp.theme.LearnFlexTheme
-import org.example.composeApp.util.TestTags
+import org.example.composeApp.ui.screen.LibraryScreen
+import org.example.composeApp.ui.theme.LearnFlexTheme
+import org.example.composeApp.ui.util.TestTags
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
 import org.example.shared.presentation.action.LibraryAction
@@ -75,7 +76,7 @@ class LibraryScreenTest {
                 "discard_content_button_label" to stringResource(Res.string.discard_content_button_label),
                 "remove_module_button_label" to stringResource(Res.string.remove_module_button_label),
                 "remove_lesson_button_label" to stringResource(Res.string.remove_lesson_button_label),
-                "content_saved_success" to stringResource(Res.string.content_saved_success),
+                "content_saved_success" to stringResource(Res.string.save_content_success),
                 "cancel_button_label" to stringResource(Res.string.cancel_button_label),
             )
             LearnFlexTheme(darkTheme = true) {

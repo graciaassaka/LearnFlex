@@ -11,7 +11,7 @@ import coil3.disk.directory
 import coil3.memory.MemoryCache
 import coil3.request.crossfade
 import org.example.composeApp.navigation.Navigator
-import org.example.composeApp.theme.LearnFlexTheme
+import org.example.composeApp.ui.theme.LearnFlexTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import java.io.File
 

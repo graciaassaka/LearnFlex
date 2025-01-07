@@ -3,7 +3,6 @@ package org.example.composeApp
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import org.example.composeApp.theme.LearnFlexTheme
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Preview(
@@ -24,9 +23,6 @@ private fun DesktopDefaultPreview() {
 )
 @Composable
 private fun TabletDefaultPreview() {
-    LearnFlexTheme {
-
-    }
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)

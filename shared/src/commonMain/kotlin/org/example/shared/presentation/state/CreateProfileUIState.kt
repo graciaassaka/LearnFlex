@@ -28,7 +28,7 @@ import org.example.shared.presentation.util.ProfileCreationForm
  * @property isLoading Indicates whether the screen is currently in a loading state.
  */
 data class CreateProfileUIState(
-    val currentForm: ProfileCreationForm = ProfileCreationForm.PERSONAL_INFO,
+    val currentForm: ProfileCreationForm = ProfileCreationForm.PersonalInfo,
     val userId : String = "",
     val username: String = "",
     val usernameError: String? = null,

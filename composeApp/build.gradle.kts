@@ -58,6 +58,7 @@ kotlin {
                 implementation(libs.koin.compose)
                 implementation(libs.koin.compose.viewmodel)
                 implementation(libs.koin.compose.viewmodel.navigation)
+                implementation(libs.androidx.lifecycle.viewmodel)
                 implementation(libs.kotlinx.serialization)
                 implementation(libs.kotlinx.serialization.core)
                 implementation(libs.androidx.lifecycle.viewmodel)

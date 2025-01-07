@@ -19,8 +19,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.update
-import org.example.composeApp.theme.LearnFlexTheme
-import org.example.composeApp.util.TestTags
+import org.example.composeApp.ui.screen.AuthScreen
+import org.example.composeApp.ui.theme.LearnFlexTheme
+import org.example.composeApp.ui.util.TestTags
 import org.example.shared.domain.use_case.validation.ValidateEmailUseCase
 import org.example.shared.domain.use_case.validation.ValidatePasswordConfirmationUseCase
 import org.example.shared.domain.use_case.validation.ValidatePasswordUseCase

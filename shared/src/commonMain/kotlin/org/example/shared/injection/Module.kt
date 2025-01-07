@@ -857,6 +857,7 @@ val commonModule = module {
             generateModuleUseCase = get(),
             uploadCurriculumUseCase = get(),
             uploadModulesUseCase = get(),
+            deleteCurriculumUseCase = get(),
             dispatcher = get(),
             syncManagers = get(),
             sharingStarted = get()

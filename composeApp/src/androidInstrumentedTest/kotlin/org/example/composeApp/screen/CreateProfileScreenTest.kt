@@ -21,8 +21,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.update
-import org.example.composeApp.theme.LearnFlexTheme
-import org.example.composeApp.util.TestTags
+import org.example.composeApp.ui.screen.CreateProfileScreen
+import org.example.composeApp.ui.theme.LearnFlexTheme
+import org.example.composeApp.ui.util.TestTags
 import org.example.shared.domain.client.StyleQuizGeneratorClient
 import org.example.shared.domain.constant.Field
 import org.example.shared.domain.constant.Level
@@ -226,7 +227,7 @@ class CreateProfileScreenTest {
     fun styleQuestionnaireForm_displays_correctly() {
         uiState.update {
             it.copy(
-                currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
+                currentForm = ProfileCreationForm.StyleQuestionnaire,
                 styleQuestionnaire = styleQuestionnaire
             )
         }
@@ -241,7 +242,7 @@ class CreateProfileScreenTest {
     fun styleQuestionnaireOptionsGroup_selects_option_whenClicked() {
         uiState.update {
             it.copy(
-                currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
+                currentForm = ProfileCreationForm.StyleQuestionnaire,
                 styleQuestionnaire = styleQuestionnaire
             )
         }
@@ -255,7 +256,7 @@ class CreateProfileScreenTest {
     fun styleQuestionnaireOptionsGroup_calls_viewModel_onQuestionAnswered_whenNextButtonClicked() {
         uiState.update {
             it.copy(
-                currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
+                currentForm = ProfileCreationForm.StyleQuestionnaire,
                 styleQuestionnaire = styleQuestionnaire
             )
         }
@@ -277,7 +278,7 @@ class CreateProfileScreenTest {
     fun styleQuestionnaireResultDialog_displays_correctly() {
         uiState.update {
             it.copy(
-                currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
+                currentForm = ProfileCreationForm.StyleQuestionnaire,
                 styleQuestionnaire = styleQuestionnaire,
                 learningStyle = learningStyle,
                 showStyleResultDialog = true
@@ -294,7 +295,7 @@ class CreateProfileScreenTest {
     fun styleQuestionnaireResultDialog_calls_viewModel_setLearningStyle_whenButtonClicked() {
         uiState.update {
             it.copy(
-                currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
+                currentForm = ProfileCreationForm.StyleQuestionnaire,
                 styleQuestionnaire = styleQuestionnaire,
                 learningStyle = learningStyle,
                 showStyleResultDialog = true
@@ -316,7 +317,7 @@ class CreateProfileScreenTest {
     fun styleQuestionnaireResultDialog_calls_viewModel_startStyleQuestionnaire_whenButtonClicked() {
         uiState.update {
             it.copy(
-                currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE,
+                currentForm = ProfileCreationForm.StyleQuestionnaire,
                 styleQuestionnaire = styleQuestionnaire,
                 learningStyle = learningStyle,
                 showStyleResultDialog = true

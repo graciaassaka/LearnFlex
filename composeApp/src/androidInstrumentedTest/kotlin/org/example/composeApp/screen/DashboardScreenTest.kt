@@ -18,8 +18,9 @@ import io.mockk.verify
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import learnflex.composeapp.generated.resources.*
-import org.example.composeApp.theme.LearnFlexTheme
-import org.example.composeApp.util.TestTags
+import org.example.composeApp.ui.screen.DashboardScreen
+import org.example.composeApp.ui.theme.LearnFlexTheme
+import org.example.composeApp.ui.util.TestTags
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
 import org.example.shared.presentation.action.DashboardAction

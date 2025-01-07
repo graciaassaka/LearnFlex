@@ -26,183 +26,78 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="281a55e8-b077-4663-8355-8f00356df64a" name="LEA-35 Studying and Assessment" comment="">
-      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/assistant/generator/QuestionGeneratorClientImpl.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/client/QuestionGeneratorClient.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Question.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/storage_operations/util/Path.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/FetchActiveCurriculumUseCase.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/FetchCurriculaByUserUseCase.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/GenerateLessonQuizUseCase.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/FetchModulesByCurriculumUseCase.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/GenerateModuleQuizUseCase.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/quiz/GenerateQuizUseCase.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/quiz/GradeQuizUseCase.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/GenerateSectionQuizUseCase.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/assistant/generator/QuestionGeneratorClientImplTest.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/GenerateLessonQuizUseCaseTest.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/GenerateModuleQuizUseCaseTest.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/quiz/GenerateQuizUseCaseTest.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/quiz/GradeQuizUseCaseTest.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/GenerateSectionQuizUseCaseTest.kt" afterDir="false" />
+    <list default="true" id="281a55e8-b077-4663-8355-8f00356df64a" name="LEA-35 Studying and Assessment" comment="Remove index property from module, lesson, and section models.&#10;&#10;This updates models, entities, DAOs, and related logic to use titles or IDs instead of index-based identification. The database version is incremented to maintain compatibility, and aligned test cases and composable UI logic accordingly.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/AuthScreenTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/AuthScreenTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/CreateProfileScreenTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/CreateProfileScreenTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/DashboardScreenTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/DashboardScreenTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/LibraryScreenTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/LibraryScreenTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/screen/CreateProfileScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/screen/CreateProfileScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/screen/LibraryScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/screen/LibraryScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/populateFirestore.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/shared/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/androidUnitTest/kotlin/org/example/shared/data/local/DatabaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/androidUnitTest/kotlin/org/example/shared/data/local/DatabaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/dao/ExtendedLocalDao.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/dao/ExtendedLocalDao.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/dao/LocalDao.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/dao/LocalDao.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/dao/SectionLocalDao.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/dao/SectionLocalDao.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/dao/util/TimestampManager.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/dao/util/TimestampManager.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/database/DatabaseConfig.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/database/DatabaseConfig.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/entity/LessonEntity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/entity/LessonEntity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/entity/ModuleEntity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/entity/ModuleEntity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/entity/SectionEntity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/entity/SectionEntity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/assistant/generator/ContentGeneratorClientImpl.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/assistant/generator/ContentGeneratorClientImpl.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/assistant/generator/StyleQuizGeneratorClientImpl.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/assistant/generator/StyleQuizGeneratorClientImpl.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/assistant/summarizer/SyllabusSummarizerClientImpl.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/assistant/summarizer/SyllabusSummarizerClientImpl.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/assistant/util/CompletionProcessor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/assistant/util/CompletionProcessor.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/firestore/FirestoreBaseDao.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/firestore/FirestoreBaseDao.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/firestore/FirestoreExtendedDao.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/firestore/FirestoreExtendedDao.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/firestore/FirestorePathBuilder.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/firestore/FirestorePathConstructor.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/repository/component/BatchRepositoryComponent.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/repository/component/BatchRepositoryComponent.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/repository/component/CrudRepositoryComponent.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/repository/component/CrudRepositoryComponent.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/sync/handler/SyncHandlerDelegate.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/sync/handler/SyncHandlerDelegate.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/client/ContentGeneratorClient.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/client/ContentGeneratorClient.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/client/StyleQuizGeneratorClient.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/client/StyleQuizGeneratorClient.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Lesson.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Lesson.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Module.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Module.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Section.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Section.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/User.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/User.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/storage_operations/BatchOperations.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/storage_operations/BatchOperations.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/storage_operations/CrudOperations.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/storage_operations/CrudOperations.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/storage_operations/util/PathBuilder.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/storage_operations/util/PathBuilder.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/sync/SyncOperation.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/sync/SyncOperation.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/activity/GetWeeklyActivityUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/activity/GetWeeklyActivityUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/DeleteAllCurriculaUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/DeleteAllCurriculaUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/DeleteCurriculumUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/DeleteCurriculumUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/GenerateCurriculumUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/GenerateCurriculumUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/GetActiveCurriculumUseCase.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/GetAllCurriculaUseCase.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/GetCurriculaByStatusUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/RetrieveCurriculaByStatusUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/GetCurriculumUseCase.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/UpdateCurriculumUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/UpdateCurriculumUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/UploadCurriculumUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/UploadCurriculumUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/CountLessonsByStatusUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/CountLessonsByStatusUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/DeleteAllLessonsUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/DeleteAllLessonsUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/GenerateLessonUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/GenerateLessonUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/GetAllLessonsUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/FetchLessonsByModuleUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/GetLessonUseCase.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/GetLessonsByCurriculumIdUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/RetrieveLessonsByCurriculumUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/GetLessonsByMinQuizScoreUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/RetrieveLessonsByMinQuizScoreUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/UpdateLessonUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/UpdateLessonUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/UploadLessonsUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/UploadLessonsUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/CountModulesByStatusUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/CountModulesByStatusUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/DeleteAllModulesUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/DeleteAllModulesUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/GenerateModuleUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/GenerateModuleUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/GetAllModulesUseCase.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/GetModuleUseCase.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/GetModulesByCurriculumIdUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/RetrieveModulesByCurriculumUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/GetModulesByMinQuizScoreUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/RetrieveModulesByMinQuizScoreUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/UpdateModuleUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/UpdateModuleUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/UploadModulesUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/UploadModulesUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/path/BuildCurriculumPathUseCase.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/path/BuildLessonPathUseCase.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/path/BuildModulePathUseCase.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/path/BuildProfilePathUseCase.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/path/BuildSectionPathUseCase.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/path/BuildSessionPathUseCase.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/CreateProfileUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/CreateProfileUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/DeleteProfilePictureUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/DeleteProfilePictureUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/GetProfileUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/FetchProfileUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/GetStyleQuestionnaireUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/FetchStyleQuestionnaireUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/UpdateProfileUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/UpdateProfileUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/UploadProfilePictureUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/UploadProfilePictureUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/CountSectionsByStatusUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/CountSectionsByStatusUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/DeleteAllSectionsUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/DeleteAllSectionsUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/GenerateSectionUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/GenerateSectionUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/GetAllSectionsUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/FetchSectionsByLessonUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/GetSectionByMinQuizScoreUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/RetrieveSectionByMinQuizScoreUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/GetSectionsByCurriculumIdUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/RetrieveSectionsByCurriculumUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/UpdateSectionUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/UpdateSectionUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/UploadSectionsUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/UploadSectionsUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/session/GetAllSessionsUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/session/FetchSessionsByUserUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/session/GetSessionsByDateRangeUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/session/RetrieveSessionsByDateRangeUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/session/UpdateSessionUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/session/UpdateSessionUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/session/UploadSessionUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/session/UploadSessionUseCase.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/component/CustomScrollbars.android.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/ui/component/CustomScrollbars.android.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/component/DocumentUpload.android.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/ui/component/DocumentUpload.android.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/component/ImageUpload.android.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/ui/component/ImageUpload.android.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/component/RefreshBox.android.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/ui/component/RefreshBox.android.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/component/ThreePaneBackHandler.android.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/ui/component/ThreePaneBackHandler.android.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/component/ToolTip.android.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/ui/component/ToolTip.android.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/theme/Theme.android.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/ui/theme/Theme.android.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/res/values/theme_overlays.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/composeResources/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/composeResources/values/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/AdaptiveAnimatedContainer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/AdaptiveAnimatedContainer.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/AnimatedCard.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/AnimatedCard.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/AnimatedOutlinedTextField.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/AnimatedOutlinedTextField.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/AnimatedProgressBar.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/AnimatedProgressBar.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/AppBanner.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/AppBanner.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/CustomCircularProgressIndicator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/CustomCircularProgressIndicator.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/CustomScaffold.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/CustomScaffold.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/CustomScrollbars.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/CustomScrollbars.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/CustomSnackbar.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/CustomSnackbar.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/DocumentUpload.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/DocumentUpload.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/EnumDropdown.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/EnumDropdown.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/FileUploadBox.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/FileUploadBox.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/FileUploadCard.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/FileUploadCard.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/GradientBackground.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/GradientBackground.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/HandleUIEvents.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/HandleUIEvents.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/ImageUpload.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/ImageUpload.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/ProgressColor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/ProgressColor.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/RefreshBox.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/RefreshBox.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/SelectableCardGroup.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/SelectableCardGroup.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/ShimmerBox.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/ShimmerBox.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/SpeakingBird.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/SpeakingBird.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/ThreePaneBackHandler.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/ThreePaneBackHandler.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/ToolTip.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/ToolTip.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/TypingIndicator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/TypingIndicator.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/auth/AnimatedBottomSheet.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/auth/AnimatedBottomSheet.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/create_profile/PersonalInfoForm.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/create_profile/PersonalInfoForm.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/create_profile/StyleQuestionnaireLayout.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/create_profile/StyleQuestionnaireLayout.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/dimension/Dimension.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/dimension/Dimension.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/layout/AlignedLabeledBarsLayout.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/layout/AlignedLabeledBarsLayout.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/layout/AuthLayout.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/layout/AuthLayout.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/layout/CreateProfileLayout.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/layout/CreateProfileLayout.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/layout/EnumScrollablePickerLayout.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/layout/EnumScrollablePickerLayout.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/layout/VerticalBarGraphLayout.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/layout/VerticalBarGraphLayout.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/navigation/Navigator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/navigation/Navigator.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/screen/AuthScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/screen/AuthScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/screen/CreateProfileScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/screen/CreateProfileScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/screen/DashboardScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/screen/DashboardScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/screen/LibraryScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/screen/LibraryScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/theme/Color.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/theme/Color.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/theme/Theme.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/theme/Theme.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/util/LocalComposition.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/util/LocalComposition.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/util/Orientation.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/util/Orientation.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/util/ScreenConfig.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/util/ScreenConfig.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/util/TestTags.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/util/TestTags.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/component/CustomScrollbars.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/component/CustomScrollbars.desktop.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/component/DocumentUpload.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/component/DocumentUpload.desktop.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/component/ImageUpload.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/component/ImageUpload.desktop.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/component/RefreshBox.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/component/RefreshBox.desktop.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/component/ThreePaneBackHandler.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/component/ThreePaneBackHandler.desktop.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/component/ToolTip.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/component/ToolTip.desktop.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/theme/Theme.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/theme/Theme.desktop.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/injection/Module.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/injection/Module.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/action/LibraryAction.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/action/LibraryAction.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/state/CreateProfileUIState.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/state/CreateProfileUIState.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/util/ProfileCreationForm.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/util/ProfileCreationForm.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/viewModel/CreateUserProfileViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/viewModel/CreateUserProfileViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/viewModel/DashboardViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/viewModel/DashboardViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/viewModel/LibraryViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/viewModel/LibraryViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/local/dao/util/TimestampManagerTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/local/dao/util/TimestampManagerTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/assistant/generator/ContentGeneratorClientImplTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/assistant/generator/ContentGeneratorClientImplTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/assistant/generator/StyleQuizGeneratorClientImplTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/assistant/generator/StyleQuizGeneratorClientImplTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/firestore/FirestoreDaoTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/firestore/FirestoreDaoTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/firestore/FirestoreExtendedDaoTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/firestore/FirestoreExtendedDaoTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/firestore/FirestorePathConstructorTest.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/repository/component/BatchRepositoryComponentTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/repository/component/BatchRepositoryComponentTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/repository/component/CrudRepositoryComponentTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/repository/component/CrudRepositoryComponentTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/sync/handler/SyncHandlerDelegateTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/sync/handler/SyncHandlerDelegateTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/sync/manager/SyncManagerImplTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/sync/manager/SyncManagerImplTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/activity/GetWeeklyActivityUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/activity/GetWeeklyActivityUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/DeleteAllCurriculaUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/DeleteAllCurriculaUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/DeleteCurriculumUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/DeleteCurriculumUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/GenerateCurriculumUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/GenerateCurriculumUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/GetActiveCurriculumUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/FetchActiveCurriculumUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/GetAllCurriculaUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/FetchCurriculaByUserUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/GetCurriculaByStatusUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/RetrieveCurriculaByStatusUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/GetCurriculumUseCaseTest.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/UpdateCurriculumUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/UpdateCurriculumUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/UploadCurriculumUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/UploadCurriculumUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/CountLessonsByStatusUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/CountLessonsByStatusUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/DeleteAllLessonsUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/DeleteAllLessonsUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/GenerateLessonUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/GenerateLessonUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/GetAllLessonsUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/FetchLessonsByModuleUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/GetLessonUseCaseTest.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/GetLessonsByCurriculumIdUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/RetrieveLessonsByCurriculumIdUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/GetLessonsByMinQuizScoreUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/RetrieveLessonsByMinQuizScoreUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/UpdateLessonUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/UpdateLessonUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/UploadLessonsUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/UploadLessonsUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/CountModulesByStatusUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/CountModulesByStatusUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/DeleteAllModulesUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/DeleteAllModulesUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/GenerateModuleUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/GenerateModuleUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/GetAllModulesUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/FetchModulesByCurriculumUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/GetModuleUseCaseTest.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/GetModulesByCurriculumIdUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/RetrieveModulesByCurriculumUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/GetModulesByMinQuizScoreUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/RetrieveModulesByMinQuizScoreUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/UpdateModuleUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/UpdateModuleUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/UploadModulesUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/UploadModulesUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/path/BuildCurriculumPathUseCaseTest.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/path/BuildLessonPathUseCaseTest.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/path/BuildModulePathUseCaseTest.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/path/BuildProfilePathUseCaseTest.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/path/BuildSectionPathUseCaseTest.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/path/BuildSessionPathUseCaseTest.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/CreateProfileUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/CreateProfileUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/DeleteProfilePictureUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/DeleteProfilePictureUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/GetProfileUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/FetchProfileUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/GetStyleQuestionnaireUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/FetchStyleQuestionnaireUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/UpdateProfileUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/UpdateProfileUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/UploadProfilePictureUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/UploadProfilePictureUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/CountSectionsByStatusUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/CountSectionsByStatusUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/DeleteAllSectionsUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/DeleteAllSectionsUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/GenerateSectionUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/GenerateSectionUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/GetAllSectionsUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/FetchSectionsForLessonUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/GetSectionByMinQuizScoreUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/RetrieveSectionByMinQuizScoreUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/GetSectionsByCurriculumIdUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/RetrieveSectionsByCurriculumUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/UpdateSectionUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/UpdateSectionUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/UploadSectionsUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/UploadSectionsUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/session/GetAllSessionsUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/session/FetchSessionsByUserUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/session/GetSessionsByDateRangeUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/session/RetrieveSessionsByDateRangeUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/session/UpdateSessionUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/session/UpdateSessionUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/session/UploadSessionUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/session/UploadSessionUseCaseTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/presentation/viewModel/CreateProfileViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/presentation/viewModel/CreateProfileViewModelTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/presentation/viewModel/DashboardViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/presentation/viewModel/DashboardViewModelTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/presentation/viewModel/LibraryViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/presentation/viewModel/LibraryViewModelTest.kt" afterDir="false" />
     </list>
     <list id="543ef38b-89b9-492a-b137-13358d0234c3" name="Changes" comment="- Implemented `DashboardViewModel` with necessary dependencies and logic.&#10;- Created `DashboardScreen` to display the dashboard UI.&#10;- Added comprehensive unit tests for `DashboardViewModel` to ensure functionality." />
@@ -335,115 +230,21 @@
   <component name="LineStatusTrackerManager">
     <file path="$PROJECT_DIR$/.idea/workspace.xml">
       <ranges>
-        <range start1="28" end1="104" start2="28" end2="50" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="105" end1="115" start2="51" end2="54" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="116" end1="117" start2="55" end2="55" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="118" end1="119" start2="56" end2="56" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="120" end1="121" start2="57" end2="57" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="122" end1="124" start2="58" end2="59" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="125" end1="127" start2="60" end2="60" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="130" end1="135" start2="63" end2="67" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="137" end1="140" start2="69" end2="71" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="142" end1="147" start2="73" end2="73" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="148" end1="158" start2="74" end2="76" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="161" end1="170" start2="79" end2="80" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="172" end1="177" start2="82" end2="83" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="178" end1="219" start2="84" end2="136" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="220" end1="226" start2="137" end2="138" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="227" end1="227" start2="139" end2="144" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="229" end1="229" start2="146" end2="147" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="231" end1="234" start2="149" end2="149" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="236" end1="281" start2="151" end2="206" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="282" end1="283" start2="207" end2="208" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="287" end1="287" start2="212" end2="216" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="296" end1="297" start2="225" end2="226" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="361" end1="361" start2="290" end2="292" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="362" end1="364" start2="293" end2="293" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="365" end1="366" start2="294" end2="294" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="367" end1="368" start2="295" end2="296" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="369" end1="369" start2="297" end2="298" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="378" end1="379" start2="307" end2="308" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="405" end1="405" start2="334" end2="449" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="432" end1="433" start2="476" end2="478" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="434" end1="434" start2="479" end2="480" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="436" end1="437" start2="482" end2="490" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="439" end1="440" start2="492" end2="495" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="450" end1="450" start2="505" end2="509" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="474" end1="475" start2="533" end2="534" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="479" end1="479" start2="538" end2="539" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="511" end1="512" start2="571" end2="576" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="558" end1="559" start2="622" end2="623" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="574" end1="574" start2="638" end2="642" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="579" end1="579" start2="647" end2="654" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="630" end1="630" start2="705" end2="707" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="699" end1="700" start2="776" end2="777" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="739" end1="739" start2="816" end2="818" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="742" end1="743" start2="821" end2="822" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="745" end1="746" start2="824" end2="825" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="836" end1="837" start2="915" end2="917" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="856" end1="856" start2="936" end2="968" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="858" end1="858" start2="970" end2="972" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="860" end1="860" start2="974" end2="975" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="866" end1="866" start2="981" end2="982" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="867" end1="867" start2="983" end2="984" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="894" end1="894" start2="1011" end2="1012" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="903" end1="903" start2="1021" end2="1023" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="923" end1="923" start2="1043" end2="1100" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="927" end1="927" start2="1104" end2="1105" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="939" end1="940" start2="1117" end2="1118" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="944" end1="944" start2="1122" end2="1125" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="954" end1="954" start2="1135" end2="1140" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="973" end1="973" start2="1159" end2="1160" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="986" end1="986" start2="1173" end2="1179" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1002" end1="1002" start2="1195" end2="1198" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1022" end1="1022" start2="1218" end2="1227" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1052" end1="1053" start2="1257" end2="1258" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1054" end1="1056" start2="1259" end2="1261" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1059" end1="1059" start2="1264" end2="1272" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1072" end1="1072" start2="1285" end2="1286" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1076" end1="1076" start2="1290" end2="1292" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1079" end1="1080" start2="1295" end2="1296" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1083" end1="1084" start2="1299" end2="1300" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1086" end1="1086" start2="1302" end2="1304" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1089" end1="1090" start2="1307" end2="1308" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1097" end1="1097" start2="1315" end2="1316" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1143" end1="1144" start2="1362" end2="1363" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1157" end1="1158" start2="1376" end2="1377" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1203" end1="1207" start2="1422" end2="1425" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1208" end1="1208" start2="1426" end2="1427" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1214" end1="1215" start2="1433" end2="1435" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1216" end1="1217" start2="1436" end2="1440" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1218" end1="1219" start2="1441" end2="1445" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1221" end1="1222" start2="1447" end2="1490" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1264" end1="1265" start2="1532" end2="1533" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1277" end1="1278" start2="1545" end2="1546" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1288" end1="1289" start2="1556" end2="1557" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1291" end1="1292" start2="1559" end2="1560" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1301" end1="1303" start2="1569" end2="1570" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1313" end1="1314" start2="1580" end2="1581" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1316" end1="1317" start2="1583" end2="1606" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1326" end1="1327" start2="1615" end2="1615" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1338" end1="1338" start2="1626" end2="1627" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1339" end1="1342" start2="1628" end2="1633" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1345" end1="1346" start2="1636" end2="1641" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1417" end1="1481" start2="1712" end2="1712" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1578" end1="1579" start2="1809" end2="1810" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1582" end1="1582" start2="1813" end2="1814" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1588" end1="1589" start2="1820" end2="1821" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1637" end1="1637" start2="1869" end2="1871" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1854" end1="1855" start2="2088" end2="2175" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1897" end1="1898" start2="2217" end2="2218" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1912" end1="1920" start2="2232" end2="2232" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1936" end1="1936" start2="2248" end2="2249" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1937" end1="1938" start2="2250" end2="2258" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1946" end1="1949" start2="2266" end2="2269" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1952" end1="1953" start2="2272" end2="2273" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1955" end1="1958" start2="2275" end2="2278" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1961" end1="1962" start2="2281" end2="2282" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1964" end1="1967" start2="2284" end2="2287" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1969" end1="1969" start2="2289" end2="2323" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1970" end1="1981" start2="2324" end2="2326" changelist="4dda34f5-96ab-4c27-ad2e-f9e5c6666e52" />
-        <range start1="2002" end1="2002" start2="2347" end2="2348" changelist="4dda34f5-96ab-4c27-ad2e-f9e5c6666e52" />
+        <range start1="28" end1="47" start2="28" end2="29" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="48" end1="48" start2="30" end2="31" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="50" end1="136" start2="33" end2="77" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="137" end1="138" start2="78" end2="80" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="139" end1="203" start2="81" end2="81" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="204" end1="205" start2="82" end2="82" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="337" end1="446" start2="214" end2="230" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1713" end1="1729" start2="1497" end2="1497" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="2172" end1="2173" start2="1940" end2="1949" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="2174" end1="2175" start2="1950" end2="1959" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="2232" end1="2235" start2="2016" end2="2016" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="2257" end1="2258" start2="2038" end2="2042" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="2282" end1="2291" start2="2066" end2="2066" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="2324" end1="2335" start2="2099" end2="2101" changelist="4dda34f5-96ab-4c27-ad2e-f9e5c6666e52" />
+        <range start1="2356" end1="2356" start2="2122" end2="2123" changelist="4dda34f5-96ab-4c27-ad2e-f9e5c6666e52" />
       </ranges>
     </file>
   </component>
@@ -1420,11 +1221,11 @@
       <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonMain\composeResources\values" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\androidMain\kotlin\org\example\composeApp\ui" />
       <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonMain\composeResources\files" />
       <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonMain\kotlin\org\example\composeApp\animation" />
       <recent name="C:\Users\assak\IdeaProjects\LearnFlex\shared\src\commonMain\kotlin\org\example\shared\domain\model\assistant" />
       <recent name="C:\Users\assak\IdeaProjects\LearnFlex\shared\src\commonMain\kotlin\org\example\shared\domain\model" />
-      <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonMain\composeResources\drawable" />
     </key>
     <key name="CreateKotlinClassDialog.RecentsKey">
       <recent name="org.example.shared.data.local.entity" />
@@ -1710,22 +1511,6 @@
       <workItem from="1731342591014" duration="3296000" />
       <workItem from="1731353381243" duration="21000" />
       <workItem from="1731702522679" duration="3504000" />
-    </task>
-    <task id="LOCAL-00030" summary="Add StyleQuizService interface and implementation&#10;&#10;Introduced the StyleQuizService interface and StyleQuizServiceImpl implementation for generating and evaluating style quizzes. Added related data models for the style questionnaire and updated UserProfileReposImpl package structure.">
-      <option name="closed" value="true" />
-      <created>1730905059025</created>
-      <option name="number" value="00030" />
-      <option name="presentableId" value="LOCAL-00030" />
-      <option name="project" value="LOCAL" />
-      <updated>1730905059025</updated>
-    </task>
-    <task id="LOCAL-00031" summary="Add STYLE_ASSISTANT_ID constant to OpenAIConstants&#10;&#10;Added a new constant STYLE_ASSISTANT_ID to the OpenAIConstants object in build.gradle.kts. This constant fetches its value from local properties.">
-      <option name="closed" value="true" />
-      <created>1730905082789</created>
-      <option name="number" value="00031" />
-      <option name="presentableId" value="LOCAL-00031" />
-      <option name="project" value="LOCAL" />
-      <updated>1730905082789</updated>
     </task>
     <task id="LOCAL-00032" summary="Add TestTags enum for consistency in test tags&#10;&#10;Introduced a new TestTags enum to centralize and standardize test tags used across the application. Refactored existing test and UI code to utilize the newly created TestTags, ensuring consistent naming and reducing the risk of typos.">
       <option name="closed" value="true" />
@@ -2170,9 +1955,25 @@
       <option name="presentableId" value="LEA-35" />
       <option name="project" value="LEA" />
       <updated>1736093833028</updated>
-      <workItem from="1736093833439" duration="86573000" />
+      <workItem from="1736093833439" duration="100403000" />
     </task>
-    <option name="localTasksCounter" value="75" />
+    <task id="LOCAL-00075" summary="feat: add Path and PathBuilder classes for Firestore path management&#10;&#10;- Introduced `Path` class to represent immutable Firestore paths with validation.&#10;- Added `PathBuilder` class to construct paths with collection and document segments.&#10;- Implemented methods for path validation, segment addition, and path building.">
+      <option name="closed" value="true" />
+      <created>1736233716075</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1736233716075</updated>
+    </task>
+    <task id="LOCAL-00076" summary="Remove index property from module, lesson, and section models.&#10;&#10;This updates models, entities, DAOs, and related logic to use titles or IDs instead of index-based identification. The database version is incremented to maintain compatibility, and aligned test cases and composable UI logic accordingly.">
+      <option name="closed" value="true" />
+      <created>1736256304446</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1736256304446</updated>
+    </task>
+    <option name="localTasksCounter" value="77" />
     <servers>
       <YouTrack url="https://gracia.youtrack.cloud">
         <option name="defaultSearch" value="Assignee: me sort by: created asc" />
@@ -2230,9 +2031,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
     <confirmRemoveEmptyChangelist value="2" />
-    <MESSAGE value="Refactor and enhance save state handling in CreateProfileScreen&#10;&#10;Replace remember with rememberSaveable for better state persistence. Introduce Saver for Style enum in CreateProfileScreen to ensure state restoration." />
-    <MESSAGE value="Refactor user data update to separate username and photo URL&#10;&#10;Created separate methods for updating username and photo URL in AuthClient and FirebaseAuthService. Modified related use cases and tests to use these new methods, enhancing clarity and maintainability." />
-    <MESSAGE value="Add Coil image loading library&#10;&#10;Integrated Coil for image loading and added its dependencies to the build files. Updated database version to 4 and made necessary version adjustments for dependencies in the libs.versions.toml file." />
     <MESSAGE value="Remove CachedImageDao and CachedImageEntity classes&#10;&#10;Deleted CachedImageDao and CachedImageEntity, and removed references to them from LearnFlexDatabase. Updated database version to 5 to reflect these changes. Added new XML configurations for App Insights and Firebase." />
     <MESSAGE value="Refactor storage and auth services and update DAOs&#10;&#10;Renamed Firebase services to Client for clarity and enhanced naming consistency. Added `get` queries to SectionDao, CurriculumDao, LessonDao, and ModuleDao. Expanded DatabaseTest with more test coverage for new and existing DAOs and entities." />
     <MESSAGE value="Add GoogleImageSearchClientTest and refactor client packages&#10;&#10;Refactored the package structure for client-related classes from &quot;service&quot; to &quot;client&quot;. Added `GoogleImageSearchClientTest` to improve test coverage for image search functionalities. Enhanced error handling in BaseViewModel by distinguishing `ApiError`." />
@@ -2255,7 +2053,10 @@
     <MESSAGE value="Add use cases for generating modules, lessons, and sections&#10;&#10;This commit introduces `GenerateModuleUseCase`, `GenerateLessonUseCase`, and `GenerateSectionUseCase` along with their respective tests. These classes enable content generation at various levels (modules, lessons, sections) using a shared `ContentGeneratorClient`. Dependency injection is updated for these use cases." />
     <MESSAGE value="Remove AuthScreenTest to clean up redundant desktop tests.&#10;&#10;AuthScreenTest and associated dependencies were deleted as part of cleanup, likely to streamline code and remove redundant test coverage. This change ensures the project's test suite is more focused and avoids duplication or unused files." />
     <MESSAGE value="Remove unused classes and tests; update dependencies.&#10;&#10;Deleted multiple unused classes and their corresponding tests, including `GenerateCurriculumFromFileUseCase`, `GoogleImageSearchClient`, and `ImageSearchClient`. Also removed related resources and configuration settings to streamline the codebase. Updated Kotlin compiler options and Gradle dependencies for maintainability and better alignment with project requirements." />
-    <option name="LAST_COMMIT_MESSAGE" value="Remove unused classes and tests; update dependencies.&#10;&#10;Deleted multiple unused classes and their corresponding tests, including `GenerateCurriculumFromFileUseCase`, `GoogleImageSearchClient`, and `ImageSearchClient`. Also removed related resources and configuration settings to streamline the codebase. Updated Kotlin compiler options and Gradle dependencies for maintainability and better alignment with project requirements." />
+    <MESSAGE value="LEA-35 Studying and Assessment" />
+    <MESSAGE value="feat: add Path and PathBuilder classes for Firestore path management&#10;&#10;- Introduced `Path` class to represent immutable Firestore paths with validation.&#10;- Added `PathBuilder` class to construct paths with collection and document segments.&#10;- Implemented methods for path validation, segment addition, and path building." />
+    <MESSAGE value="Remove index property from module, lesson, and section models.&#10;&#10;This updates models, entities, DAOs, and related logic to use titles or IDs instead of index-based identification. The database version is incremented to maintain compatibility, and aligned test cases and composable UI logic accordingly." />
+    <option name="LAST_COMMIT_MESSAGE" value="Remove index property from module, lesson, and section models.&#10;&#10;This updates models, entities, DAOs, and related logic to use titles or IDs instead of index-based identification. The database version is incremented to maintain compatibility, and aligned test cases and composable UI logic accordingly." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
@@ -2280,15 +2081,6 @@
             <option name="WATCH_EXIT" value="false" />
           </properties>
           <option name="timeStamp" value="120" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-function">
-          <url>file://$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/viewModel/LibraryViewModel.kt</url>
-          <line>248</line>
-          <properties class="org.example.shared.presentation.viewModel.LibraryViewModel" method="saveContent">
-            <option name="EMULATED" value="true" />
-            <option name="WATCH_EXIT" value="false" />
-          </properties>
-          <option name="timeStamp" value="121" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-function">
           <url>file://$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/repository/component/CrudRepositoryComponent.kt</url>

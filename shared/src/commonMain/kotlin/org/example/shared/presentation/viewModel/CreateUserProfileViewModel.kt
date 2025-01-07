@@ -311,8 +311,8 @@ class CreateUserProfileViewModel(
      */
     private fun displayProfileCreationForm(form: ProfileCreationForm) = _state.update {
         when (form) {
-            ProfileCreationForm.PERSONAL_INFO -> it.copy(currentForm = ProfileCreationForm.PERSONAL_INFO)
-            ProfileCreationForm.STYLE_QUESTIONNAIRE -> it.copy(currentForm = ProfileCreationForm.STYLE_QUESTIONNAIRE)
+            ProfileCreationForm.PersonalInfo -> it.copy(currentForm = ProfileCreationForm.PersonalInfo)
+            ProfileCreationForm.StyleQuestionnaire -> it.copy(currentForm = ProfileCreationForm.StyleQuestionnaire)
         }
     }
 

@@ -8,10 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import org.example.composeApp.screen.AuthScreen
-import org.example.composeApp.screen.CreateProfileScreen
-import org.example.composeApp.screen.DashboardScreen
-import org.example.composeApp.screen.LibraryScreen
+import org.example.composeApp.ui.screen.AuthScreen
+import org.example.composeApp.ui.screen.CreateProfileScreen
+import org.example.composeApp.ui.screen.DashboardScreen
+import org.example.composeApp.ui.screen.LibraryScreen
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.viewModel.AuthViewModel
 import org.example.shared.presentation.viewModel.CreateUserProfileViewModel

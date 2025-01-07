@@ -526,7 +526,7 @@ class CreateProfileViewModelTest {
     @Test
     fun `displayProfileCreationForm should update state with currentForm when form is PERSONAL_INFO`() = runTest {
         // Given
-        val form = ProfileCreationForm.PERSONAL_INFO
+        val form = ProfileCreationForm.PersonalInfo
 
         // When
         viewModel.handleAction(Action.DisplayProfileCreationForm(form))
@@ -539,7 +539,7 @@ class CreateProfileViewModelTest {
     @Test
     fun `displayProfileCreationForm should update state with currentForm when form is STYLE_QUESTIONNAIRE`() = runTest {
         // Given
-        val form = ProfileCreationForm.STYLE_QUESTIONNAIRE
+        val form = ProfileCreationForm.StyleQuestionnaire
 
         // When
         viewModel.handleAction(Action.DisplayProfileCreationForm(form))

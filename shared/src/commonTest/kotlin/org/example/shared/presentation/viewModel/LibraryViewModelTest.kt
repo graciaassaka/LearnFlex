@@ -14,6 +14,7 @@ import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Profile
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.sync.SyncManager
+import org.example.shared.domain.use_case.curriculum.DeleteCurriculumUseCase
 import org.example.shared.domain.use_case.curriculum.FetchCurriculaByUserUseCase
 import org.example.shared.domain.use_case.curriculum.GenerateCurriculumUseCase
 import org.example.shared.domain.use_case.curriculum.UploadCurriculumUseCase
@@ -45,6 +46,7 @@ class LibraryViewModelTest {
     private lateinit var generateModuleUseCase: GenerateModuleUseCase
     private lateinit var uploadCurriculumUseCase: UploadCurriculumUseCase
     private lateinit var uploadModulesUseCase: UploadModulesUseCase
+    private lateinit var deleteCurriculumUseCase: DeleteCurriculumUseCase
     private lateinit var testDispatcher: TestDispatcher
     private val syncStatus = MutableStateFlow<SyncManager.SyncStatus>(SyncManager.SyncStatus.Idle)
 
@@ -69,6 +71,7 @@ class LibraryViewModelTest {
             generateModuleUseCase,
             uploadCurriculumUseCase,
             uploadModulesUseCase,
+            deleteCurriculumUseCase,
             testDispatcher,
             listOf(syncManager),
             SharingStarted.Eagerly

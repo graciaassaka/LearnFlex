@@ -67,7 +67,12 @@
     <string name="update_photo_success">Photo updated</string>
     <string name="delete_photo_success">Photo deleted</string>
     <string name="set_learning_style_success">Learning style set</string>
-    <string name="content_saved_success">Content saved</string>
+    <string name="save_content_success">Content saved</string>
+    <string name="summarize_syllabus_success">Syllabus summarized</string>
+    <string name="generate_curriculum_success">Curriculum generated</string>
+    <string name="generate_module_success">Module generated</string>
+    <string name="generate_lesson_success">Lesson generated</string>
+    <string name="generate_section_success">Section generated</string>
 
     <!-- Error Messages -->
     <string name="file_too_large_error">File too large</string>
@@ -80,6 +85,13 @@
     <string name="welcome_to">Welcome to</string>
     <string name="welcome_back">Welcome back,</string>
     <string name="welcome_message">Transform any learning material into an interactive, personalized experience.
+    </string>
+
+    <!-- Warning Messages -->
+    <string name="blank_syllabus_description_warning">Please provide a syllabus description</string>
+    <string name="module_already_exists_warning">Module already exists</string>
+    <string name="modules_title_mismatch_warning">"Almost there! Ensure that the number of modules matches the number of
+        module titles to proceed."
     </string>
 
     <!-- Learning Items -->
