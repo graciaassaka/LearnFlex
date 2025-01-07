@@ -10,6 +10,8 @@ plugins {
     alias(libs.plugins.googleServices)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.kotlinx.parcelize)
+    alias(libs.plugins.room)
+    alias(libs.plugins.ksp)
     jacoco
 }
 
@@ -71,6 +73,8 @@ kotlin {
                 implementation(libs.compottie.dot)
                 implementation(libs.compottie.resources)
                 implementation(libs.compottie.network)
+                implementation(libs.gitlive.firestore)
+                implementation(libs.room.runtime)
                 implementation(project(":shared"))
             }
         }
@@ -97,6 +101,8 @@ kotlin {
                 implementation(libs.androidx.compose.materialIconsExtended)
                 implementation(libs.androidx.compose.animation)
                 implementation(libs.androidx.splash.screen)
+                implementation(libs.firebase.auth)
+                implementation(libs.firebase.storage)
             }
         }
 
@@ -139,7 +145,6 @@ kotlin {
 }
 
 dependencies {
-    // Instrumented test dependencies
     androidTestImplementation(libs.kotlin.test)
     androidTestImplementation(libs.kotlin.test.junit)
     androidTestImplementation(libs.mockk)
@@ -157,12 +162,15 @@ dependencies {
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.rules)
     androidTestImplementation(libs.androidx.compose.ui.test)
+    androidTestImplementation(libs.room.testing)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4.android)
     androidTestImplementation(project(":composeApp"))
-
-    // Add the orchestrator using androidTestUtil
     androidTestUtil(libs.androidx.test.orchestrator)
+    implementation(libs.ktor.client.okhttp.jvm)
+    add("kspCommonMainMetadata", libs.room.compiler)
+    add("kspAndroid", libs.room.compiler)
+    add("kspDesktop", libs.room.compiler)
 }
 
 
@@ -181,24 +189,22 @@ android {
         testInstrumentationRunnerArguments["coverage"] = "true"
         testNamespace = "org.example.learnflex.test"
     }
-
+    room {
+        schemaDirectory("$projectDir/schemas")
+    }
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     sourceSets["main"].res.srcDirs("src/androidMain/res")
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-
     buildFeatures {
         compose = true
         buildConfig = true
     }
-
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
-
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"

@@ -8,7 +8,6 @@ import com.google.firebase.firestore.firestore
 import com.google.firebase.initialize
 import com.google.firebase.storage.storage
 import org.example.shared.data.remote.firebase.FirebaseConfig
-import org.example.shared.injection.initKoin
 
 /**
  * Application class for the LearnFlex app.
@@ -19,9 +18,6 @@ class LearnFlex : Application() {
 
         Firebase.initialize(this)
         setupFirebaseEmulators()
-
-
-        initKoin(this)
     }
 
     private fun setupFirebaseEmulators() {

@@ -26,79 +26,96 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="281a55e8-b077-4663-8355-8f00356df64a" name="LEA-35 Studying and Assessment" comment="Remove index property from module, lesson, and section models.&#10;&#10;This updates models, entities, DAOs, and related logic to use titles or IDs instead of index-based identification. The database version is incremented to maintain compatibility, and aligned test cases and composable UI logic accordingly.">
+    <list default="true" id="281a55e8-b077-4663-8355-8f00356df64a" name="LEA-35 Studying and Assessment" comment="Refactor models and adjust related logic for index removal&#10;&#10;Removed index property from lesson, module, and section models, updating entities, DAOs, and business logic to rely on IDs or titles instead. Increased database version to maintain compatibility and aligned affected test cases and UI components accordingly.">
+      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/navigation/Route.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/AuthScreenTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/AuthScreenTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/CreateProfileScreenTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/CreateProfileScreenTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/DashboardScreenTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/DashboardScreenTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/LibraryScreenTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/LibraryScreenTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/component/CustomScrollbars.android.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/ui/component/CustomScrollbars.android.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/component/DocumentUpload.android.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/ui/component/DocumentUpload.android.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/component/ImageUpload.android.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/ui/component/ImageUpload.android.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/component/RefreshBox.android.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/ui/component/RefreshBox.android.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/component/ThreePaneBackHandler.android.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/ui/component/ThreePaneBackHandler.android.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/component/ToolTip.android.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/ui/component/ToolTip.android.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/theme/Theme.android.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/ui/theme/Theme.android.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/res/values/theme_overlays.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/composeResources/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/composeResources/values/strings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/AdaptiveAnimatedContainer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/AdaptiveAnimatedContainer.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/AnimatedCard.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/AnimatedCard.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/AnimatedOutlinedTextField.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/AnimatedOutlinedTextField.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/AnimatedProgressBar.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/AnimatedProgressBar.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/AppBanner.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/AppBanner.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/CustomCircularProgressIndicator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/CustomCircularProgressIndicator.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/CustomScaffold.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/CustomScaffold.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/CustomScrollbars.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/CustomScrollbars.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/CustomSnackbar.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/CustomSnackbar.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/DocumentUpload.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/DocumentUpload.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/EnumDropdown.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/EnumDropdown.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/FileUploadBox.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/FileUploadBox.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/FileUploadCard.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/FileUploadCard.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/GradientBackground.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/GradientBackground.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/HandleUIEvents.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/HandleUIEvents.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/ImageUpload.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/ImageUpload.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/ProgressColor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/ProgressColor.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/RefreshBox.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/RefreshBox.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/SelectableCardGroup.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/SelectableCardGroup.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/ShimmerBox.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/ShimmerBox.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/SpeakingBird.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/SpeakingBird.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/ThreePaneBackHandler.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/ThreePaneBackHandler.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/ToolTip.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/ToolTip.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/TypingIndicator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/TypingIndicator.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/auth/AnimatedBottomSheet.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/auth/AnimatedBottomSheet.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/create_profile/PersonalInfoForm.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/create_profile/PersonalInfoForm.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/component/create_profile/StyleQuestionnaireLayout.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/create_profile/StyleQuestionnaireLayout.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/dimension/Dimension.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/dimension/Dimension.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/layout/AlignedLabeledBarsLayout.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/layout/AlignedLabeledBarsLayout.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/layout/AuthLayout.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/layout/AuthLayout.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/layout/CreateProfileLayout.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/layout/CreateProfileLayout.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/layout/EnumScrollablePickerLayout.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/layout/EnumScrollablePickerLayout.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/layout/VerticalBarGraphLayout.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/layout/VerticalBarGraphLayout.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/navigation/Navigator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/navigation/Navigator.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/screen/AuthScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/screen/AuthScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/screen/CreateProfileScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/screen/CreateProfileScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/screen/DashboardScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/screen/DashboardScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/screen/LibraryScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/screen/LibraryScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/theme/Color.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/theme/Color.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/theme/Theme.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/theme/Theme.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/util/LocalComposition.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/util/LocalComposition.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/util/Orientation.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/util/Orientation.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/util/ScreenConfig.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/util/ScreenConfig.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/util/TestTags.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/util/TestTags.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/component/CustomScrollbars.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/component/CustomScrollbars.desktop.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/component/DocumentUpload.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/component/DocumentUpload.desktop.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/component/ImageUpload.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/component/ImageUpload.desktop.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/component/RefreshBox.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/component/RefreshBox.desktop.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/component/ThreePaneBackHandler.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/component/ThreePaneBackHandler.desktop.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/component/ToolTip.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/component/ToolTip.desktop.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/theme/Theme.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/theme/Theme.desktop.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/injection/Module.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/injection/Module.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/state/CreateProfileUIState.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/state/CreateProfileUIState.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/util/ProfileCreationForm.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/util/ProfileCreationForm.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/viewModel/CreateUserProfileViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/viewModel/CreateUserProfileViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/presentation/viewModel/CreateProfileViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/presentation/viewModel/CreateProfileViewModelTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/presentation/viewModel/LibraryViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/presentation/viewModel/LibraryViewModelTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/ui/component/DocumentUpload.android.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/ui/component/DocumentUpload.android.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/ui/component/ImageUpload.android.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/ui/component/ImageUpload.android.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/ui/theme/Theme.android.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/ui/theme/Theme.android.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/App.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/App.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/navigation/AppDestination.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/navigation/AppDestination.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/navigation/Navigator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/navigation/Navigator.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/AdaptiveAnimatedContainer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/AdaptiveAnimatedContainer.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/AnimatedCard.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/AnimatedCard.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/AnimatedOutlinedTextField.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/AnimatedOutlinedTextField.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/AnimatedProgressBar.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/AnimatedProgressBar.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/AppBanner.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/AppBanner.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/CustomCircularProgressIndicator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/CustomCircularProgressIndicator.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/CustomScaffold.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/CustomScaffold.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/CustomScrollbars.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/CustomScrollbars.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/CustomSnackbar.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/CustomSnackbar.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/DocumentUpload.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/DocumentUpload.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/EnumDropdown.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/EnumDropdown.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/FileUploadBox.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/FileUploadBox.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/FileUploadCard.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/FileUploadCard.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/GradientBackground.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/GradientBackground.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/HandleUIEvents.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/HandleUIEvents.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/ImageUpload.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/ImageUpload.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/ProgressColor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/ProgressColor.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/RefreshBox.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/RefreshBox.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/SelectableCardGroup.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/SelectableCardGroup.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/ShimmerBox.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/ShimmerBox.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/SpeakingBird.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/SpeakingBird.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/ThreePaneBackHandler.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/ThreePaneBackHandler.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/ToolTip.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/ToolTip.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/TypingIndicator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/TypingIndicator.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/auth/AnimatedBottomSheet.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/auth/AnimatedBottomSheet.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/create_profile/PersonalInfoForm.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/create_profile/PersonalInfoForm.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/component/create_profile/StyleQuestionnaireLayout.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/create_profile/StyleQuestionnaireLayout.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/dimension/Dimension.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/dimension/Dimension.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/layout/AlignedLabeledBarsLayout.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/layout/AlignedLabeledBarsLayout.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/layout/AuthLayout.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/layout/AuthLayout.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/layout/CreateProfileLayout.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/layout/CreateProfileLayout.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/layout/EnumScrollablePickerLayout.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/layout/EnumScrollablePickerLayout.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/layout/VerticalBarGraphLayout.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/layout/VerticalBarGraphLayout.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/screen/AuthScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/AuthScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/screen/CreateProfileScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/CreateProfileScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/screen/DashboardScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/DashboardScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/screen/LibraryScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/LibraryScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/theme/Color.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/theme/Color.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/theme/Theme.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/theme/Theme.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/util/LocalComposition.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/util/LocalComposition.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/util/Orientation.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/util/Orientation.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/util/ScreenConfig.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/util/ScreenConfig.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/ui/util/TestTags.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/util/TestTags.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/Main.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/component/DocumentUpload.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/component/DocumentUpload.desktop.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/component/ImageUpload.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/component/ImageUpload.desktop.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/component/ToolTip.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/component/ToolTip.desktop.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/theme/Theme.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/ui/theme/Theme.desktop.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/shared/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/androidMain/kotlin/org/example/shared/LearnFlex.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/androidMain/kotlin/org/example/shared/LearnFlex.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/androidMain/kotlin/org/example/shared/injection/Module.android.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/injection/Module.android.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/injection/Module.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/injection/Module.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/action/AuthAction.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/AuthAction.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/action/CreateUserProfileAction.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/CreateUserProfileAction.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/action/DashboardAction.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/DashboardAction.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/action/LibraryAction.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/LibraryAction.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/navigation/Route.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/state/AuthUIState.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/state/AuthUIState.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/state/CreateProfileUIState.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/state/CreateProfileUIState.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/state/DashboardUIState.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/state/DashboardUIState.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/state/LibraryUIState.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/state/LibraryUIState.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/util/AuthForm.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/util/ProfileCreationForm.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/util/SnackbarType.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/util/SnackbarType.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/util/UIEvent.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/util/UIEvent.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/viewModel/AuthViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/AuthViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/viewModel/BaseViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/BaseViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/viewModel/CreateUserProfileViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/CreateUserProfileViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/viewModel/DashboardViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/DashboardViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/viewModel/LibraryViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/LibraryViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/presentation/viewModel/AuthViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/AuthViewModelTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/presentation/viewModel/BaseViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/BaseViewModelTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/presentation/viewModel/CreateProfileViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/CreateProfileViewModelTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/presentation/viewModel/DashboardViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/DashboardViewModelTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/presentation/viewModel/LibraryViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/LibraryViewModelTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/desktopMain/kotlin/org/example/shared/injection/Module.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/injection/Module.desktop.kt" afterDir="false" />
     </list>
     <list id="543ef38b-89b9-492a-b137-13358d0234c3" name="Changes" comment="- Implemented `DashboardViewModel` with necessary dependencies and logic.&#10;- Created `DashboardScreen` to display the dashboard UI.&#10;- Added comprehensive unit tests for `DashboardViewModel` to ensure functionality." />
     <list id="27db182c-d411-4cde-a632-24cff2efd733" name="LEA-15 User Sign Up and Sign In (Firebase Auth)" comment="Remove unused configuration and obsolete import.&#10;&#10;Deleted unnecessary debug run configurations from IntelliJ's deploymentTargetSelector.xml. Also removed an unused Kotlin Android source set import from composeApp/build.gradle.kts to clean up the project setup." />
@@ -218,7 +235,7 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/presentation/viewModel/CreateUserProfileViewModel.kt" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/CreateUserProfileViewModel.kt" root0="SKIP_INSPECTION" />
   </component>
   <component name="KotlinMultiplatform" KONAN_HOME="C:\Users\assak\.konan\kotlin-native-prebuilt-windows-x86_64-2.0.21" />
   <component name="KotlinScriptingSettings">
@@ -230,21 +247,23 @@
   <component name="LineStatusTrackerManager">
     <file path="$PROJECT_DIR$/.idea/workspace.xml">
       <ranges>
-        <range start1="28" end1="47" start2="28" end2="29" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="48" end1="48" start2="30" end2="31" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="50" end1="136" start2="33" end2="77" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="137" end1="138" start2="78" end2="80" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="139" end1="203" start2="81" end2="81" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="204" end1="205" start2="82" end2="82" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="337" end1="446" start2="214" end2="230" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1713" end1="1729" start2="1497" end2="1497" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="2172" end1="2173" start2="1940" end2="1949" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="2174" end1="2175" start2="1950" end2="1959" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="2232" end1="2235" start2="2016" end2="2016" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="2257" end1="2258" start2="2038" end2="2042" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="2282" end1="2291" start2="2066" end2="2066" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="2324" end1="2335" start2="2099" end2="2101" changelist="4dda34f5-96ab-4c27-ad2e-f9e5c6666e52" />
-        <range start1="2356" end1="2356" start2="2122" end2="2123" changelist="4dda34f5-96ab-4c27-ad2e-f9e5c6666e52" />
+        <range start1="28" end1="29" start2="28" end2="29" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="35" end1="101" start2="35" end2="104" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="220" end1="221" start2="223" end2="224" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="232" end1="247" start2="235" end2="252" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1223" end1="1223" start2="1228" end2="1232" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1224" end1="1228" start2="1233" end2="1233" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1241" end1="1241" start2="1246" end2="1247" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1245" end1="1246" start2="1251" end2="1251" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1437" end1="1437" start2="1442" end2="1443" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1439" end1="1440" start2="1445" end2="1445" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1514" end1="1522" start2="1519" end2="1519" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1957" end1="1958" start2="1954" end2="1955" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1975" end1="1976" start2="1972" end2="1981" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="2033" end1="2034" start2="2038" end2="2038" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="2058" end1="2059" start2="2062" end2="2064" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="2116" end1="2127" start2="2121" end2="2123" changelist="4dda34f5-96ab-4c27-ad2e-f9e5c6666e52" />
+        <range start1="2148" end1="2148" start2="2144" end2="2145" changelist="4dda34f5-96ab-4c27-ad2e-f9e5c6666e52" />
       </ranges>
     </file>
   </component>
@@ -1221,11 +1240,11 @@
       <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonMain\composeResources\values" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonMain\kotlin\org\example\composeApp\presentation" />
+      <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonTest\kotlin\org\example\composeApp" />
+      <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonTest\kotlin\org\example\composeApp\screen" />
+      <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonTest" />
       <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\androidMain\kotlin\org\example\composeApp\ui" />
-      <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonMain\composeResources\files" />
-      <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonMain\kotlin\org\example\composeApp\animation" />
-      <recent name="C:\Users\assak\IdeaProjects\LearnFlex\shared\src\commonMain\kotlin\org\example\shared\domain\model\assistant" />
-      <recent name="C:\Users\assak\IdeaProjects\LearnFlex\shared\src\commonMain\kotlin\org\example\shared\domain\model" />
     </key>
     <key name="CreateKotlinClassDialog.RecentsKey">
       <recent name="org.example.shared.data.local.entity" />
@@ -1239,11 +1258,11 @@
       <recent name="org.example.shared.domain.use_case.other" />
     </key>
     <key name="K2MoveDeclarationsDialog.RECENT_PACKAGE_KEY">
+      <recent name="org.example.composeApp.presentation.ui.util" />
+      <recent name="org.example.composeApp.presentation.ui.screen" />
+      <recent name="org.example.composeApp.presentation.navigation" />
+      <recent name="org.example.composeApp.injection" />
       <recent name="org.example.shared.domain.use_case.module" />
-      <recent name="org.example.shared.domain.use_case.quiz" />
-      <recent name="org.example.shared.domain.use_case.qu" />
-      <recent name="org.example.shared.domain.use_case.q" />
-      <recent name="org.example.shared.domain.use_case.lesson" />
     </key>
   </component>
   <component name="RunManager" selected="Gradle.Main [desktop]">
@@ -1436,8 +1455,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="Gradle.Main [desktop]" />
-        <item itemvalue="Gradle.DatabaseTest (1)" />
         <item itemvalue="Gradle.Tests in 'LearnFlex.shared.commonTest' (1)" />
+        <item itemvalue="Gradle.DatabaseTest (1)" />
         <item itemvalue="Gradle.DatabaseTest.when inserting curriculum, then curriculum should be retrievable and profile timestamp should update" />
         <item itemvalue="Gradle.DatabaseTest" />
       </list>
@@ -1511,14 +1530,6 @@
       <workItem from="1731342591014" duration="3296000" />
       <workItem from="1731353381243" duration="21000" />
       <workItem from="1731702522679" duration="3504000" />
-    </task>
-    <task id="LOCAL-00032" summary="Add TestTags enum for consistency in test tags&#10;&#10;Introduced a new TestTags enum to centralize and standardize test tags used across the application. Refactored existing test and UI code to utilize the newly created TestTags, ensuring consistent naming and reducing the risk of typos.">
-      <option name="closed" value="true" />
-      <created>1731168720207</created>
-      <option name="number" value="00032" />
-      <option name="presentableId" value="LOCAL-00032" />
-      <option name="project" value="LOCAL" />
-      <updated>1731168720207</updated>
     </task>
     <task id="LOCAL-00033" summary="Create GetStyleResult and GetStyleQuestionnaire use cases&#10;&#10;Introduced GetStyleResultUseCase and GetStyleQuestionnaireUseCase classes to handle style evaluation and quiz generation. Added corresponding unit tests for both use cases. Updated dependency injection module to include the new use cases.">
       <option name="closed" value="true" />
@@ -1955,7 +1966,7 @@
       <option name="presentableId" value="LEA-35" />
       <option name="project" value="LEA" />
       <updated>1736093833028</updated>
-      <workItem from="1736093833439" duration="100403000" />
+      <workItem from="1736093833439" duration="102707000" />
     </task>
     <task id="LOCAL-00075" summary="feat: add Path and PathBuilder classes for Firestore path management&#10;&#10;- Introduced `Path` class to represent immutable Firestore paths with validation.&#10;- Added `PathBuilder` class to construct paths with collection and document segments.&#10;- Implemented methods for path validation, segment addition, and path building.">
       <option name="closed" value="true" />
@@ -1973,7 +1984,15 @@
       <option name="project" value="LOCAL" />
       <updated>1736256304446</updated>
     </task>
-    <option name="localTasksCounter" value="77" />
+    <task id="LOCAL-00077" summary="Refactor models and adjust related logic for index removal&#10;&#10;Removed index property from lesson, module, and section models, updating entities, DAOs, and business logic to rely on IDs or titles instead. Increased database version to maintain compatibility and aligned affected test cases and UI components accordingly.">
+      <option name="closed" value="true" />
+      <created>1736278274073</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1736278274073</updated>
+    </task>
+    <option name="localTasksCounter" value="78" />
     <servers>
       <YouTrack url="https://gracia.youtrack.cloud">
         <option name="defaultSearch" value="Assignee: me sort by: created asc" />
@@ -2031,7 +2050,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
     <confirmRemoveEmptyChangelist value="2" />
-    <MESSAGE value="Remove CachedImageDao and CachedImageEntity classes&#10;&#10;Deleted CachedImageDao and CachedImageEntity, and removed references to them from LearnFlexDatabase. Updated database version to 5 to reflect these changes. Added new XML configurations for App Insights and Firebase." />
     <MESSAGE value="Refactor storage and auth services and update DAOs&#10;&#10;Renamed Firebase services to Client for clarity and enhanced naming consistency. Added `get` queries to SectionDao, CurriculumDao, LessonDao, and ModuleDao. Expanded DatabaseTest with more test coverage for new and existing DAOs and entities." />
     <MESSAGE value="Add GoogleImageSearchClientTest and refactor client packages&#10;&#10;Refactored the package structure for client-related classes from &quot;service&quot; to &quot;client&quot;. Added `GoogleImageSearchClientTest` to improve test coverage for image search functionalities. Enhanced error handling in BaseViewModel by distinguishing `ApiError`." />
     <MESSAGE value="Add new Session entity and expand Route options&#10;&#10;Introduced a new `Session` entity for tracking learning sessions and extended the `Route` options for navigation. Additionally, created a utility for progress color calculation, added several UI components like `CustomScaffold`, and updated existing layouts and resources for enhanced navigation and display capabilities." />
@@ -2056,7 +2074,8 @@
     <MESSAGE value="LEA-35 Studying and Assessment" />
     <MESSAGE value="feat: add Path and PathBuilder classes for Firestore path management&#10;&#10;- Introduced `Path` class to represent immutable Firestore paths with validation.&#10;- Added `PathBuilder` class to construct paths with collection and document segments.&#10;- Implemented methods for path validation, segment addition, and path building." />
     <MESSAGE value="Remove index property from module, lesson, and section models.&#10;&#10;This updates models, entities, DAOs, and related logic to use titles or IDs instead of index-based identification. The database version is incremented to maintain compatibility, and aligned test cases and composable UI logic accordingly." />
-    <option name="LAST_COMMIT_MESSAGE" value="Remove index property from module, lesson, and section models.&#10;&#10;This updates models, entities, DAOs, and related logic to use titles or IDs instead of index-based identification. The database version is incremented to maintain compatibility, and aligned test cases and composable UI logic accordingly." />
+    <MESSAGE value="Refactor models and adjust related logic for index removal&#10;&#10;Removed index property from lesson, module, and section models, updating entities, DAOs, and business logic to rely on IDs or titles instead. Increased database version to maintain compatibility and aligned affected test cases and UI components accordingly." />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor models and adjust related logic for index removal&#10;&#10;Removed index property from lesson, module, and section models, updating entities, DAOs, and business logic to rely on IDs or titles instead. Increased database version to maintain compatibility and aligned affected test cases and UI components accordingly." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />

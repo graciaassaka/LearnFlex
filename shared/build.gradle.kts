@@ -229,10 +229,10 @@ android {
 dependencies {
     implementation(libs.ktor.client.okhttp.jvm)
     androidTestImplementation(libs.androidx.test.junit)
+    androidTestImplementation(libs.room.testing)
     add("kspCommonMainMetadata", libs.room.compiler)
     add("kspAndroid", libs.room.compiler)
     add("kspDesktop", libs.room.compiler)
-    androidTestImplementation(libs.room.testing)
 }
 
 fun org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet.applyOptIns() {

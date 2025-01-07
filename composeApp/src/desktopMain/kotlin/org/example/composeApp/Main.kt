@@ -6,7 +6,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import learnflex.composeapp.generated.resources.Res
 import learnflex.composeapp.generated.resources.app_name
-import org.example.shared.injection.initKoin
+import org.example.composeApp.injection.initKoin
 import org.jetbrains.compose.resources.stringResource
 import java.io.File
 
