@@ -13,7 +13,6 @@ import kotlin.uuid.Uuid
  * @property id The unique identifier of the module.
  * @property title The title of the module.
  * @property description A brief description of the module.
- * @property index The index position of the module within the curriculum.
  * @property content The content of the module.
  * @property quizScore The score of the quiz associated with the module.
  * @property quizScoreMax The maximum score possible for the quiz.
@@ -25,9 +24,6 @@ import kotlin.uuid.Uuid
 data class Section(
     @SerialName("id")
     override val id: String = Uuid.random().toString(),
-
-    @SerialName("index")
-    val index: Int,
 
     @SerialName("title")
     val title: String,

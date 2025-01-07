@@ -317,14 +317,13 @@ private fun GeneratedCurriculumSection(
             ) {
                 ModuleListItem(
                     module = module,
-                    index = index,
                     enabled = enabled,
                     handleAction = handleAction,
                     modifier = Modifier
                 )
                 ModuleContent(
                     modules = modules,
-                    index = index,
+                    title = module,
                     enabled = enabled,
                     handleAction = handleAction,
                     modifier = Modifier
@@ -364,7 +363,6 @@ private fun CurriculumListItem(
 @Composable
 private fun ModuleListItem(
     module: String,
-    index: Int,
     enabled: Boolean,
     handleAction: (LibraryAction) -> Unit,
     modifier: Modifier = Modifier
@@ -378,7 +376,7 @@ private fun ModuleListItem(
     modifier = modifier,
     leadingContent = {
         IconButton(
-            onClick = { handleAction(LibraryAction.RemoveModule(index)) },
+            onClick = { handleAction(LibraryAction.RemoveModule(module)) },
             enabled = enabled
         ) {
             Icon(
@@ -390,9 +388,9 @@ private fun ModuleListItem(
 )
 
 @Composable
-fun ModuleContent(
+private fun ModuleContent(
     modules: List<Module>,
-    index: Int,
+    title: String,
     enabled: Boolean,
     handleAction: (LibraryAction) -> Unit,
     modifier: Modifier = Modifier
@@ -401,20 +399,20 @@ fun ModuleContent(
     verticalArrangement = Arrangement.spacedBy(Spacing.SMALL.dp),
     horizontalAlignment = Alignment.Start
 ) {
-    modules.firstOrNull { it.index == index }?.content?.forEachIndexed { i, lesson ->
+    val module = modules.firstOrNull { it.title == title }
+    module?.content?.forEachIndexed { i, lesson ->
         if (i > 0) HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = DividerDefaults.Thickness.times(0.5f)
         )
         LessonListItem(
             lesson = lesson,
-            index = i,
-            moduleId = modules[index].id,
+            moduleId = module.id,
             enabled = enabled,
             handleAction = handleAction
         )
     } ?: Button(
-        onClick = { handleAction(LibraryAction.GenerateModule(index)) },
+        onClick = { handleAction(LibraryAction.GenerateModule(title)) },
         enabled = enabled,
         shape = RoundedCornerShape(Dimension.CORNER_RADIUS_SMALL.dp),
         content = { Text(stringResource(Res.string.generate_content_button_label)) }
@@ -424,7 +422,6 @@ fun ModuleContent(
 @Composable
 private fun LessonListItem(
     lesson: String,
-    index: Int,
     moduleId: String,
     enabled: Boolean,
     handleAction: (LibraryAction) -> Unit,
@@ -439,7 +436,7 @@ private fun LessonListItem(
     modifier = modifier.fillMaxWidth(),
     leadingContent = {
         IconButton(
-            onClick = { handleAction(LibraryAction.RemoveLesson(index, moduleId)) },
+            onClick = { handleAction(LibraryAction.RemoveLesson(lesson, moduleId)) },
             enabled = enabled
         ) {
             Icon(

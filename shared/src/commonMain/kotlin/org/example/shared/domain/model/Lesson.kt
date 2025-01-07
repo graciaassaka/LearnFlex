@@ -13,7 +13,6 @@ import kotlin.uuid.Uuid
  * @property id The unique identifier of the lesson.
  * @property title The title of the lesson.
  * @property description A brief description of the lesson.
- * @property index The index position of the lesson within the module.
  * @property content The content of the lesson.
  * @property quizScore The score of the quiz associated with the lesson.
  * @property quizScoreMax The maximum score possible for the quiz.
@@ -31,9 +30,6 @@ data class Lesson(
 
     @SerialName("description")
     val description: String,
-
-    @SerialName("index")
-    val index: Int,
 
     @SerialName("content")
     val content: List<String>,

@@ -147,7 +147,6 @@ class LibraryScreenTest {
             Module(
                 title = "module 1",
                 description = "Module description",
-                index = 0,
                 content = listOf("lesson 1")
             )
         )
@@ -218,7 +217,7 @@ class LibraryScreenTest {
             onChildren().filterToOne(hasText(stringMap["generate_content_button_label"]!!).and(isEnabled())).performClick()
         }
         verify {
-            viewModel.handleAction(LibraryAction.GenerateModule(0))
+            viewModel.handleAction(LibraryAction.GenerateModule("module 1"))
         }
     }
 
@@ -233,7 +232,6 @@ class LibraryScreenTest {
             Module(
                 title = "module 1",
                 description = "Module description",
-                index = 0,
                 content = listOf("lesson 1")
             )
         )
@@ -243,11 +241,11 @@ class LibraryScreenTest {
                 modules = modules
             )
         }
-        every { viewModel.handleAction(LibraryAction.RemoveModule(0)) } answers {
+        every { viewModel.handleAction(LibraryAction.RemoveModule("module 1")) } answers {
             uiState.update {
                 it.copy(
                     curriculum = it.curriculum?.copy(content = it.curriculum!!.content.toMutableList().apply { removeAt(0) }),
-                    modules = modules.filter { it.index != 0 }
+                    modules = modules.filter { it.title != "module 1" }
                 )
             }
         }
@@ -260,7 +258,7 @@ class LibraryScreenTest {
             }
         }
         verify {
-            viewModel.handleAction(LibraryAction.RemoveModule(0))
+            viewModel.handleAction(LibraryAction.RemoveModule("module 1"))
         }
     }
 
@@ -276,7 +274,6 @@ class LibraryScreenTest {
                 id = "module_1",
                 title = "module 1",
                 description = "Module description",
-                index = 0,
                 content = listOf("lesson 1")
             )
         )
@@ -286,7 +283,7 @@ class LibraryScreenTest {
                 modules = modules
             )
         }
-        every { viewModel.handleAction(LibraryAction.RemoveLesson(0, "module_1")) } answers {
+        every { viewModel.handleAction(LibraryAction.RemoveLesson("lesson 1", "module_1")) } answers {
             uiState.update { currentState ->
                 currentState.copy(
                     modules = currentState.modules.map { module ->
@@ -304,7 +301,7 @@ class LibraryScreenTest {
             }
         }
         verify {
-            viewModel.handleAction(LibraryAction.RemoveLesson(0, "module_1"))
+            viewModel.handleAction(LibraryAction.RemoveLesson("lesson 1", "module_1"))
         }
     }
 
@@ -319,7 +316,6 @@ class LibraryScreenTest {
             Module(
                 title = "module 1",
                 description = "Module description",
-                index = 0,
                 content = listOf("lesson 1")
             )
         )
@@ -354,7 +350,6 @@ class LibraryScreenTest {
             Module(
                 title = "module 1",
                 description = "Module description",
-                index = 0,
                 content = listOf("lesson 1")
             )
         )

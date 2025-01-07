@@ -42,22 +42,22 @@ sealed class LibraryAction {
 
     /**
      * Action to generate a module.
-     * @param index The index of the module to generate.
+     * @param title The title of the module to generate.
      */
-    data class GenerateModule(val index: Int) : LibraryAction()
+    data class GenerateModule(val title: String) : LibraryAction()
 
     /**
      * Action to remove a module.
-     * @param index The index of the module to remove.
+     * @param title The title of the module to remove.
      */
-    data class RemoveModule(val index: Int) : LibraryAction()
+    data class RemoveModule(val title: String) : LibraryAction()
 
     /**
      * Action to remove a lesson from a module.
-     * @param lessonIndex The index of the lesson to remove.
+     * @param lessonTitle The title of the lesson to remove.
      * @param moduleId The ID of the module containing the lesson.
      */
-    data class RemoveLesson(val lessonIndex: Int, val moduleId: String) : LibraryAction()
+    data class RemoveLesson(val lessonTitle: String, val moduleId: String) : LibraryAction()
 
     /**
      * Action to save content.

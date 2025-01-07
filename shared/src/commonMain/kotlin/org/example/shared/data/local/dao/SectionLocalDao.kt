@@ -27,7 +27,6 @@ abstract class SectionLocalDao : ExtendedLocalDao<SectionEntity>() {
         """
             SELECT * FROM sections
             WHERE lesson_id = :lessonId
-            ORDER BY `index`
        """
     )
     abstract fun getByLessonId(lessonId: String): Flow<List<SectionEntity>>

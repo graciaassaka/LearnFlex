@@ -15,7 +15,6 @@ import kotlin.uuid.Uuid
  *
  * @property id The unique identifier of the module.
  * @property curriculumId The identifier of the curriculum this module belongs to.
- * @property index The index position of the module within the curriculum.
  * @property title The title of the module.
  * @property description A brief description of the module.
  * @property content The content of the module.
@@ -51,9 +50,6 @@ data class ModuleEntity(
 
     @ColumnInfo(name = "description")
     val description: String,
-
-    @ColumnInfo(name = "index")
-    val index: Int,
 
     @ColumnInfo(name = "content")
     val content: List<String>,

@@ -15,7 +15,6 @@ import kotlin.uuid.Uuid
  *
  * @property id The unique identifier of the lesson.
  * @property moduleId The identifier of the module this lesson belongs to.
- * @property index The index position of the lesson within the module.
  * @property title The title of the lesson.
  * @property description A brief description of the lesson.
  * @property content The content of the lesson.
@@ -51,9 +50,6 @@ data class LessonEntity(
 
     @ColumnInfo(name = "description")
     val description: String,
-
-    @ColumnInfo(name = "index")
-    val index: Int,
 
     @ColumnInfo(name = "content")
     val content: List<String>,

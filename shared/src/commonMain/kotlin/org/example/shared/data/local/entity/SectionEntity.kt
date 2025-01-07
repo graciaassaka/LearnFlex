@@ -45,9 +45,6 @@ data class SectionEntity(
     )
     val lessonId: String,
 
-    @ColumnInfo(name = "index")
-    val index: Int,
-
     @ColumnInfo(name = "title")
     val title: String,
 
