@@ -33,9 +33,9 @@ class StyleQuizGeneratorClientImplTest {
         val messageId = "msg_123"
         val question = StyleQuizGeneratorClient.StyleQuestion(
             options = listOf(
-                StyleQuizGeneratorClient.StyleOption("visual", "Watch a video"),
-                StyleQuizGeneratorClient.StyleOption("reading", "Read documentation"),
-                StyleQuizGeneratorClient.StyleOption("kinesthetic", "Code examples")
+                StyleQuizGeneratorClient.StyleQuestion.StyleOption("visual", "Watch a video"),
+                StyleQuizGeneratorClient.StyleQuestion.StyleOption("reading", "Read documentation"),
+                StyleQuizGeneratorClient.StyleQuestion.StyleOption("kinesthetic", "Code examples")
             ),
             scenario = "How would you prefer to learn Kotlin?"
         )
@@ -146,7 +146,7 @@ class StyleQuizGeneratorClientImplTest {
         val preferences = Profile.LearningPreferences("ComputerScience", "Beginner", "Learn Kotlin")
         val question = StyleQuizGeneratorClient.StyleQuestion(
             options = listOf(
-                StyleQuizGeneratorClient.StyleOption("visual", "Watch a video")
+                StyleQuizGeneratorClient.StyleQuestion.StyleOption("visual", "Watch a video")
             ),
             scenario = "Test scenario"
         )

@@ -14,15 +14,12 @@ import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Profile
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.sync.SyncManager
+import org.example.shared.domain.use_case.curriculum.FetchCurriculaByUserUseCase
 import org.example.shared.domain.use_case.curriculum.GenerateCurriculumUseCase
-import org.example.shared.domain.use_case.curriculum.GetAllCurriculaUseCase
 import org.example.shared.domain.use_case.curriculum.UploadCurriculumUseCase
 import org.example.shared.domain.use_case.module.GenerateModuleUseCase
 import org.example.shared.domain.use_case.module.UploadModulesUseCase
-import org.example.shared.domain.use_case.path.BuildCurriculumPathUseCase
-import org.example.shared.domain.use_case.path.BuildModulePathUseCase
-import org.example.shared.domain.use_case.path.BuildProfilePathUseCase
-import org.example.shared.domain.use_case.profile.GetProfileUseCase
+import org.example.shared.domain.use_case.profile.FetchProfileUseCase
 import org.example.shared.domain.use_case.syllabus.SummarizeSyllabusUseCase
 import org.example.shared.presentation.action.LibraryAction
 import org.example.shared.presentation.navigation.Route
@@ -41,16 +38,13 @@ import kotlin.test.assertTrue
 class LibraryViewModelTest {
     private lateinit var viewModel: LibraryViewModel
     private lateinit var syncManager: SyncManager<DatabaseRecord>
-    private lateinit var getProfileUseCase: GetProfileUseCase
-    private lateinit var getAllCurriculaUseCase: GetAllCurriculaUseCase
+    private lateinit var fetchProfileUseCase: FetchProfileUseCase
+    private lateinit var fetchCurriculaByUserUseCase: FetchCurriculaByUserUseCase
     private lateinit var summarizeSyllabusUseCase: SummarizeSyllabusUseCase
     private lateinit var generateCurriculumUseCase: GenerateCurriculumUseCase
     private lateinit var generateModuleUseCase: GenerateModuleUseCase
     private lateinit var uploadCurriculumUseCase: UploadCurriculumUseCase
     private lateinit var uploadModulesUseCase: UploadModulesUseCase
-    private lateinit var buildProfilePathUseCase: BuildProfilePathUseCase
-    private lateinit var buildCurriculumPathUseCase: BuildCurriculumPathUseCase
-    private lateinit var buildModulePathUseCase: BuildModulePathUseCase
     private lateinit var testDispatcher: TestDispatcher
     private val syncStatus = MutableStateFlow<SyncManager.SyncStatus>(SyncManager.SyncStatus.Idle)
 
@@ -59,23 +53,17 @@ class LibraryViewModelTest {
         testDispatcher = StandardTestDispatcher()
         Dispatchers.setMain(testDispatcher)
         syncManager = mockk(relaxed = true)
-        getProfileUseCase = mockk(relaxed = true)
-        getAllCurriculaUseCase = mockk(relaxed = true)
+        fetchProfileUseCase = mockk(relaxed = true)
+        fetchCurriculaByUserUseCase = mockk(relaxed = true)
         summarizeSyllabusUseCase = mockk(relaxed = true)
         generateCurriculumUseCase = mockk(relaxed = true)
         generateModuleUseCase = mockk(relaxed = true)
         uploadCurriculumUseCase = mockk(relaxed = true)
         uploadModulesUseCase = mockk(relaxed = true)
-        buildProfilePathUseCase = mockk(relaxed = true)
-        buildCurriculumPathUseCase = mockk(relaxed = true)
-        buildModulePathUseCase = mockk(relaxed = true)
 
         viewModel = LibraryViewModel(
-            buildProfilePathUseCase,
-            buildCurriculumPathUseCase,
-            buildModulePathUseCase,
-            getProfileUseCase,
-            getAllCurriculaUseCase,
+            fetchProfileUseCase,
+            fetchCurriculaByUserUseCase,
             summarizeSyllabusUseCase,
             generateCurriculumUseCase,
             generateModuleUseCase,
@@ -87,8 +75,8 @@ class LibraryViewModelTest {
         )
 
         every { syncManager.syncStatus } returns syncStatus
-        coEvery { getProfileUseCase(any()) } returns Result.success(mockk<Profile> { every { id } returns "profileId" })
-        coEvery { getAllCurriculaUseCase(any()) } returns Result.success(emptyList())
+        coEvery { fetchProfileUseCase() } returns Result.success(mockk<Profile> { every { id } returns "profileId" })
+        coEvery { fetchCurriculaByUserUseCase(any()) } returns Result.success(emptyList())
     }
 
     @After
@@ -97,15 +85,11 @@ class LibraryViewModelTest {
     @Test
     fun `handleAction Refresh when refresh succeeds should update profile and curricula`() = runTest {
         // Given
-        val profilePath = "profilePath"
-        val curriculaPath = "curriculaPath"
         val expectedProfile = mockk<Profile> { every { id } returns "profileId" }
         val expectedCurricula = listOf(mockk<Curriculum>())
 
-        coEvery { buildProfilePathUseCase() } returns "profilePath"
-        coEvery { buildCurriculumPathUseCase("profileId") } returns "curriculaPath"
-        coEvery { getProfileUseCase(profilePath) } returns Result.success(expectedProfile)
-        coEvery { getAllCurriculaUseCase(curriculaPath) } returns Result.success(expectedCurricula)
+        coEvery { fetchProfileUseCase() } returns Result.success(expectedProfile)
+        coEvery { fetchCurriculaByUserUseCase(any()) } returns Result.success(expectedCurricula)
 
         // When
         advanceUntilIdle()
@@ -116,24 +100,20 @@ class LibraryViewModelTest {
             assertEquals(expectedCurricula, curricula)
         }
         coVerify {
-            buildProfilePathUseCase()
-            getProfileUseCase(match { it == profilePath })
-            buildCurriculumPathUseCase(match { it == "profileId" })
-            getAllCurriculaUseCase(match { it == curriculaPath })
+            fetchProfileUseCase()
+            fetchCurriculaByUserUseCase(any())
         }
     }
 
     @Test
     fun `handleAction Refresh when refresh fails should handle error and update loading state`() = runTest {
         // Given
-        val profilePath = "profilePath"
         val uiEvents = mutableListOf<UIEvent>()
         val job = launch {
             viewModel.uiEvent.toList(uiEvents)
         }
 
-        coEvery { buildProfilePathUseCase() } returns profilePath
-        coEvery { getProfileUseCase(profilePath) } returns Result.failure(Exception("Profile error"))
+        coEvery { fetchProfileUseCase() } returns Result.failure(Exception("Profile error"))
 
         // When
         advanceUntilIdle()
@@ -143,8 +123,8 @@ class LibraryViewModelTest {
             assertNull(profile)
         }
         coVerify {
-            buildProfilePathUseCase()
-            getProfileUseCase(match { it == profilePath })
+
+            fetchProfileUseCase()
         }
 
         assertEquals(1, uiEvents.size)
@@ -248,7 +228,6 @@ class LibraryViewModelTest {
     fun `handleAction GenerateCurriculum with valid description and profile should generate curriculum successfully`() = runTest {
         // Given
         val syllabusDescription = "Curriculum description"
-        val profilePath = "profilePath"
         val profile = mockk<Profile> { every { id } returns "profileId" }
         val generatedResponse = mockk<ContentGeneratorClient.GeneratedResponse> {
             every { title } returns "Curriculum title"
@@ -256,8 +235,7 @@ class LibraryViewModelTest {
             every { content } returns listOf("module1", "module2")
         }
 
-        coEvery { buildProfilePathUseCase() } returns profilePath
-        coEvery { getProfileUseCase(profilePath) } returns Result.success(profile)
+        coEvery { fetchProfileUseCase() } returns Result.success(profile)
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedResponse))
         advanceUntilIdle()
 
@@ -283,15 +261,13 @@ class LibraryViewModelTest {
     fun `handleAction GenerateCurriculum should handle error when unsuccessful`() = runTest {
         // Given
         val syllabusDescription = "Curriculum description"
-        val profilePath = "profilePath"
         val profile = mockk<Profile> { every { id } returns "profileId" }
         val uiEvents = mutableListOf<UIEvent>()
         val job = launch {
             viewModel.uiEvent.toList(uiEvents)
         }
 
-        coEvery { buildProfilePathUseCase() } returns profilePath
-        coEvery { getProfileUseCase(profilePath) } returns Result.success(profile)
+        coEvery { fetchProfileUseCase() } returns Result.success(profile)
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.failure(Exception("Curriculum error")))
         advanceUntilIdle()
 
@@ -317,7 +293,6 @@ class LibraryViewModelTest {
     fun `handleAction GenerateModule with valid curriculum, description and profile should generate module successfully`() = runTest {
         // Given
         val syllabusDescription = "Syllabus description"
-        val profilePath = "profilePath"
         val profile = mockk<Profile> { every { id } returns "profileId" }
         val generatedCurriculumResponse = mockk<ContentGeneratorClient.GeneratedResponse> {
             every { title } returns "Curriculum title"
@@ -329,8 +304,7 @@ class LibraryViewModelTest {
             every { description } returns "Module description"
             every { content } returns listOf("lesson1", "lesson2")
         }
-        coEvery { buildProfilePathUseCase() } returns profilePath
-        coEvery { getProfileUseCase(profilePath) } returns Result.success(profile)
+        coEvery { fetchProfileUseCase() } returns Result.success(profile)
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedCurriculumResponse))
         coEvery { generateModuleUseCase("Module1 title", profile, any()) } returns flowOf(Result.success(generatedModuleResponse))
         advanceUntilIdle()
@@ -342,7 +316,7 @@ class LibraryViewModelTest {
         advanceUntilIdle()
 
         // When
-        viewModel.handleAction(LibraryAction.GenerateModule(0))
+        viewModel.handleAction(LibraryAction.GenerateModule("Module1 title"))
         advanceUntilIdle()
 
         // Then
@@ -360,7 +334,6 @@ class LibraryViewModelTest {
     fun `handleAction GenerateModule should handle error when unsuccessful`() = runTest {
         // Given
         val syllabusDescription = "Syllabus description"
-        val profilePath = "profilePath"
         val profile = mockk<Profile> { every { id } returns "profileId" }
         val generatedCurriculumResponse = mockk<ContentGeneratorClient.GeneratedResponse> {
             every { title } returns "Curriculum title"
@@ -372,8 +345,7 @@ class LibraryViewModelTest {
             viewModel.uiEvent.toList(uiEvents)
         }
 
-        coEvery { buildProfilePathUseCase() } returns profilePath
-        coEvery { getProfileUseCase(profilePath) } returns Result.success(profile)
+        coEvery { fetchProfileUseCase() } returns Result.success(profile)
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedCurriculumResponse))
         coEvery { generateModuleUseCase("Module1 title", profile, any()) } returns flowOf(Result.failure(Exception("Module error")))
         advanceUntilIdle()
@@ -385,7 +357,7 @@ class LibraryViewModelTest {
         advanceUntilIdle()
 
         // When
-        viewModel.handleAction(LibraryAction.GenerateModule(0))
+        viewModel.handleAction(LibraryAction.GenerateModule("Module1 title"))
         advanceUntilIdle()
 
         // Then
@@ -403,7 +375,6 @@ class LibraryViewModelTest {
     fun `handleAction RemoveModule with valid index should remove module from state`() = runTest {
         // Given
         val syllabusDescription = "Syllabus description"
-        val profilePath = "profilePath"
         val profile = mockk<Profile> { every { id } returns "profileId" }
         val generatedCurriculumResponse = mockk<ContentGeneratorClient.GeneratedResponse> {
             every { title } returns "Curriculum title"
@@ -415,8 +386,7 @@ class LibraryViewModelTest {
             every { description } returns "Module description"
             every { content } returns listOf("lesson1", "lesson2")
         }
-        coEvery { buildProfilePathUseCase() } returns profilePath
-        coEvery { getProfileUseCase(profilePath) } returns Result.success(profile)
+        coEvery { fetchProfileUseCase() } returns Result.success(profile)
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedCurriculumResponse))
         coEvery { generateModuleUseCase("Module1 title", profile, any()) } returns flowOf(Result.success(generatedModuleResponse))
         advanceUntilIdle()
@@ -427,11 +397,11 @@ class LibraryViewModelTest {
         viewModel.handleAction(LibraryAction.GenerateCurriculum)
         advanceUntilIdle()
 
-        viewModel.handleAction(LibraryAction.GenerateModule(0))
+        viewModel.handleAction(LibraryAction.GenerateModule("Module1 title"))
         advanceUntilIdle()
 
         // When
-        viewModel.handleAction(LibraryAction.RemoveModule(0))
+        viewModel.handleAction(LibraryAction.RemoveModule("Module1 title"))
         advanceUntilIdle()
 
         // Then
@@ -444,7 +414,6 @@ class LibraryViewModelTest {
     fun `handleAction RemoveLesson with valid indices and moduleId should remove lesson from module`() = runTest {
         // Given
         val syllabusDescription = "Syllabus description"
-        val profilePath = "profilePath"
         val profile = mockk<Profile> { every { id } returns "profileId" }
         val generatedCurriculumResponse = mockk<ContentGeneratorClient.GeneratedResponse> {
             every { title } returns "Curriculum title"
@@ -456,8 +425,7 @@ class LibraryViewModelTest {
             every { description } returns "Module description"
             every { content } returns listOf("lesson1", "lesson2")
         }
-        coEvery { buildProfilePathUseCase() } returns profilePath
-        coEvery { getProfileUseCase(profilePath) } returns Result.success(profile)
+        coEvery { fetchProfileUseCase() } returns Result.success(profile)
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedCurriculumResponse))
         coEvery { generateModuleUseCase("Module1 title", profile, any()) } returns flowOf(Result.success(generatedModuleResponse))
         advanceUntilIdle()
@@ -468,11 +436,11 @@ class LibraryViewModelTest {
         viewModel.handleAction(LibraryAction.GenerateCurriculum)
         advanceUntilIdle()
 
-        viewModel.handleAction(LibraryAction.GenerateModule(0))
+        viewModel.handleAction(LibraryAction.GenerateModule("Module1 title"))
         advanceUntilIdle()
 
         // When
-        viewModel.handleAction(LibraryAction.RemoveLesson(0, viewModel.state.value.modules.first().id))
+        viewModel.handleAction(LibraryAction.RemoveLesson("lesson1", viewModel.state.value.modules.first().id))
         advanceUntilIdle()
 
         // Then
@@ -485,9 +453,6 @@ class LibraryViewModelTest {
     fun `handleAction SaveContent with valid data should upload curriculum and modules successfully`() = runTest {
         // Given
         val syllabusDescription = "Syllabus description"
-        val profilePath = "profilePath"
-        val curriculumPath = "curriculumPath"
-        val modulePath = "modulePath"
         val profile = mockk<Profile> { every { id } returns "profileId" }
         val generatedCurriculumResponse = mockk<ContentGeneratorClient.GeneratedResponse> {
             every { title } returns "Curriculum title"
@@ -499,14 +464,11 @@ class LibraryViewModelTest {
             every { description } returns "Module description"
             every { content } returns listOf("lesson1", "lesson2")
         }
-        coEvery { buildProfilePathUseCase() } returns profilePath
-        coEvery { buildCurriculumPathUseCase(any()) } returns curriculumPath
-        coEvery { buildModulePathUseCase(any(), any()) } returns modulePath
-        coEvery { getProfileUseCase(profilePath) } returns Result.success(profile)
+        coEvery { fetchProfileUseCase() } returns Result.success(profile)
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedCurriculumResponse))
         coEvery { generateModuleUseCase("Module1 title", profile, any()) } returns flowOf(Result.success(generatedModuleResponse))
         coEvery { uploadCurriculumUseCase(any(), any()) } returns Result.success(Unit)
-        coEvery { uploadModulesUseCase(any(), any()) } returns Result.success(Unit)
+        coEvery { uploadModulesUseCase(any(), any(), any()) } returns Result.success(Unit)
         advanceUntilIdle()
 
         viewModel.handleAction(LibraryAction.EditSyllabusDescription(syllabusDescription))
@@ -515,7 +477,7 @@ class LibraryViewModelTest {
         viewModel.handleAction(LibraryAction.GenerateCurriculum)
         advanceUntilIdle()
 
-        viewModel.handleAction(LibraryAction.GenerateModule(0))
+        viewModel.handleAction(LibraryAction.GenerateModule("Module1 title"))
         advanceUntilIdle()
 
         // When
@@ -525,7 +487,7 @@ class LibraryViewModelTest {
         // Then
         coVerify {
             uploadCurriculumUseCase(any(), any())
-            uploadModulesUseCase(any(), any())
+            uploadModulesUseCase(any(), any(), any())
         }
     }
 
@@ -537,9 +499,6 @@ class LibraryViewModelTest {
             viewModel.uiEvent.toList(uiEvents)
         }
         val syllabusDescription = "Syllabus description"
-        val profilePath = "profilePath"
-        val curriculumPath = "curriculumPath"
-        val modulePath = "modulePath"
         val profile = mockk<Profile> { every { id } returns "profileId" }
         val generatedCurriculumResponse = mockk<ContentGeneratorClient.GeneratedResponse> {
             every { title } returns "Curriculum title"
@@ -551,10 +510,7 @@ class LibraryViewModelTest {
             every { description } returns "Module description"
             every { content } returns listOf("lesson1", "lesson2")
         }
-        coEvery { buildProfilePathUseCase() } returns profilePath
-        coEvery { buildCurriculumPathUseCase(any()) } returns curriculumPath
-        coEvery { buildModulePathUseCase(any(), any()) } returns modulePath
-        coEvery { getProfileUseCase(profilePath) } returns Result.success(profile)
+        coEvery { fetchProfileUseCase() } returns Result.success(profile)
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedCurriculumResponse))
         coEvery { generateModuleUseCase("Module1 title", profile, any()) } returns flowOf(Result.success(generatedModuleResponse))
         advanceUntilIdle()
@@ -565,7 +521,7 @@ class LibraryViewModelTest {
         viewModel.handleAction(LibraryAction.GenerateCurriculum)
         advanceUntilIdle()
 
-        viewModel.handleAction(LibraryAction.GenerateModule(0))
+        viewModel.handleAction(LibraryAction.GenerateModule("Module1 title"))
         advanceUntilIdle()
 
         // When
@@ -575,7 +531,7 @@ class LibraryViewModelTest {
         // Then
         coVerifyAll(true) {
             uploadCurriculumUseCase(any(), any())
-            uploadModulesUseCase(any(), any())
+            uploadModulesUseCase(any(), any(), any())
         }
 
         with(viewModel.state.value) {
@@ -592,9 +548,6 @@ class LibraryViewModelTest {
     fun `handleAction SaveContent should handle error when unsuccessful`() = runTest {
         // Given
         val syllabusDescription = "Syllabus description"
-        val profilePath = "profilePath"
-        val curriculumPath = "curriculumPath"
-        val modulePath = "modulePath"
         val profile = mockk<Profile> { every { id } returns "profileId" }
         val generatedCurriculumResponse = mockk<ContentGeneratorClient.GeneratedResponse> {
             every { title } returns "Curriculum title"
@@ -611,14 +564,11 @@ class LibraryViewModelTest {
             viewModel.uiEvent.toList(uiEvents)
         }
 
-        coEvery { buildProfilePathUseCase() } returns profilePath
-        coEvery { buildCurriculumPathUseCase(any()) } returns curriculumPath
-        coEvery { buildModulePathUseCase(any(), any()) } returns modulePath
-        coEvery { getProfileUseCase(profilePath) } returns Result.success(profile)
+        coEvery { fetchProfileUseCase() } returns Result.success(profile)
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedCurriculumResponse))
         coEvery { generateModuleUseCase("Module1 title", profile, any()) } returns flowOf(Result.success(generatedModuleResponse))
         coEvery { uploadCurriculumUseCase(any(), any()) } returns Result.success(Unit)
-        coEvery { uploadModulesUseCase(any(), any()) } returns Result.failure(Exception("Module error"))
+        coEvery { uploadModulesUseCase(any(), any(), any()) } returns Result.failure(Exception("Module error"))
         advanceUntilIdle()
 
         viewModel.handleAction(LibraryAction.EditSyllabusDescription(syllabusDescription))
@@ -627,7 +577,7 @@ class LibraryViewModelTest {
         viewModel.handleAction(LibraryAction.GenerateCurriculum)
         advanceUntilIdle()
 
-        viewModel.handleAction(LibraryAction.GenerateModule(0))
+        viewModel.handleAction(LibraryAction.GenerateModule("Module1 title"))
         advanceUntilIdle()
 
         // When
@@ -637,7 +587,7 @@ class LibraryViewModelTest {
         // Then
         coVerify {
             uploadCurriculumUseCase(any(), any())
-            uploadModulesUseCase(any(), any())
+            uploadModulesUseCase(any(), any(), any())
         }
 
         assertEquals(1, uiEvents.size)
@@ -650,7 +600,6 @@ class LibraryViewModelTest {
     fun `handleAction DiscardContent should clear curriculum and modules from state`() = runTest {
         // Given
         val syllabusDescription = "Syllabus description"
-        val profilePath = "profilePath"
         val profile = mockk<Profile> { every { id } returns "profileId" }
         val generatedCurriculumResponse = mockk<ContentGeneratorClient.GeneratedResponse> {
             every { title } returns "Curriculum title"
@@ -662,8 +611,7 @@ class LibraryViewModelTest {
             every { description } returns "Module description"
             every { content } returns listOf("lesson1", "lesson2")
         }
-        coEvery { buildProfilePathUseCase() } returns profilePath
-        coEvery { getProfileUseCase(profilePath) } returns Result.success(profile)
+        coEvery { fetchProfileUseCase() } returns Result.success(profile)
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedCurriculumResponse))
         coEvery { generateModuleUseCase("Module1 title", profile, any()) } returns flowOf(Result.success(generatedModuleResponse))
         advanceUntilIdle()
@@ -674,7 +622,7 @@ class LibraryViewModelTest {
         viewModel.handleAction(LibraryAction.GenerateCurriculum)
         advanceUntilIdle()
 
-        viewModel.handleAction(LibraryAction.GenerateModule(0))
+        viewModel.handleAction(LibraryAction.GenerateModule("Module1 title"))
         advanceUntilIdle()
 
         // When
@@ -696,7 +644,7 @@ class LibraryViewModelTest {
             Curriculum(title = "Curriculum 1", description = "Description 1", content = listOf("Module 1")),
             Curriculum(title = "Curriculum 2", description = "Description 2", content = listOf("Module 2"))
         )
-        coEvery { getAllCurriculaUseCase(any()) } returns Result.success(curricula)
+        coEvery { fetchCurriculaByUserUseCase(any()) } returns Result.success(curricula)
         advanceUntilIdle()
 
         // When
@@ -719,7 +667,7 @@ class LibraryViewModelTest {
             Curriculum(title = "Curriculum 1", description = "Description 1", content = listOf("Module 1")),
             Curriculum(title = "Curriculum 2", description = "Description 2", content = listOf("Module 2"))
         )
-        coEvery { getAllCurriculaUseCase(any()) } returns Result.success(curricula)
+        coEvery { fetchCurriculaByUserUseCase(any()) } returns Result.success(curricula)
         advanceUntilIdle()
 
         viewModel.handleAction(LibraryAction.EditFilterQuery(query))
@@ -743,7 +691,7 @@ class LibraryViewModelTest {
             Curriculum(title = "Curriculum 1", description = "Description 1", content = listOf("Module 1")),
             Curriculum(title = "Curriculum 2", description = "Description 2", content = listOf("Module 2"))
         )
-        coEvery { getAllCurriculaUseCase(any()) } returns Result.success(curricula)
+        coEvery { fetchCurriculaByUserUseCase(any()) } returns Result.success(curricula)
 
         viewModel.handleAction(LibraryAction.EditFilterQuery(query))
         advanceUntilIdle()
@@ -788,15 +736,13 @@ class LibraryViewModelTest {
             viewModel.uiEvent.toList(uiEvents)
         }
         val syllabusDescription = "Curriculum description"
-        val profilePath = "profilePath"
         val profile = mockk<Profile> { every { id } returns "profileId" }
         val generatedResponse = mockk<ContentGeneratorClient.GeneratedResponse> {
             every { title } returns "Curriculum title"
             every { description } returns "Curriculum description"
             every { content } returns listOf("module1", "module2")
         }
-        coEvery { buildProfilePathUseCase() } returns profilePath
-        coEvery { getProfileUseCase(profilePath) } returns Result.success(profile)
+        coEvery { fetchProfileUseCase() } returns Result.success(profile)
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedResponse))
         advanceUntilIdle()
 
@@ -823,15 +769,13 @@ class LibraryViewModelTest {
     fun `handleAction HideDiscardWarningDialog should set showDiscardWarningDialog to false`() = runTest {
         // Given
         val syllabusDescription = "Curriculum description"
-        val profilePath = "profilePath"
         val profile = mockk<Profile> { every { id } returns "profileId" }
         val generatedResponse = mockk<ContentGeneratorClient.GeneratedResponse> {
             every { title } returns "Curriculum title"
             every { description } returns "Curriculum description"
             every { content } returns listOf("module1", "module2")
         }
-        coEvery { buildProfilePathUseCase() } returns profilePath
-        coEvery { getProfileUseCase(profilePath) } returns Result.success(profile)
+        coEvery { fetchProfileUseCase() } returns Result.success(profile)
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedResponse))
         advanceUntilIdle()
 

@@ -22,11 +22,10 @@ class DeleteAllModulesUseCaseTest {
 
     @Test
     fun `deleteAll should return success when succeeds`() = runTest {
-        val path = "test/path"
-        val modules = listOf(mockk<Module>(relaxed = true))
+        val modules = listOf(mockk<Module>())
         coEvery { repository.deleteAll(any(), any(), any()) } returns Result.success(Unit)
 
-        val result = useCase(path, modules)
+        val result = useCase(modules, USER_ID, CURRICULUM_ID)
 
         coVerify(exactly = 1) { repository.deleteAll(any(), any(), any()) }
         assert(result.isSuccess)
@@ -34,15 +33,19 @@ class DeleteAllModulesUseCaseTest {
 
     @Test
     fun `deleteAll should return failure when fails`() = runTest {
-        val path = "test/path"
-        val modules = listOf(mockk<Module>(relaxed = true))
+        val modules = listOf(mockk<Module>())
         val exception = RuntimeException("Delete failed")
         coEvery { repository.deleteAll(any(), any(), any()) } returns Result.failure(exception)
 
-        val result = useCase(path, modules)
+        val result = useCase(modules, USER_ID, CURRICULUM_ID)
 
         coVerify(exactly = 1) { repository.deleteAll(any(), any(), any()) }
         assert(result.isFailure)
         assertEquals(exception, result.exceptionOrNull())
+    }
+
+    companion object {
+        private const val USER_ID = "userId"
+        private const val CURRICULUM_ID = "curriculumId"
     }
 }

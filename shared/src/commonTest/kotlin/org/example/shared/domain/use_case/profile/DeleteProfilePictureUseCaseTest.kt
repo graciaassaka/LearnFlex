@@ -19,17 +19,17 @@ class DeleteProfilePictureUseCaseTest {
     private lateinit var deleteProfilePictureUseCase: DeleteProfilePictureUseCase
     private lateinit var storageClient: StorageClient
     private lateinit var authClient: AuthClient
-    private lateinit var getProfileUseCase: GetProfileUseCase
+    private lateinit var fetchProfileUseCase: FetchProfileUseCase
     private lateinit var updateProfileUseCase: UpdateProfileUseCase
 
     @Before
     fun setUp() {
         storageClient = mockk()
         authClient = mockk()
-        getProfileUseCase = mockk()
+        fetchProfileUseCase = mockk()
         updateProfileUseCase = mockk()
         deleteProfilePictureUseCase = DeleteProfilePictureUseCase(
-            storageClient, authClient, getProfileUseCase, updateProfileUseCase
+            storageClient, authClient, fetchProfileUseCase, updateProfileUseCase
         )
     }
 
@@ -39,17 +39,17 @@ class DeleteProfilePictureUseCaseTest {
         val profile = testProfile()
 
         coEvery { authClient.getUserData() } returns Result.success(user)
-        coEvery { getProfileUseCase(TEST_PATH) } returns Result.success(profile)
+        coEvery { fetchProfileUseCase() } returns Result.success(profile)
         coEvery { authClient.updatePhotoUrl("") } returns Result.success(Unit)
-        coEvery { updateProfileUseCase(TEST_PATH, profile.copy(photoUrl = "")) } returns Result.success(Unit)
+        coEvery { updateProfileUseCase(profile.copy(photoUrl = "")) } returns Result.success(Unit)
         coEvery { storageClient.deleteFile(any()) } returns Result.success(Unit)
 
-        val result = deleteProfilePictureUseCase(TEST_PATH)
+        val result = deleteProfilePictureUseCase()
 
         assertTrue(result.isSuccess)
         coVerifyOrder {
             authClient.updatePhotoUrl("")
-            updateProfileUseCase(TEST_PATH, profile.copy(photoUrl = ""))
+            updateProfileUseCase(profile.copy(photoUrl = ""))
             storageClient.deleteFile("profile_pictures/${user.localId}.jpg")
         }
     }
@@ -60,15 +60,15 @@ class DeleteProfilePictureUseCaseTest {
         val profile = testProfile()
 
         coEvery { authClient.getUserData() } returns Result.success(user)
-        coEvery { getProfileUseCase(TEST_PATH) } returns Result.success(profile)
+        coEvery { fetchProfileUseCase() } returns Result.success(profile)
         coEvery { authClient.updatePhotoUrl("") } returnsMany listOf(
             Result.failure(Exception("Temporary error")),
             Result.success(Unit)
         )
-        coEvery { updateProfileUseCase(TEST_PATH, profile.copy(photoUrl = "")) } returns Result.success(Unit)
+        coEvery { updateProfileUseCase(profile.copy(photoUrl = "")) } returns Result.success(Unit)
         coEvery { storageClient.deleteFile(any()) } returns Result.success(Unit)
 
-        val result = deleteProfilePictureUseCase(TEST_PATH)
+        val result = deleteProfilePictureUseCase()
 
         assertTrue(result.isSuccess)
         coVerify(exactly = 2) { authClient.updatePhotoUrl("") }
@@ -81,19 +81,19 @@ class DeleteProfilePictureUseCaseTest {
         val error = RuntimeException("Update failed")
 
         coEvery { authClient.getUserData() } returns Result.success(user)
-        coEvery { getProfileUseCase(TEST_PATH) } returns Result.success(profile)
+        coEvery { fetchProfileUseCase() } returns Result.success(profile)
         coEvery { authClient.updatePhotoUrl("") } returns Result.success(Unit)
-        coEvery { updateProfileUseCase(TEST_PATH, profile.copy(photoUrl = "")) } returns Result.success(Unit)
-        coEvery { updateProfileUseCase(TEST_PATH, profile) } returns Result.success(Unit)
+        coEvery { updateProfileUseCase(profile.copy(photoUrl = "")) } returns Result.success(Unit)
+        coEvery { updateProfileUseCase(profile) } returns Result.success(Unit)
         coEvery { authClient.updatePhotoUrl(profile.photoUrl) } returns Result.success(Unit)
         coEvery { storageClient.deleteFile(any()) } returns Result.failure(error)
 
-        val result = deleteProfilePictureUseCase(TEST_PATH)
+        val result = deleteProfilePictureUseCase()
 
         assertTrue(result.isFailure)
         assertEquals(error, result.exceptionOrNull())
         coVerify {
-            updateProfileUseCase(TEST_PATH, profile)
+            updateProfileUseCase(profile)
             authClient.updatePhotoUrl(profile.photoUrl)
         }
     }
@@ -106,12 +106,12 @@ class DeleteProfilePictureUseCaseTest {
         val rollbackError = RuntimeException("Rollback failed")
 
         coEvery { authClient.getUserData() } returns Result.success(user)
-        coEvery { getProfileUseCase(TEST_PATH) } returns Result.success(profile)
+        coEvery { fetchProfileUseCase() } returns Result.success(profile)
         coEvery { authClient.updatePhotoUrl("") } returns Result.success(Unit)
         coEvery { authClient.updatePhotoUrl(profile.photoUrl) } returns Result.failure(rollbackError)
-        coEvery { updateProfileUseCase(TEST_PATH, any()) } returns Result.failure(originalError)
+        coEvery { updateProfileUseCase(any()) } returns Result.failure(originalError)
 
-        val result = deleteProfilePictureUseCase(TEST_PATH)
+        val result = deleteProfilePictureUseCase()
 
         assertTrue(result.isFailure)
         val exception = result.exceptionOrNull() as CompoundException
@@ -121,7 +121,6 @@ class DeleteProfilePictureUseCaseTest {
 
 
     companion object {
-        private const val TEST_PATH = "profiles/user123"
         private fun testUser() = User(
             displayName = "Test User",
             email = "test@example.com",
@@ -129,7 +128,6 @@ class DeleteProfilePictureUseCaseTest {
             emailVerified = true,
             localId = "user123"
         )
-
         private fun testProfile() = Profile(
             id = "profile123",
             username = "testuser",

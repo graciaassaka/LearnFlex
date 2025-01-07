@@ -6,7 +6,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
+import org.example.shared.domain.constant.Collection
 import org.example.shared.domain.model.interfaces.DatabaseRecord
+import org.example.shared.domain.storage_operations.util.PathBuilder
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -26,7 +28,9 @@ class FirestoreExtendedDaoTest {
     private lateinit var batch: WriteBatch
     private lateinit var dao: FirestoreExtendedDao<TestModel>
 
-    private val testCollectionPath = "test-collection"
+    private val testCollectionPath = PathBuilder()
+        .collection(Collection.TEST)
+        .build()
     private val testTimestamp = 1000L
     private val testModels = listOf(
         TestModel(id = "test1", name = "Test Item 1", lastUpdated = testTimestamp),
@@ -58,7 +62,7 @@ class FirestoreExtendedDaoTest {
         coEvery { batch.commit() } returns Unit
 
         // Act
-        val result = dao.insertAll(testCollectionPath, testModels, testTimestamp)
+        val result = dao.insertAll(testModels, testCollectionPath, testTimestamp)
 
         // Assert
         assertTrue(result.isSuccess)
@@ -80,7 +84,7 @@ class FirestoreExtendedDaoTest {
         coEvery { batch.commit() } returns Unit
 
         // Act
-        val result = dao.updateAll(testCollectionPath, testModels, testTimestamp)
+        val result = dao.updateAll(testModels, testCollectionPath, testTimestamp)
 
         // Assert
         assertTrue(result.isSuccess)
@@ -102,7 +106,7 @@ class FirestoreExtendedDaoTest {
         coEvery { batch.commit() } returns Unit
 
         // Act
-        val result = dao.deleteAll(testCollectionPath, testModels, testTimestamp)
+        val result = dao.deleteAll(testModels, testCollectionPath, testTimestamp)
 
         // Assert
         assertTrue(result.isSuccess)

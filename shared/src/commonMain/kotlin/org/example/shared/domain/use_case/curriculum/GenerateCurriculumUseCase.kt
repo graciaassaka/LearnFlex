@@ -1,7 +1,11 @@
 package org.example.shared.domain.use_case.curriculum
 
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 import org.example.shared.domain.client.ContentGeneratorClient
 import org.example.shared.domain.constant.ContentType
+import org.example.shared.domain.constant.Field
+import org.example.shared.domain.constant.Level
 import org.example.shared.domain.model.Profile
 
 /**
@@ -20,21 +24,23 @@ class GenerateCurriculumUseCase(
      * @param profile The user profile containing learning preferences and learning style.
      * @return A [Result] encapsulating the first generated curriculum content or the failure if an error occurs.
      */
-    operator fun invoke(syllabusDescription: String, profile: Profile) =
+    operator fun invoke(syllabusDescription: String, profile: Profile) = flow {
         contentGeneratorClient.generateContent(
             ContentGeneratorClient.Context(
-                field = profile.preferences.field,
-                level = profile.preferences.level,
+                field = Field.valueOf(profile.preferences.field),
+                level = Level.valueOf(profile.preferences.level),
                 style = profile.learningStyle,
                 type = ContentType.CURRICULUM,
                 contentDescriptors = listOf(
-                    ContentGeneratorClient.ContentDescriptor(
+                    ContentGeneratorClient.Context.ContentDescriptor(
                         type = ContentType.SYLLABUS,
                         title = "No title provided",
                         description = syllabusDescription
                     )
                 )
             )
-        )
-
+        ).collect(::emit)
+    }.catch { e ->
+        emit(Result.failure(e))
+    }
 }

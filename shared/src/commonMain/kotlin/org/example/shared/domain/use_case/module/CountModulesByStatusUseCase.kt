@@ -7,7 +7,7 @@ import org.example.shared.domain.constant.Status
  *
  * @property getByCurriculumId The use case to get all modules.
  */
-class CountModulesByStatusUseCase(private val getByCurriculumId: GetModulesByCurriculumIdUseCase) {
+class CountModulesByStatusUseCase(private val getByCurriculumId: RetrieveModulesByCurriculumUseCase) {
 
     /**
      * Invokes the use case to sum the modules by status.

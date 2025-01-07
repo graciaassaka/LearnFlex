@@ -6,8 +6,10 @@ import io.mockk.coVerifyOrder
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.client.AuthClient
+import org.example.shared.domain.constant.Collection
 import org.example.shared.domain.model.Profile
 import org.example.shared.domain.repository.ProfileRepository
+import org.example.shared.domain.storage_operations.util.PathBuilder
 import org.example.shared.domain.use_case.util.CompoundException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -28,23 +30,20 @@ class CreateProfileUseCaseTest {
 
     @Test
     fun `successful profile creation should execute all steps in correct order`() = runTest {
-        // Set up our test data with meaningful values
-        val path = "profiles/user123"
-
         // Mock successful responses for all operations
         coEvery { authClient.updateUsername(profile.username) } returns Result.success(Unit)
         coEvery { authClient.updatePhotoUrl(profile.photoUrl) } returns Result.success(Unit)
-        coEvery { repository.insert(path, profile, any()) } returns Result.success(Unit)
+        coEvery { repository.insert(profile, path, any()) } returns Result.success(Unit)
 
         // Perform the operation
-        val result = createProfileUseCase(path, profile)
+        val result = createProfileUseCase(profile)
 
         // Verify success and correct order of operations
         assertTrue(result.isSuccess)
         coVerifyOrder {
             authClient.updateUsername(profile.username)
             authClient.updatePhotoUrl(profile.photoUrl)
-            repository.insert(path, profile, any())
+            repository.insert(profile, path, any())
         }
     }
 
@@ -55,7 +54,7 @@ class CreateProfileUseCaseTest {
         coEvery { authClient.updateUsername(profile.username) } returns Result.failure(updateError)
 
         // Perform the operation
-        val result = createProfileUseCase(PATH, profile)
+        val result = createProfileUseCase(profile)
 
         // Verify failure and retry attempts
         assertTrue(result.isFailure)
@@ -79,10 +78,10 @@ class CreateProfileUseCaseTest {
             Result.success(Unit)
         )
         coEvery { authClient.updatePhotoUrl(profile.photoUrl) } returns Result.success(Unit)
-        coEvery { repository.insert(PATH, profile, any()) } returns Result.success(Unit)
+        coEvery { repository.insert(profile, path, any()) } returns Result.success(Unit)
 
         // Perform the operation
-        val result = createProfileUseCase(PATH, profile)
+        val result = createProfileUseCase(profile)
 
         // Verify eventual success
         assertTrue(result.isSuccess)
@@ -100,7 +99,7 @@ class CreateProfileUseCaseTest {
         coEvery { authClient.updateUsername("") } returns Result.success(Unit)
 
         // Perform the operation
-        val result = createProfileUseCase(PATH, profile)
+        val result = createProfileUseCase(profile)
 
         // Verify failure and rollback
         assertTrue(result.isFailure)
@@ -125,7 +124,7 @@ class CreateProfileUseCaseTest {
         coEvery { authClient.updateUsername("") } returns Result.failure(rollbackError)
 
         // Perform the operation
-        val result = createProfileUseCase(PATH, profile)
+        val result = createProfileUseCase(profile)
 
         // Verify CompoundException with both errors
         assertTrue(result.isFailure)
@@ -135,7 +134,10 @@ class CreateProfileUseCaseTest {
     }
 
     companion object {
-        private const val PATH = "profiles/user123"
+        private val path = PathBuilder()
+            .collection(Collection.PROFILES)
+            .document("user123")
+            .build()
         private const val TIMESTAMP = 1234567890L
 
         val profile = Profile(

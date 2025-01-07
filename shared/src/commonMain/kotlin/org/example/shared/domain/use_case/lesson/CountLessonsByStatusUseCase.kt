@@ -7,7 +7,7 @@ import org.example.shared.domain.constant.Status
  *
  * @property getByCurriculumId The use case to get all lessons.
  */
-class CountLessonsByStatusUseCase(private val getByCurriculumId: GetLessonsByCurriculumIdUseCase) {
+class CountLessonsByStatusUseCase(private val getByCurriculumId: RetrieveLessonsByCurriculumUseCase) {
 
     /**
      * Invokes the use case to sum the lessons by status.

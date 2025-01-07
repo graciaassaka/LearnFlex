@@ -36,6 +36,7 @@ import org.example.shared.domain.constant.Field
 import org.example.shared.domain.constant.Level
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.Profile
+import org.example.shared.domain.use_case.profile.FetchStyleQuestionnaireUseCase
 import org.example.shared.presentation.navigation.Route
 import org.example.shared.presentation.state.CreateProfileUIState
 import org.example.shared.presentation.util.ProfileCreationForm
@@ -252,7 +253,7 @@ private fun StyleQuestionnaireScreen(
                         null
                     }
                 },
-                isQuizFinished = currentQuestionIndex == CreateUserProfileViewModel.QUESTION_COUNT - 1,
+                isQuizFinished = currentQuestionIndex == FetchStyleQuestionnaireUseCase.NUMBER_OF_QUESTIONS - 1,
                 onNextClicked = {
                     selectedStyle?.let { style ->
                         handleAction(Action.HandleQuestionAnswered(style))

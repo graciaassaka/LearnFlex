@@ -17,6 +17,7 @@ import org.example.shared.domain.dao.Dao
 import org.example.shared.domain.dao.ExtendedDao
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.repository.util.ModelMapper
+import org.example.shared.domain.storage_operations.util.PathBuilder
 import org.example.shared.domain.sync.SyncManager
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -80,11 +81,11 @@ class BatchRepositoryComponentTest {
         } just runs
         coEvery { syncManager.queueOperation(any()) } just runs
 
-        val result = component.insertAll(TEST_PATH, listOf(testModel), TIMESTAMP)
+        val result = component.insertAll(listOf(testModel), testPath, TIMESTAMP)
 
         assertTrue(result.isSuccess)
         coVerify(exactly = 1) {
-            localDao.insertAll(TEST_PATH, any(), TIMESTAMP)
+            localDao.insertAll(testPath, any(), TIMESTAMP)
             syncManager.queueOperation(match { it.timestamp == TIMESTAMP })
         }
     }
@@ -97,7 +98,7 @@ class BatchRepositoryComponentTest {
             localDao.insertAll(path = any(), items = any(), timestamp = any())
         } throws exception
 
-        val result = component.insertAll(TEST_PATH, listOf(testModel), TIMESTAMP)
+        val result = component.insertAll(listOf(testModel), testPath, TIMESTAMP)
 
         assertTrue(result.isFailure)
         assertEquals(exception, result.exceptionOrNull())
@@ -112,11 +113,11 @@ class BatchRepositoryComponentTest {
         } just runs
         coEvery { syncManager.queueOperation(any()) } just runs
 
-        val result = component.updateAll(TEST_PATH, listOf(testModel), TIMESTAMP)
+        val result = component.updateAll(listOf(testModel), testPath, TIMESTAMP)
 
         assertTrue(result.isSuccess)
         coVerify(exactly = 1) {
-            localDao.updateAll(TEST_PATH, any(), TIMESTAMP)
+            localDao.updateAll(testPath, any(), TIMESTAMP)
             syncManager.queueOperation(match { it.timestamp == TIMESTAMP })
         }
     }
@@ -129,7 +130,7 @@ class BatchRepositoryComponentTest {
             localDao.updateAll(path = any(), items = any(), timestamp = any())
         } throws exception
 
-        val result = component.updateAll(TEST_PATH, listOf(testModel), TIMESTAMP)
+        val result = component.updateAll(listOf(testModel), testPath, TIMESTAMP)
 
         assertTrue(result.isFailure)
         assertEquals(exception, result.exceptionOrNull())
@@ -144,11 +145,11 @@ class BatchRepositoryComponentTest {
         } just runs
         coEvery { syncManager.queueOperation(any()) } just runs
 
-        val result = component.deleteAll(TEST_PATH, listOf(testModel), TIMESTAMP)
+        val result = component.deleteAll(listOf(testModel), testPath, TIMESTAMP)
 
         assertTrue(result.isSuccess)
         coVerify(exactly = 1) {
-            localDao.deleteAll(TEST_PATH, any(), TIMESTAMP)
+            localDao.deleteAll(testPath, any(), TIMESTAMP)
             syncManager.queueOperation(match { it.timestamp == TIMESTAMP })
         }
     }
@@ -161,7 +162,7 @@ class BatchRepositoryComponentTest {
             localDao.deleteAll(path = any(), items = any(), timestamp = any())
         } throws exception
 
-        val result = component.deleteAll(TEST_PATH, listOf(testModel), TIMESTAMP)
+        val result = component.deleteAll(listOf(testModel), testPath, TIMESTAMP)
 
         assertTrue(result.isFailure)
         assertEquals(exception.message, result.exceptionOrNull()?.message)
@@ -174,14 +175,14 @@ class BatchRepositoryComponentTest {
         every { modelMapper.toEntity(any(), any()) } returns testEntity
         every { remoteDao.getAll(any()) } returns flowOf(Result.success(listOf(testModel)))
 
-        val result = component.getAll(TEST_PATH).first()
+        val result = component.getAll(testPath).first()
 
         assertTrue(result.isSuccess)
         assertEquals(listOf(testModel), result.getOrNull())
 
         coVerify {
             queryStrategies.byParentStrategy?.execute()
-            remoteDao.getAll(TEST_PATH)
+            remoteDao.getAll(testPath)
             syncManager.queueOperation(any())
         }
     }
@@ -191,7 +192,7 @@ class BatchRepositoryComponentTest {
         val exception = RuntimeException("Remote fetch error")
         every { remoteDao.getAll(any()) } throws exception
 
-        val result = component.getAll(TEST_PATH).first { it.isFailure }
+        val result = component.getAll(testPath).first { it.isFailure }
 
         assertTrue(result.isFailure)
         assertEquals(exception.message, result.exceptionOrNull()?.message)
@@ -206,7 +207,7 @@ class BatchRepositoryComponentTest {
             localDao.insertAll(any())
         } just runs
 
-        val results = component.getAll(TEST_PATH)
+        val results = component.getAll(testPath)
             .take(2)
             .toList()
 
@@ -219,7 +220,7 @@ class BatchRepositoryComponentTest {
         config = config.copy(localDao = basicLocalDao)
         component = BatchRepositoryComponent(config)
 
-        val result = component.insertAll(TEST_PATH, listOf(testModel), TIMESTAMP)
+        val result = component.insertAll(listOf(testModel), testPath, TIMESTAMP)
 
         assertTrue(result.isFailure)
     }
@@ -230,7 +231,7 @@ class BatchRepositoryComponentTest {
         config = config.copy(remoteDao = basicRemoteDao)
         component = BatchRepositoryComponent(config)
 
-        val result = component.getAll(TEST_PATH).first { it.isFailure }
+        val result = component.getAll(testPath).first { it.isFailure }
 
         assertTrue(result.isFailure)
     }
@@ -250,7 +251,11 @@ class BatchRepositoryComponentTest {
             lastUpdated = 1234567890
         )
 
-        private const val TEST_PATH = "profiles/123/items"
+        private val testPath = PathBuilder()
+            .collection(Collection.TEST)
+            .document(testModel.id)
+            .collection(Collection.TEST)
+            .build()
         private const val TIMESTAMP = 1234567890L
     }
 }

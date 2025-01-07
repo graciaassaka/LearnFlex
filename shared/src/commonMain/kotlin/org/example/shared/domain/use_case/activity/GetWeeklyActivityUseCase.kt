@@ -1,16 +1,16 @@
 package org.example.shared.domain.use_case.activity
 
-import org.example.shared.domain.use_case.session.GetSessionsByDateRangeUseCase
+import org.example.shared.domain.use_case.session.RetrieveSessionsByDateRangeUseCase
 import java.time.Instant
 import java.time.ZoneId
 
 /**
  * Use case class for fetching the weekly activity.
  *
- * @property getSessionsByDateRangeUseCase The use case for fetching sessions by date range.
+ * @property retrieveSessionsByDateRangeUseCase The use case for fetching sessions by date range.
  */
 class GetWeeklyActivityUseCase(
-    private val getSessionsByDateRangeUseCase: GetSessionsByDateRangeUseCase
+    private val retrieveSessionsByDateRangeUseCase: RetrieveSessionsByDateRangeUseCase
 ) {
 
     /**
@@ -26,7 +26,7 @@ class GetWeeklyActivityUseCase(
             .toInstant()
             .toEpochMilli()
 
-        getSessionsByDateRangeUseCase(start, timestamp).getOrThrow().let { sessions ->
+        retrieveSessionsByDateRangeUseCase(start, timestamp).getOrThrow().let { sessions ->
             sessions
                 .groupBy {
                     Instant.ofEpochMilli(it.createdAt).atZone(ZoneId.systemDefault()).dayOfWeek

@@ -1,5 +1,7 @@
 package org.example.shared.domain.sync
 
+import org.example.shared.domain.storage_operations.util.Path
+
 /**
  * Class representing a sync operation.
  *
@@ -9,15 +11,15 @@ package org.example.shared.domain.sync
  * @param timestamp The timestamp of the operation.
  */
 data class SyncOperation<Model>(
-    val type: SyncOperationType,
-    val path: String,
+    val type: Type,
+    val path: Path,
     val data: List<Model>,
-    val timestamp: Long
+    val timestamp: Long = System.currentTimeMillis()
 ) {
     /**
      * Enum class representing the type of a sync operation.
      */
-    enum class SyncOperationType {
+    enum class Type {
         INSERT,
         UPDATE,
         DELETE,

@@ -9,9 +9,11 @@ import kotlinx.serialization.Serializable
 import org.example.shared.data.local.dao.LocalDao
 import org.example.shared.data.local.entity.interfaces.RoomEntity
 import org.example.shared.data.repository.util.QueryStrategies
+import org.example.shared.domain.constant.Collection
 import org.example.shared.domain.dao.Dao
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.repository.util.ModelMapper
+import org.example.shared.domain.storage_operations.util.PathBuilder
 import org.example.shared.domain.sync.SyncHandler
 import org.example.shared.domain.sync.SyncOperation
 import org.junit.Before
@@ -56,7 +58,7 @@ class SyncHandlerDelegateTest {
     @Test
     fun `handleSync creates model in remote when operation type is CREATE`() = runTest {
         // Given
-        val operation = SyncOperation(SyncOperation.SyncOperationType.INSERT, TEST_PATH, testModels, TIMESTAMP)
+        val operation = SyncOperation(SyncOperation.Type.INSERT, testPath, testModels, TIMESTAMP)
 
         coEvery { remoteDao.insert(any(), any(), any()) } returns Result.success(Unit)
 
@@ -70,7 +72,7 @@ class SyncHandlerDelegateTest {
     @Test
     fun `handleSync updates model in remote when operation type is UPDATE`() = runTest {
         // Given
-        val operation = SyncOperation(SyncOperation.SyncOperationType.UPDATE, TEST_PATH, testModels, TIMESTAMP)
+        val operation = SyncOperation(SyncOperation.Type.UPDATE, testPath, testModels, TIMESTAMP)
 
         coEvery { remoteDao.update(any(), any(), any()) } returns Result.success(Unit)
 
@@ -84,7 +86,7 @@ class SyncHandlerDelegateTest {
     @Test
     fun `handleSync deletes model from remote when operation type is DELETE`() = runTest {
         // Given
-        val operation = SyncOperation(SyncOperation.SyncOperationType.DELETE, TEST_PATH, testModels, TIMESTAMP)
+        val operation = SyncOperation(SyncOperation.Type.DELETE, testPath, testModels, TIMESTAMP)
 
         coEvery { remoteDao.delete(any(), any(), any()) } returns Result.success(Unit)
 
@@ -103,9 +105,9 @@ class SyncHandlerDelegateTest {
             createdAt = testModels.first().createdAt,
             lastUpdated = testModels.first().lastUpdated + 1
         )
-        val operation = SyncOperation(SyncOperation.SyncOperationType.SYNC, TEST_PATH, testModels, TIMESTAMP)
+        val operation = SyncOperation(SyncOperation.Type.SYNC, testPath, testModels, TIMESTAMP)
 
-        coEvery { remoteDao.get(any(), any()) } returns flowOf(Result.success(remoteModel))
+        coEvery { remoteDao.get(any()) } returns flowOf(Result.success(remoteModel))
         coEvery { localDao.update(any(), any(), any()) } returns Unit
 
         // When
@@ -113,7 +115,7 @@ class SyncHandlerDelegateTest {
 
         // Then
         coVerify(exactly = 1) {
-            remoteDao.get(any(), any())
+            remoteDao.get(any())
             localDao.update(any(), any(), any())
         }
         coVerify(exactly = 0) {
@@ -129,9 +131,9 @@ class SyncHandlerDelegateTest {
             createdAt = testModels.first().createdAt,
             lastUpdated = testModels.first().lastUpdated - 1
         )
-        val operation = SyncOperation(SyncOperation.SyncOperationType.SYNC, TEST_PATH, testModels, TIMESTAMP)
+        val operation = SyncOperation(SyncOperation.Type.SYNC, testPath, testModels, TIMESTAMP)
 
-        coEvery { remoteDao.get(any(), any()) } returns flowOf(Result.success(remoteModel))
+        coEvery { remoteDao.get(any()) } returns flowOf(Result.success(remoteModel))
         coEvery { remoteDao.insert(any(), any(), any()) } returns Result.success(Unit)
         coEvery { remoteDao.update(any(), any(), any()) } returns Result.success(Unit)
         coEvery { localDao.update(any(), any(), any()) } just Runs
@@ -141,7 +143,7 @@ class SyncHandlerDelegateTest {
 
         // Then
         coVerifyOrder {
-            remoteDao.get(any(), any())
+            remoteDao.get(any())
             remoteDao.update(any(), any(), any())
         }
     }
@@ -154,9 +156,9 @@ class SyncHandlerDelegateTest {
             createdAt = testModels.first().createdAt,
             lastUpdated = testModels.first().lastUpdated + 1
         )
-        val operation = SyncOperation(SyncOperation.SyncOperationType.SYNC, TEST_PATH, testModels, TIMESTAMP)
+        val operation = SyncOperation(SyncOperation.Type.SYNC, testPath, testModels, TIMESTAMP)
 
-        coEvery { remoteDao.get(any(), any()) } returns flowOf(Result.success(remoteModel))
+        coEvery { remoteDao.get(any()) } returns flowOf(Result.success(remoteModel))
         coEvery { localDao.update(any(), any(), any()) } returns Unit
 
         // When
@@ -164,7 +166,7 @@ class SyncHandlerDelegateTest {
 
         // Then
         coVerifyOrder {
-            remoteDao.get(any(), any())
+            remoteDao.get(any())
             localDao.update(any(), any(), any())
         }
         coVerifyAll(true) {
@@ -176,9 +178,9 @@ class SyncHandlerDelegateTest {
     @Test
     fun `handleSync insert model in remote when operation type is SYNC and remote is null`() = runTest {
         // Given
-        val operation = SyncOperation(SyncOperation.SyncOperationType.SYNC, TEST_PATH, testModels, TIMESTAMP)
+        val operation = SyncOperation(SyncOperation.Type.SYNC, testPath, testModels, TIMESTAMP)
 
-        coEvery { remoteDao.get(any(), any()) } returns flowOf(Result.failure(Exception()))
+        coEvery { remoteDao.get(any()) } returns flowOf(Result.failure(Exception()))
         coEvery { remoteDao.insert(any(), any(), any()) } returns Result.success(Unit)
 
         // When
@@ -186,7 +188,7 @@ class SyncHandlerDelegateTest {
 
         // Then
         coVerifyOrder {
-            remoteDao.get(any(), any())
+            remoteDao.get(any())
             remoteDao.insert(any(), any(), any())
         }
         coVerifyAll(true) {
@@ -198,9 +200,9 @@ class SyncHandlerDelegateTest {
     @Test
     fun `handleSync insert entity in local when operation type is SYNC and local is null`() = runTest {
         // Given
-        val operation = SyncOperation(SyncOperation.SyncOperationType.SYNC, TEST_PATH, testModels, TIMESTAMP)
+        val operation = SyncOperation(SyncOperation.Type.SYNC, testPath, testModels, TIMESTAMP)
 
-        coEvery { remoteDao.get(any(), any()) } returns flowOf(Result.success(testModels.first()))
+        coEvery { remoteDao.get(any()) } returns flowOf(Result.success(testModels.first()))
         every { getStrategy.execute() } returns flowOf(null)
         coEvery { localDao.insert(any(), any(), any()) } returns Unit
 
@@ -209,7 +211,7 @@ class SyncHandlerDelegateTest {
 
         // Then
         coVerifyOrder {
-            remoteDao.get(any(), any())
+            remoteDao.get(any())
             localDao.insert(any(), any(), any())
         }
         coVerifyAll(true) {
@@ -221,7 +223,7 @@ class SyncHandlerDelegateTest {
     @Test
     fun `handleSync propagates errors from remote data source`() = runTest {
         // Given
-        val operation = SyncOperation(SyncOperation.SyncOperationType.INSERT, TEST_PATH, testModels, TIMESTAMP)
+        val operation = SyncOperation(SyncOperation.Type.INSERT, testPath, testModels, TIMESTAMP)
         val exception = Exception("Test exception")
 
         coEvery { remoteDao.insert(any(), any(), any()) } returns Result.failure(exception)
@@ -247,7 +249,9 @@ class SyncHandlerDelegateTest {
             createdAt = 1234567890L,
             lastUpdated = 1234567890L
         )
-        private const val TEST_PATH = "test/path"
+        private val testPath = PathBuilder()
+            .collection(Collection.TEST)
+            .build()
         private const val TIMESTAMP = 1234567890L
     }
 }

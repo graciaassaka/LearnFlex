@@ -23,12 +23,12 @@ class DeleteAllCurriculaUseCaseTest {
     @Test
     fun `invoke should return success when deletion succeeds`() = runTest {
         // Arrange
-        val path = "test/path"
+        val userId = "userId"
         val curricula = List(3) { mockk<Curriculum>(relaxed = true) }
         coEvery { repository.deleteAll(any(), any(), any()) } returns Result.success(Unit)
 
         // Act
-        val result = deleteAllCurriculaUseCase(path, curricula)
+        val result = deleteAllCurriculaUseCase(curricula, userId)
 
         // Assert
         coVerify(exactly = 1) { repository.deleteAll(any(), any(), any()) }
@@ -38,13 +38,13 @@ class DeleteAllCurriculaUseCaseTest {
     @Test
     fun `invoke should return failure when deletion fails`() = runTest {
         // Arrange
-        val path = "test/path"
+        val userId = "userId"
         val curricula = List(3) { mockk<Curriculum>(relaxed = true) }
         val exception = RuntimeException("Delete failed")
         coEvery { repository.deleteAll(any(), any(), any()) } returns Result.failure(exception)
 
         // Act
-        val result = deleteAllCurriculaUseCase(path, curricula)
+        val result = deleteAllCurriculaUseCase(curricula, userId)
 
         // Assert
         coVerify(exactly = 1) { repository.deleteAll(any(), any(), any()) }
@@ -55,12 +55,12 @@ class DeleteAllCurriculaUseCaseTest {
     @Test
     fun `invoke should return success when deleting empty list`() = runTest {
         // Arrange
-        val path = "test/path"
+        val userId = "userId"
         val curricula = emptyList<Curriculum>()
         coEvery { repository.deleteAll(any(), any(), any()) } returns Result.success(Unit)
 
         // Act
-        val result = deleteAllCurriculaUseCase(path, curricula)
+        val result = deleteAllCurriculaUseCase(curricula, userId)
 
         // Assert
         coVerify(exactly = 1) { repository.deleteAll(any(), any(), any()) }

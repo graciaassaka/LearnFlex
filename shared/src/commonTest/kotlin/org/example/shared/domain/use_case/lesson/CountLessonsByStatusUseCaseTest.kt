@@ -13,11 +13,11 @@ import kotlin.test.assertEquals
 
 class CountLessonsByStatusUseCaseTest {
     private lateinit var countLessonsByStatusUseCase: CountLessonsByStatusUseCase
-    private lateinit var getAllLessonsByCurriculumIdUseCase: GetLessonsByCurriculumIdUseCase
+    private lateinit var getAllLessonsByCurriculumIdUseCase: RetrieveLessonsByCurriculumUseCase
 
     @Before
     fun setUp() {
-        getAllLessonsByCurriculumIdUseCase = mockk<GetLessonsByCurriculumIdUseCase>()
+        getAllLessonsByCurriculumIdUseCase = mockk<RetrieveLessonsByCurriculumUseCase>()
         countLessonsByStatusUseCase = CountLessonsByStatusUseCase(getAllLessonsByCurriculumIdUseCase)
     }
 
@@ -61,7 +61,6 @@ class CountLessonsByStatusUseCaseTest {
                 id = "1",
                 title = "Lesson 1",
                 description = "Description 1",
-                index = 1,
                 content = emptyList(),
                 quizScore = 5,
                 createdAt = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
@@ -71,7 +70,6 @@ class CountLessonsByStatusUseCaseTest {
                 id = "2",
                 title = "Lesson 2",
                 description = "Description 2",
-                index = 2,
                 content = emptyList(),
                 quizScore = 6,
                 createdAt = System.currentTimeMillis(),
@@ -81,7 +79,6 @@ class CountLessonsByStatusUseCaseTest {
                 id = "3",
                 title = "Lesson 3",
                 description = "Description 3",
-                index = 3,
                 content = emptyList(),
                 quizScore = 7,
                 createdAt = System.currentTimeMillis(),

@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.client.ContentGeneratorClient
 import org.example.shared.domain.constant.ContentType
+import org.example.shared.domain.constant.Field
+import org.example.shared.domain.constant.Level
+import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.Profile
 import org.junit.Before
 import org.junit.Test
@@ -38,12 +41,12 @@ class GenerateCurriculumUseCaseTest {
             email = "test@example.com",
             photoUrl = "",
             preferences = Profile.LearningPreferences(
-                field = "Computer Science",
-                level = "Beginner",
+                field = Field.COMPUTER_SCIENCE.name,
+                level = Level.BEGINNER.name,
                 goal = "Become a Kotlin expert"
             ),
             learningStyle = Profile.LearningStyle(
-                dominant = "reading",
+                dominant = Style.READING.name,
                 breakdown = Profile.LearningStyleBreakdown(
                     reading = 60,
                     kinesthetic = 40
@@ -57,14 +60,14 @@ class GenerateCurriculumUseCaseTest {
         } returns flowOf(Result.success(mockk()))
 
         // Act
-        generateCurriculumUseCase(syllabusDescription, profile)
+        generateCurriculumUseCase(syllabusDescription, profile).first()
 
         // Assert
         coVerify(exactly = 1) {
             contentGeneratorClient.generateContent(
                 match {
-                    it.field == profile.preferences.field &&
-                            it.level == profile.preferences.level &&
+                    it.field.name == profile.preferences.field &&
+                            it.level.name == profile.preferences.level &&
                             it.style == profile.learningStyle &&
                             it.type == ContentType.CURRICULUM &&
                             it.contentDescriptors.size == 1 &&
@@ -88,12 +91,12 @@ class GenerateCurriculumUseCaseTest {
             email = "test@example.com",
             photoUrl = "",
             preferences = Profile.LearningPreferences(
-                field = "Computer Science",
-                level = "Beginner",
+                field = Field.COMPUTER_SCIENCE.name,
+                level = Level.BEGINNER.name,
                 goal = "Learn Kotlin"
             ),
             learningStyle = Profile.LearningStyle(
-                dominant = "reading",
+                dominant = Style.READING.name,
                 breakdown = Profile.LearningStyleBreakdown(
                     reading = 80,
                     kinesthetic = 20
@@ -133,12 +136,12 @@ class GenerateCurriculumUseCaseTest {
             email = "test@example.com",
             photoUrl = "",
             preferences = Profile.LearningPreferences(
-                field = "Computer Science",
-                level = "Advanced",
+                field = Field.COMPUTER_SCIENCE.name,
+                level = Level.ADVANCED.name,
                 goal = "Master Kotlin internals"
             ),
             learningStyle = Profile.LearningStyle(
-                dominant = "kinesthetic",
+                dominant = Style.KINESTHETIC.name,
                 breakdown = Profile.LearningStyleBreakdown(
                     reading = 20,
                     kinesthetic = 80

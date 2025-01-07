@@ -8,6 +8,7 @@ import org.example.shared.domain.dao.Dao
 import org.example.shared.domain.dao.ExtendedDao
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.repository.util.ModelMapper
+import org.example.shared.domain.storage_operations.util.Path
 import org.example.shared.domain.sync.SyncHandler
 import org.example.shared.domain.sync.SyncOperation
 
@@ -35,9 +36,9 @@ class SyncHandlerDelegate<Model : DatabaseRecord, Entity : RoomEntity>(
     override suspend fun handleSync(operation: SyncOperation<Model>) = with(operation) {
         require(data.isNotEmpty()) { "Data must not be empty" }
 
-        if (type == SyncOperation.SyncOperationType.INSERT_ALL ||
-            type == SyncOperation.SyncOperationType.UPDATE_ALL ||
-            type == SyncOperation.SyncOperationType.DELETE_ALL
+        if (type == SyncOperation.Type.INSERT_ALL ||
+            type == SyncOperation.Type.UPDATE_ALL ||
+            type == SyncOperation.Type.DELETE_ALL
         ) {
             require(remoteDao is ExtendedDao<Model>) {
                 "RemoteDao must be an instance of ExtendedDao"
@@ -45,21 +46,21 @@ class SyncHandlerDelegate<Model : DatabaseRecord, Entity : RoomEntity>(
         }
 
         when (type) {
-            SyncOperation.SyncOperationType.INSERT -> remoteDao.insert(path, data.first(), timestamp).getOrThrow()
+            SyncOperation.Type.INSERT -> remoteDao.insert(data.first(), path, timestamp).getOrThrow()
 
-            SyncOperation.SyncOperationType.UPDATE -> remoteDao.update(path, data.first(), timestamp).getOrThrow()
+            SyncOperation.Type.UPDATE -> remoteDao.update(data.first(), path, timestamp).getOrThrow()
 
-            SyncOperation.SyncOperationType.DELETE -> remoteDao.delete(path, data.first(), timestamp).getOrThrow()
+            SyncOperation.Type.DELETE -> remoteDao.delete(data.first(), path, timestamp).getOrThrow()
 
-            SyncOperation.SyncOperationType.SYNC -> data.forEach { sync(path, it.id) }
+            SyncOperation.Type.SYNC -> data.forEach { sync(path, it.id) }
 
-            SyncOperation.SyncOperationType.INSERT_ALL -> (remoteDao as ExtendedDao<Model>).insertAll(path, data, timestamp)
+            SyncOperation.Type.INSERT_ALL -> (remoteDao as ExtendedDao<Model>).insertAll(data, path, timestamp)
                 .getOrThrow()
 
-            SyncOperation.SyncOperationType.UPDATE_ALL -> (remoteDao as ExtendedDao<Model>).updateAll(path, data, timestamp)
+            SyncOperation.Type.UPDATE_ALL -> (remoteDao as ExtendedDao<Model>).updateAll(data, path, timestamp)
                 .getOrThrow()
 
-            SyncOperation.SyncOperationType.DELETE_ALL -> (remoteDao as ExtendedDao<Model>).deleteAll(path, data, timestamp)
+            SyncOperation.Type.DELETE_ALL -> (remoteDao as ExtendedDao<Model>).deleteAll(data, path, timestamp)
                 .getOrThrow()
         }
     }
@@ -70,30 +71,20 @@ class SyncHandlerDelegate<Model : DatabaseRecord, Entity : RoomEntity>(
      * @param path The path of the data to be synchronized.
      * @param id The ID of the data to be synchronized.
      */
-    private suspend fun sync(path: String, id: String) {
-        val remote = remoteDao.get(path, id).first().getOrNull()
+    private suspend fun sync(path: Path, id: String) {
+        val remote = remoteDao.get(path).first().getOrNull()
         val local = getStrategy.setId(id).execute().first()
 
         if (remote != null && local != null) {
             if (remote.lastUpdated > local.lastUpdated) {
-                localDao.update(path, modelMapper.toEntity(remote, extractParentId(path)), remote.lastUpdated)
+                localDao.update(path, modelMapper.toEntity(remote, path.getParentId()), remote.lastUpdated)
             } else {
-                remoteDao.update(path, modelMapper.toModel(local), local.lastUpdated)
+                remoteDao.update(modelMapper.toModel(local), path, local.lastUpdated)
             }
         } else if (remote != null) {
-            localDao.insert(path, modelMapper.toEntity(remote, extractParentId(path)), remote.lastUpdated)
+            localDao.insert(path, modelMapper.toEntity(remote, path.getParentId()), remote.lastUpdated)
         } else if (local != null) {
-            remoteDao.insert(path, modelMapper.toModel(local), local.lastUpdated)
+            remoteDao.insert(modelMapper.toModel(local), path, local.lastUpdated)
         }
-    }
-
-    /**
-     * Extracts the parent ID from the given path.
-     *
-     * @param path The path to extract the parent ID from.
-     * @return The extracted parent ID or null if not found.
-     */
-    private fun extractParentId(path: String) = path.split("/").run {
-        if (size >= 3) get(size - 2) else null
     }
 }

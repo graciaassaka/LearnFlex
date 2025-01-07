@@ -11,7 +11,6 @@ import org.example.shared.domain.model.Profile
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.use_case.auth.GetUserDataUseCase
-import org.example.shared.domain.use_case.path.BuildProfilePathUseCase
 import org.example.shared.domain.use_case.profile.*
 import org.example.shared.domain.use_case.validation.ValidateUsernameUseCase
 import org.example.shared.domain.use_case.validation.util.ValidationResult
@@ -28,10 +27,9 @@ import org.example.shared.presentation.action.CreateUserProfileAction as Action
  * @param createProfileUseCase The use case to create a user profile.
  * @param uploadProfilePictureUseCase The use case to upload a profile picture.
  * @param deleteProfilePictureUseCase The use case to delete a profile picture.
- * @param getStyleQuestionnaireUseCase The use case to get the style questionnaire.
+ * @param fetchStyleQuestionnaireUseCase The use case to get the style questionnaire.
  * @param getStyleResultUseCase The use case to get the style result.
  * @param createUserStyleUseCase The use case to set the user style.
- * @param buildProfilePathUseCase The use case to build the profile path.
  * @param syncManagers The list of sync managers to handle sync operations.
  * @param dispatcher The coroutine dispatcher to run the use cases on.
  * @param sharingStarted The sharing strategy for the state flow.
@@ -41,11 +39,10 @@ class CreateUserProfileViewModel(
     private val createProfileUseCase: CreateProfileUseCase,
     private val uploadProfilePictureUseCase: UploadProfilePictureUseCase,
     private val deleteProfilePictureUseCase: DeleteProfilePictureUseCase,
-    private val getStyleQuestionnaireUseCase: GetStyleQuestionnaireUseCase,
+    private val fetchStyleQuestionnaireUseCase: FetchStyleQuestionnaireUseCase,
     private val getStyleResultUseCase: GetStyleResultUseCase,
     private val updateProfileUseCase: UpdateProfileUseCase,
     private val validateUsernameUseCase: ValidateUsernameUseCase,
-    private val buildProfilePathUseCase: BuildProfilePathUseCase,
     private val dispatcher: CoroutineDispatcher,
     syncManagers: List<SyncManager<DatabaseRecord>>,
     sharingStarted: SharingStarted
@@ -67,9 +64,9 @@ class CreateUserProfileViewModel(
                 .onSuccess { userData ->
                     update {
                         it.copy(
-                            userId = userData.localId ?: "",
-                            username = userData.displayName ?: "",
-                            email = userData.email ?: "",
+                            userId = userData.localId,
+                            username = userData.displayName,
+                            email = userData.email,
                         )
                     }
                 }.onFailure {
@@ -156,7 +153,7 @@ class CreateUserProfileViewModel(
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
-            uploadProfilePictureUseCase(buildProfilePathUseCase(), imageData)
+            uploadProfilePictureUseCase(imageData)
                 .onSuccess { url ->
                     update { it.copy(photoUrl = url) }
                     showSnackbar(successMessage, SnackbarType.Success)
@@ -177,7 +174,7 @@ class CreateUserProfileViewModel(
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
-            deleteProfilePictureUseCase(buildProfilePathUseCase())
+            deleteProfilePictureUseCase()
                 .onSuccess {
                     update { it.copy(photoUrl = "") }
                     showSnackbar(successMessage, SnackbarType.Success)
@@ -201,7 +198,7 @@ class CreateUserProfileViewModel(
 
         if (value.usernameError.isNullOrBlank()) viewModelScope.launch(dispatcher) {
             createProfileUseCase(
-                profile = Profile(
+                Profile(
                     id = value.userId,
                     email = value.email,
                     username = value.username,
@@ -210,8 +207,7 @@ class CreateUserProfileViewModel(
                     learningStyle = Profile.LearningStyle(),
                     createdAt = System.currentTimeMillis(),
                     lastUpdated = System.currentTimeMillis()
-                ),
-                path = buildProfilePathUseCase()
+                )
             ).onSuccess {
                 showSnackbar(successMessage, SnackbarType.Success)
                 update { it.copy(isProfileCreated = true) }
@@ -239,7 +235,7 @@ class CreateUserProfileViewModel(
         }
 
         viewModelScope.launch(dispatcher) {
-            getStyleQuestionnaireUseCase(
+            fetchStyleQuestionnaireUseCase(
                 Profile.LearningPreferences(value.field.name, value.level.name, value.goal),
                 QUESTION_COUNT
             ).collect { result ->
@@ -284,7 +280,7 @@ class CreateUserProfileViewModel(
             update { it.copy(isLoading = true) }
             viewModelScope.launch(dispatcher) {
                 updateProfileUseCase(
-                    profile = Profile(
+                    Profile(
                         id = value.userId,
                         email = value.email,
                         username = value.username,
@@ -293,8 +289,7 @@ class CreateUserProfileViewModel(
                         learningStyle = value.learningStyle!!,
                         createdAt = System.currentTimeMillis(),
                         lastUpdated = System.currentTimeMillis()
-                    ),
-                    path = buildProfilePathUseCase()
+                    )
                 ).onSuccess {
                     showSnackbar(successMessage, SnackbarType.Success)
                     navigate(Route.Dashboard, true)

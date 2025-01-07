@@ -16,20 +16,18 @@ import org.example.shared.domain.use_case.util.CompoundException
 class UploadProfilePictureUseCase(
     private val storageClient: StorageClient,
     private val authClient: AuthClient,
-    private val getProfileUseCase: GetProfileUseCase,
+    private val fetchProfileUseCase: FetchProfileUseCase,
     private val updateProfileUseCase: UpdateProfileUseCase
 ) {
     /**
      * Uploads a profile picture.
      *
-     * @param path The path to store the user profile.
-     * @param image The image data to upload.
-     * @return The URL of the uploaded image.
+     * @param image The image data to be uploaded.
+     * @return A Result indicating the success or failure of the upload operation.
      */
-    suspend operator fun invoke(path: String, image: ByteArray) = runCatching {
+    suspend operator fun invoke(image: ByteArray) = runCatching {
         val user = authClient.getUserData().getOrThrow()
-        val profile = getProfileUseCase(path).getOrNull()
-
+        val profile = fetchProfileUseCase().getOrNull()
         var fileUploaded = false
         var authUpdated = false
 
@@ -42,7 +40,7 @@ class UploadProfilePictureUseCase(
 
                 authClient.updatePhotoUrl(newImageUrl).getOrThrow().also { authUpdated = true }
 
-                profile?.let { updateProfileUseCase(path, it.copy(photoUrl = newImageUrl)).getOrThrow() }
+                profile?.let { updateProfileUseCase(it.copy(photoUrl = newImageUrl)).getOrThrow() }
 
                 return@runCatching newImageUrl
             } catch (e: Exception) {
@@ -54,6 +52,14 @@ class UploadProfilePictureUseCase(
         return@runCatching ""
     }
 
+    /**
+     * Rollback the profile picture upload in case of failure.
+     *
+     * @param profile The profile to be updated.
+     * @param fileUploaded Indicates if the file was uploaded.
+     * @param authUpdated Indicates if the authentication data was updated.
+     * @param e The exception that caused the rollback.
+     */
     private suspend fun rollbackProfilePictureUpload(
         profile: Profile?, fileUploaded: Boolean, authUpdated: Boolean, e: Exception
     ) = repeat(RETRY_TIMES) { time ->

@@ -8,6 +8,7 @@ import org.example.shared.data.remote.assistant.util.CompletionProcessor
 import org.example.shared.data.remote.assistant.util.RequiredActionHandler
 import org.example.shared.domain.client.AIAssistantClient
 import org.example.shared.domain.client.StyleQuizGeneratorClient
+import org.example.shared.domain.client.StyleQuizGeneratorClient.StyleQuestion
 import org.example.shared.domain.constant.Field
 import org.example.shared.domain.constant.Level
 import org.example.shared.domain.constant.Style
@@ -36,7 +37,7 @@ class StyleQuizGeneratorClientImpl(
      * @return A flow of results containing the generated StyleQuestion.
      */
     override fun streamQuestions(preferences: Profile.LearningPreferences, number: Int) = with(assistantClient) {
-        flow<Result<StyleQuizGeneratorClient.StyleQuestion>> {
+        flow {
             var thread: Thread? = null
 
             try {
@@ -47,13 +48,12 @@ class StyleQuizGeneratorClientImpl(
                 thread = createThread(ThreadRequestBody()).getOrThrow()
 
                 while (count < number) {
-                    processRun(thread, preferences, previousScenarios).onSuccess {
-                        emit(Result.success(it))
-                        previousScenarios.add(it.scenario)
+                    processRun(thread, preferences, previousScenarios).getOrThrow().let { question ->
+                        emit(Result.success(question))
+                        previousScenarios.add(question.scenario)
                         count++
-                    }.onFailure {
-                        emit(Result.failure(it))
                     }
+
                     if (count < number - 1) createMessage(thread.id, message).getOrThrow()
                 }
             } finally {
@@ -86,7 +86,7 @@ class StyleQuizGeneratorClientImpl(
                 }
 
                 if (currentRun.status == RunStatus.COMPLETED.value) {
-                    Result.success(CompletionProcessor<StyleQuizGeneratorClient.StyleQuestion>(assistantClient, currentRun, thread.id))
+                    Result.success(CompletionProcessor(assistantClient, currentRun, thread.id, ::getAssistantMessage))
                 } else {
                     throw IllegalStateException("Run ended with unexpected status: ${currentRun.status}")
                 }
@@ -211,6 +211,26 @@ class StyleQuizGeneratorClientImpl(
             content = message
         )
     )
+
+    /**
+     * Retrieves the assistant message from a thread.
+     *
+     * @param assistant The assistant client.
+     * @param threadId The ID of the thread to retrieve the message from.
+     * @return The assistant message.
+     */
+    private suspend fun getAssistantMessage(
+        assistant: AIAssistantClient,
+        threadId: String
+    ) = assistant.listMessages(threadId, 10, MessagesOrder.DESC)
+        .getOrThrow().data
+        .first { it.role == MessageRole.ASSISTANT.value }
+        .let { message ->
+            Json.decodeFromString(
+                deserializer = StyleQuestion.serializer(),
+                string = (message.content.first() as Content.TextContent).text.value
+            )
+        }
 
     /**
      * Evaluates the responses and calculates the dominant learning style and breakdown.

@@ -33,7 +33,7 @@ class ContentGeneratorClientImpl(
      */
     override fun generateContent(context: ContentGeneratorClient.Context) =
         with(assistantClient) {
-            flow<Result<ContentGeneratorClient.GeneratedResponse>> {
+            flow {
                 emit(Result.success(processRun(context, 0)))
             }
         }.catch { e ->
@@ -67,7 +67,7 @@ class ContentGeneratorClientImpl(
                     run = retrieveRun(thread.id, run.id).getOrThrow()
                 }
                 if (run.status != RunStatus.COMPLETED.value) throw IllegalStateException("Run failed: ${run.lastError?.message}")
-                CompletionProcessor<ContentGeneratorClient.GeneratedResponse>(this, run, thread.id)
+                CompletionProcessor(this, run, thread.id, ::getAssistantMessage)
             } catch (e: Exception) {
                 if (attempt >= 3) throw e
                 delay(1000L * attempt)
@@ -105,23 +105,17 @@ class ContentGeneratorClientImpl(
         """.trimIndent()
 
     /**
-     * Determines if the given run status is active.
-     *
-     * @return `true` if the run status is either QUEUED, IN_PROGRESS, or REQUIRES_ACTION, `false` otherwise.
-     */
-    private fun RunStatus.isRunActive(): Boolean = when (this) {
-        RunStatus.QUEUED, RunStatus.IN_PROGRESS, RunStatus.REQUIRES_ACTION -> true
-        else -> false
-    }
-
-    /**
      * Constructs the function for generating content.
      *
      * @return A [Function] object representing the content generation function.
      */
     private fun constructFunction() = Function(
-        name = "get_context", description = "Get the curriculum context", strict = true, parameters = Parameters(
-            type = "object", properties = buildJsonObject {
+        name = "get_context",
+        description = "Get the curriculum context",
+        strict = true,
+        parameters = Parameters(
+            type = "object",
+            properties = buildJsonObject {
                 put("context", buildJsonObject {
                     put("type", JsonPrimitive("object"))
                     put("required", buildJsonArray {
@@ -209,7 +203,9 @@ class ContentGeneratorClientImpl(
                     })
                     put("additionalProperties", JsonPrimitive(false))
                 })
-            }, required = listOf("context"), additionalProperties = false
+            },
+            required = listOf("context"),
+            additionalProperties = false
         )
     )
 
@@ -224,13 +220,17 @@ class ContentGeneratorClientImpl(
     private suspend fun submitToolOutputs(
         threadId: String, runId: String, toolCallId: String, output: ContentGeneratorClient.Context
     ) = assistantClient.submitToolOutput(
-        threadId = threadId, runId = runId, requestBody = SubmitToolOutputsRequestBody(
+        threadId = threadId,
+        runId = runId,
+        requestBody = SubmitToolOutputsRequestBody(
             listOf(
                 ToolOutput(
-                    toolCallId = toolCallId, output = Json.encodeToString(
-                        serializer = JsonObject.serializer(), value = buildJsonObject {
-                            put("field", JsonPrimitive(output.field))
-                            put("level", JsonPrimitive(output.level))
+                    toolCallId = toolCallId,
+                    output = Json.encodeToString(
+                        serializer = JsonObject.serializer(),
+                        value = buildJsonObject {
+                            put("field", JsonPrimitive(output.field.name))
+                            put("level", JsonPrimitive(output.level.name))
                             put("style", buildJsonObject {
                                 put("dominant", JsonPrimitive(output.style.dominant))
                                 put("breakdown", buildJsonObject {
@@ -253,4 +253,34 @@ class ContentGeneratorClientImpl(
             )
         )
     )
+
+    /**
+     * Determines if the given run status is active.
+     *
+     * @return `true` if the run status is either QUEUED, IN_PROGRESS, or REQUIRES_ACTION, `false` otherwise.
+     */
+    private fun RunStatus.isRunActive(): Boolean = when (this) {
+        RunStatus.QUEUED, RunStatus.IN_PROGRESS, RunStatus.REQUIRES_ACTION -> true
+        else -> false
+    }
+
+    /**
+     * Retrieves the assistant message from a thread.
+     *
+     * @param assistant The assistant client.
+     * @param threadId The ID of the thread to retrieve the message from.
+     * @return The assistant message.
+     */
+    private suspend fun getAssistantMessage(
+        assistant: AIAssistantClient,
+        threadId: String
+    ) = assistant.listMessages(threadId, 10, MessagesOrder.DESC)
+        .getOrThrow().data
+        .first { it.role == MessageRole.ASSISTANT.value }
+        .let { message ->
+            Json.decodeFromString(
+                deserializer = ContentGeneratorClient.GeneratedResponse.serializer(),
+                string = (message.content.first() as Content.TextContent).text.value
+            )
+        }
 }

@@ -3,6 +3,8 @@ package org.example.shared.domain.client
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.Serializable
 import org.example.shared.domain.constant.ContentType
+import org.example.shared.domain.constant.Field
+import org.example.shared.domain.constant.Level
 import org.example.shared.domain.model.Profile
 
 /**
@@ -35,26 +37,19 @@ interface ContentGeneratorClient {
      */
     @Serializable
     data class Context(
-        val field: String,
-        val level: String,
+        val field: Field,
+        val level: Level,
         val style: Profile.LearningStyle,
         val type: ContentType,
         val contentDescriptors: List<ContentDescriptor>
-    )
-
-    /**
-     * Represents a content descriptor.
-     *
-     * @property type The type of the content descriptor.
-     * @property title The title of the content descriptor.
-     * @property description The description of the content descriptor.
-     */
-    @Serializable
-    data class ContentDescriptor(
-        val type: ContentType,
-        val title: String,
-        val description: String
-    )
+    ) {
+        @Serializable
+        data class ContentDescriptor(
+            val type: ContentType,
+            val title: String,
+            val description: String
+        )
+    }
 
     /**
      * Generates content based on the provided context.

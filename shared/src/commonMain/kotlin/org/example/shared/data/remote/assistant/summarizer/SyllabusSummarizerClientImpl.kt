@@ -28,7 +28,7 @@ class SyllabusSummarizerClientImpl(
      * @param syllabus The file containing the syllabus to be summarized.
      * @return A flow emitting the result of the summarization.
      */
-    override fun summarizeSyllabus(syllabus: File) = flow<Result<String>> {
+    override fun summarizeSyllabus(syllabus: File) = flow {
         var thread: Thread? = null
 
         try {
@@ -43,7 +43,7 @@ class SyllabusSummarizerClientImpl(
             }
 
             if (run.status == RunStatus.COMPLETED.value) {
-                emit(Result.success(CompletionProcessor(assistantClient, run, thread.id)))
+                emit(Result.success(CompletionProcessor(assistantClient, run, thread.id, ::getAssistantMessage)))
             } else {
                 throw IllegalStateException("Run failed: ${run.lastError?.message}")
             }
@@ -105,6 +105,21 @@ class SyllabusSummarizerClientImpl(
 
         else -> false
     }
+
+    /**
+     * Retrieves the assistant message from a thread.
+     *
+     * @param assistant The assistant client.
+     * @param threadId The ID of the thread to retrieve the message from.
+     * @return The assistant message.
+     */
+    private suspend fun getAssistantMessage(
+        assistant: AIAssistantClient,
+        threadId: String
+    ) = assistant.listMessages(threadId, 10, MessagesOrder.DESC)
+        .getOrThrow().data
+        .first { it.role == MessageRole.ASSISTANT.value }
+        .let { message -> (message.content.first() as Content.TextContent).text.value }
 
     companion object {
         private const val SUMMARIZE_INSTRUCTIONS = "Summarize the syllabus in the uploaded file."

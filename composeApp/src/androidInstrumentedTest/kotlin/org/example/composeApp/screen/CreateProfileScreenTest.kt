@@ -331,7 +331,7 @@ class CreateProfileScreenTest {
     companion object {
         private val styleQuestionnaire = listOf(
             StyleQuizGeneratorClient.StyleQuestion(
-                listOf(StyleQuizGeneratorClient.StyleOption(Style.READING.value, Style.READING.value)), "Question 1",
+                listOf(StyleQuizGeneratorClient.StyleQuestion.StyleOption(Style.READING.value, Style.READING.value)), "Question 1",
             )
         )
 

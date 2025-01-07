@@ -20,19 +20,13 @@ interface StyleQuizGeneratorClient {
     data class StyleQuestion(
         val options: List<StyleOption>,
         val scenario: String
-    )
-
-    /**
-     * Represents a style option with a style and text.
-     *
-     * @property style The style identifier.
-     * @property text The text description of the style.
-     */
-    @Serializable
-    data class StyleOption(
-        val style: String,
-        val text: String
-    )
+    ) {
+        @Serializable
+        data class StyleOption(
+            val style: String,
+            val text: String
+        )
+    }
 
     /**
      * Generates a style questionnaire based on the user's learning preferences.

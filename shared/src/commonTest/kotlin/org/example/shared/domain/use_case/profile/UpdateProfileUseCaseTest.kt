@@ -6,8 +6,10 @@ import io.mockk.coVerifyOrder
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.client.AuthClient
+import org.example.shared.domain.constant.Collection
 import org.example.shared.domain.model.Profile
 import org.example.shared.domain.repository.ProfileRepository
+import org.example.shared.domain.storage_operations.util.PathBuilder
 import org.example.shared.domain.use_case.util.CompoundException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -32,15 +34,15 @@ class UpdateProfileUseCaseTest {
 
         coEvery { authClient.updateUsername(profile.username) } returns Result.success(Unit)
         coEvery { authClient.updatePhotoUrl(profile.photoUrl) } returns Result.success(Unit)
-        coEvery { repository.update(TEST_PATH, profile, any()) } returns Result.success(Unit)
+        coEvery { repository.update(profile, path, any()) } returns Result.success(Unit)
 
-        val result = updateProfileUseCase(TEST_PATH, profile)
+        val result = updateProfileUseCase(profile)
 
         assertTrue(result.isSuccess)
         coVerifyOrder {
             authClient.updateUsername(profile.username)
             authClient.updatePhotoUrl(profile.photoUrl)
-            repository.update(TEST_PATH, profile, any())
+            repository.update(profile, path, any())
         }
     }
 
@@ -53,9 +55,9 @@ class UpdateProfileUseCaseTest {
             Result.success(Unit)
         )
         coEvery { authClient.updatePhotoUrl(profile.photoUrl) } returns Result.success(Unit)
-        coEvery { repository.update(TEST_PATH, profile, any()) } returns Result.success(Unit)
+        coEvery { repository.update(profile, path, any()) } returns Result.success(Unit)
 
-        val result = updateProfileUseCase(TEST_PATH, profile)
+        val result = updateProfileUseCase(profile)
 
         assertTrue(result.isSuccess)
         coVerify(exactly = 2) { authClient.updateUsername(profile.username) }
@@ -70,7 +72,7 @@ class UpdateProfileUseCaseTest {
         coEvery { authClient.updatePhotoUrl(profile.photoUrl) } returns Result.failure(error)
         coEvery { authClient.updateUsername("") } returns Result.success(Unit)
 
-        val result = updateProfileUseCase(TEST_PATH, profile)
+        val result = updateProfileUseCase(profile)
 
         assertTrue(result.isFailure)
         assertEquals(error, result.exceptionOrNull())
@@ -87,7 +89,7 @@ class UpdateProfileUseCaseTest {
         coEvery { authClient.updatePhotoUrl(profile.photoUrl) } returns Result.failure(originalError)
         coEvery { authClient.updateUsername("") } returns Result.failure(rollbackError)
 
-        val result = updateProfileUseCase(TEST_PATH, profile)
+        val result = updateProfileUseCase(profile)
 
         assertTrue(result.isFailure)
         val exception = result.exceptionOrNull() as CompoundException
@@ -102,14 +104,13 @@ class UpdateProfileUseCaseTest {
 
         coEvery { authClient.updateUsername(profile.username) } returns Result.failure(error)
 
-        val result = updateProfileUseCase(TEST_PATH, profile)
+        val result = updateProfileUseCase(profile)
 
         assertTrue(result.isFailure)
         coVerify(exactly = UpdateProfileUseCase.RETRY_TIMES) { authClient.updateUsername(profile.username) }
     }
 
     companion object {
-        private const val TEST_PATH = "profiles/user123"
         private fun testProfile() = Profile(
             id = "profile123",
             username = "testuser",
@@ -120,5 +121,9 @@ class UpdateProfileUseCaseTest {
             createdAt = 1000L,
             lastUpdated = 1000L
         )
+        private val path = PathBuilder()
+            .collection(Collection.PROFILES)
+            .document(testProfile().id)
+            .build()
     }
 }

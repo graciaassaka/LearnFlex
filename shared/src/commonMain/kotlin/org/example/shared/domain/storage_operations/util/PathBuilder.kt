@@ -1,59 +1,95 @@
 package org.example.shared.domain.storage_operations.util
 
+import org.example.shared.domain.constant.Collection
+
 /**
- * Interface for constructing various types of paths related to user and educational resources.
+ * Type alias for CollectionConst.
  */
-interface PathBuilder {
-    /**
-     * Constructs and returns a file path string for a user directory.
-     *
-     * @return A string representing the path to the user's directory.
-     */
-    fun buildProfilePath(): String
+typealias CollectionConst = Collection
+
+/**
+ * A utility class for building paths consisting of collections and documents.
+ */
+class PathBuilder() {
+    private val segments = mutableListOf<PathSegment>()
 
     /**
-     * Constructs the path for accessing a user's curriculum.
-     *
-     * @param profileId The unique identifier of the user.
-     * @return The path as a string for the specified user's curriculum.
+     * Initializes the PathBuilder with segments from an existing Path.
+     * @param existingPath The Path to extend.
      */
-    fun buildCurriculumPath(profileId: String): String
+    constructor(existingPath: Path) : this() {
+        existingPath.value.split("/").forEachIndexed { index, segment ->
+            if (index % 2 == 0) {
+                segments.add(PathSegment.Collection(Collection.valueOf(segment.uppercase())))
+            } else {
+                segments.add(PathSegment.Document(segment))
+            }
+        }
+    }
+
+    private sealed class PathSegment {
+        abstract fun toPath(): String
+
+        /**
+         * Represents a collection segment in the path.
+         *
+         * @property name The name of the collection.
+         */
+        data class Collection(val name: CollectionConst) : PathSegment() {
+            override fun toPath(): String = name.value
+        }
+
+        /**
+         * Represents a document segment in the path.
+         *
+         * @property id The ID of the document.
+         */
+        data class Document(val id: String) : PathSegment() {
+            override fun toPath(): String = id
+        }
+    }
 
     /**
-     * Constructs a module path based on the provided user and curriculum IDs.
+     * Adds a collection segment to the path.
      *
-     * @param userId the unique identifier of the user for whom the path is being built
-     * @param curriculumId the unique identifier of the curriculum within the user's profile
-     * @return a string representing the path to the specified module
+     * @param name The name of the collection.
+     * @return The current instance of PathBuilder.
+     * @throws IllegalStateException If the last segment is not a document (unless starting a new path).
      */
-    fun buildModulePath(userId: String, curriculumId: String): String
+    fun collection(name: CollectionConst): PathBuilder {
+        check(segments.isEmpty() || segments.last() is PathSegment.Document) {
+            "Cannot add a collection segment without a preceding document segment."
+        }
+        segments.add(PathSegment.Collection(name))
+        return this
+    }
 
     /**
-     * Constructs a path string representing the location of a lesson within a specified user's curriculum module.
+     * Adds a document segment to the path.
      *
-     * @param userId The identifier for the user.
-     * @param curriculumId The identifier for the curriculum to which the module belongs.
-     * @param moduleId The identifier for the module containing the lesson.
-     * @return A string representing the path to the lesson within the specified module.
+     * @param id The ID of the document.
+     * @return The current instance of PathBuilder.
+     * @throws IllegalStateException If the last segment is not a collection.
      */
-    fun buildLessonPath(userId: String, curriculumId: String, moduleId: String): String
+    fun document(id: String): PathBuilder {
+        check(segments.lastOrNull() is PathSegment.Collection) {
+            "Cannot add a document segment without a preceding collection segment."
+        }
+        segments.add(PathSegment.Document(id))
+        return this
+    }
 
     /**
-     * Constructs a path string that uniquely identifies a section within a lesson, module, curriculum, and user hierarchy.
+     * Builds the path from the added segments.
      *
-     * @param userId the unique identifier of the user
-     * @param curriculumId the unique identifier of the curriculum
-     * @param moduleId the unique identifier of the module
-     * @param lessonId the unique identifier of the lesson
-     * @return a string representing the complete path to a specific section
+     * @return The constructed Path.
+     * @throws IllegalStateException If no segments have been added.
      */
-    fun buildSectionPath(userId: String, curriculumId: String, moduleId: String, lessonId: String): String
-
-    /**
-     * Constructs the path for a user session based on their user ID.
-     *
-     * @param profileId The unique identifier for the user.
-     * @return A string representing the path to the user's session.
-     */
-    fun buildSessionPath(profileId: String): String
+    fun build(): Path {
+        check(segments.isNotEmpty()) {
+            "Cannot build an empty path."
+        }
+        val pathValue = segments.joinToString("/") { it.toPath() }
+        return Path(pathValue)
+    }
 }

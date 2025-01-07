@@ -11,57 +11,46 @@ import org.example.shared.domain.model.Module
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.use_case.activity.GetWeeklyActivityUseCase
-import org.example.shared.domain.use_case.curriculum.GetActiveCurriculumUseCase
-import org.example.shared.domain.use_case.curriculum.GetAllCurriculaUseCase
+import org.example.shared.domain.use_case.curriculum.FetchActiveCurriculumUseCase
+import org.example.shared.domain.use_case.curriculum.FetchCurriculaByUserUseCase
 import org.example.shared.domain.use_case.lesson.CountLessonsByStatusUseCase
-import org.example.shared.domain.use_case.lesson.GetAllLessonsUseCase
+import org.example.shared.domain.use_case.lesson.FetchLessonsByModuleUseCase
 import org.example.shared.domain.use_case.module.CountModulesByStatusUseCase
-import org.example.shared.domain.use_case.module.GetAllModulesUseCase
-import org.example.shared.domain.use_case.path.*
-import org.example.shared.domain.use_case.profile.GetProfileUseCase
+import org.example.shared.domain.use_case.module.FetchModulesByCurriculumUseCase
+import org.example.shared.domain.use_case.profile.FetchProfileUseCase
 import org.example.shared.domain.use_case.section.CountSectionsByStatusUseCase
-import org.example.shared.domain.use_case.section.GetAllSectionsUseCase
-import org.example.shared.domain.use_case.session.GetAllSessionsUseCase
+import org.example.shared.domain.use_case.section.FetchSectionsByLessonUseCase
+import org.example.shared.domain.use_case.session.FetchSessionsByUserUseCase
 import org.example.shared.presentation.action.DashboardAction
 import org.example.shared.presentation.state.DashboardUIState
 import java.time.DayOfWeek
 
 /**
- * ViewModel responsible for managing the dashboard data.
+ * ViewModel for the dashboard screen.
  *
- * @property buildProfilePathUseCase Use case to build the profile path.
- * @property buildCurriculumPathUseCase Use case to build the curriculum path.
- * @property buildModulePathUseCase Use case to build the module path.
- * @property buildLessonPathUseCase Use case to build the lesson path.
- * @property buildSectionPathUseCase Use case to build the section path.
- * @property getProfileUseCase Use case to fetch the user profile.
- * @property getActiveCurriculumUseCase Use case to fetch the active curriculum.
- * @property getAllCurriculaUseCase Use case to fetch all curricula.
- * @property getAllLessonsUseCase Use case to fetch all lessons.
- * @property getAllSectionsUseCase Use case to fetch all sections.
- * @property getAllModulesUseCase Use case to fetch all modules.
- * @property getWeeklyActivityUseCase Use case to fetch weekly activity data.
+ * @property fetchProfileUseCase Use case to fetch the user profile.
+ * @property fetchSessionsByUserUseCase Use case to fetch user sessions.
+ * @property fetchActiveCurriculumUseCase Use case to fetch the active curriculum.
+ * @property fetchCurriculaByUserUseCase Use case to fetch curricula by user.
+ * @property fetchModulesByCurriculumUseCase Use case to fetch modules by curriculum.
+ * @property fetchLessonsByModuleUseCase Use case to fetch lessons by module.
+ * @property fetchSectionsByLessonUseCase Use case to fetch sections by lesson.
+ * @property getWeeklyActivityUseCase Use case to get weekly activity.
  * @property countModulesByStatusUseCase Use case to count modules by status.
  * @property countLessonsByStatusUseCase Use case to count lessons by status.
  * @property countSectionsByStatusUseCase Use case to count sections by status.
- * @property dispatcher Coroutine dispatcher for executing coroutines.
- * @property syncManagers List of synchronization managers.
- * @property sharingStarted Sharing strategy for the state flow.
+ * @property dispatcher Coroutine dispatcher for background tasks.
+ * @property syncManagers List of sync managers for database operations.
+ * @property sharingStarted Sharing strategy for state flow.
  */
 class DashboardViewModel(
-    private val buildProfilePathUseCase: BuildProfilePathUseCase,
-    private val buildSessionPathUseCase: BuildSessionPathUseCase,
-    private val buildCurriculumPathUseCase: BuildCurriculumPathUseCase,
-    private val buildModulePathUseCase: BuildModulePathUseCase,
-    private val buildLessonPathUseCase: BuildLessonPathUseCase,
-    private val buildSectionPathUseCase: BuildSectionPathUseCase,
-    private val getProfileUseCase: GetProfileUseCase,
-    private val getAllSessionsUseCase: GetAllSessionsUseCase,
-    private val getActiveCurriculumUseCase: GetActiveCurriculumUseCase,
-    private val getAllCurriculaUseCase: GetAllCurriculaUseCase,
-    private val getAllLessonsUseCase: GetAllLessonsUseCase,
-    private val getAllSectionsUseCase: GetAllSectionsUseCase,
-    private val getAllModulesUseCase: GetAllModulesUseCase,
+    private val fetchProfileUseCase: FetchProfileUseCase,
+    private val fetchSessionsByUserUseCase: FetchSessionsByUserUseCase,
+    private val fetchActiveCurriculumUseCase: FetchActiveCurriculumUseCase,
+    private val fetchCurriculaByUserUseCase: FetchCurriculaByUserUseCase,
+    private val fetchModulesByCurriculumUseCase: FetchModulesByCurriculumUseCase,
+    private val fetchLessonsByModuleUseCase: FetchLessonsByModuleUseCase,
+    private val fetchSectionsByLessonUseCase: FetchSectionsByLessonUseCase,
     private val getWeeklyActivityUseCase: GetWeeklyActivityUseCase,
     private val countModulesByStatusUseCase: CountModulesByStatusUseCase,
     private val countLessonsByStatusUseCase: CountLessonsByStatusUseCase,
@@ -104,18 +93,18 @@ class DashboardViewModel(
 
         viewModelScope.launch(dispatcher) {
             try {
-                val profile = getProfileUseCase(buildProfilePathUseCase()).getOrThrow()
+                val profile = fetchProfileUseCase().getOrThrow()
                 _state.update { it.copy(profile = profile) }
 
-                getAllSessionsUseCase(buildSessionPathUseCase(profile.id)).getOrThrow()
+                fetchSessionsByUserUseCase(profile.id).getOrThrow()
 
                 val weeklyActivity = getWeeklyActivityUseCase(System.currentTimeMillis()).getOrThrow()
                 updateWeeklyActivity(weeklyActivity)
 
-                val curricula = getAllCurriculaUseCase(buildCurriculumPathUseCase(profile.id)).getOrThrow()
+                val curricula = fetchCurriculaByUserUseCase(profile.id).getOrThrow()
                 _state.update { it.copy(curricula = curricula) }
 
-                val activeCurriculum = getActiveCurriculumUseCase(buildCurriculumPathUseCase(profile.id)).getOrThrow()
+                val activeCurriculum = fetchActiveCurriculumUseCase(profile.id).getOrThrow()
                 _state.update { it.copy(activeCurriculum = activeCurriculum) }
 
                 if (activeCurriculum != null) fetchActiveCurriculumData(profile.id, activeCurriculum)
@@ -154,7 +143,7 @@ class DashboardViewModel(
      * @param curriculum The active curriculum.
      */
     private suspend fun fetchActiveCurriculumData(profileId: String, curriculum: Curriculum) {
-        val modules = getAllModulesUseCase(buildModulePathUseCase(profileId, curriculum.id)).getOrThrow()
+        val modules = fetchModulesByCurriculumUseCase(profileId, curriculum.id).getOrThrow()
         _state.update { it.copy(modules = modules) }
         _state.update { it.copy(moduleCountByStatus = countModulesByStatusUseCase(curriculum.id).getOrThrow()) }
         modules.forEach { module -> fetchLessons(profileId, curriculum.id, module) }
@@ -168,7 +157,7 @@ class DashboardViewModel(
      * @param module The module for which to fetch lessons.
      */
     private suspend fun fetchLessons(userId: String, curriculumId: String, module: Module) {
-        val lessons = getAllLessonsUseCase(buildLessonPathUseCase(userId, curriculumId, module.id)).getOrThrow()
+        val lessons = fetchLessonsByModuleUseCase(userId, curriculumId, module.id).getOrThrow()
         _state.update { it.copy(lessonCountByStatus = countLessonsByStatusUseCase(curriculumId).getOrThrow()) }
         lessons.forEach { lesson -> fetchSections(userId, curriculumId, module.id, lesson.id) }
     }
@@ -182,7 +171,7 @@ class DashboardViewModel(
      * @param lessonId The ID of the lesson.
      */
     private suspend fun fetchSections(userId: String, curriculumId: String, moduleId: String, lessonId: String) {
-        getAllSectionsUseCase(buildSectionPathUseCase(userId, curriculumId, moduleId, lessonId)).getOrThrow()
+        fetchSectionsByLessonUseCase(userId, curriculumId, moduleId, lessonId).getOrThrow()
         _state.update { it.copy(sectionCountByStatus = countSectionsByStatusUseCase(curriculumId).getOrThrow()) }
     }
 

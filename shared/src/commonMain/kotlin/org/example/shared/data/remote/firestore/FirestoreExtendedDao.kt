@@ -5,6 +5,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.serialization.KSerializer
 import org.example.shared.domain.dao.ExtendedDao
 import org.example.shared.domain.model.interfaces.DatabaseRecord
+import org.example.shared.domain.storage_operations.util.Path
+import org.example.shared.domain.storage_operations.util.PathBuilder
 
 /**
  * Extension of FirestoreBaseDao that adds support for batch operations in Firestore.
@@ -25,10 +27,11 @@ open class FirestoreExtendedDao<Model : DatabaseRecord>(
      * @param items The items to be inserted, each conforming to the Model type.
      * @param timestamp The timestamp to associate with the operation.
      */
-    override suspend fun insertAll(path: String, items: List<Model>, timestamp: Long) = firestore.batch().runCatching {
+    override suspend fun insertAll(items: List<Model>, path: Path, timestamp: Long) = firestore.batch().runCatching {
         items.forEach {
-            set(firestore.collection(path).document(it.id), serializer, it) { encodeDefaults = true }
-            updateTimestamps(path + "/${it.id}", timestamp)
+            val documentPath = PathBuilder(path).document(it.id).build()
+            set(firestore.document(documentPath.value), serializer, it) { encodeDefaults = true }
+            updateTimestamps(documentPath, timestamp)
         }
         commit()
     }
@@ -41,10 +44,11 @@ open class FirestoreExtendedDao<Model : DatabaseRecord>(
      * @param timestamp The timestamp to associate with the operation.
      * @return A [Result] indicating the success or failure of the update operation.
      */
-    override suspend fun updateAll(path: String, items: List<Model>, timestamp: Long) = firestore.batch().runCatching {
+    override suspend fun updateAll(items: List<Model>, path: Path, timestamp: Long) = firestore.batch().runCatching {
         items.forEach {
-            update(firestore.collection(path).document(it.id), serializer, it) { encodeDefaults = true }
-            updateTimestamps(path + "/${it.id}", timestamp)
+            val documentPath = PathBuilder(path).document(it.id).build()
+            update(firestore.document(documentPath.value), serializer, it) { encodeDefaults = true }
+            updateTimestamps(documentPath, timestamp)
         }
         commit()
     }
@@ -56,10 +60,11 @@ open class FirestoreExtendedDao<Model : DatabaseRecord>(
      * @param items The items to be deleted, each represented by a [Model] instance.
      * @param timestamp The timestamp to associate with the operation.
      */
-    override suspend fun deleteAll(path: String, items: List<Model>, timestamp: Long) = firestore.batch().runCatching {
+    override suspend fun deleteAll(items: List<Model>, path: Path, timestamp: Long) = firestore.batch().runCatching {
         items.forEach {
-            updateTimestamps(path + "/${it.id}", timestamp)
-            delete(firestore.collection(path).document(it.id))
+            val documentPath = PathBuilder(path).document(it.id).build()
+            updateTimestamps(documentPath, timestamp)
+            delete(firestore.document(documentPath.value))
         }
         commit()
     }
@@ -70,13 +75,7 @@ open class FirestoreExtendedDao<Model : DatabaseRecord>(
      * @param path The Firestore collection path from which documents are to be retrieved.
      * @return A flow that emits a list of mapped documents for each snapshot of the collection.
      */
-    override fun getAll(path: String) = firestore.collection(path)
+    override fun getAll(path: Path) = firestore.collection(path.value)
         .snapshots()
-        .map { snapshot ->
-            try {
-                Result.success(snapshot.documents.map { it.data(serializer) })
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
-        }
+        .map { it.runCatching { documents.map { it.data(serializer) } } }
 }

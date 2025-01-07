@@ -2,8 +2,10 @@ package org.example.shared.domain.use_case.profile
 
 import kotlinx.coroutines.delay
 import org.example.shared.domain.client.AuthClient
+import org.example.shared.domain.constant.Collection
 import org.example.shared.domain.model.Profile
 import org.example.shared.domain.repository.ProfileRepository
+import org.example.shared.domain.storage_operations.util.PathBuilder
 import org.example.shared.domain.use_case.util.CompoundException
 
 /**
@@ -16,23 +18,22 @@ class UpdateProfileUseCase(
     private val repository: ProfileRepository,
     private val authClient: AuthClient
 ) {
-
     /**
-     * Updates the user's profile information.
+     * Updates the user's profile.
      *
-     * @param path The path to store the user profile.
-     * @param profile The user profile to update.
-     * @return A result of the update operation.
+     * @param profile The updated profile data.
+     * @return A Result indicating the success or failure of the update operation.
      */
-    suspend operator fun invoke(path: String, profile: Profile) = runCatching {
+    suspend operator fun invoke(profile: Profile) = runCatching {
         var usernameUpdated = false
         var photoUrlUpdated = false
+        val path = PathBuilder().collection(Collection.PROFILES).document(profile.id).build()
 
         repeat(RETRY_TIMES) { time ->
             try {
                 authClient.updateUsername(profile.username).getOrThrow().also { usernameUpdated = true }
                 authClient.updatePhotoUrl(profile.photoUrl).getOrThrow().also { photoUrlUpdated = true }
-                repository.update(path, profile, System.currentTimeMillis()).getOrThrow()
+                repository.update(profile, path, System.currentTimeMillis()).getOrThrow()
                 return@runCatching
             } catch (e: Exception) {
                 rollbackProfileUpdate(usernameUpdated, photoUrlUpdated, e)
@@ -41,6 +42,13 @@ class UpdateProfileUseCase(
         }
     }
 
+    /**
+     * Rollbacks the profile update in case of an error.
+     *
+     * @param usernameUpdated Indicates if the username was updated.
+     * @param photoUrlUpdated Indicates if the photo URL was updated.
+     * @param e The exception that occurred during the update.
+     */
     private suspend fun rollbackProfileUpdate(
         usernameUpdated: Boolean, photoUrlUpdated: Boolean, e: Exception
     ) = repeat(RETRY_TIMES) { time ->

@@ -38,11 +38,9 @@ tasks.register("generateConstants") {
                 const val MODULE_GENERATOR_ID = "${getLocalProperty("OPENAI_MODULE_GENERATOR_ASSISTANT_ID")}"
                 const val LESSON_GENERATOR_ID = "${getLocalProperty("OPENAI_LESSON_GENERATOR_ASSISTANT_ID")}"
                 const val SECTION_GENERATOR_ID = "${getLocalProperty("OPENAI_SECTION_GENERATOR_ASSISTANT_ID")}"
-            }
-            
-            object GoogleConstants {
-                const val CUSTOM_SEARCH_API_KEY = "${getLocalProperty("GOOGLE_CUSTOM_SEARCH_API_KEY")}"
-                const val CUSTOM_IMAGES_SEARCH_ENGINE_ID = "${getLocalProperty("GOOGLE_CUSTOM_IMAGES_SEARCH_ENGINE_ID")}"
+                const val MULTIPLE_CHOICE_QUESTION_GENERATOR_ID = "${getLocalProperty("OPENAI_MULTIPLE_QUESTION_CHOICE_GENERATOR_ASSISTANT_ID")}"
+                const val TRUE_FALSE_QUESTION_GENERATOR_ID = "${getLocalProperty("OPENAI_TRUE_FALSE_QUESTION_GENERATOR_ASSISTANT_ID")}"
+                const val ORDERING_QUESTION_GENERATOR_ID = "${getLocalProperty("OPENAI_ORDERING_QUESTION_GENERATOR_ASSISTANT_ID")}"
             }
         """.trimIndent()
 

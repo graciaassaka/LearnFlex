@@ -16,13 +16,13 @@ import org.example.shared.data.local.database.LearnFlexDatabase
 import org.example.shared.data.local.entity.*
 import org.example.shared.data.remote.assistant.OpenAIAssistantClient
 import org.example.shared.data.remote.assistant.generator.ContentGeneratorClientImpl
+import org.example.shared.data.remote.assistant.generator.QuestionGeneratorClientImpl
 import org.example.shared.data.remote.assistant.generator.StyleQuizGeneratorClientImpl
 import org.example.shared.data.remote.assistant.summarizer.SyllabusSummarizerClientImpl
 import org.example.shared.data.remote.firebase.FirebaseAuthClient
 import org.example.shared.data.remote.firebase.FirebaseStorageClient
 import org.example.shared.data.remote.firestore.FirestoreBaseDao
 import org.example.shared.data.remote.firestore.FirestoreExtendedDao
-import org.example.shared.data.remote.firestore.FirestorePathBuilder
 import org.example.shared.data.remote.util.HttpClientConfig
 import org.example.shared.data.repository.component.*
 import org.example.shared.data.repository.util.QueryStrategies
@@ -39,7 +39,6 @@ import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.repository.*
 import org.example.shared.domain.repository.util.ModelMapper
 import org.example.shared.domain.storage_operations.*
-import org.example.shared.domain.storage_operations.util.PathBuilder
 import org.example.shared.domain.sync.SyncHandler
 import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.use_case.activity.GetWeeklyActivityUseCase
@@ -47,11 +46,11 @@ import org.example.shared.domain.use_case.auth.*
 import org.example.shared.domain.use_case.curriculum.*
 import org.example.shared.domain.use_case.lesson.*
 import org.example.shared.domain.use_case.module.*
-import org.example.shared.domain.use_case.path.*
 import org.example.shared.domain.use_case.profile.*
+import org.example.shared.domain.use_case.quiz.GenerateQuizUseCase
 import org.example.shared.domain.use_case.section.*
-import org.example.shared.domain.use_case.session.GetAllSessionsUseCase
-import org.example.shared.domain.use_case.session.GetSessionsByDateRangeUseCase
+import org.example.shared.domain.use_case.session.FetchSessionsByUserUseCase
+import org.example.shared.domain.use_case.session.RetrieveSessionsByDateRangeUseCase
 import org.example.shared.domain.use_case.session.UpdateSessionUseCase
 import org.example.shared.domain.use_case.session.UploadSessionUseCase
 import org.example.shared.domain.use_case.syllabus.SummarizeSyllabusUseCase
@@ -65,6 +64,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import kotlin.random.Random
 import org.example.shared.domain.model.Module as ModuleModel
 
 // Platform-specific module declarations
@@ -111,9 +111,9 @@ val commonModule = module {
     // OpenAI Client
     single<AIAssistantClient> {
         OpenAIAssistantClient(
-            httpClient = get(), baseUrl = URLBuilder(
-                protocol = URLProtocol.HTTPS, host = "api.openai.com"
-            ).build(), apiKey = OpenAIConstants.API_KEY
+            httpClient = get(),
+            baseUrl = URLBuilder(protocol = URLProtocol.HTTPS, host = "api.openai.com").build(),
+            apiKey = OpenAIConstants.API_KEY
         )
     }
 
@@ -148,8 +148,30 @@ val commonModule = module {
         )
     }
 
-    // Path Builder
-    single<PathBuilder> { FirestorePathBuilder() }
+    // Quiz Question Generator Clients
+    single<QuestionGeneratorClient<Question.MultipleChoice>> {
+        QuestionGeneratorClientImpl<Question.MultipleChoice>(
+            assistantClient = get(),
+            assistantId = OpenAIConstants.MULTIPLE_CHOICE_QUESTION_GENERATOR_ID,
+            serializer = Question.MultipleChoice.serializer()
+        )
+    }
+
+    single<QuestionGeneratorClient<Question.TrueFalse>> {
+        QuestionGeneratorClientImpl<Question.TrueFalse>(
+            assistantClient = get(),
+            assistantId = OpenAIConstants.TRUE_FALSE_QUESTION_GENERATOR_ID,
+            serializer = Question.TrueFalse.serializer()
+        )
+    }
+
+    single<QuestionGeneratorClient<Question.Ordering>> {
+        QuestionGeneratorClientImpl<Question.Ordering>(
+            assistantClient = get(),
+            assistantId = OpenAIConstants.ORDERING_QUESTION_GENERATOR_ID,
+            serializer = Question.Ordering.serializer()
+        )
+    }
 
     // Timestamp Updaters
     single<TimestampUpdater.ProfileTimestampUpdater>(named(USER_PROFILE_SCOPE)) {
@@ -303,14 +325,14 @@ val commonModule = module {
         object : ModelMapper<ModuleModel, ModuleEntity> {
             override fun toModel(entity: ModuleEntity) = with(entity) {
                 ModuleModel(
-                    id, title, description, index, content, quizScore, quizScoreMax, createdAt, lastUpdated
+                    id, title, description, content, quizScore, quizScoreMax, createdAt, lastUpdated
                 )
             }
 
             override fun toEntity(model: ModuleModel, parentId: String?) = with(model) {
                 require(parentId != null) { "Parent ID must not be null for ModuleEntity" }
                 ModuleEntity(
-                    id, parentId, title, description, index, content, quizScore, quizScoreMax, createdAt, lastUpdated
+                    id, parentId, title, description, content, quizScore, quizScoreMax, createdAt, lastUpdated
                 )
             }
         }
@@ -319,13 +341,13 @@ val commonModule = module {
     single<ModelMapper<Lesson, LessonEntity>>(named(LESSON_SCOPE)) {
         object : ModelMapper<Lesson, LessonEntity> {
             override fun toModel(entity: LessonEntity) = with(entity) {
-                Lesson(id, title, description, index, content, quizScore, quizScoreMax, createdAt, lastUpdated)
+                Lesson(id, title, description, content, quizScore, quizScoreMax, createdAt, lastUpdated)
             }
 
             override fun toEntity(model: Lesson, parentId: String?) = with(model) {
                 require(parentId != null) { "Parent ID must not be null for LessonEntity" }
                 LessonEntity(
-                    id, parentId, title, description, index, content, quizScore, quizScoreMax, createdAt, lastUpdated
+                    id, parentId, title, description, content, quizScore, quizScoreMax, createdAt, lastUpdated
                 )
             }
         }
@@ -335,14 +357,14 @@ val commonModule = module {
         object : ModelMapper<Section, SectionEntity> {
             override fun toModel(entity: SectionEntity) = with(entity) {
                 Section(
-                    id, index, title, description, content, quizScore, quizScoreMax, createdAt, lastUpdated
+                    id, title, description, content, quizScore, quizScoreMax, createdAt, lastUpdated
                 )
             }
 
             override fun toEntity(model: Section, parentId: String?) = with(model) {
                 require(parentId != null) { "Parent ID must not be null for SectionEntity" }
                 SectionEntity(
-                    id, parentId, index, title, description, content, quizScore, quizScoreMax, createdAt, lastUpdated
+                    id, parentId, title, description, content, quizScore, quizScoreMax, createdAt, lastUpdated
                 )
             }
         }
@@ -682,14 +704,6 @@ val commonModule = module {
         ) {}
     }
 
-    // Use Cases - Path Builder
-    singleOf(::BuildProfilePathUseCase)
-    singleOf(::BuildCurriculumPathUseCase)
-    singleOf(::BuildModulePathUseCase)
-    singleOf(::BuildLessonPathUseCase)
-    singleOf(::BuildSectionPathUseCase)
-    singleOf(::BuildSessionPathUseCase)
-
     // Use Cases - Auth
     singleOf(::SignUpUseCase)
     singleOf(::SignInUseCase)
@@ -702,59 +716,69 @@ val commonModule = module {
     // Use Cases - User Profile
     single { CreateProfileUseCase(get(named(USER_PROFILE_SCOPE)), get()) }
     single { UpdateProfileUseCase(get(named(USER_PROFILE_SCOPE)), get()) }
-    single { GetProfileUseCase(get(), get(named(USER_PROFILE_SCOPE))) }
+    single { FetchProfileUseCase(get(), get(named(USER_PROFILE_SCOPE))) }
     singleOf(::UploadProfilePictureUseCase)
     singleOf(::DeleteProfilePictureUseCase)
-    singleOf(::GetStyleQuestionnaireUseCase)
+    singleOf(::FetchStyleQuestionnaireUseCase)
     singleOf(::GetStyleResultUseCase)
 
     // Use Cases - Curriculum
     single { UploadCurriculumUseCase(get(named(CURRICULUM_SCOPE))) }
     single { UpdateCurriculumUseCase(get(named(CURRICULUM_SCOPE))) }
     single { DeleteCurriculumUseCase(get(named(CURRICULUM_SCOPE))) }
-    single { GetCurriculumUseCase(get(named(CURRICULUM_SCOPE))) }
-    single { GetAllCurriculaUseCase(get(named(CURRICULUM_SCOPE))) }
-    single { GetCurriculaByStatusUseCase(get(named(CURRICULUM_SCOPE))) }
+    single { FetchCurriculaByUserUseCase(get(named(CURRICULUM_SCOPE))) }
+    single { RetrieveCurriculaByStatusUseCase(get(named(CURRICULUM_SCOPE))) }
     single { GenerateCurriculumUseCase(get(named(CURRICULUM_SCOPE))) }
-    singleOf(::GetActiveCurriculumUseCase)
+    singleOf(::FetchActiveCurriculumUseCase)
+
+    // Use Cases - Quiz
+    single {
+        GenerateQuizUseCase(
+            multipleChoiceGeneratorClient = get<QuestionGeneratorClient<Question.MultipleChoice>>(),
+            trueFalseGeneratorClient = get<QuestionGeneratorClient<Question.TrueFalse>>(),
+            orderingGeneratorClient = get<QuestionGeneratorClient<Question.Ordering>>(),
+            random = Random.Default
+        )
+    }
 
     // Use Cases - Module
     single { UploadModulesUseCase(get(named(MODULE_SCOPE))) }
     single { UpdateModuleUseCase(get(named(MODULE_SCOPE))) }
-    single { GetModuleUseCase(get(named(MODULE_SCOPE))) }
-    single { GetAllModulesUseCase(get(named(MODULE_SCOPE))) }
-    single { GetModulesByCurriculumIdUseCase(get(named(MODULE_SCOPE))) }
-    single { GetModulesByMinQuizScoreUseCase(get(named(MODULE_SCOPE))) }
+    single { FetchModulesByCurriculumUseCase(get(named(MODULE_SCOPE))) }
+    single { RetrieveModulesByCurriculumUseCase(get(named(MODULE_SCOPE))) }
+    single { RetrieveModulesByMinQuizScoreUseCase(get(named(MODULE_SCOPE))) }
     single { DeleteAllModulesUseCase(get(named(MODULE_SCOPE))) }
     single { GenerateModuleUseCase(get(named(MODULE_SCOPE))) }
     singleOf(::CountModulesByStatusUseCase)
+    singleOf(::GenerateModuleQuizUseCase)
 
     // Use Cases - Lesson
     single { UploadLessonsUseCase(get(named(LESSON_SCOPE))) }
     single { UpdateLessonUseCase(get(named(LESSON_SCOPE))) }
-    single { GetLessonUseCase(get(named(LESSON_SCOPE))) }
-    single { GetAllLessonsUseCase(get(named(LESSON_SCOPE))) }
-    single { GetLessonsByCurriculumIdUseCase(get(named(LESSON_SCOPE))) }
-    single { GetLessonsByMinQuizScoreUseCase(get(named(LESSON_SCOPE))) }
+    single { FetchLessonsByModuleUseCase(get(named(LESSON_SCOPE))) }
+    single { RetrieveLessonsByCurriculumUseCase(get(named(LESSON_SCOPE))) }
+    single { RetrieveLessonsByMinQuizScoreUseCase(get(named(LESSON_SCOPE))) }
     single { DeleteAllLessonsUseCase(get(named(LESSON_SCOPE))) }
     single { GenerateLessonUseCase(get(named(LESSON_SCOPE))) }
     singleOf(::CountLessonsByStatusUseCase)
+    singleOf(::GenerateLessonQuizUseCase)
 
     // Use Cases - Section
     single { UploadSectionsUseCase(get(named(SECTION_SCOPE))) }
     single { UpdateSectionUseCase(get(named(SECTION_SCOPE))) }
-    single { GetAllSectionsUseCase(get(named(SECTION_SCOPE))) }
-    single { GetSectionsByCurriculumIdUseCase(get(named(SECTION_SCOPE))) }
-    single { GetSectionByMinQuizScoreUseCase(get(named(SECTION_SCOPE))) }
+    single { FetchSectionsByLessonUseCase(get(named(SECTION_SCOPE))) }
+    single { RetrieveSectionsByCurriculumUseCase(get(named(SECTION_SCOPE))) }
+    single { RetrieveSectionByMinQuizScoreUseCase(get(named(SECTION_SCOPE))) }
     single { DeleteAllSectionsUseCase(get(named(SECTION_SCOPE))) }
     single { GenerateSectionUseCase(get(named(SECTION_SCOPE))) }
     singleOf(::CountSectionsByStatusUseCase)
+    singleOf(::GenerateSectionQuizUseCase)
 
     // Use Cases - Session
     single { UploadSessionUseCase(get(named(SESSION_SCOPE))) }
     single { UpdateSessionUseCase(get(named(SESSION_SCOPE))) }
-    single { GetAllSessionsUseCase(get(named(SESSION_SCOPE))) }
-    single { GetSessionsByDateRangeUseCase(get(named(SESSION_SCOPE))) }
+    single { FetchSessionsByUserUseCase(get(named(SESSION_SCOPE))) }
+    single { RetrieveSessionsByDateRangeUseCase(get(named(SESSION_SCOPE))) }
 
     // Use Cases - Syllabus
     singleOf(::SummarizeSyllabusUseCase)
@@ -797,11 +821,10 @@ val commonModule = module {
             createProfileUseCase = get(),
             uploadProfilePictureUseCase = get(),
             deleteProfilePictureUseCase = get(),
-            getStyleQuestionnaireUseCase = get(),
+            fetchStyleQuestionnaireUseCase = get(),
             getStyleResultUseCase = get(),
             updateProfileUseCase = get(),
             validateUsernameUseCase = get(),
-            buildProfilePathUseCase = get(),
             dispatcher = get(),
             syncManagers = get(),
             sharingStarted = get()
@@ -809,19 +832,13 @@ val commonModule = module {
     }
     viewModel {
         DashboardViewModel(
-            buildProfilePathUseCase = get(),
-            buildSessionPathUseCase = get(),
-            buildCurriculumPathUseCase = get(),
-            buildModulePathUseCase = get(),
-            buildLessonPathUseCase = get(),
-            buildSectionPathUseCase = get(),
-            getProfileUseCase = get(),
-            getAllSessionsUseCase = get(),
-            getActiveCurriculumUseCase = get(),
-            getAllCurriculaUseCase = get(),
-            getAllLessonsUseCase = get(),
-            getAllSectionsUseCase = get(),
-            getAllModulesUseCase = get(),
+            fetchProfileUseCase = get(),
+            fetchSessionsByUserUseCase = get(),
+            fetchActiveCurriculumUseCase = get(),
+            fetchCurriculaByUserUseCase = get(),
+            fetchModulesByCurriculumUseCase = get(),
+            fetchLessonsByModuleUseCase = get(),
+            fetchSectionsByLessonUseCase = get(),
             getWeeklyActivityUseCase = get(),
             countModulesByStatusUseCase = get(),
             countLessonsByStatusUseCase = get(),
@@ -833,19 +850,16 @@ val commonModule = module {
     }
     viewModel {
         LibraryViewModel(
-            buildProfilePathUseCase = get(),
-            buildModulePathUseCase = get(),
-            getProfileUseCase = get(),
+            fetchProfileUseCase = get(),
+            fetchCurriculaByUserUseCase = get(),
             summarizeSyllabusUseCase = get(),
-            generateModuleUseCase = get(),
-            uploadModulesUseCase = get(),
-            buildCurriculumPathUseCase = get(),
-            getAllCurriculaUseCase = get(),
             generateCurriculumUseCase = get(),
+            generateModuleUseCase = get(),
             uploadCurriculumUseCase = get(),
+            uploadModulesUseCase = get(),
             dispatcher = get(),
             syncManagers = get(),
-            sharingStarted = get(),
+            sharingStarted = get()
         )
     }
 }

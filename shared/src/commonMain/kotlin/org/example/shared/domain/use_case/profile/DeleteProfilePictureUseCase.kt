@@ -15,39 +15,47 @@ import org.example.shared.domain.use_case.util.CompoundException
 class DeleteProfilePictureUseCase(
     private val storageClient: StorageClient,
     private val authClient: AuthClient,
-    private val getProfileUseCase: GetProfileUseCase,
+    private val fetchProfileUseCase: FetchProfileUseCase,
     private val updateProfileUseCase: UpdateProfileUseCase
 ) {
     /**
      * Deletes the user's profile picture.
      *
-     * @param path The path to store the user profile.
+     * @return A Result indicating the success or failure of the deletion operation.
      */
-    suspend operator fun invoke(path: String) = runCatching {
+    suspend operator fun invoke() = runCatching {
         val user = authClient.getUserData().getOrThrow()
-        val profile = getProfileUseCase(path).getOrThrow()
+        val profile = fetchProfileUseCase().getOrThrow()
 
         var isProfileUpdated = false
         var isAuthUpdated = false
         repeat(RETRY_TIMES) { time ->
             try {
                 authClient.updatePhotoUrl("").getOrThrow().also { isAuthUpdated = true }
-                updateProfileUseCase(path, profile.copy(photoUrl = "")).getOrThrow().also { isProfileUpdated = true }
+                updateProfileUseCase(profile.copy(photoUrl = "")).getOrThrow().also { isProfileUpdated = true }
                 storageClient.deleteFile("profile_pictures/${user.localId}.jpg").getOrThrow()
                 return@runCatching
             } catch (e: Exception) {
-                rollbackProfilePictureUpdate(path, profile, isProfileUpdated, isAuthUpdated, e)
+                rollbackProfilePictureUpdate(profile, isProfileUpdated, isAuthUpdated, e)
                 if (time < RETRY_TIMES - 1) delay(RETRY_DELAY * (time + 1))
                 else throw e
             }
         }
     }
 
+    /**
+     * Rollback the profile picture update in case of failure.
+     *
+     * @param profile The profile to be updated.
+     * @param isProfileUpdated Indicates if the profile was updated.
+     * @param isAuthUpdated Indicates if the authentication data was updated.
+     * @param e The exception that caused the rollback.
+     */
     private suspend fun rollbackProfilePictureUpdate(
-        path: String, profile: Profile, isProfileUpdated: Boolean, isAuthUpdated: Boolean, e: Exception
+        profile: Profile, isProfileUpdated: Boolean, isAuthUpdated: Boolean, e: Exception
     ) = repeat(RETRY_TIMES) { time ->
         try {
-            if (isProfileUpdated) updateProfileUseCase(path, profile).getOrThrow()
+            if (isProfileUpdated) updateProfileUseCase(profile)
             if (isAuthUpdated) authClient.updatePhotoUrl(profile.photoUrl).getOrThrow()
             return
         } catch (rollbackError: Exception) {

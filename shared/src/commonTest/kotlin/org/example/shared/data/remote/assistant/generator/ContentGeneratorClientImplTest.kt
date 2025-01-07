@@ -84,8 +84,8 @@ class ContentGeneratorClientImplTest {
 
         // The context for generating content
         val context = ContentGeneratorClient.Context(
-            field = Field.COMPUTER_SCIENCE.name,
-            level = Level.BEGINNER.name,
+            field = Field.COMPUTER_SCIENCE,
+            level = Level.BEGINNER,
             style = Profile.LearningStyle(
                 dominant = "reading",
                 breakdown = Profile.LearningStyleBreakdown(
@@ -95,7 +95,7 @@ class ContentGeneratorClientImplTest {
             ),
             type = ContentType.LESSON,
             contentDescriptors = listOf(
-                ContentGeneratorClient.ContentDescriptor(
+                ContentGeneratorClient.Context.ContentDescriptor(
                     type = ContentType.SECTION,
                     title = "Getting Started",
                     description = "Setup and basic syntax"
@@ -134,8 +134,8 @@ class ContentGeneratorClientImplTest {
         coEvery { assistant.createThread(ThreadRequestBody()) } returns Result.failure(Exception("Failed to create thread"))
 
         val context = ContentGeneratorClient.Context(
-            field = Field.COMPUTER_SCIENCE.name,
-            level = Level.BEGINNER.name,
+            field = Field.COMPUTER_SCIENCE,
+            level = Level.BEGINNER,
             style = Profile.LearningStyle(
                 dominant = "reading",
                 breakdown = Profile.LearningStyleBreakdown(
@@ -240,15 +240,15 @@ class ContentGeneratorClientImplTest {
         coEvery { assistant.deleteThread(threadId) } returns Result.success(Unit)
 
         val context = ContentGeneratorClient.Context(
-            field = Field.COMPUTER_SCIENCE.name,
-            level = Level.BEGINNER.name,
+            field = Field.COMPUTER_SCIENCE,
+            level = Level.BEGINNER,
             style = Profile.LearningStyle(
                 dominant = "reading",
                 breakdown = Profile.LearningStyleBreakdown(reading = 80, kinesthetic = 20)
             ),
             type = ContentType.LESSON,
             contentDescriptors = listOf(
-                ContentGeneratorClient.ContentDescriptor(
+                ContentGeneratorClient.Context.ContentDescriptor(
                     type = ContentType.SECTION,
                     title = "Flows Introduction",
                     description = "Concepts and definitions"
@@ -302,8 +302,8 @@ class ContentGeneratorClientImplTest {
         coEvery { assistant.deleteThread(threadId) } returns Result.success(Unit)
 
         val context = ContentGeneratorClient.Context(
-            field = Field.COMPUTER_SCIENCE.name,
-            level = Level.BEGINNER.name,
+            field = Field.COMPUTER_SCIENCE,
+            level = Level.BEGINNER,
             style = Profile.LearningStyle(
                 dominant = "reading",
                 breakdown = Profile.LearningStyleBreakdown(reading = 70, kinesthetic = 30)

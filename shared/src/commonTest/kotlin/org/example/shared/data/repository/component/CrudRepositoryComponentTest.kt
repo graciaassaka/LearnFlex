@@ -14,6 +14,7 @@ import org.example.shared.domain.constant.Collection
 import org.example.shared.domain.dao.Dao
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.repository.util.ModelMapper
+import org.example.shared.domain.storage_operations.util.PathBuilder
 import org.example.shared.domain.sync.SyncManager
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -82,13 +83,13 @@ class CrudRepositoryComponentTest {
         coEvery { syncManager.queueOperation(any()) } just runs
 
         // When
-        val result = component.insert(TEST_COLLECTION_PATH, testModel, timestamp)
+        val result = component.insert(testModel, testPath, timestamp)
 
         // Then
         assertTrue(result.isSuccess)
         coVerify(exactly = 1) {
             // Verify the timestamp is passed through to the local DAO
-            localDao.insert(TEST_COLLECTION_PATH, testEntity, timestamp)
+            localDao.insert(testPath, testEntity, timestamp)
             syncManager.queueOperation(any())
         }
     }
@@ -102,13 +103,13 @@ class CrudRepositoryComponentTest {
         coEvery { syncManager.queueOperation(any()) } just runs
 
         // When
-        val result = component.update(TEST_COLLECTION_PATH, testModel, timestamp)
+        val result = component.update(testModel, testPath, timestamp)
 
         // Then
         assertTrue(result.isSuccess)
         coVerify(exactly = 1) {
             // Verify timestamp is passed through
-            localDao.update(TEST_COLLECTION_PATH, testEntity, timestamp)
+            localDao.update(testPath, testEntity, timestamp)
             syncManager.queueOperation(any())
         }
     }
@@ -120,7 +121,7 @@ class CrudRepositoryComponentTest {
         coEvery { syncManager.queueOperation(any()) } just runs
 
         // When
-        val result = component.get(TEST_COLLECTION_PATH, testModel.id).first()
+        val result = component.get(testPath).first()
 
         // Then
         assertTrue(result.isSuccess)
@@ -142,16 +143,16 @@ class CrudRepositoryComponentTest {
 
         every { modelMapper.toEntity(any()) } returns testEntity
         every { modelMapper.toModel(any()) } returns testModel
-        every { remoteDao.get(any(), any()) } returns flowOf(Result.success(testModel))
+        every { remoteDao.get(any()) } returns flowOf(Result.success(testModel))
 
         // When
-        val result = component.get(TEST_COLLECTION_PATH, testModel.id).first()
+        val result = component.get(testPath).first()
 
         // Then
         assertTrue(result.isSuccess)
         assertEquals(testModel, result.getOrNull())
         verify(exactly = 1) {
-            remoteDao.get(TEST_COLLECTION_PATH, testModel.id)
+            remoteDao.get(testPath)
         }
         coVerify(exactly = 1) {
             syncManager.queueOperation(any())
@@ -167,13 +168,13 @@ class CrudRepositoryComponentTest {
         coEvery { syncManager.queueOperation(any()) } just runs
 
         // When
-        val result = component.delete(TEST_COLLECTION_PATH, testModel, timestamp)
+        val result = component.delete(testModel, testPath, timestamp)
 
         // Then
         assertTrue(result.isSuccess)
         coVerify(exactly = 1) {
             // Verify timestamp is passed through
-            localDao.delete(TEST_COLLECTION_PATH, testEntity, timestamp)
+            localDao.delete(testPath, testEntity, timestamp)
             syncManager.queueOperation(any())
         }
     }
@@ -187,7 +188,7 @@ class CrudRepositoryComponentTest {
         every { modelMapper.toEntity(any()) } returns testEntity
 
         // When
-        val result = component.insert(TEST_COLLECTION_PATH, testModel, timestamp)
+        val result = component.insert(testModel, testPath, timestamp)
 
         // Then
         assertTrue(result.isFailure)
@@ -209,6 +210,9 @@ class CrudRepositoryComponentTest {
             lastUpdated = 1234567890
         )
 
-        private const val TEST_COLLECTION_PATH = "testCollection"
+        private val testPath = PathBuilder()
+            .collection(Collection.TEST)
+            .document(testModel.id)
+            .build()
     }
 }

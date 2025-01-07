@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.client.ContentGeneratorClient
 import org.example.shared.domain.constant.ContentType
+import org.example.shared.domain.constant.Field
+import org.example.shared.domain.constant.Level
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Profile
 import org.junit.Before
@@ -42,8 +44,8 @@ class GenerateModuleUseCaseTest {
             email = "test@example.com",
             photoUrl = "https://example.com/photo.jpg",
             preferences = Profile.LearningPreferences(
-                field = "Computer Science",
-                level = "Beginner",
+                field = Field.COMPUTER_SCIENCE.name,
+                level = Level.BEGINNER.name,
                 goal = "Learn Kotlin"
             ),
             learningStyle = Profile.LearningStyle(
@@ -79,8 +81,8 @@ class GenerateModuleUseCaseTest {
         coVerify(exactly = 1) {
             contentGeneratorClient.generateContent(
                 match {
-                    it.field == profile.preferences.field &&
-                            it.level == profile.preferences.level &&
+                    it.field.name == profile.preferences.field &&
+                            it.level.name == profile.preferences.level &&
                             it.style == profile.learningStyle &&
                             it.type == ContentType.MODULE &&
                             it.contentDescriptors.size == 2 &&
@@ -111,8 +113,8 @@ class GenerateModuleUseCaseTest {
             email = "advanced@example.com",
             photoUrl = "https://example.com/photo2.jpg",
             preferences = Profile.LearningPreferences(
-                field = "Engineering",
-                level = "Intermediate",
+                field = Field.ENGINEERING.name,
+                level = Level.INTERMEDIATE.name,
                 goal = "Master Kotlin Coroutines"
             ),
             learningStyle = Profile.LearningStyle(
@@ -160,8 +162,8 @@ class GenerateModuleUseCaseTest {
             email = "expert@example.com",
             photoUrl = "https://example.com/photo3.jpg",
             preferences = Profile.LearningPreferences(
-                field = "Health",
-                level = "Advanced",
+                field = Field.HEALTH.name,
+                level = Level.ADVANCED.name,
                 goal = "Optimize Kotlin applications"
             ),
             learningStyle = Profile.LearningStyle(

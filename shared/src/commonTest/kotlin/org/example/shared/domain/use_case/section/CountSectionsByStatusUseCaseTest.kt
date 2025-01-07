@@ -13,12 +13,12 @@ import kotlin.test.assertEquals
 
 class CountSectionsByStatusUseCaseTest {
     private lateinit var countSectionsByStatusUseCase: CountSectionsByStatusUseCase
-    private lateinit var getSectionsByCurriculumIdUseCase: GetSectionsByCurriculumIdUseCase
+    private lateinit var retrieveSectionsByCurriculumUseCase: RetrieveSectionsByCurriculumUseCase
 
     @Before
     fun setUp() {
-        getSectionsByCurriculumIdUseCase = mockk<GetSectionsByCurriculumIdUseCase>()
-        countSectionsByStatusUseCase = CountSectionsByStatusUseCase(getSectionsByCurriculumIdUseCase)
+        retrieveSectionsByCurriculumUseCase = mockk<RetrieveSectionsByCurriculumUseCase>()
+        countSectionsByStatusUseCase = CountSectionsByStatusUseCase(retrieveSectionsByCurriculumUseCase)
     }
 
     @Test
@@ -30,7 +30,7 @@ class CountSectionsByStatusUseCaseTest {
                 else Status.UNFINISHED
             }.mapValues { it.value.size }
 
-            coEvery { getSectionsByCurriculumIdUseCase(PATH) } returns Result.success(sections)
+            coEvery { retrieveSectionsByCurriculumUseCase(PATH) } returns Result.success(sections)
 
             // Act
             val result = countSectionsByStatusUseCase(PATH)
@@ -44,7 +44,7 @@ class CountSectionsByStatusUseCaseTest {
     fun `invoke should return Result#failure when getAllSections returns Result#failure`() = runTest {
         // Arrange
         val exception = Exception("An error occurred")
-        coEvery { getSectionsByCurriculumIdUseCase(PATH) } returns Result.failure(exception)
+        coEvery { retrieveSectionsByCurriculumUseCase(PATH) } returns Result.failure(exception)
 
         // Act
         val result = countSectionsByStatusUseCase(PATH)
@@ -59,7 +59,6 @@ class CountSectionsByStatusUseCaseTest {
         private val sections = listOf(
             Section(
                 id = "1",
-                index = 1,
                 title = "Section 1",
                 description = "Description 1",
                 content = "Content 1",
@@ -69,7 +68,6 @@ class CountSectionsByStatusUseCaseTest {
             ),
             Section(
                 id = "2",
-                index = 2,
                 title = "Section 2",
                 description = "Description 2",
                 content = "Content 2",
@@ -79,7 +77,6 @@ class CountSectionsByStatusUseCaseTest {
             ),
             Section(
                 id = "3",
-                index = 3,
                 title = "Section 3",
                 description = "Description 3",
                 content = "Content 3",

@@ -1,17 +1,20 @@
-package org.example.shared.domain.use_case.lesson
+package org.example.shared.domain.use_case.section
 
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.client.ContentGeneratorClient
 import org.example.shared.domain.constant.ContentType
+import org.example.shared.domain.constant.Field
+import org.example.shared.domain.constant.Level
+import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Lesson
 import org.example.shared.domain.model.Module
 import org.example.shared.domain.model.Profile
-import org.example.shared.domain.use_case.section.GenerateSectionUseCase
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -43,12 +46,12 @@ class GenerateSectionUseCaseTest {
             email = "test@example.com",
             photoUrl = "https://example.com/photo.jpg",
             preferences = Profile.LearningPreferences(
-                field = "Computer Science",
-                level = "Beginner",
+                field = Field.COMPUTER_SCIENCE.name,
+                level = Level.BEGINNER.name,
                 goal = "Learn Kotlin Concurrency"
             ),
             learningStyle = Profile.LearningStyle(
-                dominant = "reading",
+                dominant = Style.READING.name,
                 breakdown = Profile.LearningStyleBreakdown(
                     reading = 75,
                     kinesthetic = 25
@@ -64,7 +67,6 @@ class GenerateSectionUseCaseTest {
         val module = Module(
             title = "Module 1: Coroutines Basics",
             description = "Understanding the fundamentals of coroutines.",
-            index = 1,
             content = listOf("Coroutines Setup", "Basic Usage"),
             quizScore = 85,
             quizScoreMax = 100
@@ -72,7 +74,6 @@ class GenerateSectionUseCaseTest {
         val lesson = Lesson(
             title = "Lesson 1: What are Coroutines?",
             description = "An introduction to coroutines in Kotlin.",
-            index = 1,
             content = listOf("Coroutines Overview", "Coroutine Lifecycle"),
             quizScore = 90,
             quizScoreMax = 100
@@ -89,15 +90,15 @@ class GenerateSectionUseCaseTest {
         } returns flowOf(Result.success(generatedResponse))
 
         // Act
-        val result = generateSectionUseCase.invoke(title, profile, curriculum, module, lesson)
+        val result = generateSectionUseCase.invoke(title, profile, curriculum, module, lesson).first()
 
         // Assert
         // Verify that generateContent was called exactly once with the correct context
         coVerify(exactly = 1) {
             contentGeneratorClient.generateContent(
                 match { context ->
-                    context.field == profile.preferences.field &&
-                            context.level == profile.preferences.level &&
+                    context.field.name == profile.preferences.field &&
+                            context.level.name == profile.preferences.level &&
                             context.style == profile.learningStyle &&
                             context.type == ContentType.SECTION &&
                             context.contentDescriptors.size == 4 &&
@@ -134,12 +135,12 @@ class GenerateSectionUseCaseTest {
             email = "advanced@example.com",
             photoUrl = "https://example.com/photo2.jpg",
             preferences = Profile.LearningPreferences(
-                field = "Engineering",
-                level = "Intermediate",
+                field = Field.ENGINEERING.name,
+                level = Level.INTERMEDIATE.name,
                 goal = "Master Kotlin Coroutines"
             ),
             learningStyle = Profile.LearningStyle(
-                dominant = "kinesthetic",
+                dominant = Style.KINESTHETIC.name,
                 breakdown = Profile.LearningStyleBreakdown(
                     reading = 40,
                     kinesthetic = 60
@@ -155,7 +156,6 @@ class GenerateSectionUseCaseTest {
         val module = Module(
             title = "Module 2: Coroutine Scope and Context",
             description = "Deep dive into coroutine scopes and context management.",
-            index = 2,
             content = listOf("CoroutineScope", "CoroutineContext", "Structured Concurrency"),
             quizScore = 90,
             quizScoreMax = 100
@@ -163,7 +163,6 @@ class GenerateSectionUseCaseTest {
         val lesson = Lesson(
             title = "Lesson 2: CoroutineScope",
             description = "Understanding CoroutineScope in Kotlin.",
-            index = 2,
             content = listOf("CoroutineScope Basics", "CoroutineScope Hierarchy"),
             quizScore = 95,
             quizScoreMax = 100
@@ -181,7 +180,7 @@ class GenerateSectionUseCaseTest {
         } returns flowOf(Result.success(generatedResponse))
 
         // Act
-        val result = generateSectionUseCase.invoke(title, profile, curriculum, module, lesson)
+        val result = generateSectionUseCase.invoke(title, profile, curriculum, module, lesson).first()
 
         // Assert
         // Verify that the result is successful and matches the mocked response
@@ -201,12 +200,12 @@ class GenerateSectionUseCaseTest {
             email = "expert@example.com",
             photoUrl = "https://example.com/photo3.jpg",
             preferences = Profile.LearningPreferences(
-                field = "Health",
-                level = "Advanced",
+                field = Field.HEALTH.name,
+                level = Level.INTERMEDIATE.name,
                 goal = "Optimize Kotlin Applications"
             ),
             learningStyle = Profile.LearningStyle(
-                dominant = "reading",
+                dominant = Style.READING.name,
                 breakdown = Profile.LearningStyleBreakdown(
                     reading = 85,
                     kinesthetic = 15
@@ -222,7 +221,6 @@ class GenerateSectionUseCaseTest {
         val module = Module(
             title = "Module 3: Exception Handling in Coroutines",
             description = "Handling exceptions within coroutines effectively.",
-            index = 3,
             content = listOf("Coroutine Exceptions", "SupervisorScope"),
             quizScore = 95,
             quizScoreMax = 100
@@ -230,7 +228,6 @@ class GenerateSectionUseCaseTest {
         val lesson = Lesson(
             title = "Lesson 3: Coroutine Exceptions",
             description = "Advanced techniques for managing exceptions in coroutines.",
-            index = 3,
             content = listOf("CoroutineExceptionHandler", "SupervisorJob"),
             quizScore = 100,
             quizScoreMax = 100
@@ -244,7 +241,7 @@ class GenerateSectionUseCaseTest {
         } returns flowOf(Result.failure(exception))
 
         // Act
-        val result = generateSectionUseCase.invoke(title, profile, curriculum, module, lesson)
+        val result = generateSectionUseCase.invoke(title, profile, curriculum, module, lesson).first()
 
         // Assert
         // Verify that the result is a failure and contains the expected exception

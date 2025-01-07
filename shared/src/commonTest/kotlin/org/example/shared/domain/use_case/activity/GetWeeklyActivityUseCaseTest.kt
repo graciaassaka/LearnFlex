@@ -4,7 +4,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.model.Session
-import org.example.shared.domain.use_case.session.GetSessionsByDateRangeUseCase
+import org.example.shared.domain.use_case.session.RetrieveSessionsByDateRangeUseCase
 import org.junit.Before
 import org.junit.Test
 import java.time.Instant
@@ -14,12 +14,12 @@ import kotlin.test.assertTrue
 
 class GetWeeklyActivityUseCaseTest {
     private lateinit var getWeeklyActivityUseCase: GetWeeklyActivityUseCase
-    private lateinit var getSessionsByDateRangeUseCase: GetSessionsByDateRangeUseCase
+    private lateinit var retrieveSessionsByDateRangeUseCase: RetrieveSessionsByDateRangeUseCase
 
     @Before
     fun setUp() {
-        getSessionsByDateRangeUseCase = mockk<GetSessionsByDateRangeUseCase>(relaxed = true)
-        getWeeklyActivityUseCase = GetWeeklyActivityUseCase(getSessionsByDateRangeUseCase)
+        retrieveSessionsByDateRangeUseCase = mockk<RetrieveSessionsByDateRangeUseCase>(relaxed = true)
+        getWeeklyActivityUseCase = GetWeeklyActivityUseCase(retrieveSessionsByDateRangeUseCase)
     }
 
     @Test
@@ -28,7 +28,7 @@ class GetWeeklyActivityUseCaseTest {
         val timestamp = Instant.parse("2024-12-24T10:15:30Z").toEpochMilli()
         val startTimestamp = Instant.parse("2024-12-17T10:15:30Z").toEpochMilli()
 
-        coEvery { getSessionsByDateRangeUseCase(startTimestamp, timestamp) } returns Result.success(sessions)
+        coEvery { retrieveSessionsByDateRangeUseCase(startTimestamp, timestamp) } returns Result.success(sessions)
 
         val expected = mapOf(
             Instant.parse("2024-12-17T10:15:30Z").atZone(ZoneId.systemDefault()).dayOfWeek to Pair(
@@ -60,7 +60,7 @@ class GetWeeklyActivityUseCaseTest {
         val startTimestamp = Instant.parse("2024-12-17T10:15:30Z").toEpochMilli()
         val exception = RuntimeException("Failed to get sessions")
 
-        coEvery { getSessionsByDateRangeUseCase(startTimestamp, timestamp) } returns Result.failure(exception)
+        coEvery { retrieveSessionsByDateRangeUseCase(startTimestamp, timestamp) } returns Result.failure(exception)
 
         // When
         val result = getWeeklyActivityUseCase(timestamp)

@@ -6,8 +6,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
+import org.example.shared.domain.constant.Collection
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.storage_operations.CrudOperations
+import org.example.shared.domain.storage_operations.util.PathBuilder
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -27,14 +29,16 @@ class FirestoreDaoTest {
     private lateinit var collectionRef: CollectionReference
     private lateinit var documentRef: DocumentReference
     private lateinit var remoteDataSource: CrudOperations<TestModel>
-
-    private val testCollectionPath = "test/collection"
     private val testTimestamp = 1000L
     private val testModel = TestModel(
         id = "test123",
         name = "Test Item",
         lastUpdated = testTimestamp
     )
+    private val testCollectionPath = PathBuilder()
+        .collection(Collection.TEST)
+        .document(testModel.id)
+        .build()
 
     @Before
     fun setUp() {
@@ -44,12 +48,12 @@ class FirestoreDaoTest {
         documentRef = mockk()
 
         // Mock the basic Firestore references
-        every { firestore.collection(testCollectionPath) } returns collectionRef
+        every { firestore.collection(testCollectionPath.value) } returns collectionRef
         every { collectionRef.document(testModel.id) } returns documentRef
         every { firestore.batch() } returns batch
 
         // Mock path-related methods for document references
-        every { collectionRef.path } returns testCollectionPath
+        every { collectionRef.path } returns testCollectionPath.value
         every { documentRef.path } returns "$testCollectionPath/${testModel.id}"
         every { documentRef.parent } returns collectionRef
         every { documentRef.id } returns testModel.id
@@ -69,7 +73,7 @@ class FirestoreDaoTest {
         coEvery { batch.commit() } returns Unit
 
         // Act
-        val result = remoteDataSource.insert(testCollectionPath, testModel, testTimestamp)
+        val result = remoteDataSource.insert(testModel, testCollectionPath, testTimestamp)
 
         // Assert
         assertTrue(result.isSuccess)
@@ -97,7 +101,7 @@ class FirestoreDaoTest {
         coEvery { batch.commit() } returns Unit
 
         // Act
-        val result = remoteDataSource.update(testCollectionPath, testModel, testTimestamp)
+        val result = remoteDataSource.update(testModel, testCollectionPath, testTimestamp)
 
         // Assert
         assertTrue(result.isSuccess)
@@ -124,7 +128,7 @@ class FirestoreDaoTest {
         coEvery { batch.commit() } returns Unit
 
         // Act
-        val result = remoteDataSource.delete(testCollectionPath, testModel, testTimestamp)
+        val result = remoteDataSource.delete(testModel, testCollectionPath, testTimestamp)
 
         // Assert
         assertTrue(result.isSuccess)
@@ -147,7 +151,7 @@ class FirestoreDaoTest {
         coEvery { batch.commit() } throws exception
 
         // Act
-        val result = remoteDataSource.insert(testCollectionPath, testModel, testTimestamp)
+        val result = remoteDataSource.insert(testModel, testCollectionPath, testTimestamp)
 
         // Assert
         assertTrue(result.isFailure)
@@ -165,7 +169,7 @@ class FirestoreDaoTest {
         coEvery { documentSnapshot.data(TestModel.serializer()) } returns testModel
 
         // Act
-        val result = remoteDataSource.get(testCollectionPath, testModel.id).first()
+        val result = remoteDataSource.get(testCollectionPath).first()
 
         // Assert
         assertTrue(result.isSuccess)

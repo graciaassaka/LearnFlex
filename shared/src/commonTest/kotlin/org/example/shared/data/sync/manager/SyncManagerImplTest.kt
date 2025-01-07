@@ -6,6 +6,8 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
+import org.example.shared.domain.constant.Collection
+import org.example.shared.domain.storage_operations.util.PathBuilder
 import org.example.shared.domain.sync.SyncHandler
 import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.sync.SyncOperation
@@ -76,7 +78,7 @@ class SyncManagerImplTest {
     fun `multiple operations are processed sequentially`() = testScope.runTest {
         // Given
         val operations = List(3) { index ->
-            SyncOperation(SyncOperation.SyncOperationType.INSERT, TEST_PATH, listOf("test data $index"), TIMESTAMP)
+            SyncOperation(SyncOperation.Type.INSERT, testPath, listOf("test data $index"), TIMESTAMP)
         }
         syncManager = SyncManagerImpl(
             syncScope = backgroundScope,
@@ -166,9 +168,12 @@ class SyncManagerImplTest {
     }
 
     companion object {
-        private const val TEST_PATH = "test/path"
+        private val testPath = PathBuilder()
+            .collection(Collection.TEST)
+            .document("testDocument")
+            .build()
         private const val TIMESTAMP = 1234567890L
-        private val operation = SyncOperation(SyncOperation.SyncOperationType.INSERT, TEST_PATH, listOf("test data"), TIMESTAMP)
+        private val operation = SyncOperation(SyncOperation.Type.INSERT, testPath, listOf("test data"), TIMESTAMP)
     }
 }
 

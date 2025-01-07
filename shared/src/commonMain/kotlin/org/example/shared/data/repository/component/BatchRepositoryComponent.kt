@@ -13,6 +13,7 @@ import org.example.shared.domain.dao.ExtendedDao
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.repository.util.QueryStrategy
 import org.example.shared.domain.storage_operations.BatchOperations
+import org.example.shared.domain.storage_operations.util.Path
 import org.example.shared.domain.sync.SyncOperation
 
 /**
@@ -34,17 +35,16 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      * @param timestamp The timestamp to associate with the operation.
      * @return A Result indicating success or failure.
      */
-    override suspend fun insertAll(path: String, items: List<Model>, timestamp: Long): Result<Unit> =
+    override suspend fun insertAll(items: List<Model>, path: Path, timestamp: Long): Result<Unit> =
         config.runCatching {
-            require(localDao is ExtendedLocalDao) { "LocalDao must implement ExtendedLocalDao to support batch operations" }
+            require(path.isCollectionPath())
+            require(localDao is ExtendedLocalDao)
             localDao.insertAll(
                 path = path,
-                items = items.map { model -> modelMapper.toEntity(model, extractParentId(path)) },
+                items = items.map { model -> modelMapper.toEntity(model, path.getParentId()) },
                 timestamp = timestamp
             )
-            syncManager.queueOperation(
-                createSyncOperation(SyncOperation.SyncOperationType.INSERT_ALL, path, items, timestamp)
-            )
+            syncManager.queueOperation(SyncOperation(SyncOperation.Type.INSERT_ALL, path, items, timestamp))
         }
 
     /**
@@ -55,17 +55,16 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      * @param timestamp The timestamp to associate with the operation.
      * @return A Result indicating success or failure.
      */
-    override suspend fun updateAll(path: String, items: List<Model>, timestamp: Long): Result<Unit> =
+    override suspend fun updateAll(items: List<Model>, path: Path, timestamp: Long): Result<Unit> =
         config.runCatching {
-            require(localDao is ExtendedLocalDao) { "LocalDao must implement ExtendedLocalDao to support batch operations" }
+            require(path.isCollectionPath())
+            require(localDao is ExtendedLocalDao)
             localDao.updateAll(
                 path = path,
-                items = items.map { model -> modelMapper.toEntity(model, extractParentId(path)) },
+                items = items.map { model -> modelMapper.toEntity(model, path.getParentId()) },
                 timestamp = timestamp
             )
-            syncManager.queueOperation(
-                createSyncOperation(SyncOperation.SyncOperationType.UPDATE_ALL, path, items, timestamp)
-            )
+            syncManager.queueOperation(SyncOperation(SyncOperation.Type.UPDATE_ALL, path, items, timestamp))
         }
 
     /**
@@ -76,17 +75,16 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      * @param timestamp The timestamp to associate with the operation.
      * @return A Result indicating success or failure.
      */
-    override suspend fun deleteAll(path: String, items: List<Model>, timestamp: Long): Result<Unit> =
+    override suspend fun deleteAll(items: List<Model>, path: Path, timestamp: Long): Result<Unit> =
         config.runCatching {
-            require(localDao is ExtendedLocalDao) { "LocalDao must implement ExtendedLocalDao to support batch operations" }
+            require(path.isCollectionPath())
+            require(localDao is ExtendedLocalDao)
             localDao.deleteAll(
                 path = path,
-                items = items.map { model -> modelMapper.toEntity(model, extractParentId(path)) },
+                items = items.map { model -> modelMapper.toEntity(model, path.getParentId()) },
                 timestamp = timestamp
             )
-            syncManager.queueOperation(
-                createSyncOperation(SyncOperation.SyncOperationType.DELETE_ALL, path, items, timestamp)
-            )
+            syncManager.queueOperation(SyncOperation(SyncOperation.Type.DELETE_ALL, path, items, timestamp))
         }
 
     /**
@@ -95,13 +93,10 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      * @param path The path for the operation.
      * @return A Flow emitting the result of the operation.
      */
-    override fun getAll(path: String): Flow<Result<List<Model>>> = channelFlow {
-        require(config.remoteDao is ExtendedDao) {
-            "RemoteDao must implement ExtendedDao to support batch operations"
-        }
-        require(config.localDao is ExtendedLocalDao) {
-            "LocalDao must implement ExtendedLocalDao to support batch operations"
-        }
+    override fun getAll(path: Path): Flow<Result<List<Model>>> = channelFlow {
+        require(path.isCollectionPath())
+        require(config.remoteDao is ExtendedDao)
+        require(config.localDao is ExtendedLocalDao)
 
         var lastEmittedData: List<Model>? = null
 
@@ -109,7 +104,7 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
             observeLocalData(
                 path = path,
                 lastEmitted = lastEmittedData,
-                queryStrategy = config.queryStrategies.byParentStrategy!!.setParentId(extractParentId(path))
+                queryStrategy = config.queryStrategies.byParentStrategy!!.setParentId(path.getParentId()!!)
             ) {
                 lastEmittedData = it
             }
@@ -137,7 +132,7 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      * @param onEmit The callback to invoke when new data is emitted.
      */
     private suspend fun ProducerScope<Result<List<Model>>>.observeLocalData(
-        path: String,
+        path: Path,
         lastEmitted: List<Model>?,
         queryStrategy: QueryStrategy<List<Entity>>,
         onEmit: (List<Model>) -> Unit
@@ -150,14 +145,7 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
                         if (models != lastEmitted) {
                             send(Result.success(models))
                             if (models.isNotEmpty()) {
-                                config.syncManager.queueOperation(
-                                    createSyncOperation(
-                                        type = SyncOperation.SyncOperationType.SYNC,
-                                        path = path,
-                                        items = models,
-                                        timestamp = System.currentTimeMillis()
-                                    )
-                                )
+                                config.syncManager.queueOperation(SyncOperation(SyncOperation.Type.SYNC, path, models))
                             }
                             onEmit(models)
                         }
@@ -176,27 +164,17 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      * @param onEmit The callback to invoke when new data is emitted.
      */
     private suspend fun ProducerScope<Result<List<Model>>>.fetchAndSyncRemoteData(
-        path: String,
+        path: Path,
         lastEmitted: List<Model>?,
         remoteDataFlow: Flow<Result<List<Model>>>,
         onEmit: (List<Model>) -> Unit
     ) = try {
-        require(config.localDao is ExtendedLocalDao) {
-            "LocalDao must implement ExtendedLocalDao to support batch operations"
-        }
         remoteDataFlow.collect { result ->
             result.onSuccess { models ->
                 if (models != lastEmitted) {
                     send(Result.success(models))
                     if (models.isNotEmpty()) {
-                        config.syncManager.queueOperation(
-                            createSyncOperation(
-                                type = SyncOperation.SyncOperationType.SYNC,
-                                path = path,
-                                items = models,
-                                timestamp = System.currentTimeMillis()
-                            )
-                        )
+                        config.syncManager.queueOperation(SyncOperation(SyncOperation.Type.SYNC, path, models))
                     }
                     onEmit(models)
                 }
@@ -207,26 +185,4 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
     } catch (e: Exception) {
         send(Result.failure(e))
     }
-
-    /**
-     * Extracts the parent ID from the given path.
-     *
-     * @param path The path to extract the parent ID from.
-     * @return The extracted parent ID or null if not found.
-     */
-    private fun extractParentId(path: String) = path.split("/").run {
-        require(size >= 3) { "Path must have at least 3 segments" }
-        get(size - 2)
-    }
-
-    /**
-     * Creates a sync operation for the given type, path, and items.
-     *
-     * @param type The type of the sync operation.
-     * @param path The path for the operation.
-     * @param items The list of items for the operation.
-     * @return The created SyncOperation.
-     */
-    private fun createSyncOperation(type: SyncOperation.SyncOperationType, path: String, items: List<Model>, timestamp: Long) =
-        SyncOperation(type, path, items, timestamp)
 }

@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.client.ContentGeneratorClient
 import org.example.shared.domain.constant.ContentType
+import org.example.shared.domain.constant.Field
+import org.example.shared.domain.constant.Level
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
 import org.example.shared.domain.model.Profile
@@ -42,8 +44,8 @@ class GenerateLessonUseCaseTest {
             email = "test@example.com",
             photoUrl = "https://example.com/photo.jpg",
             preferences = Profile.LearningPreferences(
-                field = "Computer Science",
-                level = "Beginner",
+                field = Field.COMPUTER_SCIENCE.name,
+                level = Level.BEGINNER.name,
                 goal = "Learn Kotlin Concurrency"
             ),
             learningStyle = Profile.LearningStyle(
@@ -63,7 +65,6 @@ class GenerateLessonUseCaseTest {
         val module = Module(
             title = "Module 1: Coroutines Basics",
             description = "Understanding the fundamentals of coroutines.",
-            index = 1,
             content = listOf("What are Coroutines?", "Coroutine Builders"),
             quizScore = 85,
             quizScoreMax = 100
@@ -87,8 +88,8 @@ class GenerateLessonUseCaseTest {
         coVerify(exactly = 1) {
             contentGeneratorClient.generateContent(
                 match { context ->
-                    context.field == profile.preferences.field &&
-                            context.level == profile.preferences.level &&
+                    context.field.name == profile.preferences.field &&
+                            context.level.name == profile.preferences.level &&
                             context.style == profile.learningStyle &&
                             context.type == ContentType.LESSON &&
                             context.contentDescriptors.size == 3 &&
@@ -122,8 +123,8 @@ class GenerateLessonUseCaseTest {
             email = "advanced@example.com",
             photoUrl = "https://example.com/photo2.jpg",
             preferences = Profile.LearningPreferences(
-                field = "Engineering",
-                level = "Intermediate",
+                field = Field.ENGINEERING.name,
+                level = Level.INTERMEDIATE.name,
                 goal = "Master Kotlin Coroutines"
             ),
             learningStyle = Profile.LearningStyle(
@@ -143,7 +144,6 @@ class GenerateLessonUseCaseTest {
         val module = Module(
             title = "Module 2: Coroutine Scope and Context",
             description = "Deep dive into coroutine scopes and context management.",
-            index = 2,
             content = listOf("CoroutineScope", "CoroutineContext", "Structured Concurrency"),
             quizScore = 90,
             quizScoreMax = 100
@@ -181,8 +181,8 @@ class GenerateLessonUseCaseTest {
             email = "expert@example.com",
             photoUrl = "https://example.com/photo3.jpg",
             preferences = Profile.LearningPreferences(
-                field = "Health",
-                level = "Advanced",
+                field = Field.ENGINEERING.name,
+                level = Level.ADVANCED.name,
                 goal = "Optimize Kotlin Applications"
             ),
             learningStyle = Profile.LearningStyle(
@@ -202,7 +202,6 @@ class GenerateLessonUseCaseTest {
         val module = Module(
             title = "Module 3: Exception Handling in Coroutines",
             description = "Handling exceptions within coroutines effectively.",
-            index = 3,
             content = listOf("CoroutineExceptionHandler", "SupervisorScope", "Exception Handling Strategies"),
             quizScore = 95,
             quizScoreMax = 100

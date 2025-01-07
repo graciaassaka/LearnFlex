@@ -2,6 +2,7 @@ package org.example.shared.domain.storage_operations
 
 import kotlinx.coroutines.flow.Flow
 import org.example.shared.domain.model.interfaces.DatabaseRecord
+import org.example.shared.domain.storage_operations.util.Path
 
 /**
  * Interface for batch operations on a collection of database records.
@@ -19,7 +20,11 @@ interface BatchOperations<Model : DatabaseRecord> {
      *
      * @return A [Result] indicating the success or failure of the operation.
      */
-    suspend fun insertAll(path: String, items: List<Model>, timestamp: Long): Result<Unit>
+    suspend fun insertAll(
+        items: List<Model>,
+        path: Path,
+        timestamp: Long = System.currentTimeMillis()
+    ): Result<Unit>
 
     /**
      * Updates a list of items in the database at the specified path.
@@ -29,7 +34,11 @@ interface BatchOperations<Model : DatabaseRecord> {
      * @param timestamp The timestamp to associate with the operation.
      * @return A [Result] indicating the success or failure of the operation.
      */
-    suspend fun updateAll(path: String, items: List<Model>, timestamp: Long): Result<Unit>
+    suspend fun updateAll(
+        items: List<Model>,
+        path: Path,
+        timestamp: Long = System.currentTimeMillis()
+    ): Result<Unit>
 
     /**
      * Deletes a list of items from the database at the specified path.
@@ -39,7 +48,11 @@ interface BatchOperations<Model : DatabaseRecord> {
      * @param timestamp The timestamp to associate with the operation.
      * @return A [Result] indicating the success or failure of the operation.
      */
-    suspend fun deleteAll(path: String, items: List<Model>, timestamp: Long): Result<Unit>
+    suspend fun deleteAll(
+        items: List<Model>,
+        path: Path,
+        timestamp: Long = System.currentTimeMillis()
+    ): Result<Unit>
 
     /**
      * Retrieves all items from the database at the specified path.
@@ -47,5 +60,5 @@ interface BatchOperations<Model : DatabaseRecord> {
      * @param path The path from where the items should be retrieved.
      * @return A [Flow] emitting a [Result] containing the list of items.
      */
-    fun getAll(path: String): Flow<Result<List<Model>>>
+    fun getAll(path: Path): Flow<Result<List<Model>>>
 }

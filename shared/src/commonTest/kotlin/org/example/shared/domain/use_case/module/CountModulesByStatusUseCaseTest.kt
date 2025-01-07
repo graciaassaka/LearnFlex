@@ -11,12 +11,12 @@ import kotlin.test.assertEquals
 
 class CountModulesByStatusUseCaseTest {
     private lateinit var countModulesByStatusUseCase: CountModulesByStatusUseCase
-    private lateinit var getModulesByCurriculumIdUseCase: GetModulesByCurriculumIdUseCase
+    private lateinit var retrieveModulesByCurriculumUseCase: RetrieveModulesByCurriculumUseCase
 
     @Before
     fun setUp() {
-        getModulesByCurriculumIdUseCase = mockk<GetModulesByCurriculumIdUseCase>(relaxed = true)
-        countModulesByStatusUseCase = CountModulesByStatusUseCase(getModulesByCurriculumIdUseCase)
+        retrieveModulesByCurriculumUseCase = mockk<RetrieveModulesByCurriculumUseCase>(relaxed = true)
+        countModulesByStatusUseCase = CountModulesByStatusUseCase(retrieveModulesByCurriculumUseCase)
     }
 
     @Test
@@ -27,7 +27,7 @@ class CountModulesByStatusUseCaseTest {
             else Status.UNFINISHED
         }.mapValues { it.value.size }
 
-        coEvery { getModulesByCurriculumIdUseCase(PATH) } returns Result.success(modules)
+        coEvery { retrieveModulesByCurriculumUseCase(PATH) } returns Result.success(modules)
 
         // Act
         val result = countModulesByStatusUseCase(PATH)
@@ -42,7 +42,7 @@ class CountModulesByStatusUseCaseTest {
         // Arrange
         val exception = Exception("Failed to get modules")
 
-        coEvery { getModulesByCurriculumIdUseCase(PATH) } returns Result.failure(exception)
+        coEvery { retrieveModulesByCurriculumUseCase(PATH) } returns Result.failure(exception)
 
         // Act
         val result = countModulesByStatusUseCase(PATH)
@@ -59,7 +59,6 @@ class CountModulesByStatusUseCaseTest {
                 id = "module1",
                 title = "Introduction to Programming",
                 description = "Learn the basics of programming.",
-                index = 1,
                 content = listOf("Lesson 1", "Lesson 2"),
                 quizScore = 85,
                 quizScoreMax = 100,
@@ -70,7 +69,6 @@ class CountModulesByStatusUseCaseTest {
                 id = "module2",
                 title = "Advanced Programming Concepts",
                 description = "Explore advanced topics in programming.",
-                index = 2,
                 content = listOf("Lesson 1", "Lesson 2", "Lesson 3"),
                 quizScore = 90,
                 quizScoreMax = 100,
@@ -81,7 +79,6 @@ class CountModulesByStatusUseCaseTest {
                 id = "module3",
                 title = "Data Structures",
                 description = "Understand data structures and their applications.",
-                index = 3,
                 content = listOf("Lesson 1", "Lesson 2", "Lesson 3", "Lesson 4"),
                 quizScore = 95,
                 quizScoreMax = 100,

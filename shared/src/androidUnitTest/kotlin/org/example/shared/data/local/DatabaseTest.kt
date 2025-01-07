@@ -15,6 +15,7 @@ import org.example.shared.domain.constant.Field
 import org.example.shared.domain.constant.Level
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.Profile.*
+import org.example.shared.domain.storage_operations.util.PathBuilder
 import org.junit.After
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -90,7 +91,7 @@ class DatabaseTest {
     @Test
     fun `when inserting profile, then profile should be retrievable`() = runTest {
         // When inserting a profile
-        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+        profileDao.insert(PathBuilder().collection(Collection.PROFILES).build(), userProfile, System.currentTimeMillis())
         val retrieved = profileDao.get(userProfile.id).first()
 
         // Then profile should be stored correctly
@@ -102,12 +103,16 @@ class DatabaseTest {
     fun `when inserting curriculum, then curriculum should be retrievable and profile timestamp should update`() =
         runTest {
             // Given a profile in the database
-            profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+            profileDao.insert(PathBuilder().collection(Collection.PROFILES).build(), userProfile, System.currentTimeMillis())
             val initialProfile = profileDao.get(userProfile.id).first()
             assertNotNull(initialProfile)
 
             // When inserting a curriculum
-            val path = "profiles/${userProfile.id}/curricula"
+            val path = PathBuilder().collection(Collection.PROFILES)
+                .document(userProfile.id)
+                .collection(Collection.CURRICULA)
+                .document(curricula.first().id)
+                .build()
             Thread.sleep(1) // Ensure timestamp will be different
             curriculumDao.insert(path, curricula.first(), System.currentTimeMillis())
 
@@ -125,18 +130,25 @@ class DatabaseTest {
     @Test
     fun `when inserting module, then module should be retrievable and parent timestamps should update`() = runTest {
         // Given a profile and curriculum in the database
-        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+        profileDao.insert(PathBuilder().collection(Collection.PROFILES).build(), userProfile, System.currentTimeMillis())
         val initialProfile = profileDao.get(userProfile.id).first()
         assertNotNull(initialProfile)
 
-        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        val curriculumPath = PathBuilder().collection(Collection.PROFILES)
+            .document(userProfile.id)
+            .collection(Collection.CURRICULA)
+            .document(curricula.first().id)
+            .build()
         curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
         val initialCurriculum = curriculumDao.get(curricula.first().id).first()
         assertNotNull(initialCurriculum)
 
         // When inserting a module
         Thread.sleep(1) // Ensure timestamp will be different
-        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        val modulePath = PathBuilder(curriculumPath)
+            .collection(Collection.MODULES)
+            .document(modules.first().id)
+            .build()
         moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
 
         // Then module should be stored correctly
@@ -157,23 +169,33 @@ class DatabaseTest {
     @Test
     fun `when inserting lesson, then lesson should be retrievable and parent timestamps should update`() = runTest {
         // Given a profile, curriculum, and module in the database
-        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+        profileDao.insert(PathBuilder().collection(Collection.PROFILES).build(), userProfile, System.currentTimeMillis())
         val initialProfile = profileDao.get(userProfile.id).first()
         assertNotNull(initialProfile)
 
-        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        val curriculumPath = PathBuilder().collection(Collection.PROFILES)
+            .document(userProfile.id)
+            .collection(Collection.CURRICULA)
+            .document(curricula.first().id)
+            .build()
         curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
         val initialCurriculum = curriculumDao.get(curricula.first().id).first()
         assertNotNull(initialCurriculum)
 
-        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        val modulePath = PathBuilder(curriculumPath)
+            .collection(Collection.MODULES)
+            .document(modules.first().id)
+            .build()
         moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
         val initialModule = moduleDao.get(modules.first().id).first()
         assertNotNull(initialModule)
 
         // When inserting a lesson
         Thread.sleep(1) // Ensure timestamp will be different
-        val lessonPath = "${modulePath}/${modules.first().id}/lessons"
+        val lessonPath = PathBuilder(modulePath)
+            .collection(Collection.LESSONS)
+            .document(lessons.first().id)
+            .build()
         lessonDao.insert(lessonPath, lessons.first(), System.currentTimeMillis())
 
         // Then lesson should be stored correctly
@@ -198,28 +220,41 @@ class DatabaseTest {
     @Test
     fun `when inserting section, then section should be retrievable and parent timestamps should update`() = runTest {
         // Given a profile, curriculum, module, and lesson in the database
-        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+        profileDao.insert(PathBuilder().collection(Collection.PROFILES).build(), userProfile, System.currentTimeMillis())
         val initialProfile = profileDao.get(userProfile.id).first()
         assertNotNull(initialProfile)
 
-        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        val curriculumPath = PathBuilder().collection(Collection.PROFILES)
+            .document(userProfile.id)
+            .collection(Collection.CURRICULA)
+            .document(curricula.first().id)
+            .build()
         curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
         val initialCurriculum = curriculumDao.get(curricula.first().id).first()
         assertNotNull(initialCurriculum)
 
-        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        val modulePath = PathBuilder(curriculumPath)
+            .collection(Collection.MODULES)
+            .document(modules.first().id)
+            .build()
         moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
         val initialModule = moduleDao.get(modules.first().id).first()
         assertNotNull(initialModule)
 
-        val lessonPath = "${modulePath}/${modules.first().id}/lessons"
+        val lessonPath = PathBuilder(modulePath)
+            .collection(Collection.LESSONS)
+            .document(lessons.first().id)
+            .build()
         lessonDao.insert(lessonPath, lessons.first(), System.currentTimeMillis())
         val initialLesson = lessonDao.get(lessons.first().id).first()
         assertNotNull(initialLesson)
 
         // When inserting a section
         Thread.sleep(1) // Ensure timestamp will be different
-        val sectionPath = "${lessonPath}/${lessons.first().id}/sections"
+        val sectionPath = PathBuilder(lessonPath)
+            .collection(Collection.SECTIONS)
+            .document(sections.first().id)
+            .build()
         sectionDao.insert(sectionPath, sections.first(), System.currentTimeMillis())
 
         // Then section should be stored correctly
@@ -248,8 +283,12 @@ class DatabaseTest {
     @Test
     fun `when updating curriculum description, then only curriculum and profile timestamps should update`() = runTest {
         // First, set up our initial state with a profile and curriculum
-        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
-        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        profileDao.insert(PathBuilder().collection(Collection.PROFILES).build(), userProfile, System.currentTimeMillis())
+        val curriculumPath = PathBuilder().collection(Collection.PROFILES)
+            .document(userProfile.id)
+            .collection(Collection.CURRICULA)
+            .document(curricula.first().id)
+            .build()
         curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
 
         // Capture initial timestamps
@@ -282,10 +321,17 @@ class DatabaseTest {
     @Test
     fun `when updating module title, then module and all parent timestamps should update`() = runTest {
         // Set up our initial hierarchy
-        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
-        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        profileDao.insert(PathBuilder().collection(Collection.PROFILES).build(), userProfile, System.currentTimeMillis())
+        val curriculumPath = PathBuilder().collection(Collection.PROFILES)
+            .document(userProfile.id)
+            .collection(Collection.CURRICULA)
+            .document(curricula.first().id)
+            .build()
         curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
-        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        val modulePath = PathBuilder(curriculumPath)
+            .collection(Collection.MODULES)
+            .document(modules.first().id)
+            .build()
         moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
 
         // Capture initial timestamps
@@ -323,12 +369,22 @@ class DatabaseTest {
     @Test
     fun `when updating lesson content, then lesson and all parent timestamps should update`() = runTest {
         // Set up our initial hierarchy
-        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
-        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        profileDao.insert(PathBuilder().collection(Collection.PROFILES).build(), userProfile, System.currentTimeMillis())
+        val curriculumPath = PathBuilder().collection(Collection.PROFILES)
+            .document(userProfile.id)
+            .collection(Collection.CURRICULA)
+            .document(curricula.first().id)
+            .build()
         curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
-        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        val modulePath = PathBuilder(curriculumPath)
+            .collection(Collection.MODULES)
+            .document(modules.first().id)
+            .build()
         moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
-        val lessonPath = "${modulePath}/${modules.first().id}/lessons"
+        val lessonPath = PathBuilder(modulePath)
+            .collection(Collection.LESSONS)
+            .document(lessons.first().id)
+            .build()
         lessonDao.insert(lessonPath, lessons.first(), System.currentTimeMillis())
 
         // Capture initial timestamps
@@ -372,14 +428,27 @@ class DatabaseTest {
     @Test
     fun `when updating section content, then section and all parent timestamps should update`() = runTest {
         // Set up our initial hierarchy
-        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
-        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        profileDao.insert(PathBuilder().collection(Collection.PROFILES).build(), userProfile, System.currentTimeMillis())
+        val curriculumPath = PathBuilder().collection(Collection.PROFILES)
+            .document(userProfile.id)
+            .collection(Collection.CURRICULA)
+            .document(curricula.first().id)
+            .build()
         curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
-        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        val modulePath = PathBuilder(curriculumPath)
+            .collection(Collection.MODULES)
+            .document(modules.first().id)
+            .build()
         moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
-        val lessonPath = "${modulePath}/${modules.first().id}/lessons"
+        val lessonPath = PathBuilder(modulePath)
+            .collection(Collection.LESSONS)
+            .document(lessons.first().id)
+            .build()
         lessonDao.insert(lessonPath, lessons.first(), System.currentTimeMillis())
-        val sectionPath = "${lessonPath}/${lessons.first().id}/sections"
+        val sectionPath = PathBuilder(lessonPath)
+            .collection(Collection.SECTIONS)
+            .document(sections.first().id)
+            .build()
         sectionDao.insert(sectionPath, sections.first(), System.currentTimeMillis())
 
         // Capture initial timestamps
@@ -429,8 +498,12 @@ class DatabaseTest {
     @Test
     fun `when deleting curriculum, then curriculum should be removed and profile timestamp should update`() = runTest {
         // First, set up our initial state with a profile and curriculum
-        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
-        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        profileDao.insert(PathBuilder().collection(Collection.PROFILES).build(), userProfile, System.currentTimeMillis())
+        val curriculumPath = PathBuilder().collection(Collection.PROFILES)
+            .document(userProfile.id)
+            .collection(Collection.CURRICULA)
+            .document(curricula.first().id)
+            .build()
         curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
 
         // Capture the initial profile timestamp
@@ -456,10 +529,17 @@ class DatabaseTest {
     @Test
     fun `when deleting module, then module should be removed and parent timestamps should update`() = runTest {
         // Set up our initial hierarchy
-        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
-        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        profileDao.insert(PathBuilder().collection(Collection.PROFILES).build(), userProfile, System.currentTimeMillis())
+        val curriculumPath = PathBuilder().collection(Collection.PROFILES)
+            .document(userProfile.id)
+            .collection(Collection.CURRICULA)
+            .document(curricula.first().id)
+            .build()
         curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
-        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        val modulePath = PathBuilder(curriculumPath)
+            .collection(Collection.MODULES)
+            .document(modules.first().id)
+            .build()
         moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
 
         // Capture initial timestamps
@@ -490,12 +570,22 @@ class DatabaseTest {
     @Test
     fun `when deleting lesson, then lesson should be removed and parent timestamps should update`() = runTest {
         // Set up our initial hierarchy
-        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
-        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        profileDao.insert(PathBuilder().collection(Collection.PROFILES).build(), userProfile, System.currentTimeMillis())
+        val curriculumPath = PathBuilder().collection(Collection.PROFILES)
+            .document(userProfile.id)
+            .collection(Collection.CURRICULA)
+            .document(curricula.first().id)
+            .build()
         curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
-        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        val modulePath = PathBuilder(curriculumPath)
+            .collection(Collection.MODULES)
+            .document(modules.first().id)
+            .build()
         moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
-        val lessonPath = "${modulePath}/${modules.first().id}/lessons"
+        val lessonPath = PathBuilder(modulePath)
+            .collection(Collection.LESSONS)
+            .document(lessons.first().id)
+            .build()
         lessonDao.insert(lessonPath, lessons.first(), System.currentTimeMillis())
 
         // Capture initial timestamps
@@ -532,14 +622,27 @@ class DatabaseTest {
     @Test
     fun `when deleting section, then section should be removed and parent timestamps should update`() = runTest {
         // Set up our initial hierarchy
-        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
-        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        profileDao.insert(PathBuilder().collection(Collection.PROFILES).build(), userProfile, System.currentTimeMillis())
+        val curriculumPath = PathBuilder().collection(Collection.PROFILES)
+            .document(userProfile.id)
+            .collection(Collection.CURRICULA)
+            .document(curricula.first().id)
+            .build()
         curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
-        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        val modulePath = PathBuilder(curriculumPath)
+            .collection(Collection.MODULES)
+            .document(modules.first().id)
+            .build()
         moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
-        val lessonPath = "${modulePath}/${modules.first().id}/lessons"
+        val lessonPath = PathBuilder(modulePath)
+            .collection(Collection.LESSONS)
+            .document(lessons.first().id)
+            .build()
         lessonDao.insert(lessonPath, lessons.first(), System.currentTimeMillis())
-        val sectionPath = "${lessonPath}/${lessons.first().id}/sections"
+        val sectionPath = PathBuilder(lessonPath)
+            .collection(Collection.SECTIONS)
+            .document(sections.first().id)
+            .build()
         sectionDao.insert(sectionPath, sections.first(), System.currentTimeMillis())
 
         // Capture initial timestamps
@@ -583,7 +686,7 @@ class DatabaseTest {
     fun `when inserting multiple sessions, then all sessions should be stored and profile timestamp should update`() =
         runTest {
             // First, let's set up our initial state with just a profile
-            profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+            profileDao.insert(PathBuilder().collection(Collection.PROFILES).build(), userProfile, System.currentTimeMillis())
             val initialProfile = profileDao.get(userProfile.id).first()
             assertNotNull(initialProfile)
 
@@ -606,7 +709,10 @@ class DatabaseTest {
             Thread.sleep(1) // Ensure distinct timestamps
 
             // Insert all sessions in a single transaction
-            val sessionsPath = "profiles/${userProfile.id}/sessions"
+            val sessionsPath = PathBuilder().collection(Collection.PROFILES)
+                .document(userProfile.id)
+                .collection(Collection.SESSIONS)
+                .build()
             sessionDao.insertAll(sessionsPath, sessionsToInsert, System.currentTimeMillis())
 
             // Verify all sessions were stored correctly
@@ -626,8 +732,11 @@ class DatabaseTest {
     fun `when updating multiple sessions end times, then all updates should be applied and profile timestamp should update`() =
         runTest {
             // Set up initial state with profile and sessions
-            profileDao.insert("profiles", userProfile, System.currentTimeMillis())
-            val sessionsPath = "profiles/${userProfile.id}/sessions"
+            profileDao.insert(PathBuilder().collection(Collection.PROFILES).build(), userProfile, System.currentTimeMillis())
+            val sessionsPath = PathBuilder().collection(Collection.PROFILES)
+                .document(userProfile.id)
+                .collection(Collection.SESSIONS)
+                .build()
             val initialSessions = listOf(
                 sessions.first().copy(id = "update_session_1"),
                 sessions.first().copy(id = "update_session_2"),
@@ -665,8 +774,11 @@ class DatabaseTest {
     fun `when deleting multiple sessions, then all sessions should be removed and profile timestamp should update`() =
         runTest {
             // Set up initial state with profile and multiple sessions
-            profileDao.insert("profiles", userProfile, System.currentTimeMillis())
-            val sessionsPath = "profiles/${userProfile.id}/sessions"
+            profileDao.insert(PathBuilder().collection(Collection.PROFILES).build(), userProfile, System.currentTimeMillis())
+            val sessionsPath = PathBuilder().collection(Collection.PROFILES)
+                .document(userProfile.id)
+                .collection(Collection.SESSIONS)
+                .build()
             val sessionsToDelete = listOf(
                 sessions.first().copy(id = "delete_session_1"),
                 sessions.first().copy(id = "delete_session_2"),
@@ -703,7 +815,7 @@ class DatabaseTest {
     @Test
     fun `when inserting multiple sessions, then all sessions should be retrievable`() = runTest {
         // Given a profile in the database
-        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
+        profileDao.insert(PathBuilder().collection(Collection.PROFILES).build(), userProfile, System.currentTimeMillis())
         val initialProfile = profileDao.get(userProfile.id).first()
         assertNotNull(initialProfile)
 
@@ -728,14 +840,24 @@ class DatabaseTest {
     @Test
     fun `when getting lessons by curriculum ID, then correct lessons should be retrieved`() = runTest {
         // Given a profile, curriculum in the database, and mo
-        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
-        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        profileDao.insert(PathBuilder().collection(Collection.PROFILES).build(), userProfile, System.currentTimeMillis())
+        val curriculumPath = PathBuilder().collection(Collection.PROFILES)
+            .document(userProfile.id)
+            .collection(Collection.CURRICULA)
+            .document(curricula.first().id)
+            .build()
         curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
 
         // Insert lessons associated with the curriculum
-        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        val modulePath = PathBuilder(curriculumPath)
+            .collection(Collection.MODULES)
+            .document(modules.first().id)
+            .build()
         moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
-        val lessonPath = "${modulePath}/${modules.first().id}/lessons"
+        val lessonPath = PathBuilder(modulePath)
+            .collection(Collection.LESSONS)
+            .document(lessons.first().id)
+            .build()
         lessons.forEach { lesson ->
             lessonDao.insert(lessonPath, lesson.copy(moduleId = modules.first().id), System.currentTimeMillis())
         }
@@ -754,18 +876,31 @@ class DatabaseTest {
     @Test
     fun `when getting sections by curriculum ID, then correct sections should be retrieved`() = runTest {
         // Given a profile, curriculum, module, and lesson in the database
-        profileDao.insert("profiles", userProfile, System.currentTimeMillis())
-        val curriculumPath = "profiles/${userProfile.id}/curricula"
+        profileDao.insert(PathBuilder().collection(Collection.PROFILES).build(), userProfile, System.currentTimeMillis())
+        val curriculumPath = PathBuilder().collection(Collection.PROFILES)
+            .document(userProfile.id)
+            .collection(Collection.CURRICULA)
+            .document(curricula.first().id)
+            .build()
         curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
 
-        val modulePath = "${curriculumPath}/${curricula.first().id}/modules"
+        val modulePath = PathBuilder(curriculumPath)
+            .collection(Collection.MODULES)
+            .document(modules.first().id)
+            .build()
         moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
 
-        val lessonPath = "${modulePath}/${modules.first().id}/lessons"
+        val lessonPath = PathBuilder(modulePath)
+            .collection(Collection.LESSONS)
+            .document(lessons.first().id)
+            .build()
         lessonDao.insert(lessonPath, lessons.first(), System.currentTimeMillis())
 
         // Insert sections associated with the lesson
-        val sectionPath = "${lessonPath}/${lessons.first().id}/sections"
+        val sectionPath = PathBuilder(lessonPath)
+            .collection(Collection.SECTIONS)
+            .document(sections.first().id)
+            .build()
         sections.forEach { section ->
             sectionDao.insert(sectionPath, section.copy(lessonId = lessons.first().id), System.currentTimeMillis())
         }
@@ -832,7 +967,6 @@ class DatabaseTest {
                 title = "Test Module 1",
                 description = "Test Module Description 1",
                 content = listOf("Test Lesson 1", "Test Lesson 2"),
-                index = 1,
                 quizScore = 90,
                 quizScoreMax = 100,
                 createdAt = System.currentTimeMillis(),
@@ -844,7 +978,6 @@ class DatabaseTest {
                 title = "Test Module 2",
                 description = "Test Module Description 2",
                 content = listOf("Test Lesson 1", "Test Lesson 2"),
-                index = 2,
                 quizScore = 85,
                 quizScoreMax = 100,
                 createdAt = System.currentTimeMillis(),
@@ -858,7 +991,6 @@ class DatabaseTest {
                 moduleId = modules.first().id,
                 title = "Lesson 1 Title",
                 description = "Lesson 1 Description",
-                index = 1,
                 content = listOf("Test Section 1", "Test Section 2"),
                 quizScore = 80,
                 quizScoreMax = 100,
@@ -870,7 +1002,6 @@ class DatabaseTest {
                 moduleId = modules.last().id,
                 title = "Lesson 2 Title",
                 description = "Lesson 2 Description",
-                index = 2,
                 content = listOf("Test Section 1", "Test Section 2"),
                 quizScore = 85,
                 quizScoreMax = 100,
@@ -883,7 +1014,6 @@ class DatabaseTest {
             SectionEntity(
                 id = "section1",
                 lessonId = lessons.first().id,
-                index = 1,
                 title = "Section 1 Title",
                 description = "Section 1 Description",
                 content = "Section 1 Content",
@@ -895,7 +1025,6 @@ class DatabaseTest {
             SectionEntity(
                 id = "section2",
                 lessonId = lessons.last().id,
-                index = 2,
                 title = "Section 2 Title",
                 description = "Section 2 Description",
                 content = "Section 2 Content",
