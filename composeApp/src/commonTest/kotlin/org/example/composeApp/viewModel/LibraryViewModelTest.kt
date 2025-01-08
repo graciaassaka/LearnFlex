@@ -13,17 +13,19 @@ import org.example.composeApp.presentation.action.LibraryAction
 import org.example.composeApp.presentation.navigation.Route
 import org.example.composeApp.presentation.ui.util.UIEvent
 import org.example.composeApp.presentation.viewModel.LibraryViewModel
+import org.example.composeApp.presentation.viewModel.util.ResourceProvider
 import org.example.shared.domain.client.ContentGeneratorClient
+import org.example.shared.domain.model.Bundle
 import org.example.shared.domain.model.Curriculum
+import org.example.shared.domain.model.Module
 import org.example.shared.domain.model.Profile
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.sync.SyncManager
-import org.example.shared.domain.use_case.curriculum.DeleteCurriculumUseCase
 import org.example.shared.domain.use_case.curriculum.FetchCurriculaByUserUseCase
+import org.example.shared.domain.use_case.curriculum.FetchCurriculumBundleUseCase
 import org.example.shared.domain.use_case.curriculum.GenerateCurriculumUseCase
-import org.example.shared.domain.use_case.curriculum.UploadCurriculumUseCase
+import org.example.shared.domain.use_case.library.UploadCurriculumAndModulesUseCase
 import org.example.shared.domain.use_case.module.GenerateModuleUseCase
-import org.example.shared.domain.use_case.module.UploadModulesUseCase
 import org.example.shared.domain.use_case.profile.FetchProfileUseCase
 import org.example.shared.domain.use_case.syllabus.SummarizeSyllabusUseCase
 import org.junit.After
@@ -42,14 +44,14 @@ class LibraryViewModelTest {
     private lateinit var syncManager: SyncManager<DatabaseRecord>
     private lateinit var fetchProfileUseCase: FetchProfileUseCase
     private lateinit var fetchCurriculaByUserUseCase: FetchCurriculaByUserUseCase
+    private lateinit var fetchCurriculumBundleUseCase: FetchCurriculumBundleUseCase
     private lateinit var summarizeSyllabusUseCase: SummarizeSyllabusUseCase
     private lateinit var generateCurriculumUseCase: GenerateCurriculumUseCase
     private lateinit var generateModuleUseCase: GenerateModuleUseCase
-    private lateinit var uploadCurriculumUseCase: UploadCurriculumUseCase
-    private lateinit var uploadModulesUseCase: UploadModulesUseCase
-    private lateinit var deleteCurriculumUseCase: DeleteCurriculumUseCase
+    private lateinit var uploadCurriculumAndModulesUseCase: UploadCurriculumAndModulesUseCase
+    private lateinit var resourceProvider: ResourceProvider
     private lateinit var testDispatcher: TestDispatcher
-    private val syncStatus = MutableStateFlow<SyncManager.SyncStatus>(SyncManager.SyncStatus.Idle)
+    private lateinit var syncStatus: MutableStateFlow<SyncManager.SyncStatus>
 
     @Before
     fun setUp() {
@@ -58,21 +60,23 @@ class LibraryViewModelTest {
         syncManager = mockk(relaxed = true)
         fetchProfileUseCase = mockk(relaxed = true)
         fetchCurriculaByUserUseCase = mockk(relaxed = true)
+        fetchCurriculumBundleUseCase = mockk(relaxed = true)
         summarizeSyllabusUseCase = mockk(relaxed = true)
         generateCurriculumUseCase = mockk(relaxed = true)
         generateModuleUseCase = mockk(relaxed = true)
-        uploadCurriculumUseCase = mockk(relaxed = true)
-        uploadModulesUseCase = mockk(relaxed = true)
+        uploadCurriculumAndModulesUseCase = mockk(relaxed = true)
+        resourceProvider = mockk(relaxed = true)
+        syncStatus = MutableStateFlow<SyncManager.SyncStatus>(SyncManager.SyncStatus.Idle)
 
         viewModel = LibraryViewModel(
             fetchProfileUseCase,
             fetchCurriculaByUserUseCase,
+            fetchCurriculumBundleUseCase,
             summarizeSyllabusUseCase,
             generateCurriculumUseCase,
             generateModuleUseCase,
-            uploadCurriculumUseCase,
-            uploadModulesUseCase,
-            deleteCurriculumUseCase,
+            uploadCurriculumAndModulesUseCase,
+            resourceProvider,
             testDispatcher,
             listOf(syncManager),
             SharingStarted.Eagerly
@@ -456,6 +460,7 @@ class LibraryViewModelTest {
     @Test
     fun `handleAction SaveContent with valid data should upload curriculum and modules successfully`() = runTest {
         // Given
+        val successMessage = "Upload successful"
         val syllabusDescription = "Syllabus description"
         val profile = mockk<Profile> { every { id } returns "profileId" }
         val generatedCurriculumResponse = mockk<ContentGeneratorClient.GeneratedResponse> {
@@ -468,11 +473,15 @@ class LibraryViewModelTest {
             every { description } returns "Module description"
             every { content } returns listOf("lesson1", "lesson2")
         }
+        val uiEvents = mutableListOf<UIEvent>()
+        val job = launch {
+            viewModel.uiEvent.toList(uiEvents)
+        }
         coEvery { fetchProfileUseCase() } returns Result.success(profile)
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedCurriculumResponse))
         coEvery { generateModuleUseCase("Module1 title", profile, any()) } returns flowOf(Result.success(generatedModuleResponse))
-        coEvery { uploadCurriculumUseCase(any(), any()) } returns Result.success(Unit)
-        coEvery { uploadModulesUseCase(any(), any(), any()) } returns Result.success(Unit)
+        coEvery { uploadCurriculumAndModulesUseCase("profileId", any(), any()) } returns Result.success(Unit)
+        coEvery { resourceProvider.getString(any()) } returns successMessage
         advanceUntilIdle()
 
         viewModel.handleAction(LibraryAction.EditSyllabusDescription(syllabusDescription))
@@ -490,14 +499,19 @@ class LibraryViewModelTest {
 
         // Then
         coVerify {
-            uploadCurriculumUseCase(any(), any())
-            uploadModulesUseCase(any(), any(), any())
+            uploadCurriculumAndModulesUseCase("profileId", any(), any())
         }
+        assertEquals(1, uiEvents.size)
+        assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
+        assertEquals(successMessage, (uiEvents.first() as UIEvent.ShowSnackbar).message)
+
+        job.cancel()
     }
 
     @Test
     fun `handleAction SaveContent with unequal curriculum content size and module size throws exception`() = runTest {
         // Given
+        val error = "error"
         val uiEvents = mutableListOf<UIEvent>()
         val job = launch {
             viewModel.uiEvent.toList(uiEvents)
@@ -517,6 +531,7 @@ class LibraryViewModelTest {
         coEvery { fetchProfileUseCase() } returns Result.success(profile)
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedCurriculumResponse))
         coEvery { generateModuleUseCase("Module1 title", profile, any()) } returns flowOf(Result.success(generatedModuleResponse))
+        coEvery { resourceProvider.getString(any()) } returns error
         advanceUntilIdle()
 
         viewModel.handleAction(LibraryAction.EditSyllabusDescription(syllabusDescription))
@@ -534,8 +549,7 @@ class LibraryViewModelTest {
 
         // Then
         coVerifyAll(true) {
-            uploadCurriculumUseCase(any(), any())
-            uploadModulesUseCase(any(), any(), any())
+            uploadCurriculumAndModulesUseCase("profileId", any(), any())
         }
 
         with(viewModel.state.value) {
@@ -544,6 +558,7 @@ class LibraryViewModelTest {
 
         assertEquals(1, uiEvents.size)
         assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
+        assertEquals(error, (uiEvents.first() as UIEvent.ShowSnackbar).message)
 
         job.cancel()
     }
@@ -563,6 +578,7 @@ class LibraryViewModelTest {
             every { description } returns "Module description"
             every { content } returns listOf("lesson1", "lesson2")
         }
+        val error = "Upload error"
         val uiEvents = mutableListOf<UIEvent>()
         val job = launch {
             viewModel.uiEvent.toList(uiEvents)
@@ -571,8 +587,9 @@ class LibraryViewModelTest {
         coEvery { fetchProfileUseCase() } returns Result.success(profile)
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedCurriculumResponse))
         coEvery { generateModuleUseCase("Module1 title", profile, any()) } returns flowOf(Result.success(generatedModuleResponse))
-        coEvery { uploadCurriculumUseCase(any(), any()) } returns Result.success(Unit)
-        coEvery { uploadModulesUseCase(any(), any(), any()) } returns Result.failure(Exception("Module error"))
+        coEvery { uploadCurriculumAndModulesUseCase("profileId", any(), any()) } returns Result.failure(Exception("Upload error"))
+        coEvery { resourceProvider.getString(any()) } returns error
+
         advanceUntilIdle()
 
         viewModel.handleAction(LibraryAction.EditSyllabusDescription(syllabusDescription))
@@ -590,12 +607,12 @@ class LibraryViewModelTest {
 
         // Then
         coVerify {
-            uploadCurriculumUseCase(any(), any())
-            uploadModulesUseCase(any(), any(), any())
+            uploadCurriculumAndModulesUseCase("profileId", any(), any())
         }
 
         assertEquals(1, uiEvents.size)
         assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
+        assertEquals(error, (uiEvents.first() as UIEvent.ShowSnackbar).message)
 
         job.cancel()
     }
@@ -659,7 +676,7 @@ class LibraryViewModelTest {
         with(viewModel.state.value) {
             assertEquals(query, filterQuery)
             assertEquals(1, filteredCurricula.size)
-            assertContains(filteredCurricula, curricula.first())
+            assertContains(filteredCurricula, curriculum)
         }
     }
 
@@ -800,5 +817,33 @@ class LibraryViewModelTest {
 
         // Then
         assertFalse(viewModel.state.value.showDiscardWarningDialog)
+    }
+
+    @Test
+    fun `handleAction OpenCurriculum should set curriculum and modules in state`() = runTest {
+        // Given
+        val profile = mockk<Profile> { every { id } returns "profile_id" }
+        val curriculum = Curriculum(
+            id = "curriculum1",
+            title = "Curriculum 1",
+            description = "Description for Curriculum 1",
+            content = listOf("Module 1 Content"),
+            status = "active"
+        )
+        val modules = listOf(mockk<Module>())
+
+        coEvery { fetchProfileUseCase() } returns Result.success(profile)
+        coEvery { fetchCurriculaByUserUseCase("profile_id") } returns Result.success(listOf(curriculum))
+        coEvery { fetchCurriculumBundleUseCase("profile_id", curriculum) } returns Bundle(curriculum, modules, emptyList(), emptyList())
+
+        // When
+        viewModel.handleAction(LibraryAction.OpenCurriculum(curriculum.id))
+        advanceUntilIdle()
+
+        // Then
+        with(viewModel.state.value) {
+            assertEquals(curriculum, this.curriculum)
+            assertEquals(modules, this.modules)
+        }
     }
 }

@@ -10,7 +10,7 @@ import org.example.shared.domain.storage_operations.util.PathBuilder
  *
  * @property repository The repository to perform deletion of modules.
  */
-class DeleteAllModulesUseCase(private val repository: ModuleRepository) {
+class DeleteModulesByCurriculumUseCase(private val repository: ModuleRepository) {
     /**
      * Deletes all modules for a given user and curriculum.
      *

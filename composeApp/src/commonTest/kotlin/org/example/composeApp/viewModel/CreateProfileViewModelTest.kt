@@ -15,6 +15,7 @@ import kotlinx.coroutines.test.*
 import org.example.composeApp.presentation.ui.screen.ProfileCreationForm
 import org.example.composeApp.presentation.ui.util.UIEvent
 import org.example.composeApp.presentation.viewModel.CreateUserProfileViewModel
+import org.example.composeApp.presentation.viewModel.util.ResourceProvider
 import org.example.shared.domain.client.StyleQuizGeneratorClient
 import org.example.shared.domain.constant.Field
 import org.example.shared.domain.constant.Level
@@ -46,8 +47,9 @@ class CreateProfileViewModelTest {
     private lateinit var getStyleResultUseCase: GetStyleResultUseCase
     private lateinit var updateProfileUseCase: UpdateProfileUseCase
     private lateinit var validateUsernameUseCase: ValidateUsernameUseCase
+    private lateinit var resourceProvider: ResourceProvider
     private lateinit var testDispatcher: TestDispatcher
-    private val syncStatus = MutableStateFlow<SyncManager.SyncStatus>(SyncManager.SyncStatus.Idle)
+    private lateinit var syncStatus: MutableStateFlow<SyncManager.SyncStatus>
 
     @Before
     fun setUp() {
@@ -62,6 +64,8 @@ class CreateProfileViewModelTest {
         getStyleResultUseCase = mockk(relaxed = true)
         updateProfileUseCase = mockk(relaxed = true)
         validateUsernameUseCase = ValidateUsernameUseCase()
+        syncStatus = MutableStateFlow<SyncManager.SyncStatus>(SyncManager.SyncStatus.Idle)
+        resourceProvider = mockk(relaxed = true)
 
         viewModel = CreateUserProfileViewModel(
             getUserDataUseCase,
@@ -72,6 +76,7 @@ class CreateProfileViewModelTest {
             getStyleResultUseCase,
             updateProfileUseCase,
             validateUsernameUseCase,
+            resourceProvider,
             testDispatcher,
             listOf(syncManager),
             SharingStarted.Eagerly
@@ -235,6 +240,7 @@ class CreateProfileViewModelTest {
     fun `uploadProfilePicture should update state with photoUrl and show successMessage when uploadProfilePictureUseCase returns success`() =
         runTest {
             // Given
+            val successMessage = "Profile picture uploaded successfully"
             val imageData = byteArrayOf(0x00, 0x01, 0x02, 0x03)
             val photoUrl = "https://example.com/profile.jpg"
 
@@ -244,6 +250,7 @@ class CreateProfileViewModelTest {
             }
 
             coEvery { uploadProfilePictureUseCase(imageData) } returns Result.success(photoUrl)
+            coEvery { resourceProvider.getString(any()) } returns successMessage
 
             // When
             viewModel.handleAction(Action.UploadProfilePicture(imageData))
@@ -254,6 +261,7 @@ class CreateProfileViewModelTest {
             assertEquals(photoUrl, viewModel.state.value.photoUrl)
             assertEquals(1, uiEvents.size)
             assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
+            assertEquals(successMessage, (uiEvents.first() as UIEvent.ShowSnackbar).message)
 
             job.cancel()
         }
@@ -288,12 +296,14 @@ class CreateProfileViewModelTest {
     fun `DeleteProfilePicture should update state with empty photoUrl and show successMessage when deleteProfilePictureUseCase returns success`() =
         runTest {
             // Given
+            val successMessage = "Profile picture deleted successfully"
             val uiEvents = mutableListOf<UIEvent>()
             val job = launch {
                 viewModel.uiEvent.toList(uiEvents)
             }
 
             coEvery { deleteProfilePictureUseCase() } returns Result.success(Unit)
+            coEvery { resourceProvider.getString(any()) } returns successMessage
 
             // When
             viewModel.handleAction(Action.DeleteProfilePicture)
@@ -304,6 +314,7 @@ class CreateProfileViewModelTest {
             assertEquals("", viewModel.state.value.photoUrl)
             assertEquals(1, uiEvents.size)
             assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
+            assertEquals(successMessage, (uiEvents.first() as UIEvent.ShowSnackbar).message)
 
             job.cancel()
         }
@@ -350,10 +361,9 @@ class CreateProfileViewModelTest {
     @Test
     fun `onCreateProfile should not call createProfileUseCase when username is invalid`() = runTest {
         // Given
-        val username = ""
+        coEvery { getUserDataUseCase() } returns Result.success(user.copy(displayName = ""))
 
         // When
-        viewModel.handleAction(Action.EditUsername(username))
         viewModel.handleAction(Action.CreateProfile)
         advanceUntilIdle()
 
@@ -364,12 +374,14 @@ class CreateProfileViewModelTest {
     @Test
     fun `onCreateProfile should show successMessage when createUserProfile returns success`() = runTest {
         // Given
+        val successMessage = "Profile created successfully"
         val uiEvents = mutableListOf<UIEvent>()
         val job = launch {
             viewModel.uiEvent.toList(uiEvents)
         }
 
         coEvery { createProfileUseCase(any()) } returns Result.success(Unit)
+        coEvery { resourceProvider.getString(any()) } returns successMessage
 
         // When
         viewModel.handleAction(Action.EditUsername("TestUser"))
@@ -380,6 +392,7 @@ class CreateProfileViewModelTest {
         coVerify { createProfileUseCase(any()) }
         assertEquals(1, uiEvents.size)
         assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
+        assertEquals(successMessage, (uiEvents.first() as UIEvent.ShowSnackbar).message)
 
         job.cancel()
     }
@@ -570,12 +583,13 @@ class CreateProfileViewModelTest {
     @Test
     fun `setLearningStyle should show success message when setUserStyleUseCase returns success`() = runTest {
         // Given
-
+        val successMessage = "Learning style updated successfully"
         val uiEvents = mutableListOf<UIEvent>()
         val job = launch { viewModel.uiEvent.toList(uiEvents) }
 
         coEvery { updateProfileUseCase(any()) } returns Result.success(Unit)
         coEvery { getStyleResultUseCase(any()) } returns Result.success(testLearningStyle)
+        coEvery { resourceProvider.getString(any()) } returns successMessage
 
         // When
         viewModel.handleAction(Action.HandleQuestionnaireCompleted) // This will set the styleResu)
@@ -586,6 +600,7 @@ class CreateProfileViewModelTest {
         // Then
         assertEquals(1, uiEvents.size)
         assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
+        assertEquals(successMessage, (uiEvents.first() as UIEvent.ShowSnackbar).message)
 
         job.cancel()
     }

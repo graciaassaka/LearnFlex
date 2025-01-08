@@ -2,6 +2,7 @@ package org.example.shared.domain.use_case.module
 
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withTimeout
 import org.example.shared.domain.client.ContentGeneratorClient
 import org.example.shared.domain.constant.ContentType
 import org.example.shared.domain.constant.Field
@@ -30,26 +31,28 @@ class GenerateModuleUseCase(
         profile: Profile,
         curriculum: Curriculum
     ) = flow {
-        contentGeneratorClient.generateContent(
-            context = ContentGeneratorClient.Context(
-                field = Field.valueOf(profile.preferences.field),
-                level = Level.valueOf(profile.preferences.level),
-                style = profile.learningStyle,
-                type = ContentType.MODULE,
-                contentDescriptors = listOf(
-                    ContentGeneratorClient.Context.ContentDescriptor(
-                        type = ContentType.CURRICULUM,
-                        title = curriculum.title,
-                        description = curriculum.description
-                    ),
-                    ContentGeneratorClient.Context.ContentDescriptor(
-                        type = ContentType.MODULE,
-                        title = tile,
-                        description = "No description provided"
+        withTimeout(60000L) {
+            contentGeneratorClient.generateContent(
+                context = ContentGeneratorClient.Context(
+                    field = Field.valueOf(profile.preferences.field),
+                    level = Level.valueOf(profile.preferences.level),
+                    style = profile.learningStyle,
+                    type = ContentType.MODULE,
+                    contentDescriptors = listOf(
+                        ContentGeneratorClient.Context.ContentDescriptor(
+                            type = ContentType.CURRICULUM,
+                            title = curriculum.title,
+                            description = curriculum.description
+                        ),
+                        ContentGeneratorClient.Context.ContentDescriptor(
+                            type = ContentType.MODULE,
+                            title = tile,
+                            description = "No description provided"
+                        )
                     )
                 )
-            )
-        ).collect(::emit)
+            ).collect(::emit)
+        }
     }.catch { e ->
         emit(Result.failure(e))
     }

@@ -10,6 +10,7 @@ import org.example.composeApp.presentation.navigation.Route
 import org.example.composeApp.presentation.state.CreateProfileUIState
 import org.example.composeApp.presentation.ui.screen.ProfileCreationForm
 import org.example.composeApp.presentation.ui.util.SnackbarType
+import org.example.composeApp.presentation.viewModel.util.ResourceProvider
 import org.example.shared.domain.constant.Field
 import org.example.shared.domain.constant.Level
 import org.example.shared.domain.constant.Style
@@ -20,7 +21,6 @@ import org.example.shared.domain.use_case.auth.GetUserDataUseCase
 import org.example.shared.domain.use_case.profile.*
 import org.example.shared.domain.use_case.validation.ValidateUsernameUseCase
 import org.example.shared.domain.use_case.validation.util.ValidationResult
-import org.jetbrains.compose.resources.getString
 import org.example.composeApp.presentation.action.CreateUserProfileAction as Action
 
 /**
@@ -34,6 +34,7 @@ import org.example.composeApp.presentation.action.CreateUserProfileAction as Act
  * @param getStyleResultUseCase The use case to get the style result.
  * @param createUserStyleUseCase The use case to set the user style.
  * @param syncManagers The list of sync managers to handle sync operations.
+ * @param resourceProvider The resource provider to access string resources.
  * @param dispatcher The coroutine dispatcher to run the use cases on.
  * @param sharingStarted The sharing strategy for the state flow.
  */
@@ -46,6 +47,7 @@ class CreateUserProfileViewModel(
     private val getStyleResultUseCase: GetStyleResultUseCase,
     private val updateProfileUseCase: UpdateProfileUseCase,
     private val validateUsernameUseCase: ValidateUsernameUseCase,
+    private val resourceProvider: ResourceProvider,
     private val dispatcher: CoroutineDispatcher,
     syncManagers: List<SyncManager<DatabaseRecord>>,
     sharingStarted: SharingStarted
@@ -155,7 +157,7 @@ class CreateUserProfileViewModel(
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
-            val successMessage = async { getString(Res.string.update_photo_success) }
+            val successMessage = async { resourceProvider.getString(Res.string.update_photo_success) }
             uploadProfilePictureUseCase(imageData)
                 .onSuccess { url ->
                     update { it.copy(photoUrl = url) }
@@ -176,7 +178,7 @@ class CreateUserProfileViewModel(
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
-            val successMessage = async { getString(Res.string.delete_photo_success) }
+            val successMessage = async { resourceProvider.getString(Res.string.delete_photo_success) }
             deleteProfilePictureUseCase()
                 .onSuccess {
                     update { it.copy(photoUrl = "") }
@@ -193,29 +195,30 @@ class CreateUserProfileViewModel(
      * Handles the creation of a user profile.
      */
     private fun createProfile() = with(_state) {
-        update { it.copy(isLoading = true) }
+        viewModelScope.launch(dispatcher) {
+            try {
+                editUsername(value.username)
+                check(value.usernameError.isNullOrBlank())
 
-        editUsername(value.username)
-
-        if (value.usernameError.isNullOrBlank()) viewModelScope.launch(dispatcher) {
-            val successMessage = async { getString(Res.string.create_profile_success) }
-            createProfileUseCase(
-                Profile(
-                    id = value.userId,
-                    email = value.email,
-                    username = value.username,
-                    photoUrl = value.photoUrl,
-                    preferences = Profile.LearningPreferences(value.field.name, value.level.name, value.goal),
-                )
-            ).onSuccess {
+                update { it.copy(isLoading = true) }
+                val successMessage = async { resourceProvider.getString(Res.string.create_profile_success) }
+                createProfileUseCase(
+                    Profile(
+                        id = value.userId,
+                        email = value.email,
+                        username = value.username,
+                        photoUrl = value.photoUrl,
+                        preferences = Profile.LearningPreferences(value.field.name, value.level.name, value.goal),
+                    )
+                ).getOrThrow()
                 showSnackbar(successMessage.await(), SnackbarType.Success)
                 update { it.copy(isProfileCreated = true) }
-            }.onFailure { error ->
-                handleError(error)
+            } catch (e: Exception) {
+                handleError(e)
+            } finally {
+                update { it.copy(isLoading = false) }
             }
         }
-
-        update { it.copy(isLoading = false) }
     }
 
     /**
@@ -234,17 +237,10 @@ class CreateUserProfileViewModel(
         }
 
         viewModelScope.launch(dispatcher) {
-            fetchStyleQuestionnaireUseCase(
-                Profile.LearningPreferences(value.field.name, value.level.name, value.goal),
-                QUESTION_COUNT
-            ).collect { result ->
+            fetchStyleQuestionnaireUseCase(Profile.LearningPreferences(value.field.name, value.level.name, value.goal)).collect { result ->
                 result.fold(
-                    onSuccess = { question ->
-                        update { state -> state.copy(styleQuestionnaire = state.styleQuestionnaire + question) }
-                    },
-                    onFailure = { error ->
-                        handleError(error)
-                    }
+                    onSuccess = { question -> update { it.copy(styleQuestionnaire = it.styleQuestionnaire + question) } },
+                    onFailure = ::handleError
                 )
                 update { it.copy(isLoading = false) }
             }
@@ -271,12 +267,11 @@ class CreateUserProfileViewModel(
      * Sets the learning style for the user.
      */
     private fun setLearningStyle() = with(_state) {
-        try {
-            require(value.learningStyle != null)
-
-            update { it.copy(isLoading = true) }
-            viewModelScope.launch(dispatcher) {
-                val successMessage = async { getString(Res.string.set_learning_style_success) }
+        viewModelScope.launch(dispatcher) {
+            try {
+                check(value.learningStyle != null)
+                update { it.copy(isLoading = true) }
+                val successMessage = async { resourceProvider.getString(Res.string.set_learning_style_success) }
                 updateProfileUseCase(
                     Profile(
                         id = value.userId,
@@ -287,17 +282,14 @@ class CreateUserProfileViewModel(
                         learningStyle = value.learningStyle!!,
                         lastUpdated = System.currentTimeMillis()
                     )
-                ).onSuccess {
-                    showSnackbar(successMessage.await(), SnackbarType.Success)
-                    navigate(Route.Dashboard, true)
-                }.onFailure { error ->
-                    handleError(error)
-                }
+                ).getOrThrow()
+                showSnackbar(successMessage.await(), SnackbarType.Success)
+                navigate(Route.Dashboard, true)
+            } catch (e: Exception) {
+                handleError(e)
+            } finally {
+                update { it.copy(showStyleResultDialog = false, isLoading = false) }
             }
-        } catch (e: IllegalArgumentException) {
-            handleError(e)
-        } finally {
-            update { it.copy(showStyleResultDialog = false, isLoading = false) }
         }
     }
 
@@ -311,10 +303,6 @@ class CreateUserProfileViewModel(
             ProfileCreationForm.PersonalInfo -> it.copy(currentForm = ProfileCreationForm.PersonalInfo)
             ProfileCreationForm.StyleQuestionnaire -> it.copy(currentForm = ProfileCreationForm.StyleQuestionnaire)
         }
-    }
-
-    companion object {
-        const val QUESTION_COUNT = 5
     }
 }
 

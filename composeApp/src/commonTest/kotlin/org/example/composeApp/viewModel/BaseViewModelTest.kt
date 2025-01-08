@@ -1,4 +1,4 @@
-package org.example.shared.presentation.viewModel
+package org.example.composeApp.viewModel
 
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue

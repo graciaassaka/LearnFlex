@@ -17,9 +17,10 @@ import java.io.File
  * @property modules A list of modules.
  * @property filterQuery The current search query.
  * @property showDiscardWarningDialog Indicates if the discard warning dialog should be shown.
- * @property isRefreshing Indicates if the data is currently loading.
  * @property isUploading Indicates if an upload is in progress.
  * @property isDownloading Indicates if a download is in progress.
+ * @property isGenerating Indicates if content is being generated.
+ * @property displayMode The mode for saving content.
  */
 data class LibraryUIState(
     val profile: Profile? = null,
@@ -31,7 +32,13 @@ data class LibraryUIState(
     val modules: List<Module> = emptyList(),
     val filterQuery: String = "",
     val showDiscardWarningDialog: Boolean = false,
-    val isRefreshing: Boolean = false,
     val isUploading: Boolean = false,
     val isDownloading: Boolean = false,
-)
+    val isGenerating: Boolean = false,
+    val displayMode: DisplayMode = DisplayMode.View
+) {
+    enum class DisplayMode {
+        View,
+        Edit
+    }
+}

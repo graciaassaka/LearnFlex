@@ -9,6 +9,10 @@
     <string name="password_reset_screen_title">Password Reset</string>
     <string name="create_profile_screen_title">Tell us about yourself</string>
 
+    <!-- Dialog Titles -->
+    <string name="style_result_dialog_title">Your Learning Style</string>
+    <string name="discard_warning_dialog_title">Discard Changes?</string>
+
     <!-- Button Labels -->
     <string name="sign_in_button_label">Sign In</string>
     <string name="sign_up_button_label">Sign Up</string>
@@ -39,6 +43,7 @@
     <string name="remove_module_button_label">Remove Module</string>
     <string name="cancel_button_label">Cancel</string>
     <string name="discard_button_label">Discard</string>
+    <string name="open_in_study_button_label">Open in Study</string>
 
     <!-- Form Labels -->
     <string name="email_label">Email</string>
@@ -77,8 +82,10 @@
     <!-- Error Messages -->
     <string name="file_too_large_error">File too large</string>
     <string name="file_not_found_error">File not found</string>
+    <string name="file_unsupported_error">File type not supported</string>
     <string name="file_unknown_error">Unknown error</string>
     <string name="no_data_available_error">No data available</string>
+    <string name="content_generation_took_too_long_error">Content generation took too long</string>
 
     <!-- Welcome Messages -->
     <string name="hi_there">Hi, %1$s!</string>
@@ -94,6 +101,7 @@
     <string name="modules_title_mismatch_warning">"Almost there! Ensure that the number of modules matches the number of
         module titles to proceed."
     </string>
+    <string name="discard_changes_warning">Are you sure you want to discard your changes?</string>
 
     <!-- Learning Items -->
     <string name="syllabus">Syllabus</string>
@@ -123,8 +131,5 @@
     <string name="weekly_activity">Weekly Activity</string>
     <string name="best_quiz_score">Best Quiz Score:</string>
     <string name="upload_photo_text">Upload Profile Photo</string>
-    <string name="style_result_dialog_title">Your Learning Style</string>
-    <string name="discard_warning_dialog_title">Discard Changes?</string>
-    <string name="discard_warning_dialog_message">Are you sure you want to discard your changes?</string>
 
 </resources>

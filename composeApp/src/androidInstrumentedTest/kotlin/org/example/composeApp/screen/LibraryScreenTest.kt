@@ -245,7 +245,7 @@ class LibraryScreenTest {
         every { viewModel.handleAction(LibraryAction.RemoveModule("module 1")) } answers {
             uiState.update {
                 it.copy(
-                    curriculum = it.curriculum?.copy(content = it.curriculum!!.content.toMutableList().apply { removeAt(0) }),
+                    curriculum = it.curriculum?.copy(content = it.curriculum.content.toMutableList().apply { removeAt(0) }),
                     modules = modules.filter { it.title != "module 1" }
                 )
             }
@@ -326,7 +326,7 @@ class LibraryScreenTest {
                 modules = modules
             )
         }
-        coEvery { viewModel.handleAction(LibraryAction.SaveContent()) } coAnswers {
+        coEvery { viewModel.handleAction(LibraryAction.SaveContent) } coAnswers {
             uiEventFlow.emit(UIEvent.ShowSnackbar(stringMap["content_saved_success"]!!, SnackbarType.Success))
         }
         composeTestRule.onNodeWithTag(TestTags.LIBRARY_SCREEN_MAIN_PANEL_GENERATED_CONTENT_SECTION.tag).apply {
@@ -336,7 +336,7 @@ class LibraryScreenTest {
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText(stringMap["content_saved_success"]!!).assertIsDisplayed()
         verify {
-            viewModel.handleAction(LibraryAction.SaveContent())
+            viewModel.handleAction(LibraryAction.SaveContent)
         }
     }
 

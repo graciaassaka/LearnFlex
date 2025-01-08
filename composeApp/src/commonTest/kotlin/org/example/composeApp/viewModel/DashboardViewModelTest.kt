@@ -1,4 +1,4 @@
-package org.example.shared.presentation.viewModel
+package org.example.composeApp.viewModel
 
 import io.mockk.coEvery
 import io.mockk.coVerify

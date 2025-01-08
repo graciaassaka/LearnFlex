@@ -116,7 +116,7 @@ class DeleteProfilePictureUseCaseTest {
         assertTrue(result.isFailure)
         val exception = result.exceptionOrNull() as CompoundException
         assertEquals(originalError, exception.originalError)
-        assertEquals(rollbackError, exception.rollbackError)
+        assertEquals(rollbackError, exception.rollbackErrors)
     }
 
 

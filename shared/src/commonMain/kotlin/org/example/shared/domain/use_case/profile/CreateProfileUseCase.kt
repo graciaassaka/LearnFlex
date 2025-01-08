@@ -59,13 +59,12 @@ class CreateProfileUseCase(
             return
         } catch (rollbackError: Exception) {
             if (time < RETRY_TIMES - 1) delay(RETRY_DELAY * (time + 1))
-            else throw CompoundException(ROLLBACK_ERROR_MESSAGE, e, rollbackError)
+            else throw CompoundException(e, rollbackError)
         }
     }
 
     companion object {
         const val RETRY_TIMES = 3
         const val RETRY_DELAY = 1000L
-        const val ROLLBACK_ERROR_MESSAGE = "Failed to create profile and rollback failed"
     }
 }

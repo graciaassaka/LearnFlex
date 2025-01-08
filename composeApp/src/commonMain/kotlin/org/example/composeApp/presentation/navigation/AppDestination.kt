@@ -37,7 +37,7 @@ enum class AppDestination(
     ),
     Study(
         label = "Study",
-        route = Route.Study,
+        route = Route.Study(),
         icon = Icons.AutoMirrored.Filled.MenuBook,
         contentDescription = "Study"
     ),

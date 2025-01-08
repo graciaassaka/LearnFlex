@@ -11,13 +11,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DeleteAllCurriculaUseCaseTest {
-    private lateinit var deleteAllCurriculaUseCase: DeleteAllCurriculaUseCase
+    private lateinit var deleteCurriculaByUserUseCase: DeleteCurriculaByUserUseCase
     private lateinit var repository: CurriculumRepository
 
     @Before
     fun setUp() {
         repository = mockk()
-        deleteAllCurriculaUseCase = DeleteAllCurriculaUseCase(repository)
+        deleteCurriculaByUserUseCase = DeleteCurriculaByUserUseCase(repository)
     }
 
     @Test
@@ -28,7 +28,7 @@ class DeleteAllCurriculaUseCaseTest {
         coEvery { repository.deleteAll(any(), any(), any()) } returns Result.success(Unit)
 
         // Act
-        val result = deleteAllCurriculaUseCase(curricula, userId)
+        val result = deleteCurriculaByUserUseCase(curricula, userId)
 
         // Assert
         coVerify(exactly = 1) { repository.deleteAll(any(), any(), any()) }
@@ -44,7 +44,7 @@ class DeleteAllCurriculaUseCaseTest {
         coEvery { repository.deleteAll(any(), any(), any()) } returns Result.failure(exception)
 
         // Act
-        val result = deleteAllCurriculaUseCase(curricula, userId)
+        val result = deleteCurriculaByUserUseCase(curricula, userId)
 
         // Assert
         coVerify(exactly = 1) { repository.deleteAll(any(), any(), any()) }
@@ -60,7 +60,7 @@ class DeleteAllCurriculaUseCaseTest {
         coEvery { repository.deleteAll(any(), any(), any()) } returns Result.success(Unit)
 
         // Act
-        val result = deleteAllCurriculaUseCase(curricula, userId)
+        val result = deleteCurriculaByUserUseCase(curricula, userId)
 
         // Assert
         coVerify(exactly = 1) { repository.deleteAll(any(), any(), any()) }

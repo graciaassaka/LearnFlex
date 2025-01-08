@@ -1,6 +1,8 @@
 package org.example.shared.domain.use_case.syllabus
 
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withTimeout
 import org.example.shared.domain.client.SyllabusSummarizerClient
 import java.io.File
 
@@ -20,9 +22,8 @@ class SummarizeSyllabusUseCase(
      * @return The result of the syllabus summarization.
      */
     operator fun invoke(file: File) = flow {
-        require(file.exists()) { "File does not exist" }
-        require(file.extension in setOf("pdf", "docx")) { "File must be a PDF or DOCX" }
-
-        syllabusSummarizerClient.summarizeSyllabus(file).collect(::emit)
+        withTimeout(60000L) { syllabusSummarizerClient.summarizeSyllabus(file).collect(::emit) }
+    }.catch { e ->
+        emit(Result.failure(e))
     }
 }

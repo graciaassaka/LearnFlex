@@ -10,7 +10,7 @@ import org.example.shared.domain.storage_operations.util.PathBuilder
  *
  * @property repository The repository to handle lesson data operations.
  */
-class DeleteAllLessonsUseCase(private val repository: LessonRepository) {
+class DeleteLessonsByModuleUseCase(private val repository: LessonRepository) {
     /**
      * Deletes all lessons for a given user, curriculum, and module.
      *

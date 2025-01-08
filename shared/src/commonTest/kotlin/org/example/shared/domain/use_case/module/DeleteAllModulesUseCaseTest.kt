@@ -11,13 +11,13 @@ import org.junit.Before
 import kotlin.test.Test
 
 class DeleteAllModulesUseCaseTest {
-    private lateinit var useCase: DeleteAllModulesUseCase
+    private lateinit var useCase: DeleteModulesByCurriculumUseCase
     private lateinit var repository: ModuleRepository
 
     @Before
     fun setUp() {
         repository = mockk()
-        useCase = DeleteAllModulesUseCase(repository)
+        useCase = DeleteModulesByCurriculumUseCase(repository)
     }
 
     @Test

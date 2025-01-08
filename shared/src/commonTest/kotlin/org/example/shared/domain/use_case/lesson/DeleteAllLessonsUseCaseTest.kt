@@ -13,13 +13,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DeleteAllLessonsUseCaseTest {
-    private lateinit var deleteAllLessonsUseCase: DeleteAllLessonsUseCase
+    private lateinit var deleteLessonsByModuleUseCase: DeleteLessonsByModuleUseCase
     private lateinit var repository: LessonRepository
 
     @Before
     fun setUp() {
         repository = mockk()
-        deleteAllLessonsUseCase = DeleteAllLessonsUseCase(repository)
+        deleteLessonsByModuleUseCase = DeleteLessonsByModuleUseCase(repository)
     }
 
     @Test
@@ -27,7 +27,7 @@ class DeleteAllLessonsUseCaseTest {
         val lessons = listOf(mockk<Lesson>())
         coEvery { repository.deleteAll(lessons, path, any()) } returns Result.success(Unit)
 
-        val result = deleteAllLessonsUseCase(lessons, USER_ID, CURRICULUM_ID, MODULE_ID)
+        val result = deleteLessonsByModuleUseCase(lessons, USER_ID, CURRICULUM_ID, MODULE_ID)
 
         coVerify(exactly = 1) { repository.deleteAll(lessons, path, any()) }
         assert(result.isSuccess)
@@ -39,7 +39,7 @@ class DeleteAllLessonsUseCaseTest {
         val exception = RuntimeException("DeleteAll failed")
         coEvery { repository.deleteAll(lessons, path, any()) } returns Result.failure(exception)
 
-        val result = deleteAllLessonsUseCase(lessons, USER_ID, CURRICULUM_ID, MODULE_ID)
+        val result = deleteLessonsByModuleUseCase(lessons, USER_ID, CURRICULUM_ID, MODULE_ID)
 
         coVerify(exactly = 1) { repository.deleteAll(lessons, path, any()) }
         assert(result.isFailure)

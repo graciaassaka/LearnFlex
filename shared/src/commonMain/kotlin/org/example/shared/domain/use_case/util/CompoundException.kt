@@ -6,16 +6,18 @@ package org.example.shared.domain.use_case.util
  *
  * @property message A description of what went wrong
  * @property originalError The exception that triggered the rollback attempt
- * @property rollbackError The exception that occurred during rollback
+ * @property rollbackErrors The exception that occurred during rollback
  */
 class CompoundException(
-    message: String,
     val originalError: Throwable,
-    val rollbackError: Throwable
+    vararg rollbackErrors: Throwable
 ) : Exception(
     """
-       $message
-       Original error: ${originalError.message}
-       Rollback error: ${rollbackError.message}
+       Original error: 
+       ______________
+       ${originalError.message}
+       Rollback errors: 
+       ________________
+       ${rollbackErrors.joinToString("\n") { it.message.toString() }}
     """.trimIndent()
 )

@@ -16,7 +16,7 @@ abstract class LocalDao<Entity : RoomEntity> {
         timestampManager.updateTimestamps(path, timestamp)
     }
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     protected abstract suspend fun insert(item: Entity)
 
     @Transaction

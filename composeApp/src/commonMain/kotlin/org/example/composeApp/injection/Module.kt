@@ -9,11 +9,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.SharingStarted
-import org.example.composeApp.presentation.viewModel.AuthViewModel
-import org.example.composeApp.presentation.viewModel.BaseViewModel
-import org.example.composeApp.presentation.viewModel.CreateUserProfileViewModel
-import org.example.composeApp.presentation.viewModel.DashboardViewModel
-import org.example.composeApp.presentation.viewModel.LibraryViewModel
+import org.example.composeApp.presentation.viewModel.*
+import org.example.composeApp.presentation.viewModel.util.ResourceProvider
 import org.example.shared.data.local.dao.*
 import org.example.shared.data.local.dao.util.TimestampManager
 import org.example.shared.data.local.dao.util.TimestampUpdater
@@ -50,6 +47,7 @@ import org.example.shared.domain.use_case.activity.GetWeeklyActivityUseCase
 import org.example.shared.domain.use_case.auth.*
 import org.example.shared.domain.use_case.curriculum.*
 import org.example.shared.domain.use_case.lesson.*
+import org.example.shared.domain.use_case.library.UploadCurriculumAndModulesUseCase
 import org.example.shared.domain.use_case.module.*
 import org.example.shared.domain.use_case.profile.*
 import org.example.shared.domain.use_case.quiz.GenerateQuizUseCase
@@ -63,9 +61,10 @@ import org.example.shared.domain.use_case.validation.ValidateEmailUseCase
 import org.example.shared.domain.use_case.validation.ValidatePasswordConfirmationUseCase
 import org.example.shared.domain.use_case.validation.ValidatePasswordUseCase
 import org.example.shared.domain.use_case.validation.ValidateUsernameUseCase
+import org.jetbrains.compose.resources.getString
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
-import org.koin.core.module.dsl.viewModel
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import kotlin.random.Random
@@ -751,7 +750,7 @@ val commonModule = module {
     single { FetchModulesByCurriculumUseCase(get(named(MODULE_SCOPE))) }
     single { RetrieveModulesByCurriculumUseCase(get(named(MODULE_SCOPE))) }
     single { RetrieveModulesByMinQuizScoreUseCase(get(named(MODULE_SCOPE))) }
-    single { DeleteAllModulesUseCase(get(named(MODULE_SCOPE))) }
+    single { DeleteModulesByCurriculumUseCase(get(named(MODULE_SCOPE))) }
     single { GenerateModuleUseCase(get(named(MODULE_SCOPE))) }
     singleOf(::CountModulesByStatusUseCase)
     singleOf(::GenerateModuleQuizUseCase)
@@ -762,7 +761,7 @@ val commonModule = module {
     single { FetchLessonsByModuleUseCase(get(named(LESSON_SCOPE))) }
     single { RetrieveLessonsByCurriculumUseCase(get(named(LESSON_SCOPE))) }
     single { RetrieveLessonsByMinQuizScoreUseCase(get(named(LESSON_SCOPE))) }
-    single { DeleteAllLessonsUseCase(get(named(LESSON_SCOPE))) }
+    single { DeleteLessonsByModuleUseCase(get(named(LESSON_SCOPE))) }
     single { GenerateLessonUseCase(get(named(LESSON_SCOPE))) }
     singleOf(::CountLessonsByStatusUseCase)
     singleOf(::GenerateLessonQuizUseCase)
@@ -773,7 +772,7 @@ val commonModule = module {
     single { FetchSectionsByLessonUseCase(get(named(SECTION_SCOPE))) }
     single { RetrieveSectionsByCurriculumUseCase(get(named(SECTION_SCOPE))) }
     single { RetrieveSectionByMinQuizScoreUseCase(get(named(SECTION_SCOPE))) }
-    single { DeleteAllSectionsUseCase(get(named(SECTION_SCOPE))) }
+    single { DeleteSectionsByLessonUseCase(get(named(SECTION_SCOPE))) }
     single { GenerateSectionUseCase(get(named(SECTION_SCOPE))) }
     singleOf(::CountSectionsByStatusUseCase)
     singleOf(::GenerateSectionQuizUseCase)
@@ -787,6 +786,12 @@ val commonModule = module {
     // Use Cases - Syllabus
     singleOf(::SummarizeSyllabusUseCase)
 
+    // Use Cases - Bundle
+    singleOf(::FetchCurriculumBundleUseCase)
+
+    // Use Cases - Library
+    singleOf(::UploadCurriculumAndModulesUseCase)
+
     // Use Cases - Validation
     singleOf(::ValidateEmailUseCase)
     singleOf(::ValidatePasswordUseCase)
@@ -797,74 +802,10 @@ val commonModule = module {
     singleOf(::GetWeeklyActivityUseCase)
 
     // ViewModels
-    viewModel {
-        BaseViewModel(
-            dispatcher = get(),
-            syncMangers = get()
-        )
-    }
-
-    viewModel {
-        AuthViewModel(
-            signUpUseCase = get(),
-            signInUseCase = get(),
-            sendVerificationEmailUseCase = get(),
-            verifyEmailUseCase = get(),
-            deleteUserUseCase = get(),
-            sendPasswordResetEmailUseCase = get(),
-            validateEmailUseCase = get(),
-            validatePasswordUseCase = get(),
-            validatePasswordConfirmationUseCase = get(),
-            dispatcher = get()
-        )
-    }
-
-    viewModel {
-        CreateUserProfileViewModel(
-            getUserDataUseCase = get(),
-            createProfileUseCase = get(),
-            uploadProfilePictureUseCase = get(),
-            deleteProfilePictureUseCase = get(),
-            fetchStyleQuestionnaireUseCase = get(),
-            getStyleResultUseCase = get(),
-            updateProfileUseCase = get(),
-            validateUsernameUseCase = get(),
-            dispatcher = get(),
-            syncManagers = get(),
-            sharingStarted = get()
-        )
-    }
-    viewModel {
-        DashboardViewModel(
-            fetchProfileUseCase = get(),
-            fetchSessionsByUserUseCase = get(),
-            fetchActiveCurriculumUseCase = get(),
-            fetchCurriculaByUserUseCase = get(),
-            fetchModulesByCurriculumUseCase = get(),
-            fetchLessonsByModuleUseCase = get(),
-            fetchSectionsByLessonUseCase = get(),
-            getWeeklyActivityUseCase = get(),
-            countModulesByStatusUseCase = get(),
-            countLessonsByStatusUseCase = get(),
-            countSectionsByStatusUseCase = get(),
-            dispatcher = get(),
-            syncManagers = get(),
-            sharingStarted = get()
-        )
-    }
-    viewModel {
-        LibraryViewModel(
-            fetchProfileUseCase = get(),
-            fetchCurriculaByUserUseCase = get(),
-            summarizeSyllabusUseCase = get(),
-            generateCurriculumUseCase = get(),
-            generateModuleUseCase = get(),
-            uploadCurriculumUseCase = get(),
-            uploadModulesUseCase = get(),
-            deleteCurriculumUseCase = get(),
-            dispatcher = get(),
-            syncManagers = get(),
-            sharingStarted = get()
-        )
-    }
+    single<ResourceProvider> { ResourceProvider { getString(it) } }
+    viewModelOf(::BaseViewModel)
+    viewModelOf(::AuthViewModel)
+    viewModelOf(::CreateUserProfileViewModel)
+    viewModelOf(::DashboardViewModel)
+    viewModelOf(::LibraryViewModel)
 }

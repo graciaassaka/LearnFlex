@@ -10,7 +10,7 @@ import org.example.shared.domain.storage_operations.util.PathBuilder
  *
  * @property repository The repository to interact with the data source.
  */
-class DeleteAllCurriculaUseCase(private val repository: CurriculumRepository) {
+class DeleteCurriculaByUserUseCase(private val repository: CurriculumRepository) {
 
     /**
      * Deletes all curricula for a given user.

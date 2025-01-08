@@ -23,7 +23,10 @@ sealed class Route {
     data object Library : Route()
 
     @Serializable
-    data object Study : Route()
+    data class Study(
+        val curriculumId: String? = null,
+        val moduleId: String? = null
+    ) : Route()
 
     @Serializable
     data object Community : Route()

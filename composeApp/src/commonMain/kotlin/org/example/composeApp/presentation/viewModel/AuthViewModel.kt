@@ -13,12 +13,12 @@ import org.example.composeApp.presentation.navigation.Route
 import org.example.composeApp.presentation.state.AuthUIState
 import org.example.composeApp.presentation.ui.screen.AuthForm
 import org.example.composeApp.presentation.ui.util.SnackbarType
+import org.example.composeApp.presentation.viewModel.util.ResourceProvider
 import org.example.shared.domain.use_case.auth.*
 import org.example.shared.domain.use_case.validation.ValidateEmailUseCase
 import org.example.shared.domain.use_case.validation.ValidatePasswordConfirmationUseCase
 import org.example.shared.domain.use_case.validation.ValidatePasswordUseCase
 import org.example.shared.domain.use_case.validation.util.ValidationResult
-import org.jetbrains.compose.resources.getString
 
 /**
  * ViewModel class for handling authentication-related operations.
@@ -32,6 +32,7 @@ import org.jetbrains.compose.resources.getString
  * @property validateEmailUseCase The use case for validating an email.
  * @property validatePasswordUseCase The use case for validating a password.
  * @property validatePasswordConfirmationUseCase The use case for validating a password confirmation.
+ * @property resourceProvider The resource provider for accessing string resources.
  * @property dispatcher The coroutine dispatcher used for asynchronous operations.
  */
 class AuthViewModel(
@@ -44,6 +45,7 @@ class AuthViewModel(
     private val validateEmailUseCase: ValidateEmailUseCase,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
     private val validatePasswordConfirmationUseCase: ValidatePasswordConfirmationUseCase,
+    private val resourceProvider: ResourceProvider,
     private val dispatcher: CoroutineDispatcher,
 ) : BaseViewModel(dispatcher) {
 
@@ -96,19 +98,8 @@ class AuthViewModel(
      */
     private fun editSignInPassword(password: String) = with(validatePasswordUseCase(password)) {
         when (this@with) {
-            is ValidationResult.Valid -> _state.update {
-                it.copy(
-                    signInPassword = password,
-                    signInPasswordError = null
-                )
-            }
-
-            is ValidationResult.Invalid -> _state.update {
-                it.copy(
-                    signInPassword = password,
-                    signInPasswordError = message
-                )
-            }
+            is ValidationResult.Valid -> _state.update { it.copy(signInPassword = password, signInPasswordError = null) }
+            is ValidationResult.Invalid -> _state.update { it.copy(signInPassword = password, signInPasswordError = message) }
         }
     }
 
@@ -129,7 +120,7 @@ class AuthViewModel(
 
         if (value.signInEmailError.isNullOrBlank() && value.signInPasswordError.isNullOrBlank())
             viewModelScope.launch(dispatcher) {
-                val successMessage = async { getString(Res.string.sign_in_success) }
+                val successMessage = async { resourceProvider.getString(Res.string.sign_in_success) }
                 signInUseCase(
                     email = value.signInEmail,
                     password = value.signInPassword
@@ -164,19 +155,8 @@ class AuthViewModel(
      */
     private fun editSignUpPassword(password: String) = with(validatePasswordUseCase(password)) {
         when (this@with) {
-            is ValidationResult.Valid -> _state.update {
-                it.copy(
-                    signUpPassword = password,
-                    signUpPasswordError = null
-                )
-            }
-
-            is ValidationResult.Invalid -> _state.update {
-                it.copy(
-                    signUpPassword = password,
-                    signUpPasswordError = message
-                )
-            }
+            is ValidationResult.Valid -> _state.update { it.copy(signUpPassword = password, signUpPasswordError = null) }
+            is ValidationResult.Invalid -> _state.update { it.copy(signUpPassword = password, signUpPasswordError = message) }
         }
     }
 
@@ -194,21 +174,13 @@ class AuthViewModel(
     private fun editSignUpPasswordConfirmation(password: String) =
         with(validatePasswordConfirmationUseCase(_state.value.signUpPassword, password)) {
             when (this@with) {
-                is ValidationResult.Valid ->
-                    _state.update {
-                        it.copy(
-                            signUpPasswordConfirmation = password,
-                            signUpPasswordConfirmationError = null
-                        )
-                    }
-
-                is ValidationResult.Invalid ->
-                    _state.update {
-                        it.copy(
-                            signUpPasswordConfirmation = password,
-                            signUpPasswordConfirmationError = message
-                        )
-                    }
+                is ValidationResult.Valid -> _state.update { it.copy(signUpPasswordConfirmation = password, signUpPasswordConfirmationError = null) }
+                is ValidationResult.Invalid -> _state.update {
+                    it.copy(
+                        signUpPasswordConfirmation = password,
+                        signUpPasswordConfirmationError = message
+                    )
+                }
             }
         }
 
@@ -227,7 +199,7 @@ class AuthViewModel(
             value.signUpPasswordError.isNullOrBlank() &&
             value.signUpPasswordConfirmationError.isNullOrBlank()
         ) viewModelScope.launch(dispatcher) {
-            val successMessage = async { getString(Res.string.sign_up_success) }
+            val successMessage = async { resourceProvider.getString(Res.string.sign_up_success) }
             signUpUseCase(
                 email = value.signUpEmail,
                 password = value.signUpPassword
@@ -253,7 +225,7 @@ class AuthViewModel(
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
-            val successMessage = async { getString(Res.string.resend_email_success) }
+            val successMessage = async { resourceProvider.getString(Res.string.resend_email_success) }
             sendVerificationEmailUseCase()
                 .onSuccess { showSnackbar(successMessage.await(), SnackbarType.Success) }
                 .onFailure { error -> handleError(error) }
@@ -295,7 +267,7 @@ class AuthViewModel(
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
-            val successMessage = async { getString(Res.string.del_user_success) }
+            val successMessage = async { resourceProvider.getString(Res.string.del_user_success) }
             deleteUserUseCase()
                 .onSuccess { showSnackbar(successMessage.await(), SnackbarType.Success) }
                 .onFailure { error -> handleError(error) }
@@ -311,19 +283,8 @@ class AuthViewModel(
      */
     private fun editPasswordResetEmail(email: String) = with(validateEmailUseCase(email)) {
         when (this@with) {
-            is ValidationResult.Valid -> _state.update {
-                it.copy(
-                    resetPasswordEmail = email,
-                    resetPasswordEmailError = null
-                )
-            }
-
-            is ValidationResult.Invalid -> _state.update {
-                it.copy(
-                    resetPasswordEmail = email,
-                    resetPasswordEmailError = message
-                )
-            }
+            is ValidationResult.Valid -> _state.update { it.copy(resetPasswordEmail = email, resetPasswordEmailError = null) }
+            is ValidationResult.Invalid -> _state.update { it.copy(resetPasswordEmail = email, resetPasswordEmailError = message) }
         }
     }
 
@@ -341,7 +302,7 @@ class AuthViewModel(
         editPasswordResetEmail(value.resetPasswordEmail)
 
         if (value.resetPasswordEmailError.isNullOrBlank()) viewModelScope.launch(dispatcher) {
-            val successMessage = async { getString(Res.string.resend_email_success) }
+            val successMessage = async { resourceProvider.getString(Res.string.resend_email_success) }
             sendPasswordResetEmailUseCase(value.resetPasswordEmail).onSuccess {
                 update { it.copy(isPasswordResetEmailSent = true) }
                 showSnackbar(successMessage.await(), SnackbarType.Success)
@@ -359,20 +320,9 @@ class AuthViewModel(
      * @param form The authentication form to display.
      */
     private fun displayAuthForm(form: AuthForm) = when (form) {
-        AuthForm.SignIn -> _state.update {
-            AuthUIState().copy(currentForm = AuthForm.SignIn)
-        }
-
-        AuthForm.SignUp -> _state.update {
-            AuthUIState().copy(currentForm = AuthForm.SignUp)
-        }
-
-        AuthForm.VerifyEmail -> _state.update {
-            it.copy(currentForm = AuthForm.VerifyEmail)
-        }
-
-        AuthForm.ResetPassword -> _state.update {
-            AuthUIState().copy(currentForm = AuthForm.ResetPassword)
-        }
+        AuthForm.SignIn -> _state.update { AuthUIState().copy(currentForm = AuthForm.SignIn) }
+        AuthForm.SignUp -> _state.update { AuthUIState().copy(currentForm = AuthForm.SignUp) }
+        AuthForm.VerifyEmail -> _state.update { it.copy(currentForm = AuthForm.VerifyEmail) }
+        AuthForm.ResetPassword -> _state.update { AuthUIState().copy(currentForm = AuthForm.ResetPassword) }
     }
 }

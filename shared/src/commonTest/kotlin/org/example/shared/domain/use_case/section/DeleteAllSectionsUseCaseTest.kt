@@ -13,13 +13,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DeleteAllSectionsUseCaseTest {
-    private lateinit var useCase: DeleteAllSectionsUseCase
+    private lateinit var useCase: DeleteSectionsByLessonUseCase
     private lateinit var repository: SectionRepository
 
     @Before
     fun setUp() {
         repository = mockk()
-        useCase = DeleteAllSectionsUseCase(repository)
+        useCase = DeleteSectionsByLessonUseCase(repository)
     }
 
     @Test

@@ -10,7 +10,7 @@ import org.example.shared.domain.storage_operations.util.PathBuilder
  *
  * @property repository The repository to perform delete operations on sections.
  */
-class DeleteAllSectionsUseCase(private val repository: SectionRepository) {
+class DeleteSectionsByLessonUseCase(private val repository: SectionRepository) {
     suspend operator fun invoke(
         sections: List<Section>,
         userId: String,
