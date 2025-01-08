@@ -42,39 +42,31 @@ sealed class CreateUserProfileAction {
     /**
      * Action to handle uploading a profile picture.
      * @param imageData The image data of the profile picture.
-     * @param successMessage The success message to display.
      */
-    data class UploadProfilePicture(val imageData: ByteArray, val successMessage: String) : CreateUserProfileAction() {
+    data class UploadProfilePicture(val imageData: ByteArray) : CreateUserProfileAction() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
             other as UploadProfilePicture
 
-            if (!imageData.contentEquals(other.imageData)) return false
-            if (successMessage != other.successMessage) return false
-
-            return true
+            return imageData.contentEquals(other.imageData)
         }
 
         override fun hashCode(): Int {
-            var result = imageData.contentHashCode()
-            result = 31 * result + successMessage.hashCode()
-            return result
+            return imageData.contentHashCode()
         }
     }
 
     /**
      * Action to handle deletion of the profile picture.
-     * @param successMessage The success message to display.
      */
-    data class DeleteProfilePicture(val successMessage: String) : CreateUserProfileAction()
+    data object DeleteProfilePicture : CreateUserProfileAction()
 
     /**
      * Action to handle the creation of the profile.
-     * @param successMessage The success message to display.
      */
-    data class CreateProfile(val successMessage: String) : CreateUserProfileAction()
+    data object CreateProfile : CreateUserProfileAction()
 
     /**
      * Action to start the style questionnaire.
@@ -94,9 +86,8 @@ sealed class CreateUserProfileAction {
 
     /**
      * Action to set the learning style.
-     * @param successMessage The success message to display.
      */
-    data class SetLearningStyle(val successMessage: String) : CreateUserProfileAction()
+    data object SetLearningStyle : CreateUserProfileAction()
 
     /**
      * Action to display the profile creation form.

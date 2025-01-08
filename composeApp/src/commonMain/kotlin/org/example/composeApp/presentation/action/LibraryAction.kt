@@ -62,7 +62,7 @@ sealed class LibraryAction {
     /**
      * Action to save content.
      */
-    data class SaveContent(val successMessage: String) : LibraryAction()
+    data object SaveContent : LibraryAction()
 
     /**
      * Action to discard content.

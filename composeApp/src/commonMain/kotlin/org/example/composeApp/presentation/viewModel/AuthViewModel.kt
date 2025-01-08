@@ -2,10 +2,12 @@ package org.example.composeApp.presentation.viewModel
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import learnflex.composeapp.generated.resources.*
 import org.example.composeApp.presentation.action.AuthAction
 import org.example.composeApp.presentation.navigation.Route
 import org.example.composeApp.presentation.state.AuthUIState
@@ -16,6 +18,7 @@ import org.example.shared.domain.use_case.validation.ValidateEmailUseCase
 import org.example.shared.domain.use_case.validation.ValidatePasswordConfirmationUseCase
 import org.example.shared.domain.use_case.validation.ValidatePasswordUseCase
 import org.example.shared.domain.use_case.validation.util.ValidationResult
+import org.jetbrains.compose.resources.getString
 
 /**
  * ViewModel class for handling authentication-related operations.
@@ -58,17 +61,17 @@ class AuthViewModel(
             is AuthAction.EditSignInEmail -> editSignInEmail(action.email)
             is AuthAction.EditSignInPassword -> editSignInPassword(action.password)
             is AuthAction.ToggleSignInPasswordVisibility -> toggleSignInPasswordVisibility()
-            is AuthAction.SignIn -> signIn(action.successMessage)
+            is AuthAction.SignIn -> signIn()
             is AuthAction.EditSignUpEmail -> editSignUpEmail(action.email)
             is AuthAction.EditSignUpPassword -> editSignUpPassword(action.password)
             is AuthAction.ToggleSignUpPasswordVisibility -> toggleSignUpPasswordVisibility()
             is AuthAction.EditSignUpPasswordConfirmation -> editSignUpPasswordConfirmation(action.password)
-            is AuthAction.SignUp -> signUp(action.successMessage)
-            is AuthAction.ResendVerificationEmail -> resendVerificationEmail(action.successMessage)
+            is AuthAction.SignUp -> signUp()
+            is AuthAction.ResendVerificationEmail -> resendVerificationEmail()
             is AuthAction.VerifyEmail -> verifyEmail()
-            is AuthAction.DeleteUser -> deleteUser(action.successMessage)
+            is AuthAction.DeleteUser -> deleteUser()
             is AuthAction.EditPasswordResetEmail -> editPasswordResetEmail(action.email)
-            is AuthAction.SendPasswordResetEmail -> sendPasswordResetEmail(action.successMessage)
+            is AuthAction.SendPasswordResetEmail -> sendPasswordResetEmail()
             is AuthAction.DisplayAuthForm -> displayAuthForm(action.form)
             is AuthAction.HandleAnimationEnd -> handleExitAnimationFinished()
         }
@@ -118,26 +121,26 @@ class AuthViewModel(
     /**
      * Initiates the sign-in process.
      */
-    private fun signIn(successMessage: String) = with(_state) {
+    private fun signIn() = with(_state) {
         update { it.copy(isLoading = true) }
 
         editSignInEmail(value.signInEmail)
         editSignInPassword(value.signInPassword)
 
-        if (value.signInEmailError.isNullOrBlank() && value.signInPasswordError.isNullOrBlank()) viewModelScope.launch(
-            dispatcher
-        ) {
-            signInUseCase(
-                email = value.signInEmail,
-                password = value.signInPassword
-            ).onSuccess {
-                update { it.copy(isUserSignedIn = true) }
-                navigate(Route.Dashboard, true)
-                showSnackbar(successMessage, SnackbarType.Success)
-            }.onFailure { error ->
-                handleError(error)
+        if (value.signInEmailError.isNullOrBlank() && value.signInPasswordError.isNullOrBlank())
+            viewModelScope.launch(dispatcher) {
+                val successMessage = async { getString(Res.string.sign_in_success) }
+                signInUseCase(
+                    email = value.signInEmail,
+                    password = value.signInPassword
+                ).onSuccess {
+                    update { it.copy(isUserSignedIn = true) }
+                    navigate(Route.Dashboard, true)
+                    showSnackbar(successMessage.await(), SnackbarType.Success)
+                }.onFailure { error ->
+                    handleError(error)
+                }
             }
-        }
 
         update { it.copy(isLoading = false) }
     }
@@ -212,7 +215,7 @@ class AuthViewModel(
     /**
      * Initiates the sign-up process.
      */
-    private fun signUp(successMessage: String) = with(_state) {
+    private fun signUp() = with(_state) {
         update { it.copy(isLoading = true) }
 
         editSignUpEmail(value.signUpEmail)
@@ -224,12 +227,13 @@ class AuthViewModel(
             value.signUpPasswordError.isNullOrBlank() &&
             value.signUpPasswordConfirmationError.isNullOrBlank()
         ) viewModelScope.launch(dispatcher) {
+            val successMessage = async { getString(Res.string.sign_up_success) }
             signUpUseCase(
                 email = value.signUpEmail,
                 password = value.signUpPassword
             ).onSuccess {
                 update { it.copy(isUserSignedUp = true) }
-                showSnackbar(successMessage, SnackbarType.Success)
+                showSnackbar(successMessage.await(), SnackbarType.Success)
             }.onFailure { error ->
                 handleError(error)
             }
@@ -245,12 +249,13 @@ class AuthViewModel(
      * and handles the success and failure cases by showing a snackbar with appropriate messages.
      * Finally, it sets the loading state back to false.
      */
-    private fun resendVerificationEmail(successMessage: String) = with(_state) {
+    private fun resendVerificationEmail() = with(_state) {
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
+            val successMessage = async { getString(Res.string.resend_email_success) }
             sendVerificationEmailUseCase()
-                .onSuccess { showSnackbar(successMessage, SnackbarType.Success) }
+                .onSuccess { showSnackbar(successMessage.await(), SnackbarType.Success) }
                 .onFailure { error -> handleError(error) }
         }
 
@@ -286,12 +291,13 @@ class AuthViewModel(
      * On success, navigates to the Auth route. On failure, handles the error by showing
      * an appropriate message.
      */
-    private fun deleteUser(successMessage: String) = with(_state) {
+    private fun deleteUser() = with(_state) {
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
+            val successMessage = async { getString(Res.string.del_user_success) }
             deleteUserUseCase()
-                .onSuccess { showSnackbar(successMessage, SnackbarType.Success) }
+                .onSuccess { showSnackbar(successMessage.await(), SnackbarType.Success) }
                 .onFailure { error -> handleError(error) }
         }
 
@@ -328,18 +334,17 @@ class AuthViewModel(
      * and if valid, calls the `sendPasswordResetEmailUseCase` to send the email.
      * On success, shows a success snackbar. On failure, handles the error.
      * Finally, it sets the loading state back to false.
-     *
-     * @param successMessage The message to show on successful email sending.
      */
-    private fun sendPasswordResetEmail(successMessage: String) = with(_state) {
+    private fun sendPasswordResetEmail() = with(_state) {
         update { it.copy(isLoading = true) }
 
         editPasswordResetEmail(value.resetPasswordEmail)
 
         if (value.resetPasswordEmailError.isNullOrBlank()) viewModelScope.launch(dispatcher) {
+            val successMessage = async { getString(Res.string.resend_email_success) }
             sendPasswordResetEmailUseCase(value.resetPasswordEmail).onSuccess {
                 update { it.copy(isPasswordResetEmailSent = true) }
-                showSnackbar(successMessage, SnackbarType.Success)
+                showSnackbar(successMessage.await(), SnackbarType.Success)
             }.onFailure { error ->
                 handleError(error)
             }

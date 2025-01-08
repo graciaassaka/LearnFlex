@@ -18,16 +18,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.test.runTest
 import learnflex.composeapp.generated.resources.*
-import org.example.composeApp.presentation.ui.screen.LibraryScreen
-import org.example.composeApp.presentation.ui.theme.LearnFlexTheme
-import org.example.composeApp.presentation.ui.constant.TestTags
-import org.example.shared.domain.model.Curriculum
-import org.example.shared.domain.model.Module
 import org.example.composeApp.presentation.action.LibraryAction
 import org.example.composeApp.presentation.state.LibraryUIState
+import org.example.composeApp.presentation.ui.constant.TestTags
+import org.example.composeApp.presentation.ui.screen.LibraryScreen
+import org.example.composeApp.presentation.ui.theme.LearnFlexTheme
 import org.example.composeApp.presentation.ui.util.SnackbarType
 import org.example.composeApp.presentation.ui.util.UIEvent
 import org.example.composeApp.presentation.viewModel.LibraryViewModel
+import org.example.shared.domain.model.Curriculum
+import org.example.shared.domain.model.Module
 import org.jetbrains.compose.resources.stringResource
 import org.junit.Before
 import org.junit.Rule
@@ -326,7 +326,7 @@ class LibraryScreenTest {
                 modules = modules
             )
         }
-        coEvery { viewModel.handleAction(LibraryAction.SaveContent(stringMap["content_saved_success"]!!)) } coAnswers {
+        coEvery { viewModel.handleAction(LibraryAction.SaveContent()) } coAnswers {
             uiEventFlow.emit(UIEvent.ShowSnackbar(stringMap["content_saved_success"]!!, SnackbarType.Success))
         }
         composeTestRule.onNodeWithTag(TestTags.LIBRARY_SCREEN_MAIN_PANEL_GENERATED_CONTENT_SECTION.tag).apply {
@@ -336,7 +336,7 @@ class LibraryScreenTest {
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText(stringMap["content_saved_success"]!!).assertIsDisplayed()
         verify {
-            viewModel.handleAction(LibraryAction.SaveContent(stringMap["content_saved_success"]!!))
+            viewModel.handleAction(LibraryAction.SaveContent())
         }
     }
 

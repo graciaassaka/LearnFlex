@@ -81,7 +81,8 @@
     <string name="no_data_available_error">No data available</string>
 
     <!-- Welcome Messages -->
-    <string name="hi_there">Hi there!</string>
+    <string name="hi_there">Hi, %1$s!</string>
+    <string name="learner">Learner</string>
     <string name="welcome_to">Welcome to</string>
     <string name="welcome_back">Welcome back,</string>
     <string name="welcome_message">Transform any learning material into an interactive, personalized experience.

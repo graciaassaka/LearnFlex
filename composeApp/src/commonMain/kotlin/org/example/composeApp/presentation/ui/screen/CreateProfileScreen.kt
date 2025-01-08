@@ -106,9 +106,6 @@ private fun PersonalInfoScreen(
     val scrollState = rememberScrollState()
 
     val maxGoalLen = 80
-    val createProfileSuccessMsg = stringResource(Res.string.create_profile_success)
-    val uploadPhotoSuccessMsg = stringResource(Res.string.update_photo_success)
-    val deletePhotoSuccessMsg = stringResource(Res.string.delete_photo_success)
 
     LaunchedEffect(uiState.value.isProfileCreated) {
         if (uiState.value.isProfileCreated) {
@@ -144,8 +141,8 @@ private fun PersonalInfoScreen(
                 Spacer(modifier = Modifier.Companion.height(Spacing.LARGE.dp))
                 ImageUpload(
                     enabled = !uiState.value.isLoading,
-                    onImageSelected = { imageData -> handleAction(Action.UploadProfilePicture(imageData, uploadPhotoSuccessMsg)) },
-                    onImageDeleted = { handleAction(Action.DeleteProfilePicture(deletePhotoSuccessMsg)) },
+                    onImageSelected = { imageData -> handleAction(Action.UploadProfilePicture(imageData)) },
+                    onImageDeleted = { handleAction(Action.DeleteProfilePicture) },
                     handleError = { error: Throwable -> handleAction(Action.HandleError(error)) },
                     modifier = Modifier.testTag(TestTags.PERSONAL_INFO_IMAGE_UPLOAD.tag),
                     isUploaded = uiState.value.photoUrl.isBlank().not()
@@ -200,7 +197,7 @@ private fun PersonalInfoScreen(
                     modifier = Modifier.testTag(TestTags.PERSONAL_INFO_FIELD_PICKER.tag)
                 )
                 Button(
-                    onClick = { handleAction(Action.CreateProfile(createProfileSuccessMsg)) },
+                    onClick = { handleAction(Action.CreateProfile) },
                     enabled = !uiState.value.isLoading && uiState.value.usernameError.isNullOrBlank(),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -233,8 +230,6 @@ private fun StyleQuestionnaireScreen(
         restore = { savedValue -> savedValue.let { Style.valueOf(it.uppercase()) } }
     )
     var selectedStyle by rememberSaveable(currentQuestion, stateSaver = styleSaver) { mutableStateOf(null) }
-
-    val successMessage = stringResource(Res.string.set_learning_style_success)
 
     StyleQuestionnaireForm(
         windowSizeClass = windowSizeClass,
@@ -276,7 +271,7 @@ private fun StyleQuestionnaireScreen(
         StyleBreakdownDialog(
             enabled = !uiState.value.isLoading,
             learningStyleBreakdown = uiState.value.learningStyle!!.breakdown,
-            onConfirm = { handleAction(Action.SetLearningStyle(successMessage)) },
+            onConfirm = { handleAction(Action.SetLearningStyle) },
             onDismiss = {
                 currentQuestionIndex = 0
                 handleAction(Action.StartStyleQuestionnaire)

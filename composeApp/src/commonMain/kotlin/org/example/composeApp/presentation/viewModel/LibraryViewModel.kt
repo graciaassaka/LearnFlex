@@ -1,11 +1,13 @@
 package org.example.composeApp.presentation.viewModel
 
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeout
+import learnflex.composeapp.generated.resources.Res
+import learnflex.composeapp.generated.resources.save_content_success
+import org.example.composeApp.presentation.action.LibraryAction
+import org.example.composeApp.presentation.state.LibraryUIState
+import org.example.composeApp.presentation.ui.util.SnackbarType
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
 import org.example.shared.domain.model.Profile
@@ -19,9 +21,7 @@ import org.example.shared.domain.use_case.module.GenerateModuleUseCase
 import org.example.shared.domain.use_case.module.UploadModulesUseCase
 import org.example.shared.domain.use_case.profile.FetchProfileUseCase
 import org.example.shared.domain.use_case.syllabus.SummarizeSyllabusUseCase
-import org.example.composeApp.presentation.action.LibraryAction
-import org.example.composeApp.presentation.state.LibraryUIState
-import org.example.composeApp.presentation.ui.util.SnackbarType
+import org.jetbrains.compose.resources.getString
 import java.io.File
 
 /**
@@ -74,7 +74,7 @@ class LibraryViewModel(
                 is LibraryAction.GenerateModule -> generateModule(profile!!, curriculum!!, action.title)
                 is LibraryAction.RemoveModule -> removeModule(action.title, modules)
                 is LibraryAction.RemoveLesson -> removeLesson(action.lessonTitle, action.moduleId)
-                is LibraryAction.SaveContent -> saveContent(profile!!, curriculum!!, modules, action.successMessage)
+                is LibraryAction.SaveContent -> saveContent(profile!!, curriculum!!, modules)
                 is LibraryAction.DiscardContent -> discardContent()
                 is LibraryAction.EditFilterQuery -> editFilterQuery(action.query)
                 is LibraryAction.ClearFilterQuery -> editFilterQuery("")
@@ -248,12 +248,15 @@ class LibraryViewModel(
 
     /**
      * Saves the generated content to the database.
+     *
+     * @param profile The profile to save the content for.
+     * @param curriculum The curriculum to save.
+     * @param modules The modules to save.
      */
     private fun saveContent(
         profile: Profile,
         curriculum: Curriculum,
-        modules: List<Module>,
-        successMessage: String
+        modules: List<Module>
     ) = with(_state) {
         require(curriculum.content.size == modules.size) {
             "The number of modules must match the number of module titles."
@@ -261,19 +264,15 @@ class LibraryViewModel(
         update { it.copy(isDownloading = true) }
 
         viewModelScope.launch(dispatcher) {
-            var isCurriculumUploaded = false
+            val successMessage = async { getString(Res.string.save_content_success) }
             try {
-                uploadCurriculumUseCase(curriculum, profile.id)
-                    .onSuccess { isCurriculumUploaded = true }
-                    .onFailure { throw it }
-
-                uploadModulesUseCase(modules, profile.id, curriculum.id).getOrThrow()
-                showSnackbar(successMessage, SnackbarType.Success)
+                uploadCurriculumUseCase(curriculum, profile.id).getOrThrow()
+                uploadModulesUseCase(modules, profile.id, curriculum.id)
+                    .onSuccess { showSnackbar(successMessage.await(), SnackbarType.Success); discardContent() }
+                    .onFailure { deleteCurriculumUseCase(curriculum, profile.id).getOrThrow(); throw it }
             } catch (e: Exception) {
                 handleError(e)
-                if (isCurriculumUploaded) deleteCurriculumUseCase(curriculum, profile.id).onFailure(::handleError)
             } finally {
-                discardContent()
                 update { it.copy(isDownloading = false) }
             }
         }

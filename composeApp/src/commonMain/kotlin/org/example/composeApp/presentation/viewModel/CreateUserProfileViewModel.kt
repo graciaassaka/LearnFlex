@@ -2,8 +2,10 @@ package org.example.composeApp.presentation.viewModel
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import learnflex.composeapp.generated.resources.*
 import org.example.composeApp.presentation.navigation.Route
 import org.example.composeApp.presentation.state.CreateProfileUIState
 import org.example.composeApp.presentation.ui.screen.ProfileCreationForm
@@ -18,6 +20,7 @@ import org.example.shared.domain.use_case.auth.GetUserDataUseCase
 import org.example.shared.domain.use_case.profile.*
 import org.example.shared.domain.use_case.validation.ValidateUsernameUseCase
 import org.example.shared.domain.use_case.validation.util.ValidationResult
+import org.jetbrains.compose.resources.getString
 import org.example.composeApp.presentation.action.CreateUserProfileAction as Action
 
 /**
@@ -89,13 +92,13 @@ class CreateUserProfileViewModel(
             is Action.SelectLevel -> SelectLevel(action.level)
             is Action.ToggleLevelDropdownVisibility -> toggleLevelDropdownVisibility()
             is Action.EditGoal -> editGoal(action.goal)
-            is Action.UploadProfilePicture -> uploadProfilePicture(action.imageData, action.successMessage)
-            is Action.DeleteProfilePicture -> DeleteProfilePicture(action.successMessage)
-            is Action.CreateProfile -> createProfile(action.successMessage)
+            is Action.UploadProfilePicture -> uploadProfilePicture(action.imageData)
+            is Action.DeleteProfilePicture -> DeleteProfilePicture()
+            is Action.CreateProfile -> createProfile()
             is Action.StartStyleQuestionnaire -> startStyleQuestionnaire()
             is Action.HandleQuestionAnswered -> handleQuestionAnswered(action.style)
             is Action.HandleQuestionnaireCompleted -> handleQuestionnaireCompleted()
-            is Action.SetLearningStyle -> setLearningStyle(action.successMessage)
+            is Action.SetLearningStyle -> setLearningStyle()
             is Action.DisplayProfileCreationForm -> displayProfileCreationForm(action.form)
             is Action.HandleError -> handleError(action.error)
             is Action.HandleAnimationEnd -> handleExitAnimationFinished()
@@ -147,16 +150,16 @@ class CreateUserProfileViewModel(
      * Handles the upload of a profile picture.
      *
      * @param imageData The image data of the profile picture.
-     * @param successMessage The message to show on successful upload.
      */
-    private fun uploadProfilePicture(imageData: ByteArray, successMessage: String) = with(_state) {
+    private fun uploadProfilePicture(imageData: ByteArray) = with(_state) {
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
+            val successMessage = async { getString(Res.string.update_photo_success) }
             uploadProfilePictureUseCase(imageData)
                 .onSuccess { url ->
                     update { it.copy(photoUrl = url) }
-                    showSnackbar(successMessage, SnackbarType.Success)
+                    showSnackbar(successMessage.await(), SnackbarType.Success)
                 }.onFailure { error ->
                     handleError(error)
                 }
@@ -168,16 +171,16 @@ class CreateUserProfileViewModel(
     /**
      * Handles the deletion of a profile picture.
      *
-     * @param successMessage The message to show on successful deletion.
      */
-    private fun DeleteProfilePicture(successMessage: String) = with(_state) {
+    private fun DeleteProfilePicture() = with(_state) {
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {
+            val successMessage = async { getString(Res.string.delete_photo_success) }
             deleteProfilePictureUseCase()
                 .onSuccess {
                     update { it.copy(photoUrl = "") }
-                    showSnackbar(successMessage, SnackbarType.Success)
+                    showSnackbar(successMessage.await(), SnackbarType.Success)
                 }.onFailure { error ->
                     handleError(error)
                 }
@@ -188,15 +191,14 @@ class CreateUserProfileViewModel(
 
     /**
      * Handles the creation of a user profile.
-     *
-     * @param successMessage The message to show on successful profile creation.
      */
-    private fun createProfile(successMessage: String) = with(_state) {
+    private fun createProfile() = with(_state) {
         update { it.copy(isLoading = true) }
 
         editUsername(value.username)
 
         if (value.usernameError.isNullOrBlank()) viewModelScope.launch(dispatcher) {
+            val successMessage = async { getString(Res.string.create_profile_success) }
             createProfileUseCase(
                 Profile(
                     id = value.userId,
@@ -204,12 +206,9 @@ class CreateUserProfileViewModel(
                     username = value.username,
                     photoUrl = value.photoUrl,
                     preferences = Profile.LearningPreferences(value.field.name, value.level.name, value.goal),
-                    learningStyle = Profile.LearningStyle(),
-                    createdAt = System.currentTimeMillis(),
-                    lastUpdated = System.currentTimeMillis()
                 )
             ).onSuccess {
-                showSnackbar(successMessage, SnackbarType.Success)
+                showSnackbar(successMessage.await(), SnackbarType.Success)
                 update { it.copy(isProfileCreated = true) }
             }.onFailure { error ->
                 handleError(error)
@@ -270,15 +269,14 @@ class CreateUserProfileViewModel(
 
     /**
      * Sets the learning style for the user.
-     *
-     * @param successMessage The message to show on successful setting of the learning style.
      */
-    private fun setLearningStyle(successMessage: String) = with(_state) {
+    private fun setLearningStyle() = with(_state) {
         try {
             require(value.learningStyle != null)
 
             update { it.copy(isLoading = true) }
             viewModelScope.launch(dispatcher) {
+                val successMessage = async { getString(Res.string.set_learning_style_success) }
                 updateProfileUseCase(
                     Profile(
                         id = value.userId,
@@ -287,11 +285,10 @@ class CreateUserProfileViewModel(
                         photoUrl = value.photoUrl,
                         preferences = Profile.LearningPreferences(value.field.name, value.level.name, value.goal),
                         learningStyle = value.learningStyle!!,
-                        createdAt = System.currentTimeMillis(),
                         lastUpdated = System.currentTimeMillis()
                     )
                 ).onSuccess {
-                    showSnackbar(successMessage, SnackbarType.Success)
+                    showSnackbar(successMessage.await(), SnackbarType.Success)
                     navigate(Route.Dashboard, true)
                 }.onFailure { error ->
                     handleError(error)

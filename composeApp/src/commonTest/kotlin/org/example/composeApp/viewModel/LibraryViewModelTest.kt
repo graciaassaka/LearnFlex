@@ -1,4 +1,4 @@
-package org.example.shared.presentation.viewModel
+package org.example.composeApp.viewModel
 
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
+import org.example.composeApp.presentation.action.LibraryAction
+import org.example.composeApp.presentation.navigation.Route
+import org.example.composeApp.presentation.ui.util.UIEvent
 import org.example.composeApp.presentation.viewModel.LibraryViewModel
 import org.example.shared.domain.client.ContentGeneratorClient
 import org.example.shared.domain.model.Curriculum
@@ -23,9 +26,6 @@ import org.example.shared.domain.use_case.module.GenerateModuleUseCase
 import org.example.shared.domain.use_case.module.UploadModulesUseCase
 import org.example.shared.domain.use_case.profile.FetchProfileUseCase
 import org.example.shared.domain.use_case.syllabus.SummarizeSyllabusUseCase
-import org.example.composeApp.presentation.action.LibraryAction
-import org.example.composeApp.presentation.navigation.Route
-import org.example.composeApp.presentation.ui.util.UIEvent
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -485,7 +485,7 @@ class LibraryViewModelTest {
         advanceUntilIdle()
 
         // When
-        viewModel.handleAction(LibraryAction.SaveContent("Success"))
+        viewModel.handleAction(LibraryAction.SaveContent)
         advanceUntilIdle()
 
         // Then
@@ -529,7 +529,7 @@ class LibraryViewModelTest {
         advanceUntilIdle()
 
         // When
-        viewModel.handleAction(LibraryAction.SaveContent("Success"))
+        viewModel.handleAction(LibraryAction.SaveContent)
         advanceUntilIdle()
 
         // Then
@@ -585,7 +585,7 @@ class LibraryViewModelTest {
         advanceUntilIdle()
 
         // When
-        viewModel.handleAction(LibraryAction.SaveContent("Success"))
+        viewModel.handleAction(LibraryAction.SaveContent)
         advanceUntilIdle()
 
         // Then

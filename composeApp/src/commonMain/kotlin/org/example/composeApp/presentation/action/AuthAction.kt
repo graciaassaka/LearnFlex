@@ -26,9 +26,8 @@ sealed class AuthAction {
 
     /**
      * Action to handle the sign-in process.
-     * @param successMessage The message to display upon successful sign-in.
      */
-    data class SignIn(val successMessage: String) : AuthAction()
+    data object SignIn : AuthAction()
 
     /**
      * Action to handle changes in the sign-up email field.
@@ -55,15 +54,13 @@ sealed class AuthAction {
 
     /**
      * Action to handle the sign-up process.
-     * @param successMessage The message to display upon successful sign-up.
      */
-    data class SignUp(val successMessage: String) : AuthAction()
+    data object SignUp : AuthAction()
 
     /**
      * Action to resend the verification email.
-     * @param successMessage The message to display upon successful email resend.
      */
-    data class ResendVerificationEmail(val successMessage: String) : AuthAction()
+    data object ResendVerificationEmail : AuthAction()
 
     /**
      * Action to verify the email.
@@ -72,9 +69,8 @@ sealed class AuthAction {
 
     /**
      * Action to delete the user.
-     * @param successMessage The message to display upon successful user deletion.
      */
-    data class DeleteUser(val successMessage: String) : AuthAction()
+    data object DeleteUser : AuthAction()
 
     /**
      * Action to handle changes in the password reset email field.
@@ -84,9 +80,8 @@ sealed class AuthAction {
 
     /**
      * Action to send the password reset email.
-     * @param successMessage The message to display upon successful password reset email send.
      */
-    data class SendPasswordResetEmail(val successMessage: String) : AuthAction()
+    data object SendPasswordResetEmail : AuthAction()
 
     /**
      * Action to display the authentication form.

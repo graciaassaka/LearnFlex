@@ -127,7 +127,6 @@ private fun SignInForm(
     handleAction: (AuthAction) -> Unit,
     modifier: Modifier = Modifier
 ) = with(screenConfig) {
-    val signInSuccessMessage = stringResource(Res.string.sign_in_success)
     var authUiPhase by remember { mutableStateOf(AuthUiPhase.Form) }
     var currentDestination by remember { mutableStateOf<AuthForm?>(null) }
     val scrollState = rememberScrollState()
@@ -209,10 +208,10 @@ private fun SignInForm(
                             passwordVisibility = uiState.value.signInPasswordVisibility,
                             modifier = Modifier.testTag(TestTags.SIGN_IN_PASSWORD_FIELD.tag),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                            keyboardActions = KeyboardActions { handleAction(AuthAction.SignIn(signInSuccessMessage)) }
+                            keyboardActions = KeyboardActions { handleAction(AuthAction.SignIn) }
                         )
                         Button(
-                            onClick = { handleAction(AuthAction.SignIn(signInSuccessMessage)) },
+                            onClick = { handleAction(AuthAction.SignIn) },
                             enabled = !uiState.value.isLoading &&
                                     uiState.value.signInEmailError.isNullOrBlank() &&
                                     uiState.value.signInPasswordError.isNullOrBlank(),
@@ -257,7 +256,6 @@ private fun SignUpForm(
     handleAction: (AuthAction) -> Unit,
     modifier: Modifier = Modifier
 ) = with(screenConfig) {
-    val signUpSuccessMessage = stringResource(Res.string.sign_up_success)
     var authUiPhase by remember { mutableStateOf(AuthUiPhase.Form) }
     var currentDestination by remember { mutableStateOf<AuthForm?>(null) }
     val scrollState = rememberScrollState()
@@ -350,10 +348,10 @@ private fun SignUpForm(
                             enabled = !uiState.value.isLoading,
                             modifier = Modifier.testTag(TestTags.SIGN_UP_CONFIRM_PASSWORD_FIELD.tag),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                            keyboardActions = KeyboardActions { handleAction(AuthAction.SignUp(signUpSuccessMessage)) }
+                            keyboardActions = KeyboardActions { handleAction(AuthAction.SignUp) }
                         )
                         Button(
-                            onClick = { handleAction(AuthAction.SignUp(signUpSuccessMessage)) },
+                            onClick = { handleAction(AuthAction.SignUp) },
                             enabled = !uiState.value.isLoading &&
                                     uiState.value.signUpEmailError.isNullOrBlank() &&
                                     uiState.value.signUpPasswordError.isNullOrBlank() &&
@@ -390,8 +388,6 @@ private fun VerificationForm(
     handleAction: (AuthAction) -> Unit,
     modifier: Modifier = Modifier
 ) = with(screenConfig) {
-    val resendEmailSuccessMessage = stringResource(Res.string.resend_email_success)
-    val deleteUserSuccessMessage = stringResource(Res.string.del_user_success)
     var authUiPhase by remember { mutableStateOf(AuthUiPhase.Form) }
     var currentDestination by remember { mutableStateOf<AuthForm?>(null) }
     val scrollState = rememberScrollState()
@@ -491,7 +487,7 @@ private fun VerificationForm(
                                 IconButton(
                                     onClick = {
                                         authUiPhase = AuthUiPhase.Hidden
-                                        handleAction(AuthAction.DeleteUser(deleteUserSuccessMessage))
+                                        handleAction(AuthAction.DeleteUser)
                                         currentDestination = AuthForm.SignUp
                                     },
                                     modifier = Modifier.testTag(TestTags.VERIFY_EMAIL_SCREEN_EDIT_EMAIL_BUTTON.tag),
@@ -523,7 +519,7 @@ private fun VerificationForm(
                                 content = { Text(stringResource(Res.string.verify_email_button_label)) }
                             )
                             OutlinedButton(
-                                onClick = { handleAction(AuthAction.ResendVerificationEmail(resendEmailSuccessMessage)) },
+                                onClick = { handleAction(AuthAction.ResendVerificationEmail) },
                                 enabled = !uiState.value.isLoading,
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -548,7 +544,6 @@ private fun PasswordResetForm(
     handleAction: (AuthAction) -> Unit,
     modifier: Modifier = Modifier
 ) = with(screenConfig) {
-    val resetSuccessMessage = stringResource(Res.string.password_reset_success)
     var authUiPhase by remember { mutableStateOf(AuthUiPhase.Form) }
     var currentDestination by remember { mutableStateOf<AuthForm?>(null) }
     val scrollState = rememberScrollState()
@@ -641,10 +636,10 @@ private fun PasswordResetForm(
                             enabled = !uiState.value.isLoading,
                             modifier = Modifier.testTag(TestTags.RESET_PASSWORD_EMAIL_FIELD.tag),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                            keyboardActions = KeyboardActions { handleAction(AuthAction.SendPasswordResetEmail(resetSuccessMessage)) }
+                            keyboardActions = KeyboardActions { handleAction(AuthAction.SendPasswordResetEmail) }
                         )
                         Button(
-                            onClick = { handleAction(AuthAction.SendPasswordResetEmail(resetSuccessMessage)) },
+                            onClick = { handleAction(AuthAction.SendPasswordResetEmail) },
                             enabled = !uiState.value.isLoading && uiState.value.resetPasswordEmailError.isNullOrBlank(),
                             modifier = Modifier
                                 .fillMaxWidth()

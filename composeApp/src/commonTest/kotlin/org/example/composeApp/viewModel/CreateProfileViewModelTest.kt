@@ -1,4 +1,4 @@
-package org.example.shared.presentation.viewModel
+package org.example.composeApp.viewModel
 
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -236,7 +236,6 @@ class CreateProfileViewModelTest {
         runTest {
             // Given
             val imageData = byteArrayOf(0x00, 0x01, 0x02, 0x03)
-            val successMessage = "Profile picture uploaded successfully"
             val photoUrl = "https://example.com/profile.jpg"
 
             val uiEvents = mutableListOf<UIEvent>()
@@ -247,7 +246,7 @@ class CreateProfileViewModelTest {
             coEvery { uploadProfilePictureUseCase(imageData) } returns Result.success(photoUrl)
 
             // When
-            viewModel.handleAction(Action.UploadProfilePicture(imageData, successMessage))
+            viewModel.handleAction(Action.UploadProfilePicture(imageData))
             advanceUntilIdle()
 
             // Then
@@ -274,7 +273,7 @@ class CreateProfileViewModelTest {
             coEvery { uploadProfilePictureUseCase(imageData) } returns Result.failure(Exception(errorMessage))
 
             // When
-            viewModel.handleAction(Action.UploadProfilePicture(imageData, "Success message"))
+            viewModel.handleAction(Action.UploadProfilePicture(imageData))
             advanceUntilIdle()
 
             // Then
@@ -289,7 +288,6 @@ class CreateProfileViewModelTest {
     fun `DeleteProfilePicture should update state with empty photoUrl and show successMessage when deleteProfilePictureUseCase returns success`() =
         runTest {
             // Given
-            val successMessage = "Profile picture deleted successfully"
             val uiEvents = mutableListOf<UIEvent>()
             val job = launch {
                 viewModel.uiEvent.toList(uiEvents)
@@ -298,7 +296,7 @@ class CreateProfileViewModelTest {
             coEvery { deleteProfilePictureUseCase() } returns Result.success(Unit)
 
             // When
-            viewModel.handleAction(Action.DeleteProfilePicture(successMessage))
+            viewModel.handleAction(Action.DeleteProfilePicture)
             advanceUntilIdle()
 
             // Then
@@ -323,7 +321,7 @@ class CreateProfileViewModelTest {
             coEvery { deleteProfilePictureUseCase() } returns Result.failure(Exception(errorMessage))
 
             // When
-            viewModel.handleAction(Action.DeleteProfilePicture("Success message"))
+            viewModel.handleAction(Action.DeleteProfilePicture)
             advanceUntilIdle()
 
             // Then
@@ -342,7 +340,7 @@ class CreateProfileViewModelTest {
 
         // When
         viewModel.handleAction(Action.EditUsername(username))
-        viewModel.handleAction(Action.CreateProfile("Success message"))
+        viewModel.handleAction(Action.CreateProfile)
         advanceUntilIdle()
 
         // Then
@@ -356,7 +354,7 @@ class CreateProfileViewModelTest {
 
         // When
         viewModel.handleAction(Action.EditUsername(username))
-        viewModel.handleAction(Action.CreateProfile("Success message"))
+        viewModel.handleAction(Action.CreateProfile)
         advanceUntilIdle()
 
         // Then
@@ -366,7 +364,6 @@ class CreateProfileViewModelTest {
     @Test
     fun `onCreateProfile should show successMessage when createUserProfile returns success`() = runTest {
         // Given
-        val successMessage = "Profile created successfully"
         val uiEvents = mutableListOf<UIEvent>()
         val job = launch {
             viewModel.uiEvent.toList(uiEvents)
@@ -376,7 +373,7 @@ class CreateProfileViewModelTest {
 
         // When
         viewModel.handleAction(Action.EditUsername("TestUser"))
-        viewModel.handleAction(Action.CreateProfile(successMessage))
+        viewModel.handleAction(Action.CreateProfile)
         advanceUntilIdle()
 
         // Then
@@ -400,7 +397,7 @@ class CreateProfileViewModelTest {
 
         // When
         viewModel.handleAction(Action.EditUsername("TestUser"))
-        viewModel.handleAction(Action.CreateProfile("Success message"))
+        viewModel.handleAction(Action.CreateProfile)
         advanceUntilIdle()
 
         // Then
@@ -554,7 +551,6 @@ class CreateProfileViewModelTest {
     fun `setLearningStyle should call setUserStyleUseCase with userId and styleResult when styleResult is not null`() =
         runTest {
             // Given
-            val successMessage = "Style set successfully"
 
             coEvery { updateProfileUseCase(any()) } returns Result.success(Unit)
             coEvery { getStyleResultUseCase(any()) } returns Result.success(testLearningStyle)
@@ -562,7 +558,7 @@ class CreateProfileViewModelTest {
             // When
             viewModel.handleAction(Action.HandleQuestionnaireCompleted) // This will set the styleResu)
             advanceUntilIdle()
-            viewModel.handleAction(Action.SetLearningStyle(successMessage))
+            viewModel.handleAction(Action.SetLearningStyle)
             advanceUntilIdle()
 
             // Then
@@ -574,7 +570,6 @@ class CreateProfileViewModelTest {
     @Test
     fun `setLearningStyle should show success message when setUserStyleUseCase returns success`() = runTest {
         // Given
-        val successMessage = "Style set successfully"
 
         val uiEvents = mutableListOf<UIEvent>()
         val job = launch { viewModel.uiEvent.toList(uiEvents) }
@@ -585,13 +580,12 @@ class CreateProfileViewModelTest {
         // When
         viewModel.handleAction(Action.HandleQuestionnaireCompleted) // This will set the styleResu)
         advanceUntilIdle()
-        viewModel.handleAction(Action.SetLearningStyle(successMessage))
+        viewModel.handleAction(Action.SetLearningStyle)
         advanceUntilIdle()
 
         // Then
         assertEquals(1, uiEvents.size)
         assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
-        assertEquals(successMessage, (uiEvents.first() as UIEvent.ShowSnackbar).message)
 
         job.cancel()
     }
@@ -599,7 +593,6 @@ class CreateProfileViewModelTest {
     @Test
     fun `setLearningStyle should show error message when setUserStyleUseCase returns failure`() = runTest {
         // Given
-        val successMessage = "Style set successfully"
         val errorMessage = "Failed to set style"
 
         val uiEvents = mutableListOf<UIEvent>()
@@ -612,7 +605,7 @@ class CreateProfileViewModelTest {
         // When
         viewModel.handleAction(Action.HandleQuestionnaireCompleted)
         advanceUntilIdle()
-        viewModel.handleAction(Action.SetLearningStyle(successMessage))
+        viewModel.handleAction(Action.SetLearningStyle)
         advanceUntilIdle()
 
         // Then
@@ -626,14 +619,12 @@ class CreateProfileViewModelTest {
     @Test
     fun `setLearningStyle should handle null styleResult and show error message`() = runTest {
         // Given
-        val successMessage = "Style set successfully"
-
         val uiEvents = mutableListOf<UIEvent>()
         val job = launch { viewModel.uiEvent.toList(uiEvents) }
 
 
         // When
-        viewModel.handleAction(Action.SetLearningStyle(successMessage))
+        viewModel.handleAction(Action.SetLearningStyle)
         advanceUntilIdle()
 
         // Then
@@ -649,15 +640,13 @@ class CreateProfileViewModelTest {
     @Test
     fun `setLearningStyle should update showStyleResultDialog state correctly`() = runTest {
         // Given
-        val successMessage = "Style set successfully"
-
         coEvery { updateProfileUseCase(any()) } returns Result.success(Unit)
         coEvery { getStyleResultUseCase(any()) } returns Result.success(testLearningStyle)
 
         // When
         viewModel.handleAction(Action.HandleQuestionnaireCompleted)
         advanceUntilIdle()
-        viewModel.handleAction(Action.SetLearningStyle(successMessage))
+        viewModel.handleAction(Action.SetLearningStyle)
         advanceUntilIdle()
 
         // Then

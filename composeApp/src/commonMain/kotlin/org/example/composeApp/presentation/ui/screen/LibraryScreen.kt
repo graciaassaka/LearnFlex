@@ -32,27 +32,21 @@ import io.github.alexzhirkevich.compottie.LottieCompositionSpec
 import io.github.alexzhirkevich.compottie.rememberLottieComposition
 import io.github.alexzhirkevich.compottie.rememberLottiePainter
 import learnflex.composeapp.generated.resources.*
+import org.example.composeApp.presentation.action.LibraryAction
 import org.example.composeApp.presentation.navigation.AppDestination
-import org.example.composeApp.presentation.ui.component.CustomScaffold
-import org.example.composeApp.presentation.ui.component.CustomVerticalScrollbar
-import org.example.composeApp.presentation.ui.component.DocumentUpload
-import org.example.composeApp.presentation.ui.component.HandleUIEvents
-import org.example.composeApp.presentation.ui.component.RefreshBox
-import org.example.composeApp.presentation.ui.component.ThreePaneBackHandler
-import org.example.composeApp.presentation.ui.component.ToolTip
+import org.example.composeApp.presentation.navigation.Route
+import org.example.composeApp.presentation.state.LibraryUIState
+import org.example.composeApp.presentation.ui.component.*
+import org.example.composeApp.presentation.ui.constant.TestTags
 import org.example.composeApp.presentation.ui.dimension.Dimension
 import org.example.composeApp.presentation.ui.dimension.Padding
 import org.example.composeApp.presentation.ui.dimension.Spacing
 import org.example.composeApp.presentation.ui.util.ScreenConfig
-import org.example.composeApp.presentation.ui.constant.TestTags
+import org.example.composeApp.presentation.ui.util.SnackbarType
+import org.example.composeApp.presentation.viewModel.LibraryViewModel
 import org.example.shared.domain.constant.Status
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
-import org.example.composeApp.presentation.action.LibraryAction
-import org.example.composeApp.presentation.navigation.Route
-import org.example.composeApp.presentation.state.LibraryUIState
-import org.example.composeApp.presentation.ui.util.SnackbarType
-import org.example.composeApp.presentation.viewModel.LibraryViewModel
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import java.text.SimpleDateFormat
@@ -263,7 +257,6 @@ private fun ActionButtons(
     verticalAlignment = Alignment.CenterVertically
 ) {
     val buttonModifier = Modifier.weight(1f).padding(Padding.SMALL.dp)
-    val saveContentSuccess = stringResource(Res.string.save_content_success)
     Button(
         onClick = { handleAction(LibraryAction.GenerateCurriculum) },
         enabled = !uiState.isDownloading &&
@@ -275,7 +268,7 @@ private fun ActionButtons(
         content = { Text(stringResource(Res.string.generate_content_button_label)) }
     )
     Button(
-        onClick = { handleAction(LibraryAction.SaveContent(saveContentSuccess)) },
+        onClick = { handleAction(LibraryAction.SaveContent) },
         enabled = !uiState.isDownloading &&
                 !uiState.isUploading &&
                 uiState.curriculum != null,

@@ -37,7 +37,7 @@ data class Profile(
     val preferences: LearningPreferences,
 
     @SerialName("learning_style")
-    val learningStyle: LearningStyle,
+    val learningStyle: LearningStyle = LearningStyle(),
 
     @SerialName("created_at")
     override val createdAt: Long = System.currentTimeMillis(),

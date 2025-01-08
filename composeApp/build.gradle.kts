@@ -238,6 +238,11 @@ compose.desktop {
     }
 }
 
+compose.resources {
+    publicResClass = true
+    generateResClass = always
+}
+
 fun org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet.applyOptIns() {
     languageSettings.optIn("kotlin.RequiresOptIn")
 }
