@@ -3,13 +3,12 @@ package org.example.composeApp.presentation.state
 import org.example.shared.domain.constant.Status
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
-import org.example.shared.domain.model.Profile
 import java.time.DayOfWeek
 
 /**
  * UI state for the dashboard screen.
  *
- * @property profile User profile.
+ * @property profileId User profile ID.
  * @property isLoading Flag indicating if the data is being loaded.
  * @property weeklyActivity Weekly activity data.
  * @property totalMinutes Total minutes spent on the platform.
@@ -23,7 +22,7 @@ import java.time.DayOfWeek
  * @property itemsCompletion Items completion data.
  */
 data class DashboardUIState(
-    val profile: Profile? = null,
+    val profileId: String = "",
     val isLoading: Boolean = false,
     val weeklyActivity: Map<DayOfWeek, Pair<Long, Int>> = emptyMap(),
     val totalMinutes: Int = 0,

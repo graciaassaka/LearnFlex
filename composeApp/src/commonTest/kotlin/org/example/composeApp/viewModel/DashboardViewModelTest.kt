@@ -1,9 +1,7 @@
 package org.example.composeApp.viewModel
 
-import io.mockk.coEvery
-import io.mockk.coVerify
-import io.mockk.every
-import io.mockk.mockk
+import androidx.lifecycle.SavedStateHandle
+import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,22 +12,19 @@ import kotlinx.coroutines.test.*
 import org.example.composeApp.presentation.ui.util.UIEvent
 import org.example.composeApp.presentation.viewModel.DashboardViewModel
 import org.example.shared.domain.constant.Status
+import org.example.shared.domain.model.Bundle
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
 import org.example.shared.domain.model.Profile
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.sync.SyncManager
-import org.example.shared.domain.use_case.activity.GetWeeklyActivityUseCase
+import org.example.shared.domain.use_case.activity.FetchWeeklyActivityByUserUseCase
 import org.example.shared.domain.use_case.curriculum.FetchActiveCurriculumUseCase
-import org.example.shared.domain.use_case.curriculum.FetchCurriculaByUserUseCase
+import org.example.shared.domain.use_case.curriculum.FetchCurriculumBundleUseCase
 import org.example.shared.domain.use_case.lesson.CountLessonsByStatusUseCase
-import org.example.shared.domain.use_case.lesson.FetchLessonsByModuleUseCase
 import org.example.shared.domain.use_case.module.CountModulesByStatusUseCase
-import org.example.shared.domain.use_case.module.FetchModulesByCurriculumUseCase
 import org.example.shared.domain.use_case.profile.FetchProfileUseCase
 import org.example.shared.domain.use_case.section.CountSectionsByStatusUseCase
-import org.example.shared.domain.use_case.section.FetchSectionsByLessonUseCase
-import org.example.shared.domain.use_case.session.FetchSessionsByUserUseCase
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -42,19 +37,16 @@ class DashboardViewModelTest {
     // ViewModel and dependencies
     private lateinit var viewModel: DashboardViewModel
     private lateinit var fetchProfileUseCase: FetchProfileUseCase
-    private lateinit var fetchSessionsByUserUseCase: FetchSessionsByUserUseCase
-    private lateinit var fetchCurriculaByUserUseCase: FetchCurriculaByUserUseCase
-    private lateinit var fetchModulesByCurriculumUseCase: FetchModulesByCurriculumUseCase
-    private lateinit var fetchLessonsByModuleUseCase: FetchLessonsByModuleUseCase
-    private lateinit var fetchSectionsByLessonUseCase: FetchSectionsByLessonUseCase
-    private lateinit var getWeeklyActivityUseCase: GetWeeklyActivityUseCase
+    private lateinit var fetchActiveCurriculumUseCase: FetchActiveCurriculumUseCase
+    private lateinit var fetchCurriculumBundleUseCase: FetchCurriculumBundleUseCase
+    private lateinit var fetchWeeklyActivityByUserUseCase: FetchWeeklyActivityByUserUseCase
     private lateinit var countModulesByStatusUseCase: CountModulesByStatusUseCase
     private lateinit var countLessonsByStatusUseCase: CountLessonsByStatusUseCase
     private lateinit var countSectionsByStatusUseCase: CountSectionsByStatusUseCase
-    private lateinit var fetchActiveCurriculumUseCase: FetchActiveCurriculumUseCase
+    private lateinit var savedStateHandle: SavedStateHandle
     private lateinit var dispatcher: TestDispatcher
     private lateinit var syncManager: SyncManager<DatabaseRecord>
-    private val syncManagers = mutableListOf<SyncManager<DatabaseRecord>>()
+    private lateinit var syncManagers: MutableList<SyncManager<DatabaseRecord>>
 
     @Before
     fun setUp() {
@@ -64,33 +56,29 @@ class DashboardViewModelTest {
 
         // Mock dependencies using MockK
         fetchProfileUseCase = mockk()
-        fetchSessionsByUserUseCase = mockk()
-        fetchModulesByCurriculumUseCase = mockk()
-        fetchLessonsByModuleUseCase = mockk()
-        fetchSectionsByLessonUseCase = mockk()
+        fetchActiveCurriculumUseCase = mockk()
+        fetchCurriculumBundleUseCase = mockk()
         countModulesByStatusUseCase = mockk()
         countLessonsByStatusUseCase = mockk()
         countSectionsByStatusUseCase = mockk()
-        getWeeklyActivityUseCase = mockk()
-        fetchCurriculaByUserUseCase = mockk()
+        fetchWeeklyActivityByUserUseCase = mockk()
         fetchActiveCurriculumUseCase = mockk()
+        savedStateHandle = mockk()
+        syncManagers = mutableListOf<SyncManager<DatabaseRecord>>()
         syncManager = mockk(relaxed = true)
         syncManagers.add(syncManager)
 
         // Instantiate ViewModel with mocked dependencies
         viewModel = DashboardViewModel(
             fetchProfileUseCase = fetchProfileUseCase,
-            fetchSessionsByUserUseCase = fetchSessionsByUserUseCase,
+            fetchWeeklyActivityByUserUseCase = fetchWeeklyActivityByUserUseCase,
             fetchActiveCurriculumUseCase = fetchActiveCurriculumUseCase,
-            fetchCurriculaByUserUseCase = fetchCurriculaByUserUseCase,
-            fetchModulesByCurriculumUseCase = fetchModulesByCurriculumUseCase,
-            fetchLessonsByModuleUseCase = fetchLessonsByModuleUseCase,
-            fetchSectionsByLessonUseCase = fetchSectionsByLessonUseCase,
-            getWeeklyActivityUseCase = getWeeklyActivityUseCase,
+            fetchCurriculumBundleUseCase = fetchCurriculumBundleUseCase,
             countModulesByStatusUseCase = countModulesByStatusUseCase,
             countLessonsByStatusUseCase = countLessonsByStatusUseCase,
             countSectionsByStatusUseCase = countSectionsByStatusUseCase,
             dispatcher = dispatcher,
+            savedStateHandle = savedStateHandle,
             syncManagers = syncManagers,
             sharingStarted = SharingStarted.Eagerly,
         )
@@ -98,16 +86,12 @@ class DashboardViewModelTest {
         // Set up default behaviors for mocks
         every { syncManager.syncStatus } returns MutableStateFlow(SyncManager.SyncStatus.Idle)
 
+        coEvery { fetchWeeklyActivityByUserUseCase(any(), any()) } returns Result.success(emptyMap())
+
+        every { savedStateHandle.get<String>(any()) } returns "user123"
         coEvery { fetchProfileUseCase() } returns Result.success(profile)
-        coEvery { fetchSessionsByUserUseCase(any()) } returns Result.success(emptyList())
         coEvery { fetchActiveCurriculumUseCase(any()) } returns Result.success(activeCurriculum)
-        coEvery { fetchCurriculaByUserUseCase(any()) } returns Result.success(emptyList())
-
-        coEvery { fetchModulesByCurriculumUseCase(any(), any()) } returns Result.success(emptyList())
-        coEvery { fetchLessonsByModuleUseCase(any(), any(), any()) } returns Result.success(emptyList())
-        coEvery { fetchSectionsByLessonUseCase(any(), any(), any(), any()) } returns Result.success(emptyList())
-
-        coEvery { getWeeklyActivityUseCase(any()) } returns Result.success(emptyMap())
+        coEvery { fetchCurriculumBundleUseCase(any(), any()) } returns Bundle(activeCurriculum, emptyList(), emptyList(), emptyList())
 
         coEvery { countModulesByStatusUseCase(activeCurriculum.id) } returns Result.success(emptyMap())
         coEvery { countLessonsByStatusUseCase(activeCurriculum.id) } returns Result.success(emptyMap())
@@ -117,11 +101,13 @@ class DashboardViewModelTest {
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+        clearAllMocks()
     }
 
     @Test
     fun `getProfileUseCase success should update profile, and set isLoading to false`() = runTest {
         // Given
+        every { savedStateHandle.get<String>(any()) } returns null
         coEvery { fetchProfileUseCase() } returns Result.success(profile)
 
         // When
@@ -129,7 +115,7 @@ class DashboardViewModelTest {
 
         // Then
         with(viewModel.state.value) {
-            assertEquals(profile, this.profile)
+            assertEquals(profileId, this.profileId)
             assertFalse(isLoading)
         }
 
@@ -147,6 +133,7 @@ class DashboardViewModelTest {
             viewModel.uiEvent.toList(uiEvents)
         }
 
+        every { savedStateHandle.get<String>(any()) } returns null
         coEvery { fetchProfileUseCase() } returns Result.failure(exception)
 
         // When
@@ -154,7 +141,6 @@ class DashboardViewModelTest {
 
         // Then
         with(viewModel.state.value) {
-            assertNull(profile)
             assertFalse(isLoading)
         }
 
@@ -174,7 +160,7 @@ class DashboardViewModelTest {
         // Given
         val weeklyActivity = mapOf(DayOfWeek.MONDAY to Pair(1L, 1))
 
-        coEvery { getWeeklyActivityUseCase(any()) } returns Result.success(weeklyActivity)
+        coEvery { fetchWeeklyActivityByUserUseCase(any(), any()) } returns Result.success(weeklyActivity)
 
         // When
         advanceUntilIdle()
@@ -185,26 +171,7 @@ class DashboardViewModelTest {
         }
 
         coVerify {
-            getWeeklyActivityUseCase(any())
-        }
-    }
-
-    @Test
-    fun `getAllCurricula success should update curricula`() = runTest {
-        // Given
-        val curricula = listOf(mockk<Curriculum>(relaxed = true))
-        coEvery { fetchCurriculaByUserUseCase(any()) } returns Result.success(curricula)
-
-        // When
-        advanceUntilIdle()
-
-        // Then
-        with(viewModel.state.value) {
-            assertEquals(curricula, this.curricula)
-        }
-
-        coVerify {
-            fetchCurriculaByUserUseCase(any())
+            fetchWeeklyActivityByUserUseCase(any(), any())
         }
     }
 
@@ -227,10 +194,10 @@ class DashboardViewModelTest {
     }
 
     @Test
-    fun `getAllModulesData should update modules`() = runTest {
+    fun `fetchActiveCurriculumData should update curriculum and modules`() = runTest {
         // Given
         val modules = listOf(mockk<Module>(relaxed = true))
-        coEvery { fetchModulesByCurriculumUseCase(any(), any()) } returns Result.success(modules)
+        coEvery { fetchCurriculumBundleUseCase(any(), any()) } returns Bundle(activeCurriculum, modules, emptyList(), emptyList())
 
         // When
         advanceUntilIdle()
@@ -241,38 +208,8 @@ class DashboardViewModelTest {
         }
 
         coVerify {
-            fetchModulesByCurriculumUseCase(any(), any())
+            fetchCurriculumBundleUseCase(any(), any())
         }
-    }
-
-    @Test
-    fun `getAllModulesData failure should handle error`() = runTest {
-        // Given
-        val exception = Exception("Failed to fetch modules")
-        val uiEvents = mutableListOf<UIEvent>()
-        val job = launch {
-            viewModel.uiEvent.toList(uiEvents)
-        }
-
-        coEvery { fetchModulesByCurriculumUseCase(any(), any()) } returns Result.failure(exception)
-
-        // When
-        advanceUntilIdle()
-
-        // Then
-        with(viewModel.state.value) {
-            assertTrue(modules.isEmpty())
-        }
-
-        coVerify {
-            fetchModulesByCurriculumUseCase(any(), any())
-        }
-
-        // Verify UI events
-        assertTrue(uiEvents.isNotEmpty())
-        assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
-
-        job.cancel()
     }
 
     @Test
@@ -329,8 +266,6 @@ class DashboardViewModelTest {
         // Given
         val lessonsByStatus = mapOf(Status.FINISHED to 1, Status.UNFINISHED to 2)
 
-        coEvery { fetchModulesByCurriculumUseCase(any(), any()) } returns Result.success(listOf(mockk(relaxed = true)))
-        coEvery { fetchLessonsByModuleUseCase(any(), any(), any()) } returns Result.success(listOf(mockk(relaxed = true)))
         coEvery { countLessonsByStatusUseCase(activeCurriculum.id) } returns Result.success(lessonsByStatus)
 
         // When
@@ -342,8 +277,7 @@ class DashboardViewModelTest {
         }
 
         coVerify {
-            fetchModulesByCurriculumUseCase(any(), any())
-            fetchLessonsByModuleUseCase(any(), any(), any())
+            fetchCurriculumBundleUseCase(any(), any())
             countLessonsByStatusUseCase(activeCurriculum.id)
         }
     }
@@ -357,8 +291,6 @@ class DashboardViewModelTest {
             viewModel.uiEvent.toList(uiEvents)
         }
 
-        coEvery { fetchModulesByCurriculumUseCase(any(), any()) } returns Result.success(listOf(mockk(relaxed = true)))
-        coEvery { fetchLessonsByModuleUseCase(any(), any(), any()) } returns Result.success(listOf(mockk(relaxed = true)))
         coEvery { countLessonsByStatusUseCase(activeCurriculum.id) } returns Result.failure(exception)
 
         // When
@@ -385,9 +317,6 @@ class DashboardViewModelTest {
         // Given
         val sectionsByStatus = mapOf(Status.FINISHED to 1, Status.UNFINISHED to 2)
 
-        coEvery { fetchModulesByCurriculumUseCase(any(), any()) } returns Result.success(listOf(mockk(relaxed = true)))
-        coEvery { fetchLessonsByModuleUseCase(any(), any(), any()) } returns Result.success(listOf(mockk(relaxed = true)))
-        coEvery { fetchSectionsByLessonUseCase(any(), any(), any(), any()) } returns Result.success(listOf(mockk(relaxed = true)))
         coEvery { countSectionsByStatusUseCase(activeCurriculum.id) } returns Result.success(sectionsByStatus)
 
         // When
@@ -399,9 +328,6 @@ class DashboardViewModelTest {
         }
 
         coVerify {
-            fetchModulesByCurriculumUseCase(any(), any())
-            fetchLessonsByModuleUseCase(any(), any(), any())
-            fetchSectionsByLessonUseCase(any(), any(), any(), any())
             countSectionsByStatusUseCase(activeCurriculum.id)
         }
     }
@@ -415,9 +341,6 @@ class DashboardViewModelTest {
             viewModel.uiEvent.toList(uiEvents)
         }
 
-        coEvery { fetchModulesByCurriculumUseCase(any(), any()) } returns Result.success(listOf(mockk(relaxed = true)))
-        coEvery { fetchLessonsByModuleUseCase(any(), any(), any()) } returns Result.success(listOf(mockk(relaxed = true)))
-        coEvery { fetchSectionsByLessonUseCase(any(), any(), any(), any()) } returns Result.success(listOf(mockk(relaxed = true)))
         coEvery { countSectionsByStatusUseCase(activeCurriculum.id) } returns Result.failure(exception)
 
         // When

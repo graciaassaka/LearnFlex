@@ -15,16 +15,16 @@ import org.example.composeApp.presentation.ui.util.UIEvent
 import org.example.composeApp.presentation.viewModel.LibraryViewModel
 import org.example.composeApp.presentation.viewModel.util.ResourceProvider
 import org.example.shared.domain.client.ContentGeneratorClient
-import org.example.shared.domain.model.Bundle
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
 import org.example.shared.domain.model.Profile
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.sync.SyncManager
+import org.example.shared.domain.use_case.curriculum.DeleteCurriculumUseCase
 import org.example.shared.domain.use_case.curriculum.FetchCurriculaByUserUseCase
-import org.example.shared.domain.use_case.curriculum.FetchCurriculumBundleUseCase
 import org.example.shared.domain.use_case.curriculum.GenerateCurriculumUseCase
 import org.example.shared.domain.use_case.library.UploadCurriculumAndModulesUseCase
+import org.example.shared.domain.use_case.module.FetchModulesByCurriculumUseCase
 import org.example.shared.domain.use_case.module.GenerateModuleUseCase
 import org.example.shared.domain.use_case.profile.FetchProfileUseCase
 import org.example.shared.domain.use_case.syllabus.SummarizeSyllabusUseCase
@@ -44,11 +44,12 @@ class LibraryViewModelTest {
     private lateinit var syncManager: SyncManager<DatabaseRecord>
     private lateinit var fetchProfileUseCase: FetchProfileUseCase
     private lateinit var fetchCurriculaByUserUseCase: FetchCurriculaByUserUseCase
-    private lateinit var fetchCurriculumBundleUseCase: FetchCurriculumBundleUseCase
+    private lateinit var fetchModulesByCurriculumUseCase: FetchModulesByCurriculumUseCase
     private lateinit var summarizeSyllabusUseCase: SummarizeSyllabusUseCase
     private lateinit var generateCurriculumUseCase: GenerateCurriculumUseCase
     private lateinit var generateModuleUseCase: GenerateModuleUseCase
     private lateinit var uploadCurriculumAndModulesUseCase: UploadCurriculumAndModulesUseCase
+    private lateinit var deleteCurriculumUseCase: DeleteCurriculumUseCase
     private lateinit var resourceProvider: ResourceProvider
     private lateinit var testDispatcher: TestDispatcher
     private lateinit var syncStatus: MutableStateFlow<SyncManager.SyncStatus>
@@ -60,22 +61,24 @@ class LibraryViewModelTest {
         syncManager = mockk(relaxed = true)
         fetchProfileUseCase = mockk(relaxed = true)
         fetchCurriculaByUserUseCase = mockk(relaxed = true)
-        fetchCurriculumBundleUseCase = mockk(relaxed = true)
+        fetchModulesByCurriculumUseCase = mockk(relaxed = true)
         summarizeSyllabusUseCase = mockk(relaxed = true)
         generateCurriculumUseCase = mockk(relaxed = true)
         generateModuleUseCase = mockk(relaxed = true)
         uploadCurriculumAndModulesUseCase = mockk(relaxed = true)
+        deleteCurriculumUseCase = mockk(relaxed = true)
         resourceProvider = mockk(relaxed = true)
         syncStatus = MutableStateFlow<SyncManager.SyncStatus>(SyncManager.SyncStatus.Idle)
 
         viewModel = LibraryViewModel(
             fetchProfileUseCase,
             fetchCurriculaByUserUseCase,
-            fetchCurriculumBundleUseCase,
+            fetchModulesByCurriculumUseCase,
             summarizeSyllabusUseCase,
             generateCurriculumUseCase,
             generateModuleUseCase,
             uploadCurriculumAndModulesUseCase,
+            deleteCurriculumUseCase,
             resourceProvider,
             testDispatcher,
             listOf(syncManager),
@@ -104,7 +107,7 @@ class LibraryViewModelTest {
 
         // Then
         with(viewModel.state.value) {
-            assertEquals(expectedProfile, profile)
+            assertEquals(expectedProfile, profileId)
             assertEquals(expectedCurricula, curricula)
         }
         coVerify {
@@ -128,7 +131,7 @@ class LibraryViewModelTest {
 
         // Then
         with(viewModel.state.value) {
-            assertNull(profile)
+            assertNull(profileId)
         }
         coVerify {
 
@@ -676,7 +679,7 @@ class LibraryViewModelTest {
         with(viewModel.state.value) {
             assertEquals(query, filterQuery)
             assertEquals(1, filteredCurricula.size)
-            assertContains(filteredCurricula, curriculum)
+            assertContains(filteredCurricula, curricula.first())
         }
     }
 
@@ -834,7 +837,7 @@ class LibraryViewModelTest {
 
         coEvery { fetchProfileUseCase() } returns Result.success(profile)
         coEvery { fetchCurriculaByUserUseCase("profile_id") } returns Result.success(listOf(curriculum))
-        coEvery { fetchCurriculumBundleUseCase("profile_id", curriculum) } returns Bundle(curriculum, modules, emptyList(), emptyList())
+        coEvery { fetchModulesByCurriculumUseCase("profile_id", curriculum.id) } returns Result.success(modules)
 
         // When
         viewModel.handleAction(LibraryAction.OpenCurriculum(curriculum.id))

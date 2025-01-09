@@ -17,7 +17,9 @@ sealed class Route {
     data object CreateProfile : Route()
 
     @Serializable
-    data object Dashboard : Route()
+    data class Dashboard(
+        val userId: String? = null
+    ) : Route()
 
     @Serializable
     data object Library : Route()
@@ -27,12 +29,6 @@ sealed class Route {
         val curriculumId: String? = null,
         val moduleId: String? = null
     ) : Route()
-
-    @Serializable
-    data object Community : Route()
-
-    @Serializable
-    data object Progress : Route()
 
     @Serializable
     data object Profile : Route()

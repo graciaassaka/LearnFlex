@@ -26,47 +26,34 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="281a55e8-b077-4663-8355-8f00356df64a" name="LEA-35 Studying and Assessment" comment="refactor: use resource folder for snackbar messages&#10;&#10;- Updated code to fetch snackbar messages from the resource folder instead of hardcoding them.&#10;- Improved maintainability and localization support.">
-      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/util/ResourceProvider.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Bundle.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/FetchCurriculumBundleUseCase.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/library/UploadCurriculumAndModulesUseCase.kt" afterDir="false" />
+    <list default="true" id="281a55e8-b077-4663-8355-8f00356df64a" name="LEA-35 Studying and Assessment" comment="Refactor: use resource folder for snackbar messages&#10;&#10;Replaced hardcoded snackbar messages with resources to improve maintainability and localization support. Adjusted dependencies and logic in relevant ViewModels, UseCases, and tests accordingly.">
+      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/StudyAction.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/state/StudyUIState.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/StudyScreen.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/StudyViewModel.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/LibraryScreenTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/LibraryScreenTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/composeResources/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/composeResources/values/strings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/injection/Module.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/injection/Module.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/LibraryAction.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/LibraryAction.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/navigation/AppDestination.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/navigation/AppDestination.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/navigation/Route.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/navigation/Route.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/state/DashboardUIState.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/state/DashboardUIState.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/state/LibraryUIState.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/state/LibraryUIState.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/DashboardScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/DashboardScreen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/LibraryScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/LibraryScreen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/AuthViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/AuthViewModel.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/CreateUserProfileViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/CreateUserProfileViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/DashboardViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/DashboardViewModel.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/LibraryViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/LibraryViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/AuthViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/AuthViewModelTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/BaseViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/BaseViewModelTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/CreateProfileViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/CreateProfileViewModelTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/DashboardViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/DashboardViewModelTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/LibraryViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/LibraryViewModelTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/dao/LocalDao.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/dao/LocalDao.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/DeleteAllCurriculaUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/DeleteCurriculaByUserUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/DeleteAllLessonsUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/DeleteLessonsByModuleUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/DeleteAllModulesUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/DeleteModulesByCurriculumUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/GenerateModuleUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/GenerateModuleUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/CreateProfileUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/CreateProfileUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/DeleteProfilePictureUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/DeleteProfilePictureUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/UpdateProfileUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/UpdateProfileUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/UploadProfilePictureUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/UploadProfilePictureUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/DeleteAllSectionsUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/DeleteSectionsByLessonUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/syllabus/SummarizeSyllabusUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/syllabus/SummarizeSyllabusUseCase.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/activity/GetWeeklyActivityUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/activity/FetchWeeklyActivityByUserUseCase.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/util/CompoundException.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/util/CompoundException.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/DeleteAllCurriculaUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/DeleteAllCurriculaUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/DeleteAllLessonsUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/DeleteAllLessonsUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/DeleteAllModulesUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/DeleteAllModulesUseCaseTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/activity/GetWeeklyActivityUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/activity/GetWeeklyActivityUseCaseTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/CreateProfileUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/CreateProfileUseCaseTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/DeleteProfilePictureUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/DeleteProfilePictureUseCaseTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/UpdateProfileUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/UpdateProfileUseCaseTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/UploadProfilePictureUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/UploadProfilePictureUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/DeleteAllSectionsUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/DeleteAllSectionsUseCaseTest.kt" afterDir="false" />
     </list>
     <list id="543ef38b-89b9-492a-b137-13358d0234c3" name="Changes" comment="- Implemented `DashboardViewModel` with necessary dependencies and logic.&#10;- Created `DashboardScreen` to display the dashboard UI.&#10;- Added comprehensive unit tests for `DashboardViewModel` to ensure functionality." />
     <list id="27db182c-d411-4cde-a632-24cff2efd733" name="LEA-15 User Sign Up and Sign In (Firebase Auth)" comment="Remove unused configuration and obsolete import.&#10;&#10;Deleted unnecessary debug run configurations from IntelliJ's deploymentTargetSelector.xml. Also removed an unused Kotlin Android source set import from composeApp/build.gradle.kts to clean up the project setup." />
@@ -156,9 +143,9 @@
         <option value="Kotlin Object" />
         <option value="Kotlin Data Class" />
         <option value="Kotlin Enum" />
+        <option value="Kotlin Interface" />
         <option value="Kotlin File" />
         <option value="Kotlin Class" />
-        <option value="Kotlin Interface" />
       </list>
     </option>
   </component>
@@ -198,47 +185,38 @@
   <component name="LineStatusTrackerManager">
     <file path="$PROJECT_DIR$/.idea/workspace.xml">
       <ranges>
-        <range start1="28" end1="29" start2="28" end2="33" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="30" end1="31" start2="34" end2="34" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="33" end1="39" start2="36" end2="40" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="44" end1="44" start2="45" end2="46" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="45" end1="45" start2="47" end2="48" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="46" end1="47" start2="49" end2="69" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="135" end1="136" start2="157" end2="157" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="137" end1="138" start2="158" end2="158" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="139" end1="139" start2="159" end2="161" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="178" end1="197" start2="200" end2="241" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="219" end1="1152" start2="263" end2="1200" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1153" end1="1156" start2="1201" end2="1204" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1157" end1="1161" start2="1205" end2="1209" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1163" end1="1164" start2="1211" end2="1212" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1191" end1="1196" start2="1239" end2="1244" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1283" end1="1284" start2="1331" end2="1332" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1286" end1="1287" start2="1334" end2="1335" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1294" end1="1297" start2="1342" end2="1345" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1307" end1="1308" start2="1355" end2="1356" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1310" end1="1311" start2="1358" end2="1359" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1318" end1="1321" start2="1366" end2="1369" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1331" end1="1332" start2="1379" end2="1380" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1336" end1="1337" start2="1384" end2="1385" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1342" end1="1343" start2="1390" end2="1393" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1350" end1="1351" start2="1400" end2="1401" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1353" end1="1354" start2="1403" end2="1404" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1356" end1="1357" start2="1406" end2="1407" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1358" end1="1359" start2="1408" end2="1409" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1364" end1="1366" start2="1414" end2="1415" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1373" end1="1374" start2="1422" end2="1423" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1379" end1="1381" start2="1428" end2="1432" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1382" end1="1383" start2="1433" end2="1433" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1387" end1="1390" start2="1437" end2="1441" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1462" end1="1470" start2="1513" end2="1513" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1882" end1="1883" start2="1925" end2="1926" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1924" end1="1925" start2="1967" end2="1976" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1982" end1="1983" start2="2033" end2="2033" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="2007" end1="2008" start2="2057" end2="2059" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="2014" end1="2014" start2="2065" end2="2077" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="2019" end1="2030" start2="2082" end2="2084" changelist="4dda34f5-96ab-4c27-ad2e-f9e5c6666e52" />
-        <range start1="2051" end1="2051" start2="2105" end2="2106" changelist="4dda34f5-96ab-4c27-ad2e-f9e5c6666e52" />
+        <range start1="28" end1="33" start2="28" end2="33" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="34" end1="35" start2="34" end2="34" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="37" end1="37" start2="36" end2="37" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="39" end1="39" start2="39" end2="40" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="40" end1="40" start2="41" end2="42" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="43" end1="43" start2="45" end2="46" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="44" end1="47" start2="47" end2="47" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="49" end1="60" start2="49" end2="50" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="61" end1="64" start2="51" end2="52" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="68" end1="69" start2="56" end2="56" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="158" end1="158" start2="145" end2="146" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="160" end1="161" start2="148" end2="148" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="200" end1="241" start2="187" end2="219" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1246" end1="1247" start2="1224" end2="1225" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1331" end1="1332" start2="1309" end2="1310" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1344" end1="1345" start2="1322" end2="1323" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1355" end1="1356" start2="1333" end2="1334" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1366" end1="1369" start2="1344" end2="1347" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1379" end1="1380" start2="1357" end2="1358" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1392" end1="1393" start2="1370" end2="1371" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1428" end1="1430" start2="1406" end2="1406" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1432" end1="1432" start2="1408" end2="1410" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1436" end1="1436" start2="1414" end2="1416" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1439" end1="1441" start2="1419" end2="1419" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1513" end1="1521" start2="1491" end2="1491" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1925" end1="1926" start2="1895" end2="1896" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="1975" end1="1976" start2="1945" end2="1954" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="2033" end1="2034" start2="2011" end2="2011" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="2058" end1="2059" start2="2035" end2="2037" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="2070" end1="2075" start2="2048" end2="2048" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
+        <range start1="2082" end1="2093" start2="2055" end2="2057" changelist="4dda34f5-96ab-4c27-ad2e-f9e5c6666e52" />
+        <range start1="2114" end1="2114" start2="2078" end2="2079" changelist="4dda34f5-96ab-4c27-ad2e-f9e5c6666e52" />
       </ranges>
     </file>
   </component>
@@ -1244,7 +1222,7 @@
       <recent name="org.example.shared.domain.use_case.curriculum" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.Main [desktop]">
+  <component name="RunManager" selected="Gradle.DashboardViewModelTest (1)">
     <configuration name="MainActivity" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
       <module name="LearnFlex.composeApp" />
       <option name="ANDROID_RUN_CONFIGURATION_SCHEMA_VERSION" value="1" />
@@ -1329,30 +1307,6 @@
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="AuthViewModelTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/composeApp" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":composeApp:cleanDesktopTest" />
-            <option value=":composeApp:desktopTest" />
-            <option value="--tests &quot;org.example.composeApp.viewModel.AuthViewModelTest&quot;" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>true</RunAsTest>
-      <method v="2" />
-    </configuration>
     <configuration name="CreateProfileViewModelTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -1401,6 +1355,30 @@
       <RunAsTest>true</RunAsTest>
       <method v="2" />
     </configuration>
+    <configuration name="DashboardViewModelTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/composeApp" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":composeApp:cleanTestDebugUnitTest" />
+            <option value=":composeApp:testDebugUnitTest" />
+            <option value="--tests &quot;org.example.composeApp.viewModel.DashboardViewModelTest&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
+      <method v="2" />
+    </configuration>
     <configuration name="Main [desktop]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -1426,19 +1404,19 @@
     <list>
       <item itemvalue="Android App.MainActivity" />
       <item itemvalue="Android App.composeApp" />
-      <item itemvalue="Gradle.AuthViewModelTest (1)" />
-      <item itemvalue="Gradle.CreateProfileViewModelTest" />
       <item itemvalue="Gradle.CreateProfileViewModelTest (1)" />
       <item itemvalue="Gradle.CreateProfileViewModelTest.onCreateProfile should not call createProfileUseCase when username is invalid" />
+      <item itemvalue="Gradle.DashboardViewModelTest" />
+      <item itemvalue="Gradle.DashboardViewModelTest (1)" />
       <item itemvalue="Gradle.Main [desktop]" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.DashboardViewModelTest (1)" />
+        <item itemvalue="Gradle.DashboardViewModelTest" />
         <item itemvalue="Gradle.Main [desktop]" />
         <item itemvalue="Gradle.CreateProfileViewModelTest.onCreateProfile should not call createProfileUseCase when username is invalid" />
         <item itemvalue="Gradle.CreateProfileViewModelTest (1)" />
-        <item itemvalue="Gradle.CreateProfileViewModelTest" />
-        <item itemvalue="Gradle.AuthViewModelTest (1)" />
       </list>
     </recent_temporary>
   </component>
@@ -1510,14 +1488,6 @@
       <workItem from="1731342591014" duration="3296000" />
       <workItem from="1731353381243" duration="21000" />
       <workItem from="1731702522679" duration="3504000" />
-    </task>
-    <task id="LOCAL-00036" summary="Add GetUserStyleUseCase for retrieving user style&#10;&#10;Introduced GetUserStyleUseCase class to fetch user's style from the repository. Added dependency injection in Module.kt and created corresponding tests for validation in GetUserStyleUseCaseTest.">
-      <option name="closed" value="true" />
-      <created>1731169627325</created>
-      <option name="number" value="00036" />
-      <option name="presentableId" value="LOCAL-00036" />
-      <option name="project" value="LOCAL" />
-      <updated>1731169627325</updated>
     </task>
     <task id="LOCAL-00037" summary="Add SetUserStyleUseCase to manage user learning styles&#10;&#10;Introduced SetUserStyleUseCase to facilitate setting user learning styles. Implemented unit tests to ensure correct behavior and integrated the use case into the dependency injection module.">
       <option name="closed" value="true" />
@@ -1923,7 +1893,7 @@
       <option name="project" value="LEA" />
       <updated>1736093833028</updated>
       <workItem from="1736093833439" duration="110194000" />
-      <workItem from="1736291913598" duration="42267000" />
+      <workItem from="1736291913598" duration="54728000" />
     </task>
     <task id="LOCAL-00075" summary="feat: add Path and PathBuilder classes for Firestore path management&#10;&#10;- Introduced `Path` class to represent immutable Firestore paths with validation.&#10;- Added `PathBuilder` class to construct paths with collection and document segments.&#10;- Implemented methods for path validation, segment addition, and path building.">
       <option name="closed" value="true" />
@@ -1973,7 +1943,15 @@
       <option name="project" value="LOCAL" />
       <updated>1736294532362</updated>
     </task>
-    <option name="localTasksCounter" value="81" />
+    <task id="LOCAL-00081" summary="Refactor: use resource folder for snackbar messages&#10;&#10;Replaced hardcoded snackbar messages with resources to improve maintainability and localization support. Adjusted dependencies and logic in relevant ViewModels, UseCases, and tests accordingly.">
+      <option name="closed" value="true" />
+      <created>1736370762659</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1736370762659</updated>
+    </task>
+    <option name="localTasksCounter" value="82" />
     <servers>
       <YouTrack url="https://gracia.youtrack.cloud">
         <option name="defaultSearch" value="Assignee: me sort by: created asc" />
@@ -2031,7 +2009,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
     <confirmRemoveEmptyChangelist value="2" />
-    <MESSAGE value="Add path parameter to sync operations and use cases&#10;&#10;Introduces a `PathBuilder` interface and integrates it into `CreateUserProfileUseCase`. Updates `Repository` and sync-related components to require a path during operations, facilitating more precise data manipulation in remote data sources. Also refactors tests and components, like `CustomScaffold`, to accommodate these changes." />
     <MESSAGE value="Refactor data layer by replacing data source with DAO interfaces.&#10;&#10;Replaced the RemoteDataSource interface with a RemoteDao interface, focusing on CRUD operations. Removed RepositoryImpl and its associated test class, reorganizing responsibility to new DAO classes. Updated FirestorePathConstructor with detailed documentation and refactored related tests to align with the new data access architecture." />
     <MESSAGE value="Add Lesson-related use cases and repository integration&#10;&#10;Introduce various use cases for managing lesson entities, such as upload, update, delete, and retrieval based on different criteria. Additionally, integrate the LessonRepository with the necessary CRUD and query operations, update dependency injections, and include corresponding tests." />
     <MESSAGE value="Add use cases and tests for Module operations&#10;&#10;Introduce classes for Module operations including GetModule, UploadModule, UpdateModule, DeleteAllModules, and GetModuleIdsByMinQuizScore. Implement corresponding tests for each use case to verify success and failure scenarios. Additionally, configure ModuleRepository in dependency injection to support CRUD and query operations using new use cases." />
@@ -2056,7 +2033,8 @@
     <MESSAGE value="refactor(project-structure): reorganize presentation layer files&#10;&#10;Moved presentation-related files into a unified directory structure for better organization and clarity. This change impacts components, screens, themes, and related test files, consolidating them under a consistent `presentation` namespace." />
     <MESSAGE value="Refactor: reorganize presentation layer directory structure&#10;&#10;Moved all presentation-related files in the composeApp module to a new &quot;presentation&quot; directory for improved organization. Updated file paths and adjusted imports across affected components, screens, themes, and view models accordingly." />
     <MESSAGE value="refactor: use resource folder for snackbar messages&#10;&#10;- Updated code to fetch snackbar messages from the resource folder instead of hardcoding them.&#10;- Improved maintainability and localization support." />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: use resource folder for snackbar messages&#10;&#10;- Updated code to fetch snackbar messages from the resource folder instead of hardcoding them.&#10;- Improved maintainability and localization support." />
+    <MESSAGE value="Refactor: use resource folder for snackbar messages&#10;&#10;Replaced hardcoded snackbar messages with resources to improve maintainability and localization support. Adjusted dependencies and logic in relevant ViewModels, UseCases, and tests accordingly." />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor: use resource folder for snackbar messages&#10;&#10;Replaced hardcoded snackbar messages with resources to improve maintainability and localization support. Adjusted dependencies and logic in relevant ViewModels, UseCases, and tests accordingly." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
@@ -2068,11 +2046,6 @@
           <url>file://$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/CreateProfileViewModelTest.kt</url>
           <line>366</line>
           <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/CreateUserProfileViewModel.kt</url>
-          <line>98</line>
-          <option name="timeStamp" value="5" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

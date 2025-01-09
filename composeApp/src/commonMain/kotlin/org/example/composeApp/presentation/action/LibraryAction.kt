@@ -1,6 +1,7 @@
 package org.example.composeApp.presentation.action
 
 import org.example.composeApp.presentation.navigation.Route
+import org.example.shared.domain.model.Curriculum
 import java.io.File
 
 /**
@@ -90,6 +91,12 @@ sealed class LibraryAction {
      * @param curriculumId The ID of the curriculum to be opened.
      */
     data class OpenCurriculum(val curriculumId: String) : LibraryAction()
+
+    /**
+     * Action to delete a curriculum.
+     * @param curriculum The curriculum to delete.
+     */
+    data class DeleteCurriculum(val curriculum: Curriculum) : LibraryAction()
 
     /**
      * Action to handle an error.

@@ -44,6 +44,8 @@
     <string name="cancel_button_label">Cancel</string>
     <string name="discard_button_label">Discard</string>
     <string name="open_in_study_button_label">Open in Study</string>
+    <string name="delete_curriculum_button_label">Delete Curriculum</string>
+    <string name="expand_module_button_label">Expand Module</string>
 
     <!-- Form Labels -->
     <string name="email_label">Email</string>
@@ -88,8 +90,7 @@
     <string name="content_generation_took_too_long_error">Content generation took too long</string>
 
     <!-- Welcome Messages -->
-    <string name="hi_there">Hi, %1$s!</string>
-    <string name="learner">Learner</string>
+    <string name="hi_there">Hi there!</string>
     <string name="welcome_to">Welcome to</string>
     <string name="welcome_back">Welcome back,</string>
     <string name="welcome_message">Transform any learning material into an interactive, personalized experience.

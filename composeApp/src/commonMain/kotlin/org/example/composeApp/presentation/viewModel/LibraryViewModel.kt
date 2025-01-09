@@ -12,10 +12,11 @@ import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.sync.SyncManager
+import org.example.shared.domain.use_case.curriculum.DeleteCurriculumUseCase
 import org.example.shared.domain.use_case.curriculum.FetchCurriculaByUserUseCase
-import org.example.shared.domain.use_case.curriculum.FetchCurriculumBundleUseCase
 import org.example.shared.domain.use_case.curriculum.GenerateCurriculumUseCase
 import org.example.shared.domain.use_case.library.UploadCurriculumAndModulesUseCase
+import org.example.shared.domain.use_case.module.FetchModulesByCurriculumUseCase
 import org.example.shared.domain.use_case.module.GenerateModuleUseCase
 import org.example.shared.domain.use_case.profile.FetchProfileUseCase
 import org.example.shared.domain.use_case.syllabus.SummarizeSyllabusUseCase
@@ -31,11 +32,12 @@ import java.io.File
  *
  * @property fetchProfileUseCase Use case to fetch the user's profile.
  * @property fetchCurriculaByUserUseCase Use case to fetch curricula associated with the user.
- * @property fetchCurriculumBundleUseCase Use case for retrieving curriculum bundles.
+ * @property fetchModulesByCurriculumUseCase Use case to fetch modules by curriculum.
  * @property summarizeSyllabusUseCase Use case for summarizing syllabus files.
  * @property generateCurriculumUseCase Use case for generating curricula.
  * @property generateModuleUseCase Use case for generating modules within a curriculum.
  * @property uploadCurriculumAndModulesUseCase Use case for uploading curriculum and module content.
+ * @property deleteCurriculumUseCase Use case for deleting curricula.
  * @property resourceProvider Provides application resources such as strings.
  * @property dispatcher Coroutine dispatcher for executing asynchronous tasks.
  * @property syncManagers List of synchronization managers for handling database records.
@@ -44,11 +46,12 @@ import java.io.File
 class LibraryViewModel(
     private val fetchProfileUseCase: FetchProfileUseCase,
     private val fetchCurriculaByUserUseCase: FetchCurriculaByUserUseCase,
-    private val fetchCurriculumBundleUseCase: FetchCurriculumBundleUseCase,
+    private val fetchModulesByCurriculumUseCase: FetchModulesByCurriculumUseCase,
     private val summarizeSyllabusUseCase: SummarizeSyllabusUseCase,
     private val generateCurriculumUseCase: GenerateCurriculumUseCase,
     private val generateModuleUseCase: GenerateModuleUseCase,
     private val uploadCurriculumAndModulesUseCase: UploadCurriculumAndModulesUseCase,
+    private val deleteCurriculumUseCase: DeleteCurriculumUseCase,
     private val resourceProvider: ResourceProvider,
     private val dispatcher: CoroutineDispatcher,
     syncManagers: List<SyncManager<DatabaseRecord>>,
@@ -82,6 +85,7 @@ class LibraryViewModel(
             is LibraryAction.ClearFilterQuery -> editFilterQuery("")
             is LibraryAction.OpenCurriculum if displayMode == LibraryUIState.DisplayMode.Edit -> showDiscardWarningDialog()
             is LibraryAction.OpenCurriculum -> openCurriculum(action.curriculumId)
+            is LibraryAction.DeleteCurriculum -> deleteCurriculum(action.curriculum)
             is LibraryAction.HandleError -> handleError(action.error)
             is LibraryAction.Navigate if displayMode == LibraryUIState.DisplayMode.Edit -> showDiscardWarningDialog()
             is LibraryAction.Navigate -> navigate(action.destination)
@@ -97,7 +101,7 @@ class LibraryViewModel(
         viewModelScope.launch(dispatcher) {
             try {
                 val profile = fetchProfileUseCase().getOrThrow()
-                _state.update { it.copy(profile = profile) }
+                _state.update { it.copy(profileId = profile) }
 
                 val curricula = fetchCurriculaByUserUseCase(profile.id).getOrThrow()
                 _state.update { it.copy(curricula = curricula, filteredCurricula = curricula) }
@@ -152,7 +156,7 @@ class LibraryViewModel(
      */
     private fun generateCurriculum() = viewModelScope.launch(dispatcher) {
         try {
-            val profile = checkNotNull(_state.value.profile)
+            val profile = checkNotNull(_state.value.profileId)
             val description = _state.value.syllabusDescription
 
             check(description.isNotBlank()) {
@@ -189,7 +193,7 @@ class LibraryViewModel(
             require(_state.value.modules.all { it.title != title }) {
                 resourceProvider.getString(Res.string.module_already_exists_warning)
             }
-            val profile = checkNotNull(_state.value.profile)
+            val profile = checkNotNull(_state.value.profileId)
             val curriculum = checkNotNull(_state.value.curriculum)
 
             _state.update { it.copy(isGenerating = true) }
@@ -251,7 +255,7 @@ class LibraryViewModel(
     private fun uploadContent() = viewModelScope.launch(dispatcher) {
         try {
             val successMessage = async { resourceProvider.getString(Res.string.save_content_success) }
-            val profile = checkNotNull(_state.value.profile)
+            val profile = checkNotNull(_state.value.profileId)
             val curriculum = checkNotNull(_state.value.curriculum)
             val modules = _state.value.modules
 
@@ -303,15 +307,15 @@ class LibraryViewModel(
      */
     private fun openCurriculum(curriculumId: String) = viewModelScope.launch(dispatcher) {
         try {
-            val profile = checkNotNull(_state.value.profile)
+            _state.update { it.copy(isDownloading = true) }
+            val profile = checkNotNull(_state.value.profileId)
             val curriculum = checkNotNull(_state.value.curricula.find { it.id == curriculumId })
+            val modules = fetchModulesByCurriculumUseCase(profile.id, curriculum.id).getOrThrow()
 
-            val bundle = fetchCurriculumBundleUseCase(profile.id, curriculum)
             _state.update {
                 it.copy(
-                    isDownloading = true,
-                    curriculum = bundle.curriculum,
-                    modules = bundle.modules,
+                    curriculum = curriculum,
+                    modules = modules,
                     displayMode = LibraryUIState.DisplayMode.View
                 )
             }
@@ -319,6 +323,21 @@ class LibraryViewModel(
             handleError(e)
         } finally {
             _state.update { it.copy(isDownloading = false) }
+        }
+    }
+
+    private fun deleteCurriculum(curriculum: Curriculum) = viewModelScope.launch(dispatcher) {
+        try {
+            val profile = checkNotNull(_state.value.profileId)
+            deleteCurriculumUseCase(curriculum, profile.id).getOrThrow()
+            _state.update { current ->
+                current.copy(
+                    curriculum = if (curriculum == current.curriculum) null else current.curriculum,
+                    modules = if (curriculum == current.curriculum) emptyList() else current.modules,
+                )
+            }
+        } catch (e: Exception) {
+            handleError(e)
         }
     }
 }

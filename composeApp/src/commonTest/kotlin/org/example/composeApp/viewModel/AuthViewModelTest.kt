@@ -259,7 +259,7 @@ class AuthViewModelTest {
         assertTrue(displayEvent is UIEvent.ShowSnackbar)
         assertEquals(message, displayEvent.message)
         assertTrue(navEvent is UIEvent.Navigate)
-        assertEquals(Route.Dashboard, navEvent.destination)
+        assertTrue(navEvent.destination is Route.Dashboard)
 
         job.cancel()
     }

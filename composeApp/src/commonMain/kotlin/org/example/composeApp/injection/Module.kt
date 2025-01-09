@@ -43,7 +43,7 @@ import org.example.shared.domain.repository.util.ModelMapper
 import org.example.shared.domain.storage_operations.*
 import org.example.shared.domain.sync.SyncHandler
 import org.example.shared.domain.sync.SyncManager
-import org.example.shared.domain.use_case.activity.GetWeeklyActivityUseCase
+import org.example.shared.domain.use_case.activity.FetchWeeklyActivityByUserUseCase
 import org.example.shared.domain.use_case.auth.*
 import org.example.shared.domain.use_case.curriculum.*
 import org.example.shared.domain.use_case.lesson.*
@@ -799,7 +799,7 @@ val commonModule = module {
     singleOf(::ValidatePasswordConfirmationUseCase)
 
     // Use Cases - Activity
-    singleOf(::GetWeeklyActivityUseCase)
+    singleOf(::FetchWeeklyActivityByUserUseCase)
 
     // ViewModels
     single<ResourceProvider> { ResourceProvider { getString(it) } }

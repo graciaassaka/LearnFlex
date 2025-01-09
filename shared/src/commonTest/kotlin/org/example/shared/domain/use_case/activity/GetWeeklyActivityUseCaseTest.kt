@@ -13,13 +13,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class GetWeeklyActivityUseCaseTest {
-    private lateinit var getWeeklyActivityUseCase: GetWeeklyActivityUseCase
+    private lateinit var fetchWeeklyActivityByUserUseCase: FetchWeeklyActivityByUserUseCase
     private lateinit var retrieveSessionsByDateRangeUseCase: RetrieveSessionsByDateRangeUseCase
 
     @Before
     fun setUp() {
         retrieveSessionsByDateRangeUseCase = mockk<RetrieveSessionsByDateRangeUseCase>(relaxed = true)
-        getWeeklyActivityUseCase = GetWeeklyActivityUseCase(retrieveSessionsByDateRangeUseCase)
+        fetchWeeklyActivityByUserUseCase = FetchWeeklyActivityByUserUseCase(retrieveSessionsByDateRangeUseCase)
     }
 
     @Test
@@ -46,7 +46,7 @@ class GetWeeklyActivityUseCaseTest {
         )
 
         // When
-        val result = getWeeklyActivityUseCase(timestamp)
+        val result = fetchWeeklyActivityByUserUseCase(timestamp)
 
         // Then
         assertTrue(result.isSuccess)
@@ -63,7 +63,7 @@ class GetWeeklyActivityUseCaseTest {
         coEvery { retrieveSessionsByDateRangeUseCase(startTimestamp, timestamp) } returns Result.failure(exception)
 
         // When
-        val result = getWeeklyActivityUseCase(timestamp)
+        val result = fetchWeeklyActivityByUserUseCase(timestamp)
 
         // Then
         assertTrue(result.isFailure)

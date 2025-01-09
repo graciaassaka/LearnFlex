@@ -313,7 +313,6 @@ private fun WelcomeSection(
                 )
                 WelcomeCard(
                     isLoading = uiState.value.isLoading,
-                    username = uiState.value.profile?.username ?: stringResource(Res.string.learner),
                     curriculum = uiState.value.activeCurriculum,
                     maxHeight = this@BoxWithConstraints.maxHeight,
                     maxWidth = this@BoxWithConstraints.maxWidth,
@@ -361,7 +360,6 @@ private fun TitleSection(
 @Composable
 private fun WelcomeCard(
     isLoading: Boolean,
-    username: String,
     curriculum: Curriculum?,
     maxHeight: Dp,
     maxWidth: Dp,
@@ -391,7 +389,7 @@ private fun WelcomeCard(
         horizontalAlignment = Alignment.Start
     ) {
         Text(
-            text = curriculum?.title ?: (stringResource(Res.string.hi_there, username)),
+            text = curriculum?.title ?: (stringResource(Res.string.hi_there)),
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.titleMedium,
         )

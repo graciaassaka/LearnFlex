@@ -8,7 +8,7 @@ import java.io.File
 /**
  * Represents the UI state for the library.
  *
- * @property profile The user's profile.
+ * @property profileId The user's profile.
  * @property syllabusFile The file containing the syllabus, if available.
  * @property syllabusDescription A description of the syllabus.
  * @property curricula A list of curricula.
@@ -23,7 +23,7 @@ import java.io.File
  * @property displayMode The mode for saving content.
  */
 data class LibraryUIState(
-    val profile: Profile? = null,
+    val profileId: Profile? = null,
     val syllabusFile: File? = null,
     val syllabusDescription: String = "",
     val curricula: List<Curriculum> = emptyList(),

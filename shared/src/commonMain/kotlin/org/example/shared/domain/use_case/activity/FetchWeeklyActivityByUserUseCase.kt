@@ -1,5 +1,6 @@
 package org.example.shared.domain.use_case.activity
 
+import org.example.shared.domain.use_case.session.FetchSessionsByUserUseCase
 import org.example.shared.domain.use_case.session.RetrieveSessionsByDateRangeUseCase
 import java.time.Instant
 import java.time.ZoneId
@@ -9,7 +10,8 @@ import java.time.ZoneId
  *
  * @property retrieveSessionsByDateRangeUseCase The use case for fetching sessions by date range.
  */
-class GetWeeklyActivityUseCase(
+class FetchWeeklyActivityByUserUseCase(
+    private val fetchSessionsByUserUseCase: FetchSessionsByUserUseCase,
     private val retrieveSessionsByDateRangeUseCase: RetrieveSessionsByDateRangeUseCase
 ) {
 
@@ -19,13 +21,14 @@ class GetWeeklyActivityUseCase(
      * @param timestamp The timestamp to fetch the weekly activity for.
      * @return The result of the weekly activity fetch operation.
      */
-    suspend operator fun invoke(timestamp: Long) = runCatching {
+    suspend operator fun invoke(userId: String, timestamp: Long) = runCatching {
         val start = Instant.ofEpochMilli(timestamp)
             .atZone(ZoneId.systemDefault())
             .minusDays(7)
             .toInstant()
             .toEpochMilli()
 
+        fetchSessionsByUserUseCase(userId).getOrThrow()
         retrieveSessionsByDateRangeUseCase(start, timestamp).getOrThrow().let { sessions ->
             sessions
                 .groupBy {

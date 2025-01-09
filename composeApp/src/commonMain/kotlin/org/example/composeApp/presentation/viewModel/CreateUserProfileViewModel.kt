@@ -138,8 +138,7 @@ class CreateUserProfileViewModel(
     /**
      * Handles changes to the learning level dropdown visibility.
      */
-    private fun toggleLevelDropdownVisibility() =
-        _state.update { it.copy(isLevelDropdownVisible = !it.isLevelDropdownVisible) }
+    private fun toggleLevelDropdownVisibility() = _state.update { it.copy(isLevelDropdownVisible = !it.isLevelDropdownVisible) }
 
     /**
      * Handles changes to the learning goal input.
@@ -284,7 +283,7 @@ class CreateUserProfileViewModel(
                     )
                 ).getOrThrow()
                 showSnackbar(successMessage.await(), SnackbarType.Success)
-                navigate(Route.Dashboard, true)
+                navigate(Route.Dashboard(value.userId), true)
             } catch (e: Exception) {
                 handleError(e)
             } finally {

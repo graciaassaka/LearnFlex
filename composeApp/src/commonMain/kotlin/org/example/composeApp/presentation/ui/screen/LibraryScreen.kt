@@ -18,9 +18,7 @@ import androidx.compose.material3.adaptive.layout.*
 import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -275,7 +273,7 @@ private fun ActionButtons(
         onClick = { handleAction(LibraryAction.SaveContent) },
         enabled = !uiState.isDownloading &&
                 !uiState.isUploading &&
-                uiState.curriculum != null,
+                uiState.displayMode == LibraryUIState.DisplayMode.Edit,
         modifier = buttonModifier,
         shape = RoundedCornerShape(Dimension.CORNER_RADIUS_SMALL.dp),
         content = { Text(stringResource(Res.string.save_content_button_label)) }
@@ -311,6 +309,7 @@ private fun CurriculumDetailsSection(
     }
     HorizontalDivider()
     curriculum.content.forEachIndexed { index, module ->
+        var isExpanded by remember(index) { mutableStateOf(false) }
         if (index > 0) HorizontalDivider()
         Row(
             modifier = Modifier.fillMaxWidth()
@@ -325,10 +324,12 @@ private fun CurriculumDetailsSection(
                     curriculum = curriculum,
                     module = module,
                     enabled = enabled,
+                    expanded = isExpanded,
+                    onExpand = { isExpanded = !isExpanded },
                     handleAction = handleAction,
                     modifier = Modifier
                 )
-                ModuleContent(
+                if (isExpanded) ModuleContent(
                     displayMode = displayMode,
                     modules = modules,
                     title = module,
@@ -387,6 +388,8 @@ private fun ModuleListItem(
     curriculum: Curriculum,
     module: String,
     enabled: Boolean,
+    expanded: Boolean = false,
+    onExpand: () -> Unit,
     handleAction: (LibraryAction) -> Unit,
     modifier: Modifier = Modifier
 ) = ListItem(
@@ -418,6 +421,14 @@ private fun ModuleListItem(
                     contentDescription = stringResource(Res.string.remove_module_button_label)
                 )
             }
+        }
+    },
+    trailingContent = {
+        IconButton(onClick = onExpand) {
+            Icon(
+                imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                contentDescription = stringResource(Res.string.expand_module_button_label)
+            )
         }
     }
 )
@@ -668,6 +679,16 @@ private fun CurriculumTooltipListItem(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.MenuBook,
                     contentDescription = null
+                )
+            }
+        },
+        trailingContent = {
+            IconButton(
+                onClick = { handleAction(LibraryAction.DeleteCurriculum(curriculum)) }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = stringResource(Res.string.delete_curriculum_button_label)
                 )
             }
         }

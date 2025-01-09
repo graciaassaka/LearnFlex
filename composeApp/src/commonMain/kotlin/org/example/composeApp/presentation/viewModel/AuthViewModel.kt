@@ -126,7 +126,7 @@ class AuthViewModel(
                     password = value.signInPassword
                 ).onSuccess {
                     update { it.copy(isUserSignedIn = true) }
-                    navigate(Route.Dashboard, true)
+                    navigate(Route.Dashboard(), true)
                     showSnackbar(successMessage.await(), SnackbarType.Success)
                 }.onFailure { error ->
                     handleError(error)
@@ -241,20 +241,18 @@ class AuthViewModel(
      * On success, navigates to the Dashboard route. On failure, handles the error by showing
      * an appropriate message.
      */
-    private fun verifyEmail() = with(_state) {
-        update { it.copy(isLoading = true) }
-
-        viewModelScope.launch(dispatcher) {
-            verifyEmailUseCase().onSuccess {
-                update { it.copy(isEmailVerified = true) }
+    private fun verifyEmail() = viewModelScope.launch(dispatcher) {
+        _state.update { it.copy(isLoading = true) }
+        verifyEmailUseCase()
+            .onSuccess {
+                _state.update { it.copy(isEmailVerified = true) }
                 navigate(Route.CreateProfile, true)
             }.onFailure { error ->
                 handleError(error)
             }
-        }
-
-        update { it.copy(isLoading = false) }
+        _state.update { it.copy(isLoading = false) }
     }
+
 
     /**
      * Initiates the user deletion process and updates UI state accordingly.

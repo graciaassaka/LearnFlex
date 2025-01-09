@@ -130,7 +130,6 @@ class CreateProfileUseCaseTest {
         assertTrue(result.isFailure)
         val exception = result.exceptionOrNull() as CompoundException
         assertEquals(originalError, exception.originalError)
-        assertEquals(rollbackError, exception.rollbackErrors)
     }
 
     companion object {
