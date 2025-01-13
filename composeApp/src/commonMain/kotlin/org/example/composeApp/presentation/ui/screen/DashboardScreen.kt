@@ -4,14 +4,9 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.hoverable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.AnimatedPane
@@ -60,6 +55,7 @@ import org.example.composeApp.presentation.ui.dimension.Elevation
 import org.example.composeApp.presentation.ui.dimension.Padding
 import org.example.composeApp.presentation.ui.dimension.Spacing
 import org.example.composeApp.presentation.ui.layout.VerticalBarGraphLayout
+import org.example.composeApp.presentation.ui.util.HandleUIEvents
 import org.example.composeApp.presentation.ui.util.ScreenConfig
 import org.example.composeApp.presentation.ui.util.SnackbarType
 import org.example.composeApp.presentation.viewModel.DashboardViewModel
@@ -134,13 +130,16 @@ fun DashboardScreen(
     val navigator = rememberSupportingPaneScaffoldNavigator()
     ThreePaneBackHandler(navigator = navigator)
 
-    HandleUIEvents(Route.CreateProfile, navController, viewModel, screenConfig.snackbarHostState) { screenConfig.snackbarType.value = it }
+    HandleUIEvents(Route.Dashboard, navController, viewModel, screenConfig.snackbarHostState) {
+        screenConfig.snackbarType.value = it
+    }
 
     CustomScaffold(
         snackbarHostState = screenConfig.snackbarHostState,
         snackbarType = screenConfig.snackbarType.value,
         currentDestination = AppDestination.Dashboard,
         onDestinationSelected = { viewModel.handleAction(DashboardAction.Navigate(it.route)) },
+        onRefresh = { viewModel.handleAction(DashboardAction.Refresh) },
         enabled = !screenConfig.uiState.value.isLoading
     ) { paddingValues ->
         SupportingPaneScaffold(
@@ -170,13 +169,11 @@ private fun ThreePaneScaffoldScope.MainPane(
     handleAction: (DashboardAction) -> Unit,
     modifier: Modifier = Modifier,
 ) = with(screenConfig) {
-    val fabInteractionSource = remember { MutableInteractionSource() }
-    val isFabHovered by fabInteractionSource.collectIsHoveredAsState()
     val lazyGridState = rememberLazyGridState()
 
-    AnimatedPane(modifier = modifier.fillMaxWidth()) {
+    AnimatedPane(modifier = modifier.safeDrawingPadding()) {
         RefreshBox(
-            modifier = modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             isRefreshing = uiState.value.isLoading,
             onRefresh = { handleAction(DashboardAction.Refresh) }
         ) {
@@ -189,32 +186,12 @@ private fun ThreePaneScaffoldScope.MainPane(
                 lazyGridState = lazyGridState,
                 modifier = Modifier.align(Alignment.CenterEnd)
             )
-            if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded) FloatingActionButton(
-                onClick = { handleAction(DashboardAction.Refresh) },
-                interactionSource = fabInteractionSource,
-                modifier = Modifier.Companion
-                    .padding(Padding.MEDIUM.dp)
-                    .align(Alignment.BottomEnd)
-                    .hoverable(interactionSource = fabInteractionSource)
-                    .testTag(TestTags.DASHBOARD_REFRESH_FAB.tag)
-            ) {
-                Row(
-                    modifier = Modifier.Companion
-                        .padding(Padding.SMALL.dp)
-                        .animateContentSize(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Icon(Icons.Default.Refresh, stringResource(Res.string.refresh_button_label))
-                    if (isFabHovered) Text(stringResource(Res.string.refresh_button_label))
-                }
-            }
         }
     }
 }
 
 @Composable
-fun DashboardContent(
+private fun DashboardContent(
     screenConfig: ScreenConfig<DashboardUIState>,
     handleAction: (DashboardAction) -> Unit,
     lazyGridState: LazyGridState,
@@ -292,7 +269,7 @@ private fun WelcomeSection(
     val boxModifier = if (windowSizeClass.widthSizeClass != WindowWidthSizeClass.Expanded) {
         modifier.fillMaxWidth()
     } else {
-        modifier.fillMaxWidth().height(200.dp)
+        modifier.fillMaxWidth().requiredHeightIn(min = 200.dp, max = 250.dp)
     }
     AnimatedVisibility(
         visible = visible,
@@ -313,10 +290,10 @@ private fun WelcomeSection(
                 )
                 WelcomeCard(
                     isLoading = uiState.value.isLoading,
-                    curriculum = uiState.value.activeCurriculum,
+                    curriculum = uiState.value.curriculum,
                     maxHeight = this@BoxWithConstraints.maxHeight,
                     maxWidth = this@BoxWithConstraints.maxWidth,
-                    onCurriculumSelected = { handleAction(DashboardAction.OpenCurriculum(it)) },
+                    onCurriculumSelected = { handleAction(DashboardAction.OpenCurriculum) },
                     modifier = Modifier.testTag(TestTags.DASHBOARD_WELCOME_CARD.tag)
                 )
             }
@@ -647,7 +624,7 @@ private fun ThreePaneScaffoldScope.SupportingPane(
     screenConfig: ScreenConfig<DashboardUIState>,
     paddingValues: PaddingValues,
     modifier: Modifier = Modifier,
-) = AnimatedPane(modifier = modifier.safeContentPadding()) {
+) = AnimatedPane(modifier = modifier.safeDrawingPadding()) {
     Row(
         modifier = Modifier.fillMaxSize().padding(paddingValues),
         horizontalArrangement = Arrangement.spacedBy(Spacing.MEDIUM.dp),

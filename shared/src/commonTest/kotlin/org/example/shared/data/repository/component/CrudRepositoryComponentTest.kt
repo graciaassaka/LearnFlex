@@ -115,23 +115,6 @@ class CrudRepositoryComponentTest {
     }
 
     @Test
-    fun `get should emit model from local database and queue sync operation`() = runTest {
-        // Given
-        every { modelMapper.toModel(any()) } returns testModel
-        coEvery { syncManager.queueOperation(any()) } just runs
-
-        // When
-        val result = component.get(testPath).first()
-
-        // Then
-        assertTrue(result.isSuccess)
-        assertEquals(testModel, result.getOrNull())
-        coVerify(exactly = 1) {
-            syncManager.queueOperation(any())
-        }
-    }
-
-    @Test
     fun `get should fetch from remote and queue sync operation when local returns null`() = runTest {
         // Given
         queryStrategies = QueryStrategies<TestEntity>().apply {

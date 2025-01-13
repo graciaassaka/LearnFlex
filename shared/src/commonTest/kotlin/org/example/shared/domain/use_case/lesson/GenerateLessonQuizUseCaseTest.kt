@@ -19,12 +19,12 @@ import kotlin.test.assertEquals
 class GenerateLessonQuizUseCaseTest {
 
     private lateinit var generateQuizUseCase: GenerateQuizUseCase
-    private lateinit var generateLessonQuizUseCase: GenerateLessonQuizUseCase
+    private lateinit var fetchLessonQuizQuestionsUseCase: FetchLessonQuizQuestionsUseCase
 
     @BeforeTest
     fun setUp() {
         generateQuizUseCase = mockk()
-        generateLessonQuizUseCase = GenerateLessonQuizUseCase(generateQuizUseCase)
+        fetchLessonQuizQuestionsUseCase = FetchLessonQuizQuestionsUseCase(generateQuizUseCase)
     }
 
     @Test
@@ -32,14 +32,14 @@ class GenerateLessonQuizUseCaseTest {
         // Arrange
         val topic = "kotlin"
         val level = Level.BEGINNER
-        val expectedNumberOfQuestions = GenerateLessonQuizUseCase.NUMBER_OF_QUESTIONS
+        val expectedNumberOfQuestions = FetchLessonQuizQuestionsUseCase.NUMBER_OF_QUESTIONS
 
         val mockFlow: Flow<Result<Question>> = flowOf()
 
         every { generateQuizUseCase.invoke(topic, level, expectedNumberOfQuestions) } returns mockFlow
 
         // Act
-        val resultFlow = generateLessonQuizUseCase.invoke(topic, level)
+        val resultFlow = fetchLessonQuizQuestionsUseCase.invoke(topic, level)
 
         // Assert
         verify(exactly = 1) { generateQuizUseCase.invoke(topic, level, expectedNumberOfQuestions) }
@@ -51,7 +51,7 @@ class GenerateLessonQuizUseCaseTest {
         // Arrange
         val topic = "kotlin"
         val level = Level.INTERMEDIATE
-        val expectedNumberOfQuestions = GenerateLessonQuizUseCase.NUMBER_OF_QUESTIONS
+        val expectedNumberOfQuestions = FetchLessonQuizQuestionsUseCase.NUMBER_OF_QUESTIONS
 
         val mockQuestions = listOf(
             Result.success(Question.MultipleChoice("MCQ 1", "Answer1", listOf())),
@@ -62,7 +62,7 @@ class GenerateLessonQuizUseCaseTest {
         every { generateQuizUseCase.invoke(topic, level, expectedNumberOfQuestions) } returns mockFlow
 
         // Act
-        val resultFlow = generateLessonQuizUseCase.invoke(topic, level)
+        val resultFlow = fetchLessonQuizQuestionsUseCase.invoke(topic, level)
         val results = resultFlow.toList()
 
         // Assert
@@ -75,11 +75,10 @@ class GenerateLessonQuizUseCaseTest {
         // Arrange
         val topic = "kotlin"
         val level = Level.ADVANCED
-        val expectedNumberOfQuestions = GenerateLessonQuizUseCase.NUMBER_OF_QUESTIONS
+        val expectedNumberOfQuestions = FetchLessonQuizQuestionsUseCase.NUMBER_OF_QUESTIONS
 
         val mockQuestions = listOf(
-            Result.success(Question.TrueFalse("TFQ 1", true)),
-            Result.success(Question.Ordering("OQ 1", listOf("first", "second"))),
+            Result.success(Question.TrueFalse("TFQ 1", "true")),
             Result.failure<Question>(RuntimeException("Partial failure"))
         )
         val mockFlow: Flow<Result<Question>> = flowOf(*mockQuestions.toTypedArray())
@@ -87,7 +86,7 @@ class GenerateLessonQuizUseCaseTest {
         every { generateQuizUseCase.invoke(topic, level, expectedNumberOfQuestions) } returns mockFlow
 
         // Act
-        val resultFlow = generateLessonQuizUseCase.invoke(topic, level)
+        val resultFlow = fetchLessonQuizQuestionsUseCase.invoke(topic, level)
         val results = resultFlow.toList()
 
         // Assert

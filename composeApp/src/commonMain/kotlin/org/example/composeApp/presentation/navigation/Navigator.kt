@@ -8,15 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import org.example.composeApp.presentation.ui.screen.AuthScreen
-import org.example.composeApp.presentation.ui.screen.CreateProfileScreen
-import org.example.composeApp.presentation.ui.screen.DashboardScreen
-import org.example.composeApp.presentation.ui.screen.LibraryScreen
-import org.example.composeApp.presentation.navigation.Route
-import org.example.composeApp.presentation.viewModel.AuthViewModel
-import org.example.composeApp.presentation.viewModel.CreateUserProfileViewModel
-import org.example.composeApp.presentation.viewModel.DashboardViewModel
-import org.example.composeApp.presentation.viewModel.LibraryViewModel
+import org.example.composeApp.presentation.ui.screen.*
+import org.example.composeApp.presentation.viewModel.*
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TRANSITION_DURATION = 500
@@ -68,6 +61,17 @@ fun Navigator(
         ) {
             val viewModel = koinViewModel<LibraryViewModel>()
             LibraryScreen(
+                windowSizeClass = windowSizeClass,
+                navController = navController,
+                viewModel = viewModel
+            )
+        }
+        composable<Route.Study>(
+            enterTransition = { fadeIn(animationSpec = tween(TRANSITION_DURATION)) },
+            exitTransition = { fadeOut(animationSpec = tween(TRANSITION_DURATION)) }
+        ) {
+            val viewModel = koinViewModel<StudyViewModel>()
+            StudyScreen(
                 windowSizeClass = windowSizeClass,
                 navController = navController,
                 viewModel = viewModel

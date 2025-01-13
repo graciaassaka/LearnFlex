@@ -6,7 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
 import org.example.shared.data.local.entity.interfaces.RoomEntity
-import org.example.shared.domain.model.interfaces.ScoreQueryable
+import org.example.shared.domain.model.interfaces.ScorableRecord
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -15,7 +15,6 @@ import kotlin.uuid.Uuid
  *
  * @property id The unique identifier of the section.
  * @property lessonId The identifier of the lesson this section belongs to.
- * @property index The index position of the section within the lesson.
  * @property title The title of the section.
  * @property description A brief description of the section.
  * @property content The content of the section.
@@ -52,7 +51,7 @@ data class SectionEntity(
     val description: String,
 
     @ColumnInfo(name = "content")
-    val content: String,
+    val content: List<String>,
 
     @ColumnInfo(
         name = "quiz_score",
@@ -77,4 +76,4 @@ data class SectionEntity(
         defaultValue = "CURRENT_TIMESTAMP",
     )
     override val lastUpdated: Long
-) : RoomEntity, ScoreQueryable
+) : RoomEntity, ScorableRecord

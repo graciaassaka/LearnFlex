@@ -15,9 +15,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.zIndex
 import learnflex.composeapp.generated.resources.Res
 import learnflex.composeapp.generated.resources.learnflexbird
+import org.example.composeApp.presentation.ui.constant.Orientation
 import org.example.composeApp.presentation.ui.dimension.Dimension
 import org.example.composeApp.presentation.ui.dimension.Padding
-import org.example.composeApp.presentation.ui.constant.Orientation
 import org.jetbrains.compose.resources.painterResource
 
 /**
@@ -68,10 +68,7 @@ fun SpeakingBird(
             )
         ) {
             Box(modifier = Modifier.wrapContentSize()) {
-                if (scrollState.maxValue > 0) CustomVerticalScrollbar(
-                    scrollState = scrollState,
-                    modifier = Modifier.align(Alignment.CenterEnd)
-                )
+                if (scrollState.maxValue > 0) CustomVerticalScrollbar(scrollState)
                 Column(
                     modifier = Modifier.Companion
                         .padding(Padding.MEDIUM.dp)

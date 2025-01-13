@@ -41,8 +41,8 @@ class GenerateCurriculumUseCaseTest {
             email = "test@example.com",
             photoUrl = "",
             preferences = Profile.LearningPreferences(
-                field = Field.COMPUTER_SCIENCE.name,
-                level = Level.BEGINNER.name,
+                field = Field.COMPUTER_SCIENCE,
+                level = Level.BEGINNER,
                 goal = "Become a Kotlin expert"
             ),
             learningStyle = Profile.LearningStyle(

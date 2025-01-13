@@ -33,12 +33,12 @@ import org.example.composeApp.presentation.navigation.Route
 import org.example.composeApp.presentation.state.AuthUIState
 import org.example.composeApp.presentation.ui.component.AnimatedOutlinedTextField
 import org.example.composeApp.presentation.ui.component.CustomVerticalScrollbar
-import org.example.composeApp.presentation.ui.component.HandleUIEvents
 import org.example.composeApp.presentation.ui.constant.TestTags
 import org.example.composeApp.presentation.ui.dimension.Dimension
 import org.example.composeApp.presentation.ui.dimension.Padding
 import org.example.composeApp.presentation.ui.dimension.Spacing
 import org.example.composeApp.presentation.ui.layout.AuthLayout
+import org.example.composeApp.presentation.ui.util.HandleUIEvents
 import org.example.composeApp.presentation.ui.util.ScreenConfig
 import org.example.composeApp.presentation.ui.util.SnackbarType
 import org.example.composeApp.presentation.viewModel.AuthViewModel

@@ -7,23 +7,21 @@ import org.example.composeApp.presentation.navigation.Route
  */
 sealed class DashboardAction {
     /**
-     * Represents an action to refresh the dashboard data or state.
-     * Intended to trigger updates or reload relevant resources within the dashboard context.
-     */
-    data object Refresh : DashboardAction()
-
-    /**
      * Represents an action to open a specific curriculum within the dashboard.
-     *
-     * @param curriculumId The unique ID of the curriculum to be opened.
      */
-    data class OpenCurriculum(val curriculumId: String) : DashboardAction()
+    data object OpenCurriculum : DashboardAction()
 
     /**
      * Represents an action to open a specific module in the dashboard.
      * @param moduleId The ID of the module to be opened.
      */
     data class OpenModule(val moduleId: String) : DashboardAction()
+
+    /**
+     * Represents an action to refresh the dashboard data or state.
+     * Intended to trigger updates or reload relevant resources within the dashboard context.
+     */
+    data object Refresh : DashboardAction()
 
     /**
      * Action to handle navigation.

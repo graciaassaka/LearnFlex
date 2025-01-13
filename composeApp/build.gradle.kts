@@ -9,10 +9,8 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.googleServices)
     alias(libs.plugins.kotlinSerialization)
-    alias(libs.plugins.kotlinx.parcelize)
     alias(libs.plugins.room)
     alias(libs.plugins.ksp)
-    jacoco
 }
 
 kotlin {

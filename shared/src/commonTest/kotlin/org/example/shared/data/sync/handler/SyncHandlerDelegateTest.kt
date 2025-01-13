@@ -176,28 +176,6 @@ class SyncHandlerDelegateTest {
     }
 
     @Test
-    fun `handleSync insert model in remote when operation type is SYNC and remote is null`() = runTest {
-        // Given
-        val operation = SyncOperation(SyncOperation.Type.SYNC, testPath, testModels, TIMESTAMP)
-
-        coEvery { remoteDao.get(any()) } returns flowOf(Result.failure(Exception()))
-        coEvery { remoteDao.insert(any(), any(), any()) } returns Result.success(Unit)
-
-        // When
-        syncHandler.handleSync(operation)
-
-        // Then
-        coVerifyOrder {
-            remoteDao.get(any())
-            remoteDao.insert(any(), any(), any())
-        }
-        coVerifyAll(true) {
-            localDao.insert(any(), any(), any())
-            localDao.update(any(), any(), any())
-        }
-    }
-
-    @Test
     fun `handleSync insert entity in local when operation type is SYNC and local is null`() = runTest {
         // Given
         val operation = SyncOperation(SyncOperation.Type.SYNC, testPath, testModels, TIMESTAMP)

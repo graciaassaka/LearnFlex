@@ -6,20 +6,19 @@ import org.example.shared.domain.model.Module
 import java.time.DayOfWeek
 
 /**
- * UI state for the dashboard screen.
+ * Represents the state of the dashboard UI.
  *
- * @property profileId User profile ID.
- * @property isLoading Flag indicating if the data is being loaded.
- * @property weeklyActivity Weekly activity data.
- * @property totalMinutes Total minutes spent on the platform.
- * @property averageMinutes Average minutes spent on the platform.
- * @property curricula List of curricula.
- * @property activeCurriculum Active curriculum.
- * @property modules List of modules.
- * @property moduleCountByStatus Module count by status.
- * @property lessonCountByStatus Lesson count by status.
- * @property sectionCountByStatus Section count by status.
- * @property itemsCompletion Items completion data.
+ * @property profileId The ID of the user's profile.
+ * @property isLoading Indicates if the dashboard is currently loading.
+ * @property weeklyActivity The user's weekly activity.
+ * @property totalMinutes The total number of minutes spent on the platform.
+ * @property averageMinutes The average number of minutes spent on the platform.
+ * @property curriculum The user's curriculum.
+ * @property modules The user's modules.
+ * @property moduleCountByStatus The count of modules by status.
+ * @property lessonCountByStatus The count of lessons by status.
+ * @property sectionCountByStatus The count of sections by status.
+ * @property itemsCompletion The completion status of items.
  */
 data class DashboardUIState(
     val profileId: String = "",
@@ -27,8 +26,7 @@ data class DashboardUIState(
     val weeklyActivity: Map<DayOfWeek, Pair<Long, Int>> = emptyMap(),
     val totalMinutes: Int = 0,
     val averageMinutes: Int = 0,
-    val curricula: List<Curriculum> = emptyList(),
-    val activeCurriculum: Curriculum? = null,
+    val curriculum: Curriculum? = null,
     val modules: List<Module> = emptyList(),
     val moduleCountByStatus: Map<Status, Int> = emptyMap(),
     val lessonCountByStatus: Map<Status, Int> = emptyMap(),

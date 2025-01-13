@@ -1,33 +1,29 @@
 package org.example.shared.data.local.converter
 
 import androidx.room.TypeConverter
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 /**
- * A converter class responsible for transforming a list of strings into a single string
- * and vice versa. This is useful for storing lists of strings in databases that do not
- * natively support list data types, by converting the data to a storable format.
+ * Converts a List<String> to a JSON string for database storage, and back.
+ *
+ * This ensures commas inside the strings do NOT get split as separate items.
  */
 class StringListConverter {
 
     /**
-     * Converts a list of strings into a single comma-separated string.
-     *
-     * @param list The list of strings to be converted.
-     * @return A single string containing the elements of the list separated by commas.
+     * Convert the list of strings into a JSON string.
      */
     @TypeConverter
     fun fromStringList(list: List<String>): String {
-        return list.joinToString(",")
+        return Json.encodeToString(list)
     }
 
     /**
-     * Converts a comma-separated string into a list of strings.
-     *
-     * @param data The comma-separated string to be converted.
-     * @return A list of strings obtained by splitting the input string on commas.
+     * Convert the JSON string back into a list of strings.
      */
     @TypeConverter
     fun toStringList(data: String): List<String> {
-        return data.split(",")
+        return Json.decodeFromString(data)
     }
 }

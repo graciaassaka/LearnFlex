@@ -467,14 +467,14 @@ class DatabaseTest {
 
         // Update section content
         val updatedSection = sections.first().copy(
-            content = "Updated section content"
+            content = listOf("Updated section content")
         )
         sectionDao.update(sectionPath, updatedSection, System.currentTimeMillis())
 
         // Verify section was updated properly
         val retrievedSection = sectionDao.get(sections.first().id).first()
         assertNotNull(retrievedSection)
-        assertEquals("Updated section content", retrievedSection.content)
+        assertEquals(listOf("Updated section content"), retrievedSection.content)
         assertTrue(retrievedSection.lastUpdated > initialSection.lastUpdated)
 
         // Verify parent timestamps were updated in the correct order
@@ -694,15 +694,15 @@ class DatabaseTest {
             val sessionsToInsert = listOf(
                 sessions.first().copy(
                     id = "batch_session_1",
-                    endTime = System.currentTimeMillis() + 3600000  // 1 hour session
+                    lastUpdated = System.currentTimeMillis() + 3600000  // 1 hour session
                 ),
                 sessions.first().copy(
                     id = "batch_session_2",
-                    endTime = System.currentTimeMillis() + 7200000  // 2 hour session
+                    lastUpdated = System.currentTimeMillis() + 7200000  // 2 hour session
                 ),
                 sessions.first().copy(
                     id = "batch_session_3",
-                    endTime = System.currentTimeMillis() + 10800000 // 3 hour session
+                    lastUpdated = System.currentTimeMillis() + 10800000 // 3 hour session
                 )
             )
 
@@ -719,7 +719,7 @@ class DatabaseTest {
             sessionsToInsert.forEach { session ->
                 val retrievedSession = sessionDao.get(session.id).first()
                 assertNotNull(retrievedSession)
-                assertEquals(session.endTime, retrievedSession.endTime)
+                assertEquals(session.lastUpdated, retrievedSession.lastUpdated)
             }
 
             // Verify profile timestamp was updated
@@ -749,7 +749,7 @@ class DatabaseTest {
 
             // Create updated versions of all sessions with extended end times
             val updatedSessions = initialSessions.map { session ->
-                session.copy(endTime = session.endTime + 1800000) // Extend each session by 30 minutes
+                session.copy(lastUpdated = session.lastUpdated + 1800000) // Extend each session by 30 minutes
             }
 
             Thread.sleep(1)
@@ -761,7 +761,7 @@ class DatabaseTest {
             updatedSessions.forEach { session ->
                 val retrievedSession = sessionDao.get(session.id).first()
                 assertNotNull(retrievedSession)
-                assertEquals(session.endTime, retrievedSession.endTime)
+                assertEquals(session.lastUpdated, retrievedSession.lastUpdated)
             }
 
             // Verify profile timestamp was updated exactly once despite multiple sessions being updated
@@ -833,86 +833,7 @@ class DatabaseTest {
         sessionsToInsert.forEach { session ->
             val retrievedSession = sessionDao.get(session.id).first()
             assertNotNull(retrievedSession)
-            assertEquals(session.endTime, retrievedSession.endTime)
-        }
-    }
-
-    @Test
-    fun `when getting lessons by curriculum ID, then correct lessons should be retrieved`() = runTest {
-        // Given a profile, curriculum in the database, and mo
-        profileDao.insert(PathBuilder().collection(Collection.PROFILES).build(), userProfile, System.currentTimeMillis())
-        val curriculumPath = PathBuilder().collection(Collection.PROFILES)
-            .document(userProfile.id)
-            .collection(Collection.CURRICULA)
-            .document(curricula.first().id)
-            .build()
-        curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
-
-        // Insert lessons associated with the curriculum
-        val modulePath = PathBuilder(curriculumPath)
-            .collection(Collection.MODULES)
-            .document(modules.first().id)
-            .build()
-        moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
-        val lessonPath = PathBuilder(modulePath)
-            .collection(Collection.LESSONS)
-            .document(lessons.first().id)
-            .build()
-        lessons.forEach { lesson ->
-            lessonDao.insert(lessonPath, lesson.copy(moduleId = modules.first().id), System.currentTimeMillis())
-        }
-
-        // When getting lessons by curriculum ID
-        val retrievedLessons = lessonDao.getByCurriculumId(curricula.first().id).first()
-
-        // Then the correct lessons should be retrieved
-        assertNotNull(retrievedLessons)
-        assertEquals(lessons.size, retrievedLessons.size)
-        lessons.forEach { lesson ->
-            assertTrue(retrievedLessons.any { it.id == lesson.id })
-        }
-    }
-
-    @Test
-    fun `when getting sections by curriculum ID, then correct sections should be retrieved`() = runTest {
-        // Given a profile, curriculum, module, and lesson in the database
-        profileDao.insert(PathBuilder().collection(Collection.PROFILES).build(), userProfile, System.currentTimeMillis())
-        val curriculumPath = PathBuilder().collection(Collection.PROFILES)
-            .document(userProfile.id)
-            .collection(Collection.CURRICULA)
-            .document(curricula.first().id)
-            .build()
-        curriculumDao.insert(curriculumPath, curricula.first(), System.currentTimeMillis())
-
-        val modulePath = PathBuilder(curriculumPath)
-            .collection(Collection.MODULES)
-            .document(modules.first().id)
-            .build()
-        moduleDao.insert(modulePath, modules.first(), System.currentTimeMillis())
-
-        val lessonPath = PathBuilder(modulePath)
-            .collection(Collection.LESSONS)
-            .document(lessons.first().id)
-            .build()
-        lessonDao.insert(lessonPath, lessons.first(), System.currentTimeMillis())
-
-        // Insert sections associated with the lesson
-        val sectionPath = PathBuilder(lessonPath)
-            .collection(Collection.SECTIONS)
-            .document(sections.first().id)
-            .build()
-        sections.forEach { section ->
-            sectionDao.insert(sectionPath, section.copy(lessonId = lessons.first().id), System.currentTimeMillis())
-        }
-
-        // When getting sections by curriculum ID
-        val retrievedSections = sectionDao.getByCurriculumId(curricula.first().id).first()
-
-        // Then the correct sections should be retrieved
-        assertNotNull(retrievedSections)
-        assertEquals(sections.size, retrievedSections.size)
-        sections.forEach { section ->
-            assertTrue(retrievedSections.any { it.id == section.id })
+            assertEquals(session.lastUpdated, retrievedSession.lastUpdated)
         }
     }
 
@@ -923,8 +844,8 @@ class DatabaseTest {
             email = "test@email.com",
             photoUrl = "test_photo.jpg",
             preferences = LearningPreferences(
-                field = Field.LAW.name,
-                level = Level.ADVANCED.name,
+                field = Field.LAW,
+                level = Level.ADVANCED,
                 goal = "test"
             ),
             learningStyle = LearningStyle(
@@ -1016,7 +937,7 @@ class DatabaseTest {
                 lessonId = lessons.first().id,
                 title = "Section 1 Title",
                 description = "Section 1 Description",
-                content = "Section 1 Content",
+                content = listOf("Section 1 Content"),
                 quizScore = 85,
                 quizScoreMax = 100,
                 createdAt = System.currentTimeMillis(),
@@ -1027,7 +948,7 @@ class DatabaseTest {
                 lessonId = lessons.last().id,
                 title = "Section 2 Title",
                 description = "Section 2 Description",
-                content = "Section 2 Content",
+                content = listOf("Section 2 Content"),
                 quizScore = 90,
                 quizScoreMax = 100,
                 createdAt = System.currentTimeMillis(),
@@ -1039,14 +960,12 @@ class DatabaseTest {
             SessionEntity(
                 id = "session1",
                 userId = userProfile.id,
-                endTime = System.currentTimeMillis() + 3600000,
                 createdAt = System.currentTimeMillis(),
                 lastUpdated = System.currentTimeMillis()
             ),
             SessionEntity(
                 id = "session2",
                 userId = userProfile.id,
-                endTime = System.currentTimeMillis() + 7200000,
                 createdAt = System.currentTimeMillis(),
                 lastUpdated = System.currentTimeMillis()
             )

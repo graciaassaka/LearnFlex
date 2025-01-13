@@ -6,6 +6,6 @@ import androidx.compose.runtime.Composable
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-actual fun ThreePaneBackHandler(navigator: ThreePaneScaffoldNavigator<Nothing>) {
+actual fun <T> ThreePaneBackHandler(navigator: ThreePaneScaffoldNavigator<T>, onBack: () -> Unit) {
     // no-op
 }

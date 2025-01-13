@@ -17,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import learnflex.composeapp.generated.resources.Res
 import learnflex.composeapp.generated.resources.no_data_available_error
@@ -116,8 +118,7 @@ fun VerticalBarGraphLayout(
                                 .background(
                                     color = progressColor,
                                     shape = RectangleShape,
-                                )
-                                .clickable {
+                                ).clickable {
                                     onBarClicked(label)
                                     showValue = !showValue
                                 }.hoverable(interactionSource = interactionSource)
@@ -126,6 +127,7 @@ fun VerticalBarGraphLayout(
                             text = label,
                             modifier = Modifier.width(barWidth),
                             color = MaterialTheme.colorScheme.onSurface,
+                            fontSize = TextUnit(8f, TextUnitType.Sp),
                             style = MaterialTheme.typography.bodySmall,
                             textAlign = TextAlign.Center
                         )

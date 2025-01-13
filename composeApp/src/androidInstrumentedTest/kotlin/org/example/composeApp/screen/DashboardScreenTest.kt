@@ -94,7 +94,7 @@ class DashboardScreenTest {
 
     @Test
     fun welcomeSection_withoutActiveCurriculum_shouldDisplayCorrectly() {
-        uiState.value = DashboardUIState(activeCurriculum = null)
+        uiState.value = DashboardUIState(curriculum = null)
 
         composeTestRule.onNodeWithTag(TestTags.DASHBOARD_WELCOME_SECTION.tag).assertIsDisplayed()
         composeTestRule.onNodeWithTag(TestTags.DASHBOARD_TITLE_SECTION.tag).apply {
@@ -117,7 +117,7 @@ class DashboardScreenTest {
         every { activeCurriculum.title } returns "Some title"
         every { activeCurriculum.description } returns "Some description"
 
-        uiState.value = DashboardUIState(activeCurriculum = activeCurriculum)
+        uiState.value = DashboardUIState(curriculum = activeCurriculum)
 
         composeTestRule.onNodeWithTag(TestTags.DASHBOARD_WELCOME_SECTION.tag).assertIsDisplayed()
         composeTestRule.onNodeWithTag(TestTags.DASHBOARD_TITLE_SECTION.tag).apply {
@@ -137,7 +137,7 @@ class DashboardScreenTest {
     fun welcomeCard_shouldCall_viewModel_onCurriculumClicked_whenClicked() {
         val curriculumId = "curriculum_id"
         val activeCurriculum = mockk<Curriculum>()
-        uiState.value = DashboardUIState(activeCurriculum = activeCurriculum)
+        uiState.value = DashboardUIState(curriculum = activeCurriculum)
 
         every { activeCurriculum.id } returns curriculumId
         every { activeCurriculum.title } returns "Some title"

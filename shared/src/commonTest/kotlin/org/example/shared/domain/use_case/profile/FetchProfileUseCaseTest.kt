@@ -6,6 +6,8 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.constant.Collection
+import org.example.shared.domain.constant.Field
+import org.example.shared.domain.constant.Level
 import org.example.shared.domain.model.Profile
 import org.example.shared.domain.model.User
 import org.example.shared.domain.repository.ProfileRepository
@@ -67,7 +69,7 @@ class FetchProfileUseCaseTest {
             username = "sample_username",
             email = "sample_email@example.com",
             photoUrl = "",
-            preferences = Profile.LearningPreferences(),
+            preferences = Profile.LearningPreferences(Field.COMPUTER_SCIENCE, Level.INTERMEDIATE, ""),
             learningStyle = Profile.LearningStyle(),
             createdAt = System.currentTimeMillis(),
             lastUpdated = System.currentTimeMillis()

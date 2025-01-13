@@ -29,12 +29,4 @@ abstract class SessionLocalDao : ExtendedLocalDao<SessionEntity>() {
         """
     )
     abstract fun getByUserId(userId: String): Flow<List<SessionEntity>>
-
-    @Query(
-        """
-            SELECT * FROM sessions
-            WHERE created_at BETWEEN :startDate AND :endDate
-        """
-    )
-    abstract fun getByDateRange(startDate: Long, endDate: Long): Flow<List<SessionEntity>>
 }

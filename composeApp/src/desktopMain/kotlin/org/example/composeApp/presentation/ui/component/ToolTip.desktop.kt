@@ -49,13 +49,13 @@ actual fun ToolTip(
                 Text(
                     text = text,
                     color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodySmall,
                     textAlign = TextAlign.Center
                 )
             }
         }
     },
-    modifier = modifier.padding(start = Padding.XLARGE.dp),
+    modifier = modifier,
     delayMillis = 500,
     tooltipPlacement = TooltipPlacement.CursorPoint(alignment = Alignment.BottomEnd),
     content = content

@@ -8,6 +8,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.example.shared.domain.client.AIAssistantClient
 import org.example.shared.domain.client.StyleQuizGeneratorClient
+import org.example.shared.domain.constant.Field
+import org.example.shared.domain.constant.Level
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.Profile
 import org.example.shared.domain.model.assistant.*
@@ -28,7 +30,7 @@ class StyleQuizGeneratorClientImplTest {
         // Setup
         val threadId = "thread_123"
         val runId = "run_123"
-        val preferences = Profile.LearningPreferences("ComputerScience", "Beginner", "Learn Kotlin")
+        val preferences = Profile.LearningPreferences(Field.COMPUTER_SCIENCE.name, Level.BEGINNER.name, "Learn Kotlin")
         val thread = Thread(id = threadId, objectType = "thread", createdAt = 123)
         val messageId = "msg_123"
         val question = StyleQuizGeneratorClient.StyleQuestion(
@@ -112,7 +114,7 @@ class StyleQuizGeneratorClientImplTest {
         val result = client.evaluateResponses(responses).getOrNull()
         assertNotNull(result)
 
-        assertEquals(Style.READING.value, result.dominant)
+        assertEquals(Style.READING.name, result.dominant)
         assertEquals(75, result.breakdown.reading)
         assertEquals(25, result.breakdown.kinesthetic)
     }
@@ -130,7 +132,7 @@ class StyleQuizGeneratorClientImplTest {
 
         val questions = mutableListOf<Result<StyleQuizGeneratorClient.StyleQuestion>>()
         client.streamQuestions(
-            Profile.LearningPreferences("ComputerScience", "Beginner", "Learn Kotlin"),
+            Profile.LearningPreferences(Field.COMPUTER_SCIENCE.name, Level.BEGINNER.name, "Learn Kotlin"),
             1
         ).collect { questions.add(it) }
 
@@ -143,7 +145,7 @@ class StyleQuizGeneratorClientImplTest {
     fun `streamQuestions handles required action flow`() = runTest {
         val threadId = "thread_123"
         val runId = "run_123"
-        val preferences = Profile.LearningPreferences("ComputerScience", "Beginner", "Learn Kotlin")
+        val preferences = Profile.LearningPreferences(Field.COMPUTER_SCIENCE.name, Level.BEGINNER.name, "Learn Kotlin")
         val question = StyleQuizGeneratorClient.StyleQuestion(
             options = listOf(
                 StyleQuizGeneratorClient.StyleQuestion.StyleOption("visual", "Watch a video")

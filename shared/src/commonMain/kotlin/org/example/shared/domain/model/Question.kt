@@ -6,7 +6,6 @@ import kotlinx.serialization.Serializable
  * A sealed class representing different types of questions used in quizzes or assessments.
  */
 sealed class Question {
-
     abstract val text: String
     abstract val correctAnswer: Any
 
@@ -45,19 +44,6 @@ sealed class Question {
     @Serializable
     data class TrueFalse(
         override val text: String,
-        override val correctAnswer: Boolean
-    ) : Question()
-
-    /**
-     * Represents an ordering question where the user is expected to arrange a set of items
-     * into the correct order.
-     *
-     * @property text The text or prompt of the question.
-     * @property correctAnswer The list of items in the correct sequential order for this question.
-     */
-    @Serializable
-    data class Ordering(
-        override val text: String,
-        override val correctAnswer: List<String>
+        override val correctAnswer: String
     ) : Question()
 }

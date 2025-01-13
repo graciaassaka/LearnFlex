@@ -1,17 +1,12 @@
 package org.example.shared.data.repository.component
 
-import kotlinx.coroutines.channels.ProducerScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.*
 import org.example.shared.data.local.dao.ExtendedLocalDao
 import org.example.shared.data.local.entity.interfaces.RoomEntity
 import org.example.shared.data.repository.util.RepositoryConfig
 import org.example.shared.domain.dao.ExtendedDao
 import org.example.shared.domain.model.interfaces.DatabaseRecord
-import org.example.shared.domain.repository.util.QueryStrategy
 import org.example.shared.domain.storage_operations.BatchOperations
 import org.example.shared.domain.storage_operations.util.Path
 import org.example.shared.domain.sync.SyncOperation
@@ -93,94 +88,41 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      * @param path The path for the operation.
      * @return A Flow emitting the result of the operation.
      */
-    override fun getAll(path: Path): Flow<Result<List<Model>>> = channelFlow {
-        require(path.isCollectionPath())
-        require(config.remoteDao is ExtendedDao)
-        require(config.localDao is ExtendedLocalDao)
+    override fun getAll(path: Path): Flow<Result<List<Model>>> {
+        var remote: List<Model>? = null
+        var local: List<Model>? = null
 
-        var lastEmittedData: List<Model>? = null
+        return channelFlow {
+            require(path.isCollectionPath())
+            require(config.remoteDao is ExtendedDao)
+            require(config.localDao is ExtendedLocalDao)
 
-        launch {
-            observeLocalData(
-                path = path,
-                lastEmitted = lastEmittedData,
-                queryStrategy = config.queryStrategies.byParentStrategy!!.setParentId(path.getParentId()!!)
-            ) {
-                lastEmittedData = it
+            val remoteJob = async {
+                config.remoteDao
+                    .getAll(path)
+                    .firstOrNull()
+                    ?.getOrThrow()
             }
-        }
-        launch {
-            fetchAndSyncRemoteData(
-                path = path,
-                lastEmitted = lastEmittedData,
-                remoteDataFlow = config.remoteDao.getAll(path)
-            ) {
-                lastEmittedData = it
-            }
-        }
-    }.distinctUntilChanged { old, new ->
-        if (old.isSuccess && new.isSuccess) old.getOrNull() == new.getOrNull() else false
-    }.catch {
-        emit(Result.failure(it))
-    }
-
-    /**
-     * Observes local data changes and emits the result.
-     *
-     * @param lastEmitted The last emitted data.
-     * @param queryStrategy The query strategy to use.
-     * @param onEmit The callback to invoke when new data is emitted.
-     */
-    private suspend fun ProducerScope<Result<List<Model>>>.observeLocalData(
-        path: Path,
-        lastEmitted: List<Model>?,
-        queryStrategy: QueryStrategy<List<Entity>>,
-        onEmit: (List<Model>) -> Unit
-    ) = try {
-        queryStrategy.apply {
-            this@apply.execute().collect { entities ->
-                entities
+            val localJob = async {
+                config.queryStrategies
+                    .byParentStrategy!!
+                    .setParentId(path.getParentId()!!)
+                    .execute()
+                    .firstOrNull { it.isNotEmpty() }
                     ?.map(config.modelMapper::toModel)
-                    ?.let { models ->
-                        if (models != lastEmitted) {
-                            send(Result.success(models))
-                            if (models.isNotEmpty()) config.syncManager
-                                .queueOperation(SyncOperation(SyncOperation.Type.SYNC, path, models))
-                            onEmit(models)
-                        }
-                    }
             }
-        }
-    } catch (e: Exception) {
-        send(Result.failure(e))
-    }
 
-    /**
-     * Fetches remote data, syncs it with the local database, and emits the result.
-     *
-     * @param path The path for the operation.
-     * @param lastEmitted The last emitted data.
-     * @param onEmit The callback to invoke when new data is emitted.
-     */
-    private suspend fun ProducerScope<Result<List<Model>>>.fetchAndSyncRemoteData(
-        path: Path,
-        lastEmitted: List<Model>?,
-        remoteDataFlow: Flow<Result<List<Model>>>,
-        onEmit: (List<Model>) -> Unit
-    ) = try {
-        remoteDataFlow.collect { result ->
-            result.onSuccess { models ->
-                if (models != lastEmitted) {
-                    send(Result.success(models))
-                    if (models.isNotEmpty()) config.syncManager
-                        .queueOperation(SyncOperation(SyncOperation.Type.SYNC, path, models))
-                    onEmit(models)
-                }
-            }.onFailure { error ->
-                send(Result.failure(error))
+            local = localJob.await()
+            remote = remoteJob.await()
+            send(Result.success(remote ?: local ?: emptyList()))
+        }.catch {
+            emit(Result.failure(it))
+        }.onCompletion {
+            remote?.let {
+                config.syncManager.queueOperation(
+                    SyncOperation(SyncOperation.Type.SYNC, path, it)
+                )
             }
         }
-    } catch (e: Exception) {
-        send(Result.failure(e))
     }
 }

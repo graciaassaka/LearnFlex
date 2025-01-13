@@ -1,7 +1,6 @@
 package org.example.composeApp.presentation.viewModel
 
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,7 +12,6 @@ import org.example.composeApp.presentation.navigation.Route
 import org.example.composeApp.presentation.state.AuthUIState
 import org.example.composeApp.presentation.ui.screen.AuthForm
 import org.example.composeApp.presentation.ui.util.SnackbarType
-import org.example.composeApp.presentation.viewModel.util.ResourceProvider
 import org.example.shared.domain.use_case.auth.*
 import org.example.shared.domain.use_case.validation.ValidateEmailUseCase
 import org.example.shared.domain.use_case.validation.ValidatePasswordConfirmationUseCase
@@ -21,33 +19,29 @@ import org.example.shared.domain.use_case.validation.ValidatePasswordUseCase
 import org.example.shared.domain.use_case.validation.util.ValidationResult
 
 /**
- * ViewModel class for handling authentication-related operations.
+ * ViewModel for the authentication screen.
  *
- * @property signUpUseCase The use case for signing up a user.
- * @property signInUseCase The use case for signing in a user.
- * @property sendVerificationEmailUseCase The use case for sending a verification email.
- * @property verifyEmailUseCase The use case for verifying a user's email.
- * @property deleteUserUseCase The use case for deleting a user.
- * @property sendPasswordResetEmailUseCase The use case for sending a password reset email.
- * @property validateEmailUseCase The use case for validating an email.
- * @property validatePasswordUseCase The use case for validating a password.
- * @property validatePasswordConfirmationUseCase The use case for validating a password confirmation.
- * @property resourceProvider The resource provider for accessing string resources.
- * @property dispatcher The coroutine dispatcher used for asynchronous operations.
+ * @param deleteUserUseCase The use case to delete the user.
+ * @param sendPasswordResetEmailUseCase The use case to send a password reset email.
+ * @param sendVerificationEmailUseCase The use case to send a verification email.
+ * @param signInUseCase The use case to sign in the user.
+ * @param signUpUseCase The use case to sign up the user.
+ * @param validateEmailUseCase The use case to validate an email.
+ * @param validatePasswordConfirmationUseCase The use case to validate a password confirmation.
+ * @param validatePasswordUseCase The use case to validate a password.
+ * @param verifyEmailUseCase The use case to verify the user's email.
  */
 class AuthViewModel(
-    private val signUpUseCase: SignUpUseCase,
-    private val signInUseCase: SignInUseCase,
-    private val sendVerificationEmailUseCase: SendVerificationEmailUseCase,
-    private val verifyEmailUseCase: VerifyEmailUseCase,
     private val deleteUserUseCase: DeleteUserUseCase,
     private val sendPasswordResetEmailUseCase: SendPasswordResetEmailUseCase,
+    private val sendVerificationEmailUseCase: SendVerificationEmailUseCase,
+    private val signInUseCase: SignInUseCase,
+    private val signUpUseCase: SignUpUseCase,
     private val validateEmailUseCase: ValidateEmailUseCase,
-    private val validatePasswordUseCase: ValidatePasswordUseCase,
     private val validatePasswordConfirmationUseCase: ValidatePasswordConfirmationUseCase,
-    private val resourceProvider: ResourceProvider,
-    private val dispatcher: CoroutineDispatcher,
-) : BaseViewModel(dispatcher) {
+    private val validatePasswordUseCase: ValidatePasswordUseCase,
+    private val verifyEmailUseCase: VerifyEmailUseCase,
+) : ScreenViewModel() {
 
     // StateFlow to hold the current UI state.
     private val _state = MutableStateFlow(AuthUIState())
@@ -60,22 +54,22 @@ class AuthViewModel(
      */
     fun handleAction(action: AuthAction) {
         when (action) {
-            is AuthAction.EditSignInEmail -> editSignInEmail(action.email)
-            is AuthAction.EditSignInPassword -> editSignInPassword(action.password)
-            is AuthAction.ToggleSignInPasswordVisibility -> toggleSignInPasswordVisibility()
-            is AuthAction.SignIn -> signIn()
-            is AuthAction.EditSignUpEmail -> editSignUpEmail(action.email)
-            is AuthAction.EditSignUpPassword -> editSignUpPassword(action.password)
-            is AuthAction.ToggleSignUpPasswordVisibility -> toggleSignUpPasswordVisibility()
+            is AuthAction.DeleteUser                     -> deleteUser()
+            is AuthAction.DisplayAuthForm                -> displayAuthForm(action.form)
+            is AuthAction.EditPasswordResetEmail         -> editPasswordResetEmail(action.email)
+            is AuthAction.EditSignInEmail                -> editSignInEmail(action.email)
+            is AuthAction.EditSignInPassword             -> editSignInPassword(action.password)
+            is AuthAction.EditSignUpEmail                -> editSignUpEmail(action.email)
+            is AuthAction.EditSignUpPassword             -> editSignUpPassword(action.password)
             is AuthAction.EditSignUpPasswordConfirmation -> editSignUpPasswordConfirmation(action.password)
-            is AuthAction.SignUp -> signUp()
-            is AuthAction.ResendVerificationEmail -> resendVerificationEmail()
-            is AuthAction.VerifyEmail -> verifyEmail()
-            is AuthAction.DeleteUser -> deleteUser()
-            is AuthAction.EditPasswordResetEmail -> editPasswordResetEmail(action.email)
-            is AuthAction.SendPasswordResetEmail -> sendPasswordResetEmail()
-            is AuthAction.DisplayAuthForm -> displayAuthForm(action.form)
-            is AuthAction.HandleAnimationEnd -> handleExitAnimationFinished()
+            is AuthAction.HandleAnimationEnd             -> handleExitAnimationFinished()
+            is AuthAction.ResendVerificationEmail        -> resendVerificationEmail()
+            is AuthAction.SendPasswordResetEmail         -> sendPasswordResetEmail()
+            is AuthAction.SignIn                         -> signIn()
+            is AuthAction.SignUp                         -> signUp()
+            is AuthAction.ToggleSignInPasswordVisibility -> toggleSignInPasswordVisibility()
+            is AuthAction.ToggleSignUpPasswordVisibility -> toggleSignUpPasswordVisibility()
+            is AuthAction.VerifyEmail                    -> verifyEmail()
         }
     }
 
@@ -126,7 +120,8 @@ class AuthViewModel(
                     password = value.signInPassword
                 ).onSuccess {
                     update { it.copy(isUserSignedIn = true) }
-                    navigate(Route.Dashboard(), true)
+                    refresh()
+                    navigate(Route.Dashboard, true)
                     showSnackbar(successMessage.await(), SnackbarType.Success)
                 }.onFailure { error ->
                     handleError(error)
@@ -174,7 +169,12 @@ class AuthViewModel(
     private fun editSignUpPasswordConfirmation(password: String) =
         with(validatePasswordConfirmationUseCase(_state.value.signUpPassword, password)) {
             when (this@with) {
-                is ValidationResult.Valid -> _state.update { it.copy(signUpPasswordConfirmation = password, signUpPasswordConfirmationError = null) }
+                is ValidationResult.Valid -> _state.update {
+                    it.copy(
+                        signUpPasswordConfirmation = password,
+                        signUpPasswordConfirmationError = null
+                    )
+                }
                 is ValidationResult.Invalid -> _state.update {
                     it.copy(
                         signUpPasswordConfirmation = password,
@@ -318,8 +318,8 @@ class AuthViewModel(
      * @param form The authentication form to display.
      */
     private fun displayAuthForm(form: AuthForm) = when (form) {
-        AuthForm.SignIn -> _state.update { AuthUIState().copy(currentForm = AuthForm.SignIn) }
-        AuthForm.SignUp -> _state.update { AuthUIState().copy(currentForm = AuthForm.SignUp) }
+        AuthForm.SignIn      -> _state.update { AuthUIState().copy(currentForm = AuthForm.SignIn) }
+        AuthForm.SignUp      -> _state.update { AuthUIState().copy(currentForm = AuthForm.SignUp) }
         AuthForm.VerifyEmail -> _state.update { it.copy(currentForm = AuthForm.VerifyEmail) }
         AuthForm.ResetPassword -> _state.update { AuthUIState().copy(currentForm = AuthForm.ResetPassword) }
     }

@@ -1,66 +1,70 @@
 package org.example.composeApp.presentation.viewModel
 
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import learnflex.composeapp.generated.resources.*
 import org.example.composeApp.presentation.action.LibraryAction
 import org.example.composeApp.presentation.state.LibraryUIState
 import org.example.composeApp.presentation.ui.util.SnackbarType
-import org.example.composeApp.presentation.viewModel.util.ResourceProvider
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
-import org.example.shared.domain.model.interfaces.DatabaseRecord
-import org.example.shared.domain.sync.SyncManager
+import org.example.shared.domain.model.util.BundleManager
 import org.example.shared.domain.use_case.curriculum.DeleteCurriculumUseCase
-import org.example.shared.domain.use_case.curriculum.FetchCurriculaByUserUseCase
 import org.example.shared.domain.use_case.curriculum.GenerateCurriculumUseCase
 import org.example.shared.domain.use_case.library.UploadCurriculumAndModulesUseCase
-import org.example.shared.domain.use_case.module.FetchModulesByCurriculumUseCase
 import org.example.shared.domain.use_case.module.GenerateModuleUseCase
-import org.example.shared.domain.use_case.profile.FetchProfileUseCase
 import org.example.shared.domain.use_case.syllabus.SummarizeSyllabusUseCase
 import java.io.File
 
 
 /**
- * ViewModel for managing the user's library, including operations such as
- * retrieving curricula, generating new content, and managing modules and lessons.
+ * ViewModel for handling actions and state related to the library.
  *
- * This ViewModel interacts with various use cases to handle business logic
- * and manages the UI state of the Library screen.
- *
- * @property fetchProfileUseCase Use case to fetch the user's profile.
- * @property fetchCurriculaByUserUseCase Use case to fetch curricula associated with the user.
- * @property fetchModulesByCurriculumUseCase Use case to fetch modules by curriculum.
- * @property summarizeSyllabusUseCase Use case for summarizing syllabus files.
- * @property generateCurriculumUseCase Use case for generating curricula.
- * @property generateModuleUseCase Use case for generating modules within a curriculum.
- * @property uploadCurriculumAndModulesUseCase Use case for uploading curriculum and module content.
- * @property deleteCurriculumUseCase Use case for deleting curricula.
- * @property resourceProvider Provides application resources such as strings.
- * @property dispatcher Coroutine dispatcher for executing asynchronous tasks.
- * @property syncManagers List of synchronization managers for handling database records.
- * @property sharingStarted Determines the sharing behavior of flows in StateFlow.
+ * @property deleteCurriculumUseCase Use case for deleting a curriculum.
+ * @property generateCurriculumUseCase Use case for generating a curriculum.
+ * @property generateModuleUseCase Use case for generating a module.
+ * @property summarizeSyllabusUseCase Use case for summarizing a syllabus.
+ * @property uploadCurriculumAndModulesUseCase Use case for uploading curricula and modules.
  */
 class LibraryViewModel(
-    private val fetchProfileUseCase: FetchProfileUseCase,
-    private val fetchCurriculaByUserUseCase: FetchCurriculaByUserUseCase,
-    private val fetchModulesByCurriculumUseCase: FetchModulesByCurriculumUseCase,
-    private val summarizeSyllabusUseCase: SummarizeSyllabusUseCase,
+    private val deleteCurriculumUseCase: DeleteCurriculumUseCase,
     private val generateCurriculumUseCase: GenerateCurriculumUseCase,
     private val generateModuleUseCase: GenerateModuleUseCase,
-    private val uploadCurriculumAndModulesUseCase: UploadCurriculumAndModulesUseCase,
-    private val deleteCurriculumUseCase: DeleteCurriculumUseCase,
-    private val resourceProvider: ResourceProvider,
-    private val dispatcher: CoroutineDispatcher,
-    syncManagers: List<SyncManager<DatabaseRecord>>,
-    sharingStarted: SharingStarted
-) : BaseViewModel(dispatcher, syncManagers) {
+    private val summarizeSyllabusUseCase: SummarizeSyllabusUseCase,
+    private val uploadCurriculumAndModulesUseCase: UploadCurriculumAndModulesUseCase
+) : ScreenViewModel() {
+    // The current state of the library screen.
     private val _state = MutableStateFlow(LibraryUIState())
-    val state = _state.onStart { refresh() }.stateIn(viewModelScope, sharingStarted, _state.value)
+    val state = _state.asStateFlow()
 
+    // The job that generates the content.
     private var generateJob: Job? = null
+
+    // The bundle manager to manage the curricula.
+    private var bundleManager: BundleManager? = null
+
+    init {
+        viewModelScope.launch(dispatcher) {
+            learnFlexViewModel.state.collect { appState ->
+                if (appState.error != null) handleError(appState.error)
+                bundleManager = appState.bundleManager
+                _state.update {
+                    it.copy(
+                        profile = appState.profile,
+                        curricula = appState.bundleManager.getCurricula(),
+                        filteredCurricula = appState.bundleManager.getCurricula(),
+                        isDownloading = appState.isLoading,
+                    )
+                }
+            }
+        }
+    }
 
     /**
      * Handles various actions related to the library.
@@ -69,47 +73,33 @@ class LibraryViewModel(
      */
     fun handleAction(action: LibraryAction) = with(_state.value) {
         when (action) {
-            is LibraryAction.Refresh -> refresh()
-            is LibraryAction.SummarizeSyllabus -> summarizeSyllabus(action.file)
-            is LibraryAction.DeleteSyllabusFile -> deleteSyllabusFile()
-            is LibraryAction.EditSyllabusDescription -> editSyllabusDescription(action.description)
-            is LibraryAction.GenerateCurriculum if displayMode == LibraryUIState.DisplayMode.Edit -> showDiscardWarningDialog()
-            is LibraryAction.GenerateCurriculum -> generateJob = generateCurriculum()
-            is LibraryAction.CancelGeneration -> generateJob?.cancel()
-            is LibraryAction.GenerateModule -> generateJob = generateModule(action.title)
-            is LibraryAction.RemoveModule -> removeModule(action.title)
-            is LibraryAction.RemoveLesson -> removeLesson(action.lessonTitle, action.moduleId)
-            is LibraryAction.SaveContent -> uploadContent()
-            is LibraryAction.DiscardContent -> discardContent()
-            is LibraryAction.EditFilterQuery -> editFilterQuery(action.query)
-            is LibraryAction.ClearFilterQuery -> editFilterQuery("")
-            is LibraryAction.OpenCurriculum if displayMode == LibraryUIState.DisplayMode.Edit -> showDiscardWarningDialog()
-            is LibraryAction.OpenCurriculum -> openCurriculum(action.curriculumId)
-            is LibraryAction.DeleteCurriculum -> deleteCurriculum(action.curriculum)
-            is LibraryAction.HandleError -> handleError(action.error)
-            is LibraryAction.Navigate if displayMode == LibraryUIState.DisplayMode.Edit -> showDiscardWarningDialog()
-            is LibraryAction.Navigate -> navigate(action.destination)
-            is LibraryAction.HideDiscardWarningDialog -> hideDiscardWarningDialog()
-        }
-    }
+            is LibraryAction.CancelGeneration                     -> generateJob?.cancel()
+            is LibraryAction.ClearFilterQuery                     -> editFilterQuery("")
+            is LibraryAction.DeleteCurriculum                     -> deleteCurriculum(action.curriculumId)
+            is LibraryAction.DeleteSyllabusFile                   -> deleteSyllabusFile()
+            is LibraryAction.DiscardContent                       -> discardContent()
+            is LibraryAction.EditFilterQuery                      -> editFilterQuery(action.query)
+            is LibraryAction.EditSyllabusDescription              -> editSyllabusDescription(action.description)
+            is LibraryAction.GenerateCurriculum
+                if displayMode == LibraryUIState.DisplayMode.Edit -> showDiscardWarningDialog()
 
-    /**
-     * Refreshes the library state by loading profile and curricula data.
-     */
-    private fun refresh() {
-        _state.update { it.copy(isDownloading = true) }
-        viewModelScope.launch(dispatcher) {
-            try {
-                val profile = fetchProfileUseCase().getOrThrow()
-                _state.update { it.copy(profileId = profile) }
+            is LibraryAction.GenerateCurriculum                   -> generateJob = generateCurriculum()
+            is LibraryAction.GenerateModule                       -> generateJob = generateModule(action.title)
+            is LibraryAction.HandleError                          -> handleError(action.error)
+            is LibraryAction.HideDiscardWarningDialog             -> hideDiscardWarningDialog()
+            is LibraryAction.Navigate
+                if displayMode == LibraryUIState.DisplayMode.Edit -> showDiscardWarningDialog()
 
-                val curricula = fetchCurriculaByUserUseCase(profile.id).getOrThrow()
-                _state.update { it.copy(curricula = curricula, filteredCurricula = curricula) }
-            } catch (e: Exception) {
-                handleError(e)
-            } finally {
-                _state.update { it.copy(isDownloading = false) }
-            }
+            is LibraryAction.Navigate                             -> navigate(action.destination)
+            is LibraryAction.OpenCurriculum
+                if displayMode == LibraryUIState.DisplayMode.Edit -> showDiscardWarningDialog()
+
+            is LibraryAction.OpenCurriculum                       -> openCurriculum(action.curriculumId)
+            is LibraryAction.Refresh                              -> refresh()
+            is LibraryAction.RemoveLesson                         -> removeLesson(action.lessonTitle, action.moduleId)
+            is LibraryAction.RemoveModule                         -> removeModule(action.title)
+            is LibraryAction.SaveContent                          -> uploadContent()
+            is LibraryAction.SummarizeSyllabus                    -> summarizeSyllabus(action.file)
         }
     }
 
@@ -156,7 +146,7 @@ class LibraryViewModel(
      */
     private fun generateCurriculum() = viewModelScope.launch(dispatcher) {
         try {
-            val profile = checkNotNull(_state.value.profileId)
+            val profile = checkNotNull(_state.value.profile)
             val description = _state.value.syllabusDescription
 
             check(description.isNotBlank()) {
@@ -182,7 +172,6 @@ class LibraryViewModel(
         }
     }
 
-
     /**
      * Generates a module for the curriculum.
      *
@@ -193,7 +182,7 @@ class LibraryViewModel(
             require(_state.value.modules.all { it.title != title }) {
                 resourceProvider.getString(Res.string.module_already_exists_warning)
             }
-            val profile = checkNotNull(_state.value.profileId)
+            val profile = checkNotNull(_state.value.profile)
             val curriculum = checkNotNull(_state.value.curriculum)
 
             _state.update { it.copy(isGenerating = true) }
@@ -255,16 +244,19 @@ class LibraryViewModel(
     private fun uploadContent() = viewModelScope.launch(dispatcher) {
         try {
             val successMessage = async { resourceProvider.getString(Res.string.save_content_success) }
-            val profile = checkNotNull(_state.value.profileId)
+            val profile = checkNotNull(_state.value.profile)
             val curriculum = checkNotNull(_state.value.curriculum)
             val modules = _state.value.modules
 
             check(curriculum.content.size == modules.size) {
                 resourceProvider.getString(Res.string.modules_title_mismatch_warning)
             }
-            uploadCurriculumAndModulesUseCase(profile.id, curriculum, modules)
-                .onSuccess { showSnackbar(successMessage.await(), SnackbarType.Success); discardContent() }
-                .onFailure { throw it }
+            uploadCurriculumAndModulesUseCase(profile.id, curriculum, modules).getOrThrow()
+
+            _state.update { it.copy(displayMode = LibraryUIState.DisplayMode.View) }
+            showSnackbar(successMessage.await(), SnackbarType.Success)
+            discardContent()
+            refresh()
         } catch (e: Exception) {
             handleError(e)
         } finally {
@@ -308,9 +300,8 @@ class LibraryViewModel(
     private fun openCurriculum(curriculumId: String) = viewModelScope.launch(dispatcher) {
         try {
             _state.update { it.copy(isDownloading = true) }
-            val profile = checkNotNull(_state.value.profileId)
-            val curriculum = checkNotNull(_state.value.curricula.find { it.id == curriculumId })
-            val modules = fetchModulesByCurriculumUseCase(profile.id, curriculum.id).getOrThrow()
+            val curriculum = checkNotNull(bundleManager?.getCurriculumByKey(curriculumId))
+            val modules = bundleManager?.getModulesByCurriculum(curriculumId).orEmpty()
 
             _state.update {
                 it.copy(
@@ -326,10 +317,18 @@ class LibraryViewModel(
         }
     }
 
-    private fun deleteCurriculum(curriculum: Curriculum) = viewModelScope.launch(dispatcher) {
+    /**
+     * Deletes the curriculum.
+     *
+     * @param curriculumId The ID of the curriculum to delete.
+     */
+    private fun deleteCurriculum(curriculumId: String) = viewModelScope.launch(dispatcher) {
         try {
-            val profile = checkNotNull(_state.value.profileId)
+            val profile = checkNotNull(_state.value.profile)
+            val curriculum = checkNotNull(bundleManager?.getCurriculumByKey(curriculumId))
+
             deleteCurriculumUseCase(curriculum, profile.id).getOrThrow()
+            refresh()
             _state.update { current ->
                 current.copy(
                     curriculum = if (curriculum == current.curriculum) null else current.curriculum,

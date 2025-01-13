@@ -29,12 +29,4 @@ abstract class ModuleLocalDao : ExtendedLocalDao<ModuleEntity>() {
         """
     )
     abstract fun getByCurriculumId(curriculumId: String): Flow<List<ModuleEntity>>
-
-    @Query(
-        """
-            SELECT * FROM modules
-            WHERE curriculum_id = :curriculumId AND quiz_score >= :minScore
-        """
-    )
-    abstract fun getByMinQuizScore(curriculumId: String, minScore: Int): Flow<List<ModuleEntity>>
 }

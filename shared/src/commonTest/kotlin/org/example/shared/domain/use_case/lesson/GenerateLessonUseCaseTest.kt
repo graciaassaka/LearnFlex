@@ -10,6 +10,7 @@ import org.example.shared.domain.client.ContentGeneratorClient
 import org.example.shared.domain.constant.ContentType
 import org.example.shared.domain.constant.Field
 import org.example.shared.domain.constant.Level
+import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
 import org.example.shared.domain.model.Profile
@@ -44,12 +45,12 @@ class GenerateLessonUseCaseTest {
             email = "test@example.com",
             photoUrl = "https://example.com/photo.jpg",
             preferences = Profile.LearningPreferences(
-                field = Field.COMPUTER_SCIENCE.name,
-                level = Level.BEGINNER.name,
+                field = Field.COMPUTER_SCIENCE,
+                level = Level.BEGINNER,
                 goal = "Learn Kotlin Concurrency"
             ),
             learningStyle = Profile.LearningStyle(
-                dominant = "reading",
+                dominant = Style.READING.name,
                 breakdown = Profile.LearningStyleBreakdown(
                     reading = 75,
                     kinesthetic = 25
@@ -123,12 +124,12 @@ class GenerateLessonUseCaseTest {
             email = "advanced@example.com",
             photoUrl = "https://example.com/photo2.jpg",
             preferences = Profile.LearningPreferences(
-                field = Field.ENGINEERING.name,
-                level = Level.INTERMEDIATE.name,
+                field = Field.ENGINEERING,
+                level = Level.INTERMEDIATE,
                 goal = "Master Kotlin Coroutines"
             ),
             learningStyle = Profile.LearningStyle(
-                dominant = "kinesthetic",
+                dominant = Style.KINESTHETIC.name,
                 breakdown = Profile.LearningStyleBreakdown(
                     reading = 40,
                     kinesthetic = 60
@@ -181,12 +182,12 @@ class GenerateLessonUseCaseTest {
             email = "expert@example.com",
             photoUrl = "https://example.com/photo3.jpg",
             preferences = Profile.LearningPreferences(
-                field = Field.ENGINEERING.name,
-                level = Level.ADVANCED.name,
+                field = Field.ENGINEERING,
+                level = Level.ADVANCED,
                 goal = "Optimize Kotlin Applications"
             ),
             learningStyle = Profile.LearningStyle(
-                dominant = "reading",
+                dominant = Style.READING.name,
                 breakdown = Profile.LearningStyleBreakdown(
                     reading = 85,
                     kinesthetic = 15

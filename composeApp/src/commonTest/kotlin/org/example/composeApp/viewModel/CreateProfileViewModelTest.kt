@@ -4,6 +4,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,9 +13,11 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
+import org.example.composeApp.injection.DatabaseSyncManagers
 import org.example.composeApp.presentation.ui.screen.ProfileCreationForm
 import org.example.composeApp.presentation.ui.util.UIEvent
 import org.example.composeApp.presentation.viewModel.CreateUserProfileViewModel
+import org.example.composeApp.presentation.viewModel.LearnFlexViewModel
 import org.example.composeApp.presentation.viewModel.util.ResourceProvider
 import org.example.shared.domain.client.StyleQuizGeneratorClient
 import org.example.shared.domain.constant.Field
@@ -30,6 +33,9 @@ import org.example.shared.domain.use_case.validation.ValidateUsernameUseCase
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -38,47 +44,61 @@ import org.example.composeApp.presentation.action.CreateUserProfileAction as Act
 @OptIn(ExperimentalCoroutinesApi::class)
 class CreateProfileViewModelTest {
     private lateinit var viewModel: CreateUserProfileViewModel
-    private lateinit var syncManager: SyncManager<DatabaseRecord>
+    private lateinit var learnFlexViewModel: LearnFlexViewModel
     private lateinit var getUserDataUseCase: GetUserDataUseCase
     private lateinit var createProfileUseCase: CreateProfileUseCase
     private lateinit var uploadProfilePictureUseCase: UploadProfilePictureUseCase
     private lateinit var deleteProfilePictureUseCase: DeleteProfilePictureUseCase
-    private lateinit var fetchStyleQuestionnaireUseCase: FetchStyleQuestionnaireUseCase
+    private lateinit var fetchStyleQuestionsUseCase: FetchStyleQuestionsUseCase
     private lateinit var getStyleResultUseCase: GetStyleResultUseCase
     private lateinit var updateProfileUseCase: UpdateProfileUseCase
     private lateinit var validateUsernameUseCase: ValidateUsernameUseCase
     private lateinit var resourceProvider: ResourceProvider
     private lateinit var testDispatcher: TestDispatcher
     private lateinit var syncStatus: MutableStateFlow<SyncManager.SyncStatus>
+    private lateinit var syncManager: SyncManager<DatabaseRecord>
+    private lateinit var syncManagers: MutableList<SyncManager<DatabaseRecord>>
 
     @Before
     fun setUp() {
         testDispatcher = StandardTestDispatcher()
         Dispatchers.setMain(testDispatcher)
-        syncManager = mockk(relaxed = true)
+        learnFlexViewModel = mockk(relaxed = true)
         getUserDataUseCase = mockk(relaxed = true)
         createProfileUseCase = mockk(relaxed = true)
         uploadProfilePictureUseCase = mockk(relaxed = true)
         deleteProfilePictureUseCase = mockk(relaxed = true)
-        fetchStyleQuestionnaireUseCase = mockk(relaxed = true)
+        fetchStyleQuestionsUseCase = mockk(relaxed = true)
         getStyleResultUseCase = mockk(relaxed = true)
         updateProfileUseCase = mockk(relaxed = true)
         validateUsernameUseCase = ValidateUsernameUseCase()
-        syncStatus = MutableStateFlow<SyncManager.SyncStatus>(SyncManager.SyncStatus.Idle)
         resourceProvider = mockk(relaxed = true)
+        syncStatus = MutableStateFlow<SyncManager.SyncStatus>(SyncManager.SyncStatus.Idle)
+        syncManager = mockk(relaxed = true)
+        syncManagers = mutableListOf<SyncManager<DatabaseRecord>>()
+        syncManagers.add(syncManager)
+
+        startKoin {
+            modules(
+                module {
+                    single<LearnFlexViewModel> { learnFlexViewModel }
+                    single<CoroutineDispatcher> { testDispatcher }
+                    single<ResourceProvider> { resourceProvider }
+                    single<SyncManager<DatabaseRecord>> { syncManager }
+                    single<DatabaseSyncManagers> { syncManagers }
+                }
+            )
+        }
 
         viewModel = CreateUserProfileViewModel(
             getUserDataUseCase,
             createProfileUseCase,
             uploadProfilePictureUseCase,
             deleteProfilePictureUseCase,
-            fetchStyleQuestionnaireUseCase,
+            fetchStyleQuestionsUseCase,
             getStyleResultUseCase,
             updateProfileUseCase,
             validateUsernameUseCase,
-            resourceProvider,
-            testDispatcher,
-            listOf(syncManager),
             SharingStarted.Eagerly
         )
 
@@ -87,7 +107,10 @@ class CreateProfileViewModelTest {
     }
 
     @After
-    fun tearDown() = Dispatchers.resetMain()
+    fun tearDown() {
+        Dispatchers.resetMain()
+        stopKoin()
+    }
 
     @Test
     fun `viewModel should handle error when syncManager returns SyncStatus Error`() = runTest {
@@ -425,14 +448,14 @@ class CreateProfileViewModelTest {
     fun `startStyleQuestionnaire should call getStyleQuestionnaireUseCase and update state with questionnaire`() =
         runTest {
             // Given
-            coEvery { fetchStyleQuestionnaireUseCase(any(), any()) } returns flowOf(Result.success(mockk()))
+            coEvery { fetchStyleQuestionsUseCase(any(), any()) } returns flowOf(Result.success(mockk()))
 
             // When
             viewModel.handleAction(Action.StartStyleQuestionnaire)
             advanceUntilIdle()
 
             // Then
-            coVerify(exactly = 1) { fetchStyleQuestionnaireUseCase(any(), any()) }
+            coVerify(exactly = 1) { fetchStyleQuestionsUseCase(any(), any()) }
         }
 
     @Test
@@ -441,14 +464,14 @@ class CreateProfileViewModelTest {
             // Given
             val question = mockk<StyleQuizGeneratorClient.StyleQuestion>()
 
-            coEvery { fetchStyleQuestionnaireUseCase(any(), any()) } returns flowOf(Result.success(question))
+            coEvery { fetchStyleQuestionsUseCase(any(), any()) } returns flowOf(Result.success(question))
 
             // When
             viewModel.handleAction(Action.StartStyleQuestionnaire)
             advanceUntilIdle()
 
             // Then
-            coVerify(exactly = 1) { fetchStyleQuestionnaireUseCase(any(), any()) }
+            coVerify(exactly = 1) { fetchStyleQuestionsUseCase(any(), any()) }
             assertEquals(question, viewModel.state.value.styleQuestionnaire.first())
         }
 
@@ -463,7 +486,7 @@ class CreateProfileViewModelTest {
             }
 
             coEvery {
-                fetchStyleQuestionnaireUseCase(
+                fetchStyleQuestionsUseCase(
                     any(),
                     any()
                 )
@@ -474,7 +497,7 @@ class CreateProfileViewModelTest {
             advanceUntilIdle()
 
             // Then
-            coVerify(exactly = 1) { fetchStyleQuestionnaireUseCase(any(), any()) }
+            coVerify(exactly = 1) { fetchStyleQuestionsUseCase(any(), any()) }
             assertEquals(1, uiEvents.size)
             assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
 
@@ -671,7 +694,7 @@ class CreateProfileViewModelTest {
     companion object {
         private val testLearningStyleBreakdown = Profile.LearningStyleBreakdown(reading = 40, kinesthetic = 30)
         private val testLearningStyle = Profile.LearningStyle(
-            dominant = Style.READING.value,
+            dominant = Style.READING.name,
             breakdown = testLearningStyleBreakdown
         )
         private val user = User(

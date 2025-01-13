@@ -12,6 +12,7 @@
     <!-- Dialog Titles -->
     <string name="style_result_dialog_title">Your Learning Style</string>
     <string name="discard_warning_dialog_title">Discard Changes?</string>
+    <string name="quiz_result_dialog_title">Quiz Results</string>
 
     <!-- Button Labels -->
     <string name="sign_in_button_label">Sign In</string>
@@ -33,6 +34,7 @@
     <string name="refresh_button_label">Refresh</string>
     <string name="display_supporting_panel_button_label">Display Supporting Panel</string>
     <string name="generate_content_button_label">Generate</string>
+    <string name="regenerate_content_button_label">Regenerate</string>
     <string name="discard_content_button_label">Discard</string>
     <string name="save_content_button_label">Save</string>
     <string name="search_button_label">Search</string>
@@ -45,7 +47,12 @@
     <string name="discard_button_label">Discard</string>
     <string name="open_in_study_button_label">Open in Study</string>
     <string name="delete_curriculum_button_label">Delete Curriculum</string>
-    <string name="expand_module_button_label">Expand Module</string>
+    <string name="expand_button_label">Expand</string>
+    <string name="collapse_button_label">Collapse</string>
+    <string name="download_button_label">Download</string>
+    <string name="start_quiz_button_label">Start Quiz</string>
+    <string name="submit_question_button_label">Submit Question</string>
+    <string name="dismiss_button_label">Dismiss</string>
 
     <!-- Form Labels -->
     <string name="email_label">Email</string>
@@ -60,8 +67,8 @@
     <string name="syllabus_description_label">What are you studying?</string>
 
     <!-- Screen Descriptions -->
-    <string name="verify_email_screen_description">A verification email has been sent to the email address below. Please
-        verify your email address to continue.
+    <string name="verify_email_screen_description">A verification email has been sent to the email address below. Please verify your email
+        address to continue.
     </string>
 
     <!-- Success Messages -->
@@ -80,6 +87,7 @@
     <string name="generate_module_success">Module generated</string>
     <string name="generate_lesson_success">Lesson generated</string>
     <string name="generate_section_success">Section generated</string>
+    <string name="save_quiz_result_success">Quiz result saved</string>
 
     <!-- Error Messages -->
     <string name="file_too_large_error">File too large</string>
@@ -99,8 +107,8 @@
     <!-- Warning Messages -->
     <string name="blank_syllabus_description_warning">Please provide a syllabus description</string>
     <string name="module_already_exists_warning">Module already exists</string>
-    <string name="modules_title_mismatch_warning">"Almost there! Ensure that the number of modules matches the number of
-        module titles to proceed."
+    <string name="modules_title_mismatch_warning">"Almost there! Ensure that the number of modules matches the number of module titles to
+        proceed."
     </string>
     <string name="discard_changes_warning">Are you sure you want to discard your changes?</string>
 
@@ -109,13 +117,29 @@
     <string name="curriculum">Curriculum</string>
     <string name="modules">Modules</string>
     <string name="lessons">Lessons</string>
+    <string name="description">Description</string>
+
 
     <!-- Curriculum -->
+    <string name="no_curriculum_selected">No curriculum selected</string>
     <string name="no_curricula_found">No curricula found</string>
     <string name="curriculum_progress">Curriculum Progress</string>
     <string name="curriculum_description">Curriculum Description</string>
 
+    <!-- Modules -->
+    <string name="no_module_selected">No module selected</string>
+
+    <!-- Lessons -->
+    <string name="no_lesson_selected">No lesson selected</string>
+
+    <!-- Quiz -->
+    <string name="quiz_score">Quiz Score</string>
+    <string name="best_quiz_score">Best Quiz Score:</string>
+    <string name="correct_answer">Correct Answer:</string>
+    <string name="your_answer">Your Answer:</string>
+
     <!-- Weekly Activity -->
+    <string name="weekly_activity">Weekly Activity</string>
     <string name="total_minutes">Minutes</string>
     <string name="average_daily_minutes">Average</string>
     <string name="activity_summary">Summary</string>
@@ -123,14 +147,13 @@
 
     <!-- Date -->
     <string name="created_on">Created on</string>
+    <string name="last_recorded_activity">Last active on</string>
 
     <!-- Upload -->
     <string name="uploading_document">Uploading Document</string>
     <string name="upload_document">Upload Document</string>
 
     <!-- Other -->
-    <string name="weekly_activity">Weekly Activity</string>
-    <string name="best_quiz_score">Best Quiz Score:</string>
     <string name="upload_photo_text">Upload Profile Photo</string>
 
 </resources>

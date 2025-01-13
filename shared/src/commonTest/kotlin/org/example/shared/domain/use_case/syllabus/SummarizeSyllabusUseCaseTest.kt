@@ -1,6 +1,8 @@
 package org.example.shared.domain.use_case.syllabus
 
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -9,7 +11,6 @@ import org.junit.Before
 import org.junit.Test
 import java.io.File
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
@@ -62,48 +63,6 @@ class SummarizeSyllabusUseCaseTest {
         // Assert
         assertTrue(result.isSuccess)
         assertEquals(description, result.getOrNull())
-    }
-
-    /**
-     * Tests that the use case throws an IllegalArgumentException when the file does not exist.
-     */
-    @Test
-    fun `invoke should throw IllegalArgumentException when file does not exist`() = runTest {
-        // Arrange
-        val syllabusFile = mockk<File>(relaxed = true) {
-            every { exists() } returns false
-        }
-
-        // Act & Assert
-        val exception = assertFailsWith<IllegalArgumentException> {
-            summarizeSyllabusUseCase.invoke(syllabusFile).first().getOrThrow()
-        }
-        assertEquals("File does not exist", exception.message)
-
-        // Verify that summarizeSyllabus and generateCurriculumFromDescriptionUseCase are never called
-        coVerifyAll(inverse = true) {
-            syllabusSummarizerClient.summarizeSyllabus(any())
-        }
-    }
-
-    /**
-     * Tests that the use case throws an IllegalArgumentException when the file has an unsupported extension.
-     */
-    @Test
-    fun `invoke should throw IllegalArgumentException when file has unsupported extension`() = runTest {
-        // Arrange
-        val syllabusFile = File.createTempFile("syllabus", ".txt")
-
-        // Act & Assert
-        val exception = assertFailsWith<IllegalArgumentException> {
-            summarizeSyllabusUseCase.invoke(syllabusFile).first().getOrThrow()
-        }
-        assertEquals("File must be a PDF or DOCX", exception.message)
-
-        // Verify that summarizeSyllabus and generateCurriculumFromDescriptionUseCase are never called
-        coVerifyAll(inverse = true) {
-            syllabusSummarizerClient.summarizeSyllabus(any())
-        }
     }
 
     /**

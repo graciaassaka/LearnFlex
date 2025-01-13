@@ -12,12 +12,13 @@ import androidx.compose.ui.graphics.lerp
  */
 fun getProgressColor(animatedProgress: Float, colors: List<Pair<Float, Color>>): Color =
     when {
-        animatedProgress <= colors.first().first -> colors.first().second
-        animatedProgress >= colors.last().first  -> colors.last().second
-        else                                     -> {
-            val (colorStart, colorEnd) = colors.zipWithNext().first { (start, end) ->
+        colors.isEmpty()                                        -> Color.Gray
+        animatedProgress <= (colors.firstOrNull()?.first ?: 0f) -> colors.firstOrNull()?.second ?: Color.Gray
+        animatedProgress >= (colors.lastOrNull()?.first ?: 1f)  -> colors.lastOrNull()?.second ?: Color.Gray
+        else                                                    -> {
+            val (colorStart, colorEnd) = colors.zipWithNext().firstOrNull { (start, end) ->
                 animatedProgress in start.first..end.first
-            }
+            } ?: return Color.Gray
 
             val segmentSize = colorEnd.first - colorStart.first
             val segmentProgress = (animatedProgress - colorStart.first) / segmentSize

@@ -1,17 +1,22 @@
 package org.example.composeApp.viewModel
 
 import io.mockk.*
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
+import org.example.composeApp.injection.DatabaseSyncManagers
 import org.example.composeApp.presentation.action.LibraryAction
 import org.example.composeApp.presentation.navigation.Route
+import org.example.composeApp.presentation.state.AppState
+import org.example.composeApp.presentation.state.LibraryUIState
 import org.example.composeApp.presentation.ui.util.UIEvent
+import org.example.composeApp.presentation.viewModel.LearnFlexViewModel
 import org.example.composeApp.presentation.viewModel.LibraryViewModel
 import org.example.composeApp.presentation.viewModel.util.ResourceProvider
 import org.example.shared.domain.client.ContentGeneratorClient
@@ -19,39 +24,39 @@ import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
 import org.example.shared.domain.model.Profile
 import org.example.shared.domain.model.interfaces.DatabaseRecord
+import org.example.shared.domain.model.util.BundleManager
 import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.use_case.curriculum.DeleteCurriculumUseCase
-import org.example.shared.domain.use_case.curriculum.FetchCurriculaByUserUseCase
 import org.example.shared.domain.use_case.curriculum.GenerateCurriculumUseCase
 import org.example.shared.domain.use_case.library.UploadCurriculumAndModulesUseCase
-import org.example.shared.domain.use_case.module.FetchModulesByCurriculumUseCase
 import org.example.shared.domain.use_case.module.GenerateModuleUseCase
-import org.example.shared.domain.use_case.profile.FetchProfileUseCase
 import org.example.shared.domain.use_case.syllabus.SummarizeSyllabusUseCase
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Before
 import org.junit.Test
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
 import java.io.File
-import kotlin.test.assertContains
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class LibraryViewModelTest {
     private lateinit var viewModel: LibraryViewModel
-    private lateinit var syncManager: SyncManager<DatabaseRecord>
-    private lateinit var fetchProfileUseCase: FetchProfileUseCase
-    private lateinit var fetchCurriculaByUserUseCase: FetchCurriculaByUserUseCase
-    private lateinit var fetchModulesByCurriculumUseCase: FetchModulesByCurriculumUseCase
+    private lateinit var testDispatcher: TestDispatcher
     private lateinit var summarizeSyllabusUseCase: SummarizeSyllabusUseCase
     private lateinit var generateCurriculumUseCase: GenerateCurriculumUseCase
     private lateinit var generateModuleUseCase: GenerateModuleUseCase
     private lateinit var uploadCurriculumAndModulesUseCase: UploadCurriculumAndModulesUseCase
     private lateinit var deleteCurriculumUseCase: DeleteCurriculumUseCase
+    private lateinit var learnFlexViewModel: LearnFlexViewModel
+    private lateinit var appStateFlow: MutableStateFlow<AppState>
     private lateinit var resourceProvider: ResourceProvider
-    private lateinit var testDispatcher: TestDispatcher
+    private lateinit var syncManager: SyncManager<DatabaseRecord>
+    private lateinit var syncManagers: MutableList<SyncManager<DatabaseRecord>>
     private lateinit var syncStatus: MutableStateFlow<SyncManager.SyncStatus>
 
     @Before
@@ -59,89 +64,47 @@ class LibraryViewModelTest {
         testDispatcher = StandardTestDispatcher()
         Dispatchers.setMain(testDispatcher)
         syncManager = mockk(relaxed = true)
-        fetchProfileUseCase = mockk(relaxed = true)
-        fetchCurriculaByUserUseCase = mockk(relaxed = true)
-        fetchModulesByCurriculumUseCase = mockk(relaxed = true)
         summarizeSyllabusUseCase = mockk(relaxed = true)
         generateCurriculumUseCase = mockk(relaxed = true)
         generateModuleUseCase = mockk(relaxed = true)
         uploadCurriculumAndModulesUseCase = mockk(relaxed = true)
         deleteCurriculumUseCase = mockk(relaxed = true)
+        learnFlexViewModel = mockk(relaxed = true)
+        appStateFlow = MutableStateFlow(AppState())
         resourceProvider = mockk(relaxed = true)
         syncStatus = MutableStateFlow<SyncManager.SyncStatus>(SyncManager.SyncStatus.Idle)
+        syncManager = mockk(relaxed = true)
+        syncManagers = mutableListOf<SyncManager<DatabaseRecord>>()
+        syncManagers.add(syncManager)
+
+        startKoin {
+            modules(
+                module {
+                    single<LearnFlexViewModel> { learnFlexViewModel }
+                    single<CoroutineDispatcher> { testDispatcher }
+                    single<ResourceProvider> { resourceProvider }
+                    single<SyncManager<DatabaseRecord>> { syncManager }
+                    single<DatabaseSyncManagers> { syncManagers }
+                }
+            )
+        }
 
         viewModel = LibraryViewModel(
-            fetchProfileUseCase,
-            fetchCurriculaByUserUseCase,
-            fetchModulesByCurriculumUseCase,
-            summarizeSyllabusUseCase,
+            deleteCurriculumUseCase,
             generateCurriculumUseCase,
             generateModuleUseCase,
-            uploadCurriculumAndModulesUseCase,
-            deleteCurriculumUseCase,
-            resourceProvider,
-            testDispatcher,
-            listOf(syncManager),
-            SharingStarted.Eagerly
+            summarizeSyllabusUseCase,
+            uploadCurriculumAndModulesUseCase
         )
 
         every { syncManager.syncStatus } returns syncStatus
-        coEvery { fetchProfileUseCase() } returns Result.success(mockk<Profile> { every { id } returns "profileId" })
-        coEvery { fetchCurriculaByUserUseCase(any()) } returns Result.success(emptyList())
+        every { learnFlexViewModel.state } returns appStateFlow
     }
 
     @After
-    fun tearDown() = Dispatchers.resetMain()
-
-    @Test
-    fun `handleAction Refresh when refresh succeeds should update profile and curricula`() = runTest {
-        // Given
-        val expectedProfile = mockk<Profile> { every { id } returns "profileId" }
-        val expectedCurricula = listOf(mockk<Curriculum>())
-
-        coEvery { fetchProfileUseCase() } returns Result.success(expectedProfile)
-        coEvery { fetchCurriculaByUserUseCase(any()) } returns Result.success(expectedCurricula)
-
-        // When
-        advanceUntilIdle()
-
-        // Then
-        with(viewModel.state.value) {
-            assertEquals(expectedProfile, profileId)
-            assertEquals(expectedCurricula, curricula)
-        }
-        coVerify {
-            fetchProfileUseCase()
-            fetchCurriculaByUserUseCase(any())
-        }
-    }
-
-    @Test
-    fun `handleAction Refresh when refresh fails should handle error and update loading state`() = runTest {
-        // Given
-        val uiEvents = mutableListOf<UIEvent>()
-        val job = launch {
-            viewModel.uiEvent.toList(uiEvents)
-        }
-
-        coEvery { fetchProfileUseCase() } returns Result.failure(Exception("Profile error"))
-
-        // When
-        advanceUntilIdle()
-
-        // Then
-        with(viewModel.state.value) {
-            assertNull(profileId)
-        }
-        coVerify {
-
-            fetchProfileUseCase()
-        }
-
-        assertEquals(1, uiEvents.size)
-        assertTrue(uiEvents.first() is UIEvent.ShowSnackbar)
-
-        job.cancel()
+    fun tearDown() {
+        Dispatchers.resetMain()
+        stopKoin()
     }
 
     @Test
@@ -246,7 +209,9 @@ class LibraryViewModelTest {
             every { content } returns listOf("module1", "module2")
         }
 
-        coEvery { fetchProfileUseCase() } returns Result.success(profile)
+        appStateFlow.update { it.copy(profile = profile) }
+        advanceUntilIdle()
+
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedResponse))
         advanceUntilIdle()
 
@@ -278,7 +243,9 @@ class LibraryViewModelTest {
             viewModel.uiEvent.toList(uiEvents)
         }
 
-        coEvery { fetchProfileUseCase() } returns Result.success(profile)
+        appStateFlow.update { it.copy(profile = profile) }
+        advanceUntilIdle()
+
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.failure(Exception("Curriculum error")))
         advanceUntilIdle()
 
@@ -315,7 +282,9 @@ class LibraryViewModelTest {
             every { description } returns "Module description"
             every { content } returns listOf("lesson1", "lesson2")
         }
-        coEvery { fetchProfileUseCase() } returns Result.success(profile)
+        appStateFlow.update { it.copy(profile = profile) }
+        advanceUntilIdle()
+
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedCurriculumResponse))
         coEvery { generateModuleUseCase("Module1 title", profile, any()) } returns flowOf(Result.success(generatedModuleResponse))
         advanceUntilIdle()
@@ -356,7 +325,9 @@ class LibraryViewModelTest {
             viewModel.uiEvent.toList(uiEvents)
         }
 
-        coEvery { fetchProfileUseCase() } returns Result.success(profile)
+        appStateFlow.update { it.copy(profile = profile) }
+        advanceUntilIdle()
+
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedCurriculumResponse))
         coEvery { generateModuleUseCase("Module1 title", profile, any()) } returns flowOf(Result.failure(Exception("Module error")))
         advanceUntilIdle()
@@ -397,7 +368,7 @@ class LibraryViewModelTest {
             every { description } returns "Module description"
             every { content } returns listOf("lesson1", "lesson2")
         }
-        coEvery { fetchProfileUseCase() } returns Result.success(profile)
+        coEvery { learnFlexViewModel.state.value.profile } returns profile
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedCurriculumResponse))
         coEvery { generateModuleUseCase("Module1 title", profile, any()) } returns flowOf(Result.success(generatedModuleResponse))
         advanceUntilIdle()
@@ -436,7 +407,10 @@ class LibraryViewModelTest {
             every { description } returns "Module description"
             every { content } returns listOf("lesson1", "lesson2")
         }
-        coEvery { fetchProfileUseCase() } returns Result.success(profile)
+
+        appStateFlow.update { it.copy(profile = profile) }
+        advanceUntilIdle()
+
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedCurriculumResponse))
         coEvery { generateModuleUseCase("Module1 title", profile, any()) } returns flowOf(Result.success(generatedModuleResponse))
         advanceUntilIdle()
@@ -480,7 +454,10 @@ class LibraryViewModelTest {
         val job = launch {
             viewModel.uiEvent.toList(uiEvents)
         }
-        coEvery { fetchProfileUseCase() } returns Result.success(profile)
+
+        appStateFlow.update { it.copy(profile = profile) }
+        advanceUntilIdle()
+
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedCurriculumResponse))
         coEvery { generateModuleUseCase("Module1 title", profile, any()) } returns flowOf(Result.success(generatedModuleResponse))
         coEvery { uploadCurriculumAndModulesUseCase("profileId", any(), any()) } returns Result.success(Unit)
@@ -531,7 +508,10 @@ class LibraryViewModelTest {
             every { description } returns "Module description"
             every { content } returns listOf("lesson1", "lesson2")
         }
-        coEvery { fetchProfileUseCase() } returns Result.success(profile)
+
+        appStateFlow.update { it.copy(profile = profile) }
+        advanceUntilIdle()
+
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedCurriculumResponse))
         coEvery { generateModuleUseCase("Module1 title", profile, any()) } returns flowOf(Result.success(generatedModuleResponse))
         coEvery { resourceProvider.getString(any()) } returns error
@@ -587,7 +567,9 @@ class LibraryViewModelTest {
             viewModel.uiEvent.toList(uiEvents)
         }
 
-        coEvery { fetchProfileUseCase() } returns Result.success(profile)
+        appStateFlow.update { it.copy(profile = profile) }
+        advanceUntilIdle()
+
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedCurriculumResponse))
         coEvery { generateModuleUseCase("Module1 title", profile, any()) } returns flowOf(Result.success(generatedModuleResponse))
         coEvery { uploadCurriculumAndModulesUseCase("profileId", any(), any()) } returns Result.failure(Exception("Upload error"))
@@ -635,7 +617,10 @@ class LibraryViewModelTest {
             every { description } returns "Module description"
             every { content } returns listOf("lesson1", "lesson2")
         }
-        coEvery { fetchProfileUseCase() } returns Result.success(profile)
+
+        appStateFlow.update { it.copy(profile = profile) }
+        advanceUntilIdle()
+
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedCurriculumResponse))
         coEvery { generateModuleUseCase("Module1 title", profile, any()) } returns flowOf(Result.success(generatedModuleResponse))
         advanceUntilIdle()
@@ -663,62 +648,108 @@ class LibraryViewModelTest {
     @Test
     fun `handleAction EditSearchQuery with non-empty query should update search query and filter curricula`() = runTest {
         // Given
-        val query = "Curriculum 1"
-        val curricula = listOf(
-            Curriculum(title = "Curriculum 1", description = "Description 1", content = listOf("Module 1")),
-            Curriculum(title = "Curriculum 2", description = "Description 2", content = listOf("Module 2"))
+        val curr1 = Curriculum(
+            title = "Intro to Kotlin",
+            description = "Basics of Kotlin",
+            content = listOf()
         )
-        coEvery { fetchCurriculaByUserUseCase(any()) } returns Result.success(curricula)
+        val curr2 = Curriculum(
+            title = "Advanced Kotlin",
+            description = "Coroutines, Flows, etc.",
+            content = listOf()
+        )
+        val curr3 = Curriculum(
+            title = "Intro to Java",
+            description = "Basics of Java",
+            content = listOf()
+        )
+
+        // Pretend our appStateFlow contains a bundleManager returning these curricula.
+        val bundleManager = mockk<BundleManager>(relaxed = true) {
+            every { getCurricula() } returns listOf(curr1, curr2, curr3)
+        }
+
+        // Update the flow so the LibraryViewModel picks up these curricula.
+        appStateFlow.update {
+            it.copy(bundleManager = bundleManager)
+        }
         advanceUntilIdle()
 
+        // Initially, the ViewModel collects from appStateFlow and sets curricula/filteredCurricula.
         // When
-        viewModel.handleAction(LibraryAction.EditFilterQuery(query))
+        viewModel.handleAction(LibraryAction.EditFilterQuery("Intro"))
         advanceUntilIdle()
 
         // Then
         with(viewModel.state.value) {
-            assertEquals(query, filterQuery)
-            assertEquals(1, filteredCurricula.size)
-            assertContains(filteredCurricula, curricula.first())
+            // The filterQuery is "Intro"
+            assertEquals("Intro", filterQuery)
+            // We expect only the "Intro to Kotlin" and "Intro to Java" to remain.
+            assertEquals(2, filteredCurricula.size)
+            assertTrue(filteredCurricula.any { it.title == "Intro to Kotlin" })
+            assertTrue(filteredCurricula.any { it.title == "Intro to Java" })
+            assertFalse(filteredCurricula.any { it.title == "Advanced Kotlin" })
         }
     }
 
     @Test
     fun `handleAction EditSearchQuery with empty query should reset filtered curricula`() = runTest {
         // Given
-        val query = ""
-        val curricula = listOf(
-            Curriculum(title = "Curriculum 1", description = "Description 1", content = listOf("Module 1")),
-            Curriculum(title = "Curriculum 2", description = "Description 2", content = listOf("Module 2"))
-        )
-        coEvery { fetchCurriculaByUserUseCase(any()) } returns Result.success(curricula)
+        val curr1 = Curriculum(title = "Intro to Kotlin", description = "", content = listOf())
+        val curr2 = Curriculum(title = "Advanced Kotlin", description = "", content = listOf())
+
+        // Mock the bundleManager to return 2 curricula.
+        val bundleManager = mockk<BundleManager>(relaxed = true) {
+            every { getCurricula() } returns listOf(curr1, curr2)
+        }
+
+        // Update the flow
+        appStateFlow.update {
+            it.copy(bundleManager = bundleManager)
+        }
         advanceUntilIdle()
 
-        viewModel.handleAction(LibraryAction.EditFilterQuery(query))
+        // Filter them first with a non-empty query
+        viewModel.handleAction(LibraryAction.EditFilterQuery("Intro"))
         advanceUntilIdle()
+        assertEquals(1, viewModel.state.value.filteredCurricula.size)
 
-        // When
+        // When: we now pass an empty query to reset
         viewModel.handleAction(LibraryAction.EditFilterQuery(""))
         advanceUntilIdle()
 
         // Then
         with(viewModel.state.value) {
-            assertEquals(curricula.size, filteredCurricula.size)
+            assertEquals("", filterQuery)
+            // filteredCurricula should be the full list
+            assertEquals(2, filteredCurricula.size)
+            assertTrue(filteredCurricula.any { it.title == "Intro to Kotlin" })
+            assertTrue(filteredCurricula.any { it.title == "Advanced Kotlin" })
         }
     }
 
     @Test
     fun `handleAction ClearSearchQuery should reset search query and filtered curricula`() = runTest {
         // Given
-        val query = "Curriculum 1"
-        val curricula = listOf(
-            Curriculum(title = "Curriculum 1", description = "Description 1", content = listOf("Module 1")),
-            Curriculum(title = "Curriculum 2", description = "Description 2", content = listOf("Module 2"))
-        )
-        coEvery { fetchCurriculaByUserUseCase(any()) } returns Result.success(curricula)
+        val curr1 = Curriculum(title = "Intro to Kotlin", description = "", content = listOf())
+        val curr2 = Curriculum(title = "Advanced Kotlin", description = "", content = listOf())
 
-        viewModel.handleAction(LibraryAction.EditFilterQuery(query))
+        // Mock the bundleManager to return 2 curricula.
+        val bundleManager = mockk<BundleManager>(relaxed = true) {
+            every { getCurricula() } returns listOf(curr1, curr2)
+        }
+
+        // Update the flow
+        appStateFlow.update {
+            it.copy(bundleManager = bundleManager)
+        }
         advanceUntilIdle()
+
+        // Filter them first with a non-empty query
+        viewModel.handleAction(LibraryAction.EditFilterQuery("Intro"))
+        advanceUntilIdle()
+        assertEquals("Intro", viewModel.state.value.filterQuery)
+        assertEquals(1, viewModel.state.value.filteredCurricula.size)
 
         // When
         viewModel.handleAction(LibraryAction.ClearFilterQuery)
@@ -726,8 +757,10 @@ class LibraryViewModelTest {
 
         // Then
         with(viewModel.state.value) {
+            // The query should be empty, and the filteredCurricula
+            // should match the full curricula list again.
             assertEquals("", filterQuery)
-            assertEquals(curricula.size, filteredCurricula.size)
+            assertEquals(2, filteredCurricula.size)
         }
     }
 
@@ -766,7 +799,9 @@ class LibraryViewModelTest {
             every { description } returns "Curriculum description"
             every { content } returns listOf("module1", "module2")
         }
-        coEvery { fetchProfileUseCase() } returns Result.success(profile)
+        appStateFlow.update { it.copy(profile = profile) }
+        advanceUntilIdle()
+
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedResponse))
         advanceUntilIdle()
 
@@ -799,7 +834,10 @@ class LibraryViewModelTest {
             every { description } returns "Curriculum description"
             every { content } returns listOf("module1", "module2")
         }
-        coEvery { fetchProfileUseCase() } returns Result.success(profile)
+
+        appStateFlow.update { it.copy(profile = profile) }
+        advanceUntilIdle()
+
         coEvery { generateCurriculumUseCase(syllabusDescription, profile) } returns flowOf(Result.success(generatedResponse))
         advanceUntilIdle()
 
@@ -825,28 +863,49 @@ class LibraryViewModelTest {
     @Test
     fun `handleAction OpenCurriculum should set curriculum and modules in state`() = runTest {
         // Given
-        val profile = mockk<Profile> { every { id } returns "profile_id" }
-        val curriculum = Curriculum(
-            id = "curriculum1",
-            title = "Curriculum 1",
-            description = "Description for Curriculum 1",
-            content = listOf("Module 1 Content"),
-            status = "active"
+        val curriculumId = "abc123"
+        val mockCurriculum = Curriculum(
+            id = curriculumId,
+            title = "Demo Curriculum",
+            description = "A sample curriculum",
+            content = listOf("Module A", "Module B")
         )
-        val modules = listOf(mockk<Module>())
+        val mockModules = listOf(
+            Module(
+                title = "Module A",
+                description = "Module A description",
+                content = listOf("Lesson 1", "Lesson 2")
+            ),
+            Module(
+                title = "Module B",
+                description = "Module B description",
+                content = listOf("Lesson 3", "Lesson 4")
+            )
+        )
 
-        coEvery { fetchProfileUseCase() } returns Result.success(profile)
-        coEvery { fetchCurriculaByUserUseCase("profile_id") } returns Result.success(listOf(curriculum))
-        coEvery { fetchModulesByCurriculumUseCase("profile_id", curriculum.id) } returns Result.success(modules)
+        // Mock bundleManager so we return that curriculum + modules for the given ID
+        val bundleManager = mockk<BundleManager>(relaxed = true) {
+            every { getCurriculumByKey(curriculumId) } returns mockCurriculum
+            every { getModulesByCurriculum(curriculumId) } returns mockModules
+        }
+
+        // Update the flow so the VM picks up this bundleManager
+        appStateFlow.update {
+            it.copy(bundleManager = bundleManager)
+        }
+        advanceUntilIdle()
 
         // When
-        viewModel.handleAction(LibraryAction.OpenCurriculum(curriculum.id))
+        viewModel.handleAction(LibraryAction.OpenCurriculum(curriculumId))
         advanceUntilIdle()
 
         // Then
         with(viewModel.state.value) {
-            assertEquals(curriculum, this.curriculum)
-            assertEquals(modules, this.modules)
+            assertEquals(mockCurriculum, curriculum)
+            assertEquals(mockModules.size, modules.size)
+            assertTrue(modules.any { it.title == "Module A" })
+            assertTrue(modules.any { it.title == "Module B" })
+            assertEquals(LibraryUIState.DisplayMode.View, displayMode)
         }
     }
 }

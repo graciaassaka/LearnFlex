@@ -21,7 +21,6 @@ class GenerateQuizUseCaseTest {
 
     private lateinit var multipleChoiceClient: QuestionGeneratorClient<Question.MultipleChoice>
     private lateinit var trueFalseClient: QuestionGeneratorClient<Question.TrueFalse>
-    private lateinit var orderingClient: QuestionGeneratorClient<Question.Ordering>
     private lateinit var generateQuizUseCase: GenerateQuizUseCase
     private lateinit var random: Random
 
@@ -29,12 +28,10 @@ class GenerateQuizUseCaseTest {
     fun setUp() {
         multipleChoiceClient = mockk()
         trueFalseClient = mockk()
-        orderingClient = mockk()
         random = mockk()
         generateQuizUseCase = GenerateQuizUseCase(
             multipleChoiceClient,
             trueFalseClient,
-            orderingClient,
             random
         )
     }
@@ -42,9 +39,9 @@ class GenerateQuizUseCaseTest {
     @Test
     fun `invoke should distribute questions and merge flows`() = runTest {
         // Suppose for total=5:
-        // multipleChoiceCount = 2, trueFalseCount = 2, orderingCount = 1
-        every { random.nextInt(0, 6) } returns 2  // for multipleChoiceCount
-        every { random.nextInt(0, 4) } returns 2  // for trueFalseCount
+        // multipleChoiceCount = 2, trueFalseCount = 3
+        every { random.nextInt(0, 5) } returns 2  // for multipleChoiceCount
+        every { random.nextInt(0, 3) } returns 3  // for trueFalseCount
 
         // Mock flows
         val mcQuestionFlow = flowOf(
@@ -71,17 +68,9 @@ class GenerateQuizUseCaseTest {
         )
 
         val tfQuestionFlow = flowOf(
-            Result.success(Question.TrueFalse("TFQ 1", true)),
-            Result.success(Question.TrueFalse("TFQ 2", false))
-        )
-
-        val orderingQuestionFlow = flowOf(
-            Result.success(
-                Question.Ordering(
-                    text = "OQ 1",
-                    correctAnswer = listOf("first", "second")
-                )
-            )
+            Result.success(Question.TrueFalse("TFQ 1", "true")),
+            Result.success(Question.TrueFalse("TFQ 2", "false")),
+            Result.success(Question.TrueFalse("TFQ 3", "true"))
         )
 
         // Stub generateQuestion
@@ -95,16 +84,10 @@ class GenerateQuizUseCaseTest {
         every {
             trueFalseClient.generateQuestion(
                 QuestionGeneratorClient.Context(level = Level.BEGINNER, topic = "kotlin"),
-                2
+                3
             )
         } returns tfQuestionFlow
 
-        every {
-            orderingClient.generateQuestion(
-                QuestionGeneratorClient.Context(level = Level.BEGINNER, topic = "kotlin"),
-                1
-            )
-        } returns orderingQuestionFlow
 
         // Execute
         val resultFlow: Flow<Result<Question>> = generateQuizUseCase.invoke(level = Level.BEGINNER, topic = "kotlin", number = 5)
@@ -117,11 +100,9 @@ class GenerateQuizUseCaseTest {
         // Check that distribution occurred as expected
         val mcResults = results.filter { it.getOrNull() is Question.MultipleChoice }
         val tfResults = results.filter { it.getOrNull() is Question.TrueFalse }
-        val orderingResults = results.filter { it.getOrNull() is Question.Ordering }
 
         assertEquals(2, mcResults.size)
-        assertEquals(2, tfResults.size)
-        assertEquals(1, orderingResults.size)
+        assertEquals(3, tfResults.size)
 
         // Confirm mocks
         verify(exactly = 1) {
@@ -139,16 +120,7 @@ class GenerateQuizUseCaseTest {
                     assertEquals(Level.BEGINNER, it.level)
                     assertEquals("kotlin", it.topic)
                 },
-                2
-            )
-        }
-        verify(exactly = 1) {
-            orderingClient.generateQuestion(
-                withArg {
-                    assertEquals(Level.BEGINNER, it.level)
-                    assertEquals("kotlin", it.topic)
-                },
-                1
+                3
             )
         }
     }
@@ -156,9 +128,9 @@ class GenerateQuizUseCaseTest {
     @Test
     fun `invoke should emit failure if multipleChoice generator fails`() = runTest {
         // Suppose for total=5:
-        // multipleChoiceCount = 2, trueFalseCount = 2, orderingCount = 1
-        every { random.nextInt(0, 6) } returns 2  // for multipleChoiceCount
-        every { random.nextInt(0, 4) } returns 2  // for trueFalseCount
+        // multipleChoiceCount = 2, trueFalseCount = 3
+        every { random.nextInt(0, 5) } returns 2  // for multipleChoiceCount
+        every { random.nextInt(0, 3) } returns 3  // for trueFalseCount
 
         // Mock flows
         val mcFailureFlow = flowOf(
@@ -166,11 +138,9 @@ class GenerateQuizUseCaseTest {
             Result.failure<Question.MultipleChoice>(RuntimeException("MC Generator failed!"))
         )
         val tfFlow = flowOf(
-            Result.success(Question.TrueFalse("TFQ 1", true)),
-            Result.success(Question.TrueFalse("TFQ 2", false))
-        )
-        val orderingFlow = flowOf(
-            Result.success(Question.Ordering("OQ 1", listOf("first", "second")))
+            Result.success(Question.TrueFalse("TFQ 1", "true")),
+            Result.success(Question.TrueFalse("TFQ 2", "false")),
+            Result.success(Question.TrueFalse("TFQ 3", "true"))
         )
 
         // Stub generateQuestion
@@ -184,16 +154,9 @@ class GenerateQuizUseCaseTest {
         every {
             trueFalseClient.generateQuestion(
                 QuestionGeneratorClient.Context(level = Level.BEGINNER, topic = "kotlin"),
-                2
+                3
             )
         } returns tfFlow
-
-        every {
-            orderingClient.generateQuestion(
-                QuestionGeneratorClient.Context(level = Level.BEGINNER, topic = "kotlin"),
-                1
-            )
-        } returns orderingFlow
 
         // Execute
         val resultFlow: Flow<Result<Question>> =
@@ -202,8 +165,6 @@ class GenerateQuizUseCaseTest {
         // Collect results
         val results = resultFlow.toList()
 
-        // We expect only 1 MC item (which is a failure), 2 TF, 1 Ordering = 4 total
-        // Because MC flow is only emitting 1 item (a failure)
         assertEquals(4, results.size)
 
         val failures = results.filter { it.isFailure }
@@ -220,8 +181,8 @@ class GenerateQuizUseCaseTest {
 
     @Test
     fun `invoke should emit failure if trueFalse generator fails`() = runTest {
-        every { random.nextInt(0, 6) } returns 2  // multipleChoiceCount = 2
-        every { random.nextInt(0, 4) } returns 2  // trueFalseCount = 2
+        every { random.nextInt(0, 5) } returns 2  // multipleChoiceCount = 2
+        every { random.nextInt(0, 3) } returns 3  // trueFalseCount = 2
 
         // Mock flows
         val mcFlow = flowOf(
@@ -244,9 +205,6 @@ class GenerateQuizUseCaseTest {
             // One item in the flow, a failure
             Result.failure<Question.TrueFalse>(RuntimeException("TF Generator failed!"))
         )
-        val orderingFlow = flowOf(
-            Result.success(Question.Ordering("OQ 1", listOf("first", "second")))
-        )
 
         every {
             multipleChoiceClient.generateQuestion(
@@ -256,96 +214,22 @@ class GenerateQuizUseCaseTest {
 
         every {
             trueFalseClient.generateQuestion(
-                QuestionGeneratorClient.Context(level = Level.BEGINNER, topic = "kotlin"), 2
+                QuestionGeneratorClient.Context(level = Level.BEGINNER, topic = "kotlin"), 3
             )
         } returns tfFailureFlow
-
-        every {
-            orderingClient.generateQuestion(
-                QuestionGeneratorClient.Context(level = Level.BEGINNER, topic = "kotlin"), 1
-            )
-        } returns orderingFlow
 
         val resultFlow = generateQuizUseCase(level = Level.BEGINNER, topic = "kotlin", number = 5)
         val results = resultFlow.toList()
 
-        // This time MC emits 2 successes, TF emits 1 failure, Ordering 1 success
-        // => total of 4 items
-        assertEquals(4, results.size)
+        // 2 MC successes, 1 TF failure
+        assertEquals(3, results.size)
 
         val failures = results.filter { it.isFailure }
         val successes = results.filter { it.isSuccess }
         assertEquals(1, failures.size)
-        assertEquals(3, successes.size)
+        assertEquals(2, successes.size)
 
         val exception = failures.first().exceptionOrNull()
         assertEquals("TF Generator failed!", exception?.message)
     }
-
-    @Test
-    fun `invoke should emit failure if ordering generator fails`() = runTest {
-        every { random.nextInt(0, 6) } returns 2  // multipleChoiceCount = 2
-        every { random.nextInt(0, 4) } returns 2  // trueFalseCount = 2
-
-        // Mock flows
-        val mcFlow = flowOf(
-            Result.success(
-                Question.MultipleChoice(
-                    text = "MCQ 1",
-                    correctAnswer = "Option A",
-                    options = listOf(Question.MultipleChoice.Option("A", "Option A"))
-                ),
-            ),
-            Result.success(
-                Question.MultipleChoice(
-                    text = "MCQ 2",
-                    correctAnswer = "Option A",
-                    options = listOf(Question.MultipleChoice.Option("A", "Option A"))
-                )
-            )
-        )
-        val tfFlow = flowOf(
-            Result.success(Question.TrueFalse("TFQ 1", true)),
-            Result.success(Question.TrueFalse("TFQ 2", false))
-        )
-        val orderingFailureFlow = flowOf(
-            // Single item in the flow, a failure
-            Result.failure<Question.Ordering>(RuntimeException("Ordering Generator failed!"))
-        )
-
-        every {
-            multipleChoiceClient.generateQuestion(
-                QuestionGeneratorClient.Context(level = Level.BEGINNER, topic = "kotlin"), 2
-            )
-        } returns mcFlow
-
-        every {
-            trueFalseClient.generateQuestion(
-                QuestionGeneratorClient.Context(level = Level.BEGINNER, topic = "kotlin"), 2
-            )
-        } returns tfFlow
-
-        every {
-            orderingClient.generateQuestion(
-                QuestionGeneratorClient.Context(level = Level.BEGINNER, topic = "kotlin"), 1
-            )
-        } returns orderingFailureFlow
-
-        val resultFlow = generateQuizUseCase(level = Level.BEGINNER, topic = "kotlin", number = 5)
-        val results = resultFlow.toList()
-
-        // 2 MC successes, 2 TF successes, 1 Ordering failure => 5 items total
-        // BUT notice we only have 1 ordering item, so total = 2 + 2 + 1 = 5
-        assertEquals(5, results.size)
-
-        val failures = results.filter { it.isFailure }
-        val successes = results.filter { it.isSuccess }
-        // We expect 1 failure, 4 successes
-        assertEquals(1, failures.size)
-        assertEquals(4, successes.size)
-
-        val exception = failures.first().exceptionOrNull()
-        assertEquals("Ordering Generator failed!", exception?.message)
-    }
-
 }

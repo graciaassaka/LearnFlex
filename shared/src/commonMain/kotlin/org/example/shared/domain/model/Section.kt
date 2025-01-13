@@ -3,7 +3,8 @@ package org.example.shared.domain.model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.example.shared.domain.model.interfaces.DatabaseRecord
-import org.example.shared.domain.model.interfaces.ScoreQueryable
+import org.example.shared.domain.model.interfaces.DescribableRecord
+import org.example.shared.domain.model.interfaces.ScorableRecord
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -26,13 +27,13 @@ data class Section(
     override val id: String = Uuid.random().toString(),
 
     @SerialName("title")
-    val title: String,
+    override val title: String,
 
     @SerialName("description")
-    val description: String,
+    override val description: String,
 
     @SerialName("content")
-    val content: String,
+    val content: List<String>,
 
     @SerialName("quiz_score")
     override val quizScore: Int = 0,
@@ -45,4 +46,13 @@ data class Section(
 
     @SerialName("last_updated")
     override val lastUpdated: Long = System.currentTimeMillis()
-) : DatabaseRecord, ScoreQueryable
+) : DatabaseRecord, ScorableRecord, DescribableRecord {
+
+    /**
+     * Updates the quiz score with the given value if it is higher than the current quiz score.
+     *
+     * @param score The new score to be considered for updating the quiz score.
+     * @return A copy of the object with the updated quiz score if the new score is higher.
+     */
+    fun updateQuizScore(score: Int) = copy(quizScore = maxOf(score, quizScore))
+}

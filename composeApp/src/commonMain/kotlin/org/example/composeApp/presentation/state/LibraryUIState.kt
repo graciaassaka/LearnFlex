@@ -6,24 +6,24 @@ import org.example.shared.domain.model.Profile
 import java.io.File
 
 /**
- * Represents the UI state for the library.
+ * Represents the state of the library UI.
  *
- * @property profileId The user's profile.
- * @property syllabusFile The file containing the syllabus, if available.
- * @property syllabusDescription A description of the syllabus.
- * @property curricula A list of curricula.
- * @property filteredCurricula A list of curricula that match the search query.
- * @property curriculum The currently selected curriculum, if any.
- * @property modules A list of modules.
- * @property filterQuery The current search query.
+ * @property profile The user's profile information.
+ * @property syllabusFile The syllabus file.
+ * @property syllabusDescription The description of the syllabus.
+ * @property curricula The user's curricula.
+ * @property filteredCurricula The filtered curricula.
+ * @property curriculum The user's curriculum.
+ * @property modules The user's modules.
+ * @property filterQuery The filter query.
  * @property showDiscardWarningDialog Indicates if the discard warning dialog should be shown.
- * @property isUploading Indicates if an upload is in progress.
- * @property isDownloading Indicates if a download is in progress.
- * @property isGenerating Indicates if content is being generated.
- * @property displayMode The mode for saving content.
+ * @property isUploading Indicates if the syllabus is currently uploading.
+ * @property isDownloading Indicates if the syllabus is currently downloading.
+ * @property isGenerating Indicates if the curriculum is currently generating.
+ * @property displayMode The display mode of the library.
  */
 data class LibraryUIState(
-    val profileId: Profile? = null,
+    val profile: Profile? = null,
     val syllabusFile: File? = null,
     val syllabusDescription: String = "",
     val curricula: List<Curriculum> = emptyList(),

@@ -6,7 +6,6 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
 import org.example.shared.data.local.entity.interfaces.RoomEntity
-import org.example.shared.domain.model.interfaces.StatusQueryable
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -54,7 +53,7 @@ data class CurriculumEntity(
         name = "status",
         defaultValue = "UNFINISHED"
     )
-    override val status: String,
+    val status: String,
 
     @ColumnInfo(
         name = "created_at",
@@ -67,4 +66,4 @@ data class CurriculumEntity(
         defaultValue = "CURRENT_TIMESTAMP",
     )
     override val lastUpdated: Long
-) : RoomEntity, StatusQueryable
+) : RoomEntity

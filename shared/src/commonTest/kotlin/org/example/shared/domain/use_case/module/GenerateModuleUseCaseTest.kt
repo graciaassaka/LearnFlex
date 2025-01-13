@@ -11,6 +11,7 @@ import org.example.shared.domain.client.ContentGeneratorClient
 import org.example.shared.domain.constant.ContentType
 import org.example.shared.domain.constant.Field
 import org.example.shared.domain.constant.Level
+import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Profile
 import org.junit.Before
@@ -44,12 +45,12 @@ class GenerateModuleUseCaseTest {
             email = "test@example.com",
             photoUrl = "https://example.com/photo.jpg",
             preferences = Profile.LearningPreferences(
-                field = Field.COMPUTER_SCIENCE.name,
-                level = Level.BEGINNER.name,
+                field = Field.COMPUTER_SCIENCE,
+                level = Level.BEGINNER,
                 goal = "Learn Kotlin"
             ),
             learningStyle = Profile.LearningStyle(
-                dominant = "reading",
+                dominant = Style.READING.name,
                 breakdown = Profile.LearningStyleBreakdown(
                     reading = 70,
                     kinesthetic = 30
@@ -118,7 +119,7 @@ class GenerateModuleUseCaseTest {
                 goal = "Master Kotlin Coroutines"
             ),
             learningStyle = Profile.LearningStyle(
-                dominant = "kinesthetic",
+                dominant = Style.KINESTHETIC.name,
                 breakdown = Profile.LearningStyleBreakdown(
                     reading = 40,
                     kinesthetic = 60
@@ -167,7 +168,7 @@ class GenerateModuleUseCaseTest {
                 goal = "Optimize Kotlin applications"
             ),
             learningStyle = Profile.LearningStyle(
-                dominant = "reading",
+                dominant = Style.READING.name,
                 breakdown = Profile.LearningStyleBreakdown(
                     reading = 85,
                     kinesthetic = 15

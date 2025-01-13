@@ -53,7 +53,7 @@ class SyncHandlerDelegate<Model : DatabaseRecord, Entity : RoomEntity>(
 
             SyncOperation.Type.DELETE -> remoteDao.delete(data.first(), path, timestamp).getOrThrow()
 
-            SyncOperation.Type.SYNC -> data.forEach { sync(path, it.id) }
+            SyncOperation.Type.SYNC   -> data.forEach { sync(path, it.id) }
 
             SyncOperation.Type.INSERT_ALL -> (remoteDao as ExtendedDao<Model>).insertAll(data, path, timestamp)
                 .getOrThrow()
@@ -78,12 +78,13 @@ class SyncHandlerDelegate<Model : DatabaseRecord, Entity : RoomEntity>(
         val local = getStrategy.setId(id).execute().first()
 
         if (remote != null && local != null) {
-            if (remote.lastUpdated <= local.lastUpdated) remoteDao.update(modelMapper.toModel(local), documentPath, local.lastUpdated)
-            else localDao.update(documentPath, modelMapper.toEntity(remote, documentPath.getParentId()), remote.lastUpdated)
+            if (remote.lastUpdated < local.lastUpdated) {
+                remoteDao.update(modelMapper.toModel(local), documentPath, local.lastUpdated)
+            } else if (remote.lastUpdated > local.lastUpdated) {
+                localDao.update(documentPath, modelMapper.toEntity(remote, documentPath.getParentId()), remote.lastUpdated)
+            }
         } else if (remote != null) {
             localDao.insert(documentPath, modelMapper.toEntity(remote, documentPath.getParentId()), remote.lastUpdated)
-        } else if (local != null) {
-            remoteDao.insert(modelMapper.toModel(local), documentPath, local.lastUpdated)
         }
     }
 }

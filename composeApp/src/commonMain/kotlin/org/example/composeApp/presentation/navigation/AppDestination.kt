@@ -2,8 +2,8 @@ package org.example.composeApp.presentation.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.LibraryBooks
-import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.LocalLibrary
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -23,7 +23,7 @@ enum class AppDestination(
 ) {
     Dashboard(
         label = "Dashboard",
-        route = Route.Dashboard(),
+        route = Route.Dashboard,
         icon = Icons.Default.Dashboard,
         contentDescription = "Dashboard"
     ),
@@ -36,10 +36,9 @@ enum class AppDestination(
     Study(
         label = "Study",
         route = Route.Study(),
-        icon = Icons.AutoMirrored.Filled.MenuBook,
+        icon = Icons.Default.LocalLibrary,
         contentDescription = "Study"
     ),
-
     Profile(
         label = "Profile",
         route = Route.Profile,

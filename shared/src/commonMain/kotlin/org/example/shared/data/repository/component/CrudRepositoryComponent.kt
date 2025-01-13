@@ -1,10 +1,7 @@
 package org.example.shared.data.repository.component
 
-import kotlinx.coroutines.channels.ProducerScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.*
 import org.example.shared.data.local.entity.interfaces.RoomEntity
 import org.example.shared.data.repository.util.RepositoryConfig
 import org.example.shared.domain.model.interfaces.DatabaseRecord
@@ -56,49 +53,37 @@ class CrudRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      * @param path The path in the repository where the item should be retrieved from.
      * @return A [Flow] emitting the [Result] containing the model or an error.
      */
-    override fun get(path: Path) = channelFlow {
-        require(path.isDocumentPath()) { "Path must point to a document" }
-        launch { observeLocalData(path) }
-        launch { fetchRemoteDataIfNeeded(path) }
-    }
+    override fun get(path: Path): Flow<Result<Model>> {
+        var remote: Model? = null
+        var local: Model? = null
 
-    /**
-     * Observes local data and sends it to the channel.
-     *
-     * @param path The path in the repository where the item should be retrieved from.
-     */
-    private suspend fun ProducerScope<Result<Model>>.observeLocalData(path: Path) {
-        config.queryStrategies.byIdStrategy?.apply {
-            setId(path.getId())
-                .execute()
-                .collect { entity ->
-                    if (entity != null) config.modelMapper.toModel(entity).let {
-                        send(Result.success(it))
-                        config.syncManager.queueOperation(SyncOperation(SyncOperation.Type.SYNC, path, listOf(it)))
-                    }
-                }
-        }
-    }
-
-    /**
-     * Fetches remote data if it is not already present in the local database.
-     *
-     * @param path The path in the repository where the item should be retrieved from.
-     */
-    private suspend fun ProducerScope<Result<Model>>.fetchRemoteDataIfNeeded(path: Path) {
-        val localEntity = config.queryStrategies.byIdStrategy?.run { setId(path.getId()).execute().first() }
-
-        if (localEntity == null) try {
-            config.remoteDao.get(path).collect { result ->
-                result.onSuccess { model ->
-                    send(Result.success(model))
-                    config.syncManager.queueOperation(SyncOperation(SyncOperation.Type.SYNC, path, listOf(model)))
-                }.onFailure { error ->
-                    send(Result.failure(error))
-                }
+        return channelFlow {
+            require(path.isDocumentPath())
+            val remoteJob = async {
+                config.remoteDao
+                    .get(path)
+                    .first()
+                    .getOrThrow()
             }
-        } catch (e: Exception) {
-            send(Result.failure(e))
+            val localJob = async {
+                config.queryStrategies.byIdStrategy
+                    ?.setId(path.getId())
+                    ?.execute()
+                    ?.first()
+                    ?.let(config.modelMapper::toModel)
+            }
+
+            local = localJob.await()
+            remote = remoteJob.await()
+            send(Result.success(local ?: remote))
+        }.catch {
+            emit(Result.failure(it))
+        }.onCompletion {
+            remote?.let {
+                config.syncManager.queueOperation(
+                    SyncOperation(SyncOperation.Type.SYNC, path, listOf(it))
+                )
+            }
         }
     }
 

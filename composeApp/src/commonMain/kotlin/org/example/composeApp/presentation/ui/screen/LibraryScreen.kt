@@ -5,12 +5,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
@@ -23,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -41,16 +39,17 @@ import org.example.composeApp.presentation.ui.constant.TestTags
 import org.example.composeApp.presentation.ui.dimension.Dimension
 import org.example.composeApp.presentation.ui.dimension.Padding
 import org.example.composeApp.presentation.ui.dimension.Spacing
+import org.example.composeApp.presentation.ui.util.HandleUIEvents
 import org.example.composeApp.presentation.ui.util.ScreenConfig
 import org.example.composeApp.presentation.ui.util.SnackbarType
+import org.example.composeApp.presentation.ui.util.toDateString
 import org.example.composeApp.presentation.viewModel.LibraryViewModel
 import org.example.shared.domain.constant.Status
 import org.example.shared.domain.model.Curriculum
 import org.example.shared.domain.model.Module
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import java.text.SimpleDateFormat
-import java.util.*
 
 /**
  * Composable function for the LibraryScreen, which provides the UI and handles actions
@@ -76,7 +75,7 @@ fun LibraryScreen(
         isScreenVisible = viewModel.isScreenVisible.collectAsStateWithLifecycle(),
     )
 
-    HandleUIEvents(Route.CreateProfile, navController, viewModel, screenConfig.snackbarHostState) {
+    HandleUIEvents(Route.Library, navController, viewModel, screenConfig.snackbarHostState) {
         screenConfig.snackbarType.value = it
     }
 
@@ -88,6 +87,7 @@ fun LibraryScreen(
         snackbarType = screenConfig.snackbarType.value,
         currentDestination = AppDestination.Library,
         onDestinationSelected = { viewModel.handleAction(LibraryAction.Navigate(it.route)) },
+        onRefresh = { viewModel.handleAction(LibraryAction.Refresh) },
         enabled = !screenConfig.uiState.value.isDownloading &&
                 !screenConfig.uiState.value.isUploading &&
                 !screenConfig.uiState.value.isGenerating,
@@ -125,33 +125,32 @@ private fun ThreePaneScaffoldScope.MainPane(
     modifier: Modifier = Modifier,
 ) = with(screenConfig) {
     val lazyListState = rememberLazyListState()
-    AnimatedPane(modifier = modifier.safeContentPadding()) {
+    val isLoading = uiState.value.isDownloading || uiState.value.isUploading || uiState.value.isGenerating
+    AnimatedPane(modifier = modifier.safeDrawingPadding()) {
         Box(modifier = Modifier.fillMaxSize()) {
             EditorSection(
                 windowSizeClass = windowSizeClass,
                 uiState = uiState.value,
                 handleAction = handleAction,
+                lazyListState = lazyListState,
                 modifier = Modifier.fillMaxSize()
                     .testTag(TestTags.LIBRARY_SCREEN_MAIN_PANEL_GENERATED_CONTENT_SECTION.tag)
             )
-            if (uiState.value.isDownloading || uiState.value.isUploading || uiState.value.isGenerating) LoadingIndicator(
-                screenConfig = screenConfig,
-                handleAction = handleAction,
+            if (isLoading) LoadingWithCancelButton(
+                isCancellable = uiState.value.isGenerating,
+                cancel = { handleAction(LibraryAction.CancelGeneration) },
                 modifier = Modifier.align(Alignment.Center)
             )
             if (showSupportingPaneButton) SupportingPaneButton(
                 onNavigateToSupportingPane = onNavigateToSupportingPane,
-                modifier = Modifier.align(Alignment.BottomEnd)
+                modifier = Modifier.align(Alignment.TopEnd)
                     .testTag(TestTags.LIBRARY_SCREEN_MAIN_PANEL_SUPPORTING_PANE_BUTTON.tag)
             )
             if (uiState.value.showDiscardWarningDialog) DiscardWarningDialog(
                 handleAction = handleAction,
                 modifier = Modifier.align(Alignment.Center)
             )
-            CustomVerticalScrollbar(
-                lazyListState = lazyListState,
-                modifier = Modifier.align(Alignment.CenterEnd)
-            )
+            CustomVerticalScrollbar(lazyListState)
         }
     }
 }
@@ -161,8 +160,10 @@ private fun EditorSection(
     windowSizeClass: WindowSizeClass,
     uiState: LibraryUIState,
     handleAction: (LibraryAction) -> Unit,
+    lazyListState: LazyListState,
     modifier: Modifier = Modifier
 ) = LazyColumn(
+    state = lazyListState,
     modifier = modifier.fillMaxSize().padding(Padding.MEDIUM.dp),
     verticalArrangement = Arrangement.spacedBy(Padding.MEDIUM.dp),
     horizontalAlignment = Alignment.CenterHorizontally
@@ -204,9 +205,10 @@ private fun SyllabusDescriptionSection(
     handleAction: (LibraryAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val itemModifier = when (windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Expanded -> Modifier.height(200.dp).width(300.dp)
-        else -> Modifier.height(200.dp).fillMaxWidth()
+    val itemModifier = if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded) {
+        Modifier.height(200.dp).width(300.dp)
+    } else {
+        Modifier.height(200.dp).fillMaxWidth()
     }
     val composition = rememberLottieComposition {
         LottieCompositionSpec.JsonString(Res.readBytes("files/orange_coder.json").decodeToString())
@@ -293,12 +295,15 @@ private fun CurriculumDetailsSection(
     verticalArrangement = Arrangement.spacedBy(Padding.MEDIUM.dp),
     horizontalAlignment = Alignment.Start
 ) {
-    CurriculumListItem(
-        displayMode = displayMode,
-        curriculum = curriculum,
-        enabled = enabled,
-        handleAction = handleAction
-    )
+    ToolTip(text = curriculum.description) {
+        CurriculumListItem(
+            displayMode = displayMode,
+            curriculum = curriculum,
+            enabled = enabled,
+            onNavigate = { handleAction(LibraryAction.Navigate(Route.Study(curriculum.id))) },
+            onDiscard = { handleAction(LibraryAction.DiscardContent) }
+        )
+    }
     HorizontalDivider()
     Row(modifier = Modifier.fillMaxWidth().padding(start = Padding.MEDIUM.dp)) {
         Text(
@@ -321,21 +326,24 @@ private fun CurriculumDetailsSection(
             ) {
                 ModuleListItem(
                     displayMode = displayMode,
-                    curriculum = curriculum,
                     module = module,
                     enabled = enabled,
                     expanded = isExpanded,
                     onExpand = { isExpanded = !isExpanded },
-                    handleAction = handleAction,
-                    modifier = Modifier
+                    onRemove = { handleAction(LibraryAction.RemoveModule(module)) },
+                    onNavigate = {
+                        handleAction(
+                            LibraryAction.Navigate(Route.Study(curriculum.id, modules.firstOrNull { it.title == module }?.id))
+                        )
+                    },
                 )
                 if (isExpanded) ModuleContent(
                     displayMode = displayMode,
                     modules = modules,
                     title = module,
                     enabled = enabled,
-                    handleAction = handleAction,
-                    modifier = Modifier
+                    onGenerateModule = { handleAction(LibraryAction.GenerateModule(module)) },
+                    onRemoveLesson = { lesson, moduleId -> handleAction(LibraryAction.RemoveLesson(lesson, moduleId)) }
                 )
             }
         }
@@ -347,32 +355,22 @@ private fun CurriculumListItem(
     displayMode: LibraryUIState.DisplayMode,
     curriculum: Curriculum,
     enabled: Boolean,
-    handleAction: (LibraryAction) -> Unit,
+    onNavigate: () -> Unit,
+    onDiscard: () -> Unit,
     modifier: Modifier = Modifier
 ) = ListItem(
-    headlineContent = {
-        Text(
-            text = curriculum.title,
-            style = MaterialTheme.typography.titleLarge
-        )
-    },
+    headlineContent = { Text(text = curriculum.title, style = MaterialTheme.typography.titleLarge) },
     modifier = modifier.fillMaxWidth(),
     leadingContent = {
         when (displayMode) {
-            LibraryUIState.DisplayMode.View -> IconButton(
-                onClick = { handleAction(LibraryAction.Navigate(Route.Study(curriculum.id))) },
-                enabled = enabled
-            ) {
+            LibraryUIState.DisplayMode.View -> IconButton(onClick = onNavigate, enabled = enabled) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.MenuBook,
+                    painter = painterResource(Res.drawable.ic_curriculum),
                     contentDescription = stringResource(Res.string.open_in_study_button_label)
                 )
             }
 
-            LibraryUIState.DisplayMode.Edit -> IconButton(
-                onClick = { handleAction(LibraryAction.DiscardContent) },
-                enabled = enabled
-            ) {
+            LibraryUIState.DisplayMode.Edit -> IconButton(onClick = onDiscard, enabled = enabled) {
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = stringResource(Res.string.discard_content_button_label)
@@ -385,50 +383,32 @@ private fun CurriculumListItem(
 @Composable
 private fun ModuleListItem(
     displayMode: LibraryUIState.DisplayMode,
-    curriculum: Curriculum,
     module: String,
     enabled: Boolean,
-    expanded: Boolean = false,
+    expanded: Boolean,
     onExpand: () -> Unit,
-    handleAction: (LibraryAction) -> Unit,
+    onNavigate: () -> Unit,
+    onRemove: () -> Unit,
     modifier: Modifier = Modifier
 ) = ListItem(
-    headlineContent = {
-        Text(
-            text = module,
-            style = MaterialTheme.typography.titleSmall
-        )
-    },
+    headlineContent = { Text(text = module, style = MaterialTheme.typography.titleSmall) },
+    trailingContent = { ExpandCollapseIconButton(expanded = expanded, onClick = onExpand, enabled = enabled) },
     modifier = modifier,
     leadingContent = {
         when (displayMode) {
-            LibraryUIState.DisplayMode.View -> IconButton(
-                onClick = { handleAction(LibraryAction.Navigate(Route.Study(curriculum.id, module))) },
-                enabled = enabled
-            ) {
+            LibraryUIState.DisplayMode.View -> IconButton(onClick = onNavigate, enabled = enabled) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ViewList,
+                    painter = painterResource(Res.drawable.ic_module),
                     contentDescription = stringResource(Res.string.open_in_study_button_label)
                 )
             }
 
-            LibraryUIState.DisplayMode.Edit -> IconButton(
-                onClick = { handleAction(LibraryAction.RemoveModule(module)) },
-                enabled = enabled
-            ) {
+            LibraryUIState.DisplayMode.Edit -> IconButton(onClick = onRemove, enabled = enabled) {
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = stringResource(Res.string.remove_module_button_label)
                 )
             }
-        }
-    },
-    trailingContent = {
-        IconButton(onClick = onExpand) {
-            Icon(
-                imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                contentDescription = stringResource(Res.string.expand_module_button_label)
-            )
         }
     }
 )
@@ -439,7 +419,8 @@ private fun ModuleContent(
     modules: List<Module>,
     title: String,
     enabled: Boolean,
-    handleAction: (LibraryAction) -> Unit,
+    onGenerateModule: () -> Unit,
+    onRemoveLesson: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) = Column(
     modifier = modifier.fillMaxWidth().padding(start = Padding.MEDIUM.dp),
@@ -455,12 +436,11 @@ private fun ModuleContent(
         LessonListItem(
             displayMode = displayMode,
             lesson = lesson,
-            moduleId = module.id,
             enabled = enabled,
-            handleAction = handleAction
+            onRemove = { onRemoveLesson(lesson, module.id) }
         )
     } ?: Button(
-        onClick = { handleAction(LibraryAction.GenerateModule(title)) },
+        onClick = onGenerateModule,
         enabled = enabled,
         shape = RoundedCornerShape(Dimension.CORNER_RADIUS_SMALL.dp),
         content = { Text(stringResource(Res.string.generate_content_button_label)) }
@@ -471,9 +451,8 @@ private fun ModuleContent(
 private fun LessonListItem(
     displayMode: LibraryUIState.DisplayMode,
     lesson: String,
-    moduleId: String,
     enabled: Boolean,
-    handleAction: (LibraryAction) -> Unit,
+    onRemove: () -> Unit,
     modifier: Modifier = Modifier
 ) = ListItem(
     headlineContent = {
@@ -484,10 +463,7 @@ private fun LessonListItem(
     },
     modifier = modifier.fillMaxWidth(),
     leadingContent = {
-        if (displayMode == LibraryUIState.DisplayMode.Edit) IconButton(
-            onClick = { handleAction(LibraryAction.RemoveLesson(lesson, moduleId)) },
-            enabled = enabled
-        ) {
+        if (displayMode == LibraryUIState.DisplayMode.Edit) IconButton(onClick = onRemove, enabled = enabled) {
             Icon(
                 imageVector = Icons.Default.Remove,
                 contentDescription = stringResource(Res.string.remove_lesson_button_label)
@@ -497,33 +473,10 @@ private fun LessonListItem(
 )
 
 @Composable
-private fun LoadingIndicator(
-    screenConfig: ScreenConfig<LibraryUIState>,
-    handleAction: (LibraryAction) -> Unit,
-    modifier: Modifier = Modifier
-) = with(screenConfig.uiState.value) {
-    Box(modifier = modifier) {
-        CircularProgressIndicator(
-            modifier = Modifier.align(Alignment.Center).size(80.dp),
-            color = MaterialTheme.colorScheme.primary,
-        )
-        if (isUploading || isGenerating) IconButton(
-            onClick = { handleAction(LibraryAction.CancelGeneration) },
-            modifier = Modifier.align(Alignment.Center)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Cancel,
-                contentDescription = stringResource(Res.string.cancel_button_label)
-            )
-        }
-    }
-}
-
-@Composable
-fun SupportingPaneButton(
+private fun SupportingPaneButton(
     onNavigateToSupportingPane: () -> Unit,
     modifier: Modifier = Modifier
-) = FloatingActionButton(
+) = IconButton(
     onClick = onNavigateToSupportingPane,
     modifier = modifier
 ) {
@@ -571,11 +524,11 @@ private fun ThreePaneScaffoldScope.SupportingPane(
     modifier: Modifier = Modifier,
 ) = with(screenConfig) {
     val listState = rememberLazyListState()
-    AnimatedPane(modifier = Modifier.safeContentPadding()) {
+    AnimatedPane(modifier = modifier.safeDrawingPadding()) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(Padding.MEDIUM.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.Start
         ) {
             FilterBar(
                 query = uiState.value.filterQuery,
@@ -583,7 +536,7 @@ private fun ThreePaneScaffoldScope.SupportingPane(
                 modifier = Modifier.fillMaxWidth().testTag(TestTags.LIBRARY_SCREEN_SUPPORTING_PANEL_FILTER_BAR.tag)
             )
             RefreshBox(
-                modifier = modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 isRefreshing = uiState.value.isDownloading,
                 onRefresh = { handleAction(LibraryAction.Refresh) }
             ) {
@@ -591,10 +544,17 @@ private fun ThreePaneScaffoldScope.SupportingPane(
                     modifier = Modifier.fillMaxSize().testTag(TestTags.LIBRARY_SCREEN_SUPPORTING_PANEL_CURRICULA_LIST.tag),
                     state = listState,
                     verticalArrangement = Arrangement.spacedBy(Padding.MEDIUM.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.Start
                 ) {
                     uiState.value.filteredCurricula.forEach { curriculum ->
-                        item { CurriculumTooltipListItem(curriculum = curriculum, handleAction = handleAction) }
+                        item {
+                            CurriculumTooltipListItem(
+                                curriculum = curriculum,
+                                onOpenCurriculum = { handleAction(LibraryAction.OpenCurriculum(curriculum.id)) },
+                                onDeleteCurriculum = { handleAction(LibraryAction.DeleteCurriculum(curriculum.id)) },
+                                onNavigate = { handleAction(LibraryAction.Navigate(Route.Study(curriculum.id))) },
+                            )
+                        }
                     }
                 }
                 CustomVerticalScrollbar(
@@ -639,58 +599,46 @@ private fun FilterBar(
 @Composable
 private fun CurriculumTooltipListItem(
     curriculum: Curriculum,
-    handleAction: (LibraryAction) -> Unit,
+    onOpenCurriculum: () -> Unit,
+    onDeleteCurriculum: () -> Unit,
+    onNavigate: () -> Unit,
     modifier: Modifier = Modifier
-) = ToolTip(
-    text = curriculum.description,
-    modifier = modifier
-) {
-    ListItem(
-        headlineContent = {
-            Text(
-                text = curriculum.title,
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+) = ListItem(
+    headlineContent = {
+        Text(
+            text = curriculum.title,
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.titleSmall,
+        )
+    },
+    modifier = modifier.fillMaxWidth().clickable { onOpenCurriculum() },
+    overlineContent = {
+        Text(
+            text = Status.valueOf(curriculum.status.uppercase()).value,
+            style = MaterialTheme.typography.bodySmall
+        )
+    },
+    supportingContent = {
+        Text(
+            text = "${stringResource(Res.string.created_on)}:\n${curriculum.createdAt.toDateString()}",
+            style = MaterialTheme.typography.bodySmall
+        )
+    },
+    leadingContent = {
+        IconButton(onClick = onNavigate) {
+            Icon(
+                painter = painterResource(Res.drawable.ic_curriculum),
+                contentDescription = null
             )
-        },
-        modifier = Modifier.fillMaxWidth()
-            .clickable { handleAction(LibraryAction.OpenCurriculum(curriculum.id)) },
-        overlineContent = {
-            Text(
-                text = Status.valueOf(curriculum.status.uppercase()).value,
-                style = MaterialTheme.typography.bodySmall
-            )
-        },
-        supportingContent = {
-            Text(
-                text = """
-                        ${stringResource(Res.string.created_on)}:
-                        ${SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(curriculum.createdAt))}
-                    """.trimIndent(),
-                style = MaterialTheme.typography.bodySmall
-            )
-        },
-        leadingContent = {
-            IconButton(
-                onClick = { handleAction(LibraryAction.Navigate(Route.Study(curriculum.id))) },
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.MenuBook,
-                    contentDescription = null
-                )
-            }
-        },
-        trailingContent = {
-            IconButton(
-                onClick = { handleAction(LibraryAction.DeleteCurriculum(curriculum)) }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = stringResource(Res.string.delete_curriculum_button_label)
-                )
-            }
         }
-    )
-}
+    },
+    trailingContent = {
+        IconButton(onClick = onDeleteCurriculum) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = stringResource(Res.string.delete_curriculum_button_label)
+            )
+        }
+    }
+)
+

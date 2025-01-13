@@ -11,13 +11,13 @@ import org.junit.Before
 import org.junit.Test
 
 class FetchStyleQuestionnaireUseCaseTest {
-    private lateinit var fetchStyleQuestionnaireUseCase: FetchStyleQuestionnaireUseCase
+    private lateinit var fetchStyleQuestionsUseCase: FetchStyleQuestionsUseCase
     private lateinit var styleQuizGeneratorClient: StyleQuizGeneratorClient
 
     @Before
     fun setUp() {
         styleQuizGeneratorClient = mockk<StyleQuizGeneratorClient>(relaxed = true)
-        fetchStyleQuestionnaireUseCase = FetchStyleQuestionnaireUseCase(styleQuizGeneratorClient)
+        fetchStyleQuestionsUseCase = FetchStyleQuestionsUseCase(styleQuizGeneratorClient)
     }
 
     @Test
@@ -26,10 +26,10 @@ class FetchStyleQuestionnaireUseCaseTest {
         val preferences = mockk<Profile.LearningPreferences>()
 
         // Act
-        fetchStyleQuestionnaireUseCase(preferences)
+        fetchStyleQuestionsUseCase(preferences)
 
         // Assert
-        coVerify(exactly = 1) { styleQuizGeneratorClient.streamQuestions(preferences, FetchStyleQuestionnaireUseCase.NUMBER_OF_QUESTIONS) }
+        coVerify(exactly = 1) { styleQuizGeneratorClient.streamQuestions(preferences, FetchStyleQuestionsUseCase.NUMBER_OF_QUESTIONS) }
     }
 
     @Test
@@ -42,7 +42,7 @@ class FetchStyleQuestionnaireUseCaseTest {
 
             // Act
             val result = mutableListOf<Result<StyleQuizGeneratorClient.StyleQuestion>>()
-            fetchStyleQuestionnaireUseCase(preferences, 1).collect(result::add)
+            fetchStyleQuestionsUseCase(preferences, 1).collect(result::add)
 
             // Assert
             assert(result.size == 1)
@@ -55,13 +55,18 @@ class FetchStyleQuestionnaireUseCaseTest {
             // Arrange
             val preferences = mockk<Profile.LearningPreferences>()
             val exception = Exception("An error occurred")
-            coEvery { styleQuizGeneratorClient.streamQuestions(preferences, FetchStyleQuestionnaireUseCase.NUMBER_OF_QUESTIONS) } returns flowOf(
+            coEvery {
+                styleQuizGeneratorClient.streamQuestions(
+                    preferences,
+                    FetchStyleQuestionsUseCase.NUMBER_OF_QUESTIONS
+                )
+            } returns flowOf(
                 Result.failure(exception)
             )
 
             // Act
             val result = mutableListOf<Result<StyleQuizGeneratorClient.StyleQuestion>>()
-            fetchStyleQuestionnaireUseCase(preferences).collect(result::add)
+            fetchStyleQuestionsUseCase(preferences).collect(result::add)
 
             // Assert
             assert(result.size == 1)

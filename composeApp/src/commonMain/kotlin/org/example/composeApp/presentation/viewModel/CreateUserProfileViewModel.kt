@@ -1,7 +1,6 @@
 package org.example.composeApp.presentation.viewModel
 
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -10,13 +9,10 @@ import org.example.composeApp.presentation.navigation.Route
 import org.example.composeApp.presentation.state.CreateProfileUIState
 import org.example.composeApp.presentation.ui.screen.ProfileCreationForm
 import org.example.composeApp.presentation.ui.util.SnackbarType
-import org.example.composeApp.presentation.viewModel.util.ResourceProvider
 import org.example.shared.domain.constant.Field
 import org.example.shared.domain.constant.Level
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.Profile
-import org.example.shared.domain.model.interfaces.DatabaseRecord
-import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.use_case.auth.GetUserDataUseCase
 import org.example.shared.domain.use_case.profile.*
 import org.example.shared.domain.use_case.validation.ValidateUsernameUseCase
@@ -26,32 +22,27 @@ import org.example.composeApp.presentation.action.CreateUserProfileAction as Act
 /**
  * ViewModel for the profile creation screen.
  *
- * @param getUserDataUseCase The use case to get the user data.
- * @param createProfileUseCase The use case to create a user profile.
- * @param uploadProfilePictureUseCase The use case to upload a profile picture.
- * @param deleteProfilePictureUseCase The use case to delete a profile picture.
- * @param fetchStyleQuestionnaireUseCase The use case to get the style questionnaire.
- * @param getStyleResultUseCase The use case to get the style result.
- * @param createUserStyleUseCase The use case to set the user style.
- * @param syncManagers The list of sync managers to handle sync operations.
- * @param resourceProvider The resource provider to access string resources.
- * @param dispatcher The coroutine dispatcher to run the use cases on.
- * @param sharingStarted The sharing strategy for the state flow.
+ * @param getUserDataUseCase Use case to get the user data.
+ * @param createProfileUseCase Use case to create a user profile.
+ * @param uploadProfilePictureUseCase Use case to upload a profile picture.
+ * @param deleteProfilePictureUseCase Use case to delete a profile picture.
+ * @param fetchStyleQuestionsUseCase Use case to fetch style questions.
+ * @param getStyleResultUseCase Use case to get the style result.
+ * @param updateProfileUseCase Use case to update a user profile.
+ * @param validateUsernameUseCase Use case to validate a username.
+ * @param sharingStarted The sharing strategy for the UI state.
  */
 class CreateUserProfileViewModel(
     private val getUserDataUseCase: GetUserDataUseCase,
     private val createProfileUseCase: CreateProfileUseCase,
     private val uploadProfilePictureUseCase: UploadProfilePictureUseCase,
     private val deleteProfilePictureUseCase: DeleteProfilePictureUseCase,
-    private val fetchStyleQuestionnaireUseCase: FetchStyleQuestionnaireUseCase,
+    private val fetchStyleQuestionsUseCase: FetchStyleQuestionsUseCase,
     private val getStyleResultUseCase: GetStyleResultUseCase,
     private val updateProfileUseCase: UpdateProfileUseCase,
     private val validateUsernameUseCase: ValidateUsernameUseCase,
-    private val resourceProvider: ResourceProvider,
-    private val dispatcher: CoroutineDispatcher,
-    syncManagers: List<SyncManager<DatabaseRecord>>,
     sharingStarted: SharingStarted
-) : BaseViewModel(dispatcher, syncManagers) {
+) : ScreenViewModel() {
     // Mutable state flow to manage the UI state of the profile creation screen
     private val _state = MutableStateFlow(CreateProfileUIState())
     val state = _state
@@ -89,21 +80,21 @@ class CreateUserProfileViewModel(
      */
     fun handleAction(action: Action) {
         when (action) {
-            is Action.EditUsername -> editUsername(action.username)
-            is Action.SelectField -> selectField(action.field)
-            is Action.SelectLevel -> SelectLevel(action.level)
-            is Action.ToggleLevelDropdownVisibility -> toggleLevelDropdownVisibility()
-            is Action.EditGoal -> editGoal(action.goal)
-            is Action.UploadProfilePicture -> uploadProfilePicture(action.imageData)
-            is Action.DeleteProfilePicture -> DeleteProfilePicture()
-            is Action.CreateProfile -> createProfile()
-            is Action.StartStyleQuestionnaire -> startStyleQuestionnaire()
-            is Action.HandleQuestionAnswered -> handleQuestionAnswered(action.style)
+            is Action.CreateProfile                -> createProfile()
+            is Action.DeleteProfilePicture         -> DeleteProfilePicture()
+            is Action.DisplayProfileCreationForm   -> displayProfileCreationForm(action.form)
+            is Action.EditGoal                     -> editGoal(action.goal)
+            is Action.EditUsername                 -> editUsername(action.username)
+            is Action.HandleAnimationEnd           -> handleExitAnimationFinished()
+            is Action.HandleError                  -> handleError(action.error)
+            is Action.HandleQuestionAnswered       -> handleQuestionAnswered(action.style)
             is Action.HandleQuestionnaireCompleted -> handleQuestionnaireCompleted()
-            is Action.SetLearningStyle -> setLearningStyle()
-            is Action.DisplayProfileCreationForm -> displayProfileCreationForm(action.form)
-            is Action.HandleError -> handleError(action.error)
-            is Action.HandleAnimationEnd -> handleExitAnimationFinished()
+            is Action.SelectField                  -> selectField(action.field)
+            is Action.SelectLevel                  -> SelectLevel(action.level)
+            is Action.SetLearningStyle             -> setLearningStyle()
+            is Action.StartStyleQuestionnaire      -> startStyleQuestionnaire()
+            is Action.ToggleLevelDropdownVisibility -> toggleLevelDropdownVisibility()
+            is Action.UploadProfilePicture         -> uploadProfilePicture(action.imageData)
         }
     }
 
@@ -207,7 +198,7 @@ class CreateUserProfileViewModel(
                         email = value.email,
                         username = value.username,
                         photoUrl = value.photoUrl,
-                        preferences = Profile.LearningPreferences(value.field.name, value.level.name, value.goal),
+                        preferences = Profile.LearningPreferences(value.field, value.level, value.goal),
                     )
                 ).getOrThrow()
                 showSnackbar(successMessage.await(), SnackbarType.Success)
@@ -236,7 +227,7 @@ class CreateUserProfileViewModel(
         }
 
         viewModelScope.launch(dispatcher) {
-            fetchStyleQuestionnaireUseCase(Profile.LearningPreferences(value.field.name, value.level.name, value.goal)).collect { result ->
+            fetchStyleQuestionsUseCase(Profile.LearningPreferences(value.field.name, value.level.name, value.goal)).collect { result ->
                 result.fold(
                     onSuccess = { question -> update { it.copy(styleQuestionnaire = it.styleQuestionnaire + question) } },
                     onFailure = ::handleError
@@ -277,13 +268,14 @@ class CreateUserProfileViewModel(
                         email = value.email,
                         username = value.username,
                         photoUrl = value.photoUrl,
-                        preferences = Profile.LearningPreferences(value.field.name, value.level.name, value.goal),
+                        preferences = Profile.LearningPreferences(value.field, value.level, value.goal),
                         learningStyle = value.learningStyle!!,
                         lastUpdated = System.currentTimeMillis()
                     )
                 ).getOrThrow()
+                refresh()
                 showSnackbar(successMessage.await(), SnackbarType.Success)
-                navigate(Route.Dashboard(value.userId), true)
+                navigate(Route.Dashboard, true)
             } catch (e: Exception) {
                 handleError(e)
             } finally {

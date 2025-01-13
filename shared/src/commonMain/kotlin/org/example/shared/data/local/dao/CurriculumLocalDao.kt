@@ -29,12 +29,4 @@ abstract class CurriculumLocalDao : ExtendedLocalDao<CurriculumEntity>() {
         """
     )
     abstract fun getByUserId(userId: String): Flow<List<CurriculumEntity>>
-
-    @Query(
-        """
-            SELECT * FROM curricula
-            WHERE status = :status
-        """
-    )
-    abstract fun getByStatus(status: String): Flow<List<CurriculumEntity>>
 }

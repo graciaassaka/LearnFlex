@@ -10,6 +10,7 @@ import org.example.shared.domain.client.ContentGeneratorClient
 import org.example.shared.domain.constant.ContentType
 import org.example.shared.domain.constant.Field
 import org.example.shared.domain.constant.Level
+import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.Profile
 import org.example.shared.domain.model.assistant.*
 import kotlin.test.*
@@ -87,7 +88,7 @@ class ContentGeneratorClientImplTest {
             field = Field.COMPUTER_SCIENCE,
             level = Level.BEGINNER,
             style = Profile.LearningStyle(
-                dominant = "reading",
+                dominant = Style.READING.name,
                 breakdown = Profile.LearningStyleBreakdown(
                     reading = 70,
                     kinesthetic = 30
@@ -137,7 +138,7 @@ class ContentGeneratorClientImplTest {
             field = Field.COMPUTER_SCIENCE,
             level = Level.BEGINNER,
             style = Profile.LearningStyle(
-                dominant = "reading",
+                dominant = Style.READING.name,
                 breakdown = Profile.LearningStyleBreakdown(
                     reading = 70,
                     kinesthetic = 30
@@ -243,7 +244,7 @@ class ContentGeneratorClientImplTest {
             field = Field.COMPUTER_SCIENCE,
             level = Level.BEGINNER,
             style = Profile.LearningStyle(
-                dominant = "reading",
+                dominant = Style.READING.name,
                 breakdown = Profile.LearningStyleBreakdown(reading = 80, kinesthetic = 20)
             ),
             type = ContentType.LESSON,
@@ -305,7 +306,7 @@ class ContentGeneratorClientImplTest {
             field = Field.COMPUTER_SCIENCE,
             level = Level.BEGINNER,
             style = Profile.LearningStyle(
-                dominant = "reading",
+                dominant = Style.READING.name,
                 breakdown = Profile.LearningStyleBreakdown(reading = 70, kinesthetic = 30)
             ),
             type = ContentType.LESSON,

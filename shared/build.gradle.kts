@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.kotlinx.parcelize)
     alias(libs.plugins.room)
     alias(libs.plugins.ksp)
 }
@@ -68,6 +69,10 @@ kotlin {
     androidTarget {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+            freeCompilerArgs.addAll(
+                "-P",
+                "plugin:org.jetbrains.kotlin.parcelize:additionalAnnotation=org.example.shared.domain.model.util.CommonParcelize"
+            )
         }
     }
 

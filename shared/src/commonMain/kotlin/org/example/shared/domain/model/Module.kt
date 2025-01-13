@@ -3,7 +3,8 @@ package org.example.shared.domain.model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.example.shared.domain.model.interfaces.DatabaseRecord
-import org.example.shared.domain.model.interfaces.ScoreQueryable
+import org.example.shared.domain.model.interfaces.DescribableRecord
+import org.example.shared.domain.model.interfaces.ScorableRecord
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -26,10 +27,10 @@ data class Module(
     override val id: String = Uuid.random().toString(),
 
     @SerialName("title")
-    val title: String,
+    override val title: String,
 
     @SerialName("description")
-    val description: String,
+    override val description: String,
 
     @SerialName("content")
     val content: List<String>,
@@ -45,4 +46,20 @@ data class Module(
 
     @SerialName("last_updated")
     override val lastUpdated: Long = System.currentTimeMillis()
-) : DatabaseRecord, ScoreQueryable
+) : DatabaseRecord, ScorableRecord, DescribableRecord {
+    /**
+     * Determines if the quiz can be taken based on the completion status of the lessons.
+     *
+     * @param lessons The list of lessons to check.
+     * @return `true` if all lessons are completed and the list is not empty, `false` otherwise.
+     */
+    fun canQuiz(lessons: List<Lesson>) = lessons.isNotEmpty() && lessons.all { it.isCompleted() }
+
+    /**
+     * Updates the quiz score if the new score is higher than the current score.
+     *
+     * @param score The new score to update the quiz score with.
+     * @return A new instance of the module with the updated quiz score.
+     */
+    fun updateQuizScore(score: Int) = copy(quizScore = maxOf(score, quizScore))
+}

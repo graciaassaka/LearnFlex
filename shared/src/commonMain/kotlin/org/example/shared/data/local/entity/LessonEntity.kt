@@ -6,7 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
 import org.example.shared.data.local.entity.interfaces.RoomEntity
-import org.example.shared.domain.model.interfaces.ScoreQueryable
+import org.example.shared.domain.model.interfaces.ScorableRecord
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -77,4 +77,4 @@ data class LessonEntity(
         defaultValue = "CURRENT_TIMESTAMP",
     )
     override val lastUpdated: Long
-) : RoomEntity, ScoreQueryable
+) : RoomEntity, ScorableRecord

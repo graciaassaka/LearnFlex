@@ -23,7 +23,10 @@ import androidx.navigation.NavController
 import learnflex.composeapp.generated.resources.*
 import org.example.composeApp.presentation.navigation.Route
 import org.example.composeApp.presentation.state.CreateProfileUIState
-import org.example.composeApp.presentation.ui.component.*
+import org.example.composeApp.presentation.ui.component.CustomVerticalScrollbar
+import org.example.composeApp.presentation.ui.component.EnumDropdown
+import org.example.composeApp.presentation.ui.component.ImageUpload
+import org.example.composeApp.presentation.ui.component.SelectableCardGroup
 import org.example.composeApp.presentation.ui.component.create_profile.PersonalInfoForm
 import org.example.composeApp.presentation.ui.component.create_profile.StyleQuestionnaireForm
 import org.example.composeApp.presentation.ui.constant.TestTags
@@ -32,6 +35,7 @@ import org.example.composeApp.presentation.ui.dimension.Padding
 import org.example.composeApp.presentation.ui.dimension.Spacing
 import org.example.composeApp.presentation.ui.layout.AlignedLabeledBarsLayout
 import org.example.composeApp.presentation.ui.layout.EnumScrollablePickerLayout
+import org.example.composeApp.presentation.ui.util.HandleUIEvents
 import org.example.composeApp.presentation.ui.util.ScreenConfig
 import org.example.composeApp.presentation.ui.util.SnackbarType
 import org.example.composeApp.presentation.viewModel.CreateUserProfileViewModel
@@ -40,7 +44,7 @@ import org.example.shared.domain.constant.Field
 import org.example.shared.domain.constant.Level
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.Profile
-import org.example.shared.domain.use_case.profile.FetchStyleQuestionnaireUseCase
+import org.example.shared.domain.use_case.profile.FetchStyleQuestionsUseCase
 import org.jetbrains.compose.resources.stringResource
 import org.example.composeApp.presentation.action.CreateUserProfileAction as Action
 
@@ -73,7 +77,9 @@ fun CreateProfileScreen(
         isScreenVisible = viewModel.isScreenVisible.collectAsStateWithLifecycle()
     )
 
-    HandleUIEvents(Route.CreateProfile, navController, viewModel, screenConfig.snackbarHostState) { screenConfig.snackbarType.value = it }
+    HandleUIEvents(Route.CreateProfile, navController, viewModel, screenConfig.snackbarHostState) {
+        screenConfig.snackbarType.value = it
+    }
 
     when (screenConfig.uiState.value.currentForm) {
         ProfileCreationForm.PersonalInfo -> {
@@ -222,12 +228,12 @@ private fun StyleQuestionnaireScreen(
     handleAction: (Action) -> Unit,
     modifier: Modifier = Modifier
 ) = with(screenConfig) {
-    var currentQuestionIndex by remember { mutableIntStateOf(0) }
+    var currentQuestionIndex by rememberSaveable { mutableIntStateOf(0) }
     val currentQuestion = uiState.value.styleQuestionnaire.getOrNull(currentQuestionIndex)
     var selectedOption by rememberSaveable(currentQuestion) { mutableStateOf("") }
     val styleSaver = Saver<Style?, String>(
-        save = { it?.value },
-        restore = { savedValue -> savedValue.let { Style.valueOf(it.uppercase()) } }
+        save = { it?.name },
+        restore = { savedValue -> savedValue.let(Style::valueOf) }
     )
     var selectedStyle by rememberSaveable(currentQuestion, stateSaver = styleSaver) { mutableStateOf(null) }
 
@@ -255,7 +261,7 @@ private fun StyleQuestionnaireScreen(
                         null
                     }
                 },
-                isQuizFinished = currentQuestionIndex == FetchStyleQuestionnaireUseCase.NUMBER_OF_QUESTIONS - 1,
+                isQuizFinished = currentQuestionIndex == FetchStyleQuestionsUseCase.NUMBER_OF_QUESTIONS - 1,
                 onNextClicked = {
                     selectedStyle?.let { style ->
                         handleAction(Action.HandleQuestionAnswered(style))
@@ -266,7 +272,6 @@ private fun StyleQuestionnaireScreen(
             )
         }
     }
-
     if (uiState.value.showStyleResultDialog && uiState.value.learningStyle?.breakdown != null) {
         StyleBreakdownDialog(
             enabled = !uiState.value.isLoading,
@@ -321,10 +326,7 @@ private fun QuestionContent(
                 )
             }
         }
-        CustomVerticalScrollbar(
-            scrollState = scrollState,
-            modifier = Modifier.align(Alignment.CenterEnd)
-        )
+        CustomVerticalScrollbar(scrollState)
     }
 }
 

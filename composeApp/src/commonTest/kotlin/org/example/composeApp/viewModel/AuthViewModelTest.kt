@@ -2,19 +2,26 @@ package org.example.composeApp.viewModel
 
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
+import org.example.composeApp.injection.DatabaseSyncManagers
 import org.example.composeApp.presentation.action.AuthAction
 import org.example.composeApp.presentation.navigation.Route
 import org.example.composeApp.presentation.ui.screen.AuthForm
 import org.example.composeApp.presentation.ui.util.UIEvent
 import org.example.composeApp.presentation.viewModel.AuthViewModel
+import org.example.composeApp.presentation.viewModel.LearnFlexViewModel
 import org.example.composeApp.presentation.viewModel.util.ResourceProvider
+import org.example.shared.domain.model.interfaces.DatabaseRecord
+import org.example.shared.domain.sync.SyncManager
 import org.example.shared.domain.use_case.auth.*
 import org.example.shared.domain.use_case.validation.ValidateEmailUseCase
 import org.example.shared.domain.use_case.validation.ValidatePasswordConfirmationUseCase
@@ -24,6 +31,9 @@ import org.junit.After
 import org.junit.Assert.assertNotEquals
 import org.junit.Before
 import org.junit.Test
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -39,13 +49,18 @@ class AuthViewModelTest {
     private lateinit var validateEmailUseCase: ValidateEmailUseCase
     private lateinit var validatePasswordUseCase: ValidatePasswordUseCase
     private lateinit var validatePasswordConfirmationUseCase: ValidatePasswordConfirmationUseCase
+    private lateinit var learnFlexViewModel: LearnFlexViewModel
     private lateinit var resourceProvider: ResourceProvider
+    private lateinit var syncManager: SyncManager<DatabaseRecord>
+    private lateinit var syncManagers: MutableList<SyncManager<DatabaseRecord>>
+    private lateinit var syncStatus: MutableStateFlow<SyncManager.SyncStatus>
     private lateinit var testDispatcher: TestDispatcher
 
     @Before
     fun setup() {
         testDispatcher = StandardTestDispatcher()
         Dispatchers.setMain(testDispatcher)
+        learnFlexViewModel = mockk(relaxed = true)
         signUpUseCase = mockk(relaxed = true)
         signInUseCase = mockk(relaxed = true)
         sendVerificationEmailUseCase = mockk(relaxed = true)
@@ -56,6 +71,24 @@ class AuthViewModelTest {
         validatePasswordUseCase = ValidatePasswordUseCase()
         validatePasswordConfirmationUseCase = ValidatePasswordConfirmationUseCase()
         resourceProvider = mockk(relaxed = true)
+        syncStatus = MutableStateFlow<SyncManager.SyncStatus>(SyncManager.SyncStatus.Idle)
+        syncManager = mockk(relaxed = true)
+        syncManagers = mutableListOf<SyncManager<DatabaseRecord>>()
+        syncManagers.add(syncManager)
+
+        startKoin {
+            modules(
+                module {
+                    single<LearnFlexViewModel> { learnFlexViewModel }
+                    single<CoroutineDispatcher> { testDispatcher }
+                    single<ResourceProvider> { resourceProvider }
+                    single<SyncManager<DatabaseRecord>> { syncManager }
+                    single<DatabaseSyncManagers> { syncManagers }
+                }
+            )
+        }
+
+        every { syncManager.syncStatus } returns syncStatus
 
         viewModel = AuthViewModel(
             signUpUseCase = signUpUseCase,
@@ -67,13 +100,14 @@ class AuthViewModelTest {
             validateEmailUseCase = validateEmailUseCase,
             validatePasswordUseCase = validatePasswordUseCase,
             validatePasswordConfirmationUseCase = validatePasswordConfirmationUseCase,
-            resourceProvider = resourceProvider,
-            dispatcher = testDispatcher
         )
     }
 
     @After
-    fun tearDown() = Dispatchers.resetMain()
+    fun tearDown() {
+        Dispatchers.resetMain()
+        stopKoin()
+    }
 
     @Test
     fun `editSignInEmail with valid email should update email state and set email error to null`() {

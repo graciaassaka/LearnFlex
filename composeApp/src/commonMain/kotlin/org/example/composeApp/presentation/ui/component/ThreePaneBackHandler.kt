@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-expect fun ThreePaneBackHandler(
-    navigator: ThreePaneScaffoldNavigator<Nothing>
+expect fun <T> ThreePaneBackHandler(
+    navigator: ThreePaneScaffoldNavigator<T>,
+    onBack: () -> Unit = {}
 )

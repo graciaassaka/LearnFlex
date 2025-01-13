@@ -240,15 +240,15 @@ class StyleQuizGeneratorClientImpl(
      * @throws IllegalArgumentException if the responses list is empty.
      */
     override fun evaluateResponses(responses: List<Style>) =
-        responses.groupingBy { it.value }
+        responses.groupingBy { it.name }
             .eachCount()
             .runCatching {
-                if (responses.isEmpty()) throw IllegalArgumentException("Responses cannot be empty")
+                require(responses.isNotEmpty())
                 Profile.LearningStyle(
                     dominant = maxBy { it.value }.key,
                     breakdown = Profile.LearningStyleBreakdown(
-                        reading = getOrDefault(Style.READING.value, 0) * 100 / responses.size,
-                        kinesthetic = getOrDefault(Style.KINESTHETIC.value, 0) * 100 / responses.size
+                        reading = getOrDefault(Style.READING.name, 0) * 100 / responses.size,
+                        kinesthetic = getOrDefault(Style.KINESTHETIC.name, 0) * 100 / responses.size
                     )
                 )
             }

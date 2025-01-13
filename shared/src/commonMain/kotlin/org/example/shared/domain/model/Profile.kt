@@ -2,6 +2,9 @@ package org.example.shared.domain.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.example.shared.domain.constant.Field
+import org.example.shared.domain.constant.Level
+import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -55,7 +58,16 @@ data class Profile(
     data class LearningStyle(
         val dominant: String = "",
         val breakdown: LearningStyleBreakdown = LearningStyleBreakdown()
-    )
+    ) {
+        init {
+            require(dominant.isEmpty() || dominant in Style.entries.map { it.name }) {
+                "Invalid dominant style: $dominant"
+            }
+        }
+
+        constructor(dominant: Style, breakdown: LearningStyleBreakdown) :
+                this(dominant.name, breakdown)
+    }
 
     /**
      * Represents the breakdown of different styles.
@@ -67,7 +79,12 @@ data class Profile(
     data class LearningStyleBreakdown(
         val reading: Int = 0,
         val kinesthetic: Int = 0
-    )
+    ) {
+        init {
+            require(reading >= 0) { "Invalid reading score: $reading" }
+            require(kinesthetic >= 0) { "Invalid kinesthetic score: $kinesthetic" }
+        }
+    }
 
     /**
      * A data class representing learning preferences.
@@ -81,5 +98,13 @@ data class Profile(
         val field: String = "",
         val level: String = "",
         val goal: String = ""
-    )
+    ) {
+        init {
+            require(field.isEmpty() || field in Field.entries.map { it.name }) { "Invalid field: $field" }
+            require(level.isEmpty() || level in Level.entries.map { it.name }) { "Invalid level: $level" }
+        }
+
+        constructor(field: Field, level: Level, goal: String) :
+                this(field.name, level.name, goal)
+    }
 }

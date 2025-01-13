@@ -26,7 +26,8 @@ import org.example.shared.data.remote.firebase.FirebaseStorageClient
 import org.example.shared.data.remote.firestore.FirestoreBaseDao
 import org.example.shared.data.remote.firestore.FirestoreExtendedDao
 import org.example.shared.data.remote.util.HttpClientConfig
-import org.example.shared.data.repository.component.*
+import org.example.shared.data.repository.component.BatchRepositoryComponent
+import org.example.shared.data.repository.component.CrudRepositoryComponent
 import org.example.shared.data.repository.util.QueryStrategies
 import org.example.shared.data.repository.util.RepositoryConfig
 import org.example.shared.data.sync.handler.SyncHandlerDelegate
@@ -40,10 +41,10 @@ import org.example.shared.domain.model.*
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.repository.*
 import org.example.shared.domain.repository.util.ModelMapper
-import org.example.shared.domain.storage_operations.*
+import org.example.shared.domain.storage_operations.BatchOperations
+import org.example.shared.domain.storage_operations.CrudOperations
 import org.example.shared.domain.sync.SyncHandler
 import org.example.shared.domain.sync.SyncManager
-import org.example.shared.domain.use_case.activity.FetchWeeklyActivityByUserUseCase
 import org.example.shared.domain.use_case.auth.*
 import org.example.shared.domain.use_case.curriculum.*
 import org.example.shared.domain.use_case.lesson.*
@@ -53,7 +54,6 @@ import org.example.shared.domain.use_case.profile.*
 import org.example.shared.domain.use_case.quiz.GenerateQuizUseCase
 import org.example.shared.domain.use_case.section.*
 import org.example.shared.domain.use_case.session.FetchSessionsByUserUseCase
-import org.example.shared.domain.use_case.session.RetrieveSessionsByDateRangeUseCase
 import org.example.shared.domain.use_case.session.UpdateSessionUseCase
 import org.example.shared.domain.use_case.session.UploadSessionUseCase
 import org.example.shared.domain.use_case.syllabus.SummarizeSyllabusUseCase
@@ -77,6 +77,8 @@ expect fun getDatabaseModule(): Module
 expect fun getFirebaseAuthServiceModule(): Module
 expect fun getFirebaseStorageServiceModule(): Module
 
+typealias DatabaseSyncManagers = List<SyncManager<DatabaseRecord>>
+
 // Qualifier constants
 private const val USER_PROFILE_SCOPE = "user_profile_scope"
 private const val CURRICULUM_SCOPE = "curriculum_scope"
@@ -84,6 +86,8 @@ private const val MODULE_SCOPE = "module_scope"
 private const val LESSON_SCOPE = "lesson_scope"
 private const val SECTION_SCOPE = "section_scope"
 private const val SESSION_SCOPE = "session_scope"
+private const val MULTIPLE_CHOICE_SCOPE = "multiple_choice_scope"
+private const val TRUE_FALSE_SCOPE = "true_false_scope"
 
 val commonModule = module {
     // Core Dependencies
@@ -152,7 +156,7 @@ val commonModule = module {
     }
 
     // Quiz Question Generator Clients
-    single<QuestionGeneratorClient<Question.MultipleChoice>> {
+    single<QuestionGeneratorClient<Question.MultipleChoice>>(named(MULTIPLE_CHOICE_SCOPE)) {
         QuestionGeneratorClientImpl<Question.MultipleChoice>(
             assistantClient = get(),
             assistantId = OpenAIConstants.MULTIPLE_CHOICE_QUESTION_GENERATOR_ID,
@@ -160,19 +164,11 @@ val commonModule = module {
         )
     }
 
-    single<QuestionGeneratorClient<Question.TrueFalse>> {
+    single<QuestionGeneratorClient<Question.TrueFalse>>(named(TRUE_FALSE_SCOPE)) {
         QuestionGeneratorClientImpl<Question.TrueFalse>(
             assistantClient = get(),
             assistantId = OpenAIConstants.TRUE_FALSE_QUESTION_GENERATOR_ID,
             serializer = Question.TrueFalse.serializer()
-        )
-    }
-
-    single<QuestionGeneratorClient<Question.Ordering>> {
-        QuestionGeneratorClientImpl<Question.Ordering>(
-            assistantClient = get(),
-            assistantId = OpenAIConstants.ORDERING_QUESTION_GENERATOR_ID,
-            serializer = Question.Ordering.serializer()
         )
     }
 
@@ -376,12 +372,12 @@ val commonModule = module {
     single<ModelMapper<Session, SessionEntity>>(named(SESSION_SCOPE)) {
         object : ModelMapper<Session, SessionEntity> {
             override fun toModel(entity: SessionEntity) = with(entity) {
-                Session(id, endTime, createdAt, lastUpdated)
+                Session(id, createdAt, lastUpdated)
             }
 
             override fun toEntity(model: Session, parentId: String?) = with(model) {
                 require(parentId != null) { "Parent ID must not be null for SessionEntity" }
-                SessionEntity(id, parentId, endTime, createdAt, lastUpdated)
+                SessionEntity(id, parentId, createdAt, lastUpdated)
             }
         }
     }
@@ -490,7 +486,7 @@ val commonModule = module {
         }
     }
 
-    single<List<SyncManager<DatabaseRecord>>> {
+    single<DatabaseSyncManagers> {
         listOf(
             get(named(USER_PROFILE_SCOPE)),
             get(named(CURRICULUM_SCOPE)),
@@ -527,11 +523,6 @@ val commonModule = module {
                 withGetByParent { userId ->
                     get<CurriculumLocalDao>(named(CURRICULUM_SCOPE)).getByUserId(userId)
                 }
-                withCustomQuery(
-                    QueryByStatusRepositoryComponent.STATUS_STRATEGY_KEY,
-                    QueryByStatusRepositoryComponent.StatusQueryStrategy { status ->
-                        get<CurriculumLocalDao>(named(CURRICULUM_SCOPE)).getByStatus(status)
-                    })
             })
     }
 
@@ -549,18 +540,6 @@ val commonModule = module {
                 withGetByParent { curriculumId ->
                     get<ModuleLocalDao>(named(MODULE_SCOPE)).getByCurriculumId(curriculumId)
                 }
-                withCustomQuery(
-                    QueryByScoreRepositoryComponent.SCORE_STRATEGY_KEY,
-                    QueryByScoreRepositoryComponent.ScoreQueryStrategy { curriculumId, score ->
-                        get<ModuleLocalDao>(named(MODULE_SCOPE)).getByMinQuizScore(curriculumId, score)
-                    }
-                )
-                withCustomQuery(
-                    QueryByCurriculumIdRepositoryComponent.CURRICULUM_STRATEGY_KEY,
-                    QueryByCurriculumIdRepositoryComponent.CurriculumQueryStrategy { curriculumId ->
-                        get<ModuleLocalDao>(named(MODULE_SCOPE)).getByCurriculumId(curriculumId)
-                    }
-                )
             })
     }
 
@@ -578,18 +557,6 @@ val commonModule = module {
                 withGetByParent { moduleId ->
                     get<LessonLocalDao>(named(LESSON_SCOPE)).getByModuleId(moduleId)
                 }
-                withCustomQuery(
-                    QueryByScoreRepositoryComponent.SCORE_STRATEGY_KEY,
-                    QueryByScoreRepositoryComponent.ScoreQueryStrategy { moduleId, score ->
-                        get<LessonLocalDao>(named(LESSON_SCOPE)).getByMinQuizScore(moduleId, score)
-                    }
-                )
-                withCustomQuery(
-                    QueryByCurriculumIdRepositoryComponent.CURRICULUM_STRATEGY_KEY,
-                    QueryByCurriculumIdRepositoryComponent.CurriculumQueryStrategy { curriculumId ->
-                        get<LessonLocalDao>(named(LESSON_SCOPE)).getByCurriculumId(curriculumId)
-                    }
-                )
             })
     }
 
@@ -607,18 +574,6 @@ val commonModule = module {
                 withGetByParent { lessonId ->
                     get<SectionLocalDao>(named(SECTION_SCOPE)).getByLessonId(lessonId)
                 }
-                withCustomQuery(
-                    QueryByScoreRepositoryComponent.SCORE_STRATEGY_KEY,
-                    QueryByScoreRepositoryComponent.ScoreQueryStrategy { lessonId, score ->
-                        get<SectionLocalDao>(named(SECTION_SCOPE)).getByMinQuizScore(lessonId, score)
-                    }
-                )
-                withCustomQuery(
-                    QueryByCurriculumIdRepositoryComponent.CURRICULUM_STRATEGY_KEY,
-                    QueryByCurriculumIdRepositoryComponent.CurriculumQueryStrategy { curriculumId ->
-                        get<SectionLocalDao>(named(SECTION_SCOPE)).getByCurriculumId(curriculumId)
-                    }
-                )
             })
     }
 
@@ -636,11 +591,6 @@ val commonModule = module {
                 withGetByParent { userId ->
                     get<SessionLocalDao>(named(SESSION_SCOPE)).getByUserId(userId)
                 }
-                withCustomQuery(
-                    QueryByDateRangeRepositoryComponent.DATE_RANGE_QUERY_STRATEGY_KEY,
-                    QueryByDateRangeRepositoryComponent.DateRangeQueryStrategy { startTime, endTime ->
-                        get<SessionLocalDao>(named(SESSION_SCOPE)).getByDateRange(startTime, endTime)
-                    })
             })
     }
 
@@ -654,8 +604,6 @@ val commonModule = module {
     single<CurriculumRepository>(named(CURRICULUM_SCOPE)) {
         object : CurriculumRepository, CrudOperations<Curriculum> by CrudRepositoryComponent(
             get<RepositoryConfig<Curriculum, CurriculumEntity>>((named(CURRICULUM_SCOPE)))
-        ), QueryByStatusOperation<Curriculum> by QueryByStatusRepositoryComponent(
-            get<RepositoryConfig<Curriculum, CurriculumEntity>>((named(CURRICULUM_SCOPE)))
         ), BatchOperations<Curriculum> by BatchRepositoryComponent(
             get<RepositoryConfig<Curriculum, CurriculumEntity>>((named(CURRICULUM_SCOPE)))
         ) {}
@@ -666,10 +614,6 @@ val commonModule = module {
             get<RepositoryConfig<ModuleModel, ModuleEntity>>((named(MODULE_SCOPE)))
         ), BatchOperations<ModuleModel> by BatchRepositoryComponent(
             get<RepositoryConfig<ModuleModel, ModuleEntity>>((named(MODULE_SCOPE)))
-        ), QueryByScoreOperation<ModuleModel> by QueryByScoreRepositoryComponent(
-            get<RepositoryConfig<ModuleModel, ModuleEntity>>((named(MODULE_SCOPE)))
-        ), QueryByCurriculumIdOperation<ModuleModel> by QueryByCurriculumIdRepositoryComponent(
-            get<RepositoryConfig<ModuleModel, ModuleEntity>>((named(MODULE_SCOPE)))
         ) {}
     }
 
@@ -677,10 +621,6 @@ val commonModule = module {
         object : LessonRepository, CrudOperations<Lesson> by CrudRepositoryComponent(
             get<RepositoryConfig<Lesson, LessonEntity>>((named(LESSON_SCOPE)))
         ), BatchOperations<Lesson> by BatchRepositoryComponent(
-            get<RepositoryConfig<Lesson, LessonEntity>>((named(LESSON_SCOPE)))
-        ), QueryByScoreOperation<Lesson> by QueryByScoreRepositoryComponent(
-            get<RepositoryConfig<Lesson, LessonEntity>>((named(LESSON_SCOPE)))
-        ), QueryByCurriculumIdOperation<Lesson> by QueryByCurriculumIdRepositoryComponent(
             get<RepositoryConfig<Lesson, LessonEntity>>((named(LESSON_SCOPE)))
         ) {}
     }
@@ -690,10 +630,6 @@ val commonModule = module {
             get<RepositoryConfig<Section, SectionEntity>>((named(SECTION_SCOPE)))
         ), BatchOperations<Section> by BatchRepositoryComponent(
             get<RepositoryConfig<Section, SectionEntity>>((named(SECTION_SCOPE)))
-        ), QueryByScoreOperation<Section> by QueryByScoreRepositoryComponent(
-            get<RepositoryConfig<Section, SectionEntity>>((named(SECTION_SCOPE)))
-        ), QueryByCurriculumIdOperation<Section> by QueryByCurriculumIdRepositoryComponent(
-            get<RepositoryConfig<Section, SectionEntity>>((named(SECTION_SCOPE)))
         ) {}
     }
 
@@ -701,8 +637,6 @@ val commonModule = module {
         object : SessionRepository, CrudOperations<Session> by CrudRepositoryComponent(
             get<RepositoryConfig<Session, SessionEntity>>((named(SESSION_SCOPE)))
         ), BatchOperations<Session> by BatchRepositoryComponent(
-            get<RepositoryConfig<Session, SessionEntity>>((named(SESSION_SCOPE)))
-        ), QueryByDateRangeOperation<Session> by QueryByDateRangeRepositoryComponent(
             get<RepositoryConfig<Session, SessionEntity>>((named(SESSION_SCOPE)))
         ) {}
     }
@@ -722,7 +656,7 @@ val commonModule = module {
     single { FetchProfileUseCase(get(), get(named(USER_PROFILE_SCOPE))) }
     singleOf(::UploadProfilePictureUseCase)
     singleOf(::DeleteProfilePictureUseCase)
-    singleOf(::FetchStyleQuestionnaireUseCase)
+    singleOf(::FetchStyleQuestionsUseCase)
     singleOf(::GetStyleResultUseCase)
 
     // Use Cases - Curriculum
@@ -730,16 +664,14 @@ val commonModule = module {
     single { UpdateCurriculumUseCase(get(named(CURRICULUM_SCOPE))) }
     single { DeleteCurriculumUseCase(get(named(CURRICULUM_SCOPE))) }
     single { FetchCurriculaByUserUseCase(get(named(CURRICULUM_SCOPE))) }
-    single { RetrieveCurriculaByStatusUseCase(get(named(CURRICULUM_SCOPE))) }
     single { GenerateCurriculumUseCase(get(named(CURRICULUM_SCOPE))) }
     singleOf(::FetchActiveCurriculumUseCase)
 
     // Use Cases - Quiz
     single {
         GenerateQuizUseCase(
-            multipleChoiceGeneratorClient = get<QuestionGeneratorClient<Question.MultipleChoice>>(),
-            trueFalseGeneratorClient = get<QuestionGeneratorClient<Question.TrueFalse>>(),
-            orderingGeneratorClient = get<QuestionGeneratorClient<Question.Ordering>>(),
+            multipleChoiceGeneratorClient = get<QuestionGeneratorClient<Question.MultipleChoice>>(named(MULTIPLE_CHOICE_SCOPE)),
+            trueFalseGeneratorClient = get<QuestionGeneratorClient<Question.TrueFalse>>(named(TRUE_FALSE_SCOPE)),
             random = Random.Default
         )
     }
@@ -748,40 +680,34 @@ val commonModule = module {
     single { UploadModulesUseCase(get(named(MODULE_SCOPE))) }
     single { UpdateModuleUseCase(get(named(MODULE_SCOPE))) }
     single { FetchModulesByCurriculumUseCase(get(named(MODULE_SCOPE))) }
-    single { RetrieveModulesByCurriculumUseCase(get(named(MODULE_SCOPE))) }
-    single { RetrieveModulesByMinQuizScoreUseCase(get(named(MODULE_SCOPE))) }
     single { DeleteModulesByCurriculumUseCase(get(named(MODULE_SCOPE))) }
     single { GenerateModuleUseCase(get(named(MODULE_SCOPE))) }
-    singleOf(::CountModulesByStatusUseCase)
-    singleOf(::GenerateModuleQuizUseCase)
+    singleOf(::FetchModuleQuizQuestionsUseCase)
 
     // Use Cases - Lesson
-    single { UploadLessonsUseCase(get(named(LESSON_SCOPE))) }
+    single { UploadLessonUseCase(get(named(LESSON_SCOPE))) }
     single { UpdateLessonUseCase(get(named(LESSON_SCOPE))) }
     single { FetchLessonsByModuleUseCase(get(named(LESSON_SCOPE))) }
-    single { RetrieveLessonsByCurriculumUseCase(get(named(LESSON_SCOPE))) }
-    single { RetrieveLessonsByMinQuizScoreUseCase(get(named(LESSON_SCOPE))) }
     single { DeleteLessonsByModuleUseCase(get(named(LESSON_SCOPE))) }
     single { GenerateLessonUseCase(get(named(LESSON_SCOPE))) }
-    singleOf(::CountLessonsByStatusUseCase)
-    singleOf(::GenerateLessonQuizUseCase)
+    singleOf(::FetchLessonQuizQuestionsUseCase)
+    singleOf(::GenerateAndUploadLessonUseCase)
+    singleOf(::RegenerateAndUpdateLessonUseCase)
 
     // Use Cases - Section
-    single { UploadSectionsUseCase(get(named(SECTION_SCOPE))) }
+    single { UploadSectionUseCase(get(named(SECTION_SCOPE))) }
     single { UpdateSectionUseCase(get(named(SECTION_SCOPE))) }
     single { FetchSectionsByLessonUseCase(get(named(SECTION_SCOPE))) }
-    single { RetrieveSectionsByCurriculumUseCase(get(named(SECTION_SCOPE))) }
-    single { RetrieveSectionByMinQuizScoreUseCase(get(named(SECTION_SCOPE))) }
     single { DeleteSectionsByLessonUseCase(get(named(SECTION_SCOPE))) }
     single { GenerateSectionUseCase(get(named(SECTION_SCOPE))) }
-    singleOf(::CountSectionsByStatusUseCase)
-    singleOf(::GenerateSectionQuizUseCase)
+    singleOf(::FetchSectionQuizQuestionsUseCase)
+    singleOf(::GenerateAndUploadSectionUseCase)
+    singleOf(::RegenerateAndUpdateSectionUseCase)
 
     // Use Cases - Session
     single { UploadSessionUseCase(get(named(SESSION_SCOPE))) }
     single { UpdateSessionUseCase(get(named(SESSION_SCOPE))) }
     single { FetchSessionsByUserUseCase(get(named(SESSION_SCOPE))) }
-    single { RetrieveSessionsByDateRangeUseCase(get(named(SESSION_SCOPE))) }
 
     // Use Cases - Syllabus
     singleOf(::SummarizeSyllabusUseCase)
@@ -798,14 +724,13 @@ val commonModule = module {
     singleOf(::ValidateUsernameUseCase)
     singleOf(::ValidatePasswordConfirmationUseCase)
 
-    // Use Cases - Activity
-    singleOf(::FetchWeeklyActivityByUserUseCase)
-
     // ViewModels
     single<ResourceProvider> { ResourceProvider { getString(it) } }
-    viewModelOf(::BaseViewModel)
+    singleOf(::LearnFlexViewModel)
+    viewModelOf(::ScreenViewModel)
     viewModelOf(::AuthViewModel)
     viewModelOf(::CreateUserProfileViewModel)
     viewModelOf(::DashboardViewModel)
     viewModelOf(::LibraryViewModel)
+    viewModelOf(::StudyViewModel)
 }

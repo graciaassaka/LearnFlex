@@ -26,34 +26,187 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="281a55e8-b077-4663-8355-8f00356df64a" name="LEA-35 Studying and Assessment" comment="Refactor: use resource folder for snackbar messages&#10;&#10;Replaced hardcoded snackbar messages with resources to improve maintainability and localization support. Adjusted dependencies and logic in relevant ViewModels, UseCases, and tests accordingly.">
+    <list default="true" id="281a55e8-b077-4663-8355-8f00356df64a" name="LEA-35 Studying and Assessment" comment="Refactor: improve Study and Dashboard view logic&#10;&#10;Introduced `StudyAction` and `StudyUIState` and modified `StudyViewModel` and `StudyScreen` to enhance separation of concerns. Added `DashboardViewModel` and `DashboardScreen` implementations with corresponding unit tests to support dashboard functionality. Updated snackbar message handling to use external resource files for better localization and maintainability.">
+      <change afterPath="$PROJECT_DIR$/.idea/assetWizardSettings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/firebaseSettings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/composeResources/drawable/ic_curriculum.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/composeResources/drawable/ic_lesson.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/composeResources/drawable/ic_library.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/composeResources/drawable/ic_module.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/composeResources/drawable/ic_quiz.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/composeResources/drawable/ic_study.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/androidx/compose/desktop/ui/tooling/preview/Preview.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/LearnFlexAction.kt" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/StudyAction.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/state/AppState.kt" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/state/StudyUIState.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/ExpandedCollapseIconButton.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/LoadingWithCancelButton.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/Preview.kt" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/StudyScreen.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/util/DateConverter.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/LearnFlexViewModel.kt" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/StudyViewModel.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/StudyViewModelTest.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared/src/androidMain/kotlin/org/example/shared/domain/model/util/CommonParcelable.android.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Quiz.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/interfaces/DescribableRecord.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/util/BundleManager.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/util/CommonParcelable.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/util/SessionManager.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/GenerateAndUploadLessonUseCase.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/RegenerateAndUpdateLessonUseCase.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/UploadLessonUseCase.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/GenerateAndUploadSectionUseCase.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/RegenerateAndUpdateSectionUseCase.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/UploadSectionUseCase.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/GenerateAndUploadLessonUseCaseTest.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/RegenerateAndUpdateLessonUseCaseTest.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/UploadLessonUseCaseTest.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/GenerateAndUploadSectionUseCaseTest.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/RegenerateAndUpdateSectionUseCaseTest.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/UploadSectionUseCaseTest.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared/src/desktopMain/kotlin/org/example/shared/domain/model/util/CommonParcelable.desktop.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tests.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Tests.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/DashboardScreenTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/DashboardScreenTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/Previews.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/presentation/ui/component/CustomScrollbars.android.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/presentation/ui/component/CustomScrollbars.android.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/presentation/ui/component/ThreePaneBackHandler.android.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/presentation/ui/component/ThreePaneBackHandler.android.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/composeResources/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/composeResources/values/strings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/injection/Module.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/injection/Module.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/AuthAction.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/AuthAction.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/CreateUserProfileAction.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/CreateUserProfileAction.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/DashboardAction.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/DashboardAction.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/LibraryAction.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/LibraryAction.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/navigation/AppDestination.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/navigation/AppDestination.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/navigation/Navigator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/navigation/Navigator.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/navigation/Route.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/navigation/Route.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/state/DashboardUIState.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/state/DashboardUIState.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/state/LibraryUIState.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/state/LibraryUIState.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/CustomScaffold.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/CustomScaffold.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/CustomScrollbars.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/CustomVerticalScrollbar.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/HandleUIEvents.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/util/HandleUIEvents.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/ProgressColor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/ProgressColor.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/SpeakingBird.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/SpeakingBird.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/ThreePaneBackHandler.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/ThreePaneBackHandler.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/layout/VerticalBarGraphLayout.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/layout/VerticalBarGraphLayout.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/AuthScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/AuthScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/CreateProfileScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/CreateProfileScreen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/DashboardScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/DashboardScreen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/LibraryScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/LibraryScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/theme/Theme.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/theme/Theme.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/AuthViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/AuthViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/BaseViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/ScreenViewModel.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/CreateUserProfileViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/CreateUserProfileViewModel.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/DashboardViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/DashboardViewModel.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/LibraryViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/LibraryViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/AuthViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/AuthViewModelTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/BaseViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/ScreenViewModelTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/CreateProfileViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/CreateProfileViewModelTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/DashboardViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/DashboardViewModelTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/LibraryViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/LibraryViewModelTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/activity/GetWeeklyActivityUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/activity/FetchWeeklyActivityByUserUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/util/CompoundException.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/util/CompoundException.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/activity/GetWeeklyActivityUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/activity/GetWeeklyActivityUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/CreateProfileUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/CreateProfileUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/DeleteProfilePictureUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/DeleteProfilePictureUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/UpdateProfileUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/UpdateProfileUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/UploadProfilePictureUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/UploadProfilePictureUseCaseTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/presentation/ui/component/CustomScrollbars.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/presentation/ui/component/CustomScrollbars.desktop.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/presentation/ui/component/ThreePaneBackHandler.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/presentation/ui/component/ThreePaneBackHandler.desktop.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/presentation/ui/component/ToolTip.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/presentation/ui/component/ToolTip.desktop.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/shared/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/androidUnitTest/kotlin/org/example/shared/data/local/DatabaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/androidUnitTest/kotlin/org/example/shared/data/local/DatabaseTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/converter/StringListConverter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/converter/StringListConverter.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/dao/CurriculumLocalDao.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/dao/CurriculumLocalDao.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/dao/LessonLocalDao.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/dao/LessonLocalDao.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/dao/ModuleLocalDao.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/dao/ModuleLocalDao.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/dao/SectionLocalDao.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/dao/SectionLocalDao.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/dao/SessionLocalDao.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/dao/SessionLocalDao.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/database/DatabaseConfig.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/database/DatabaseConfig.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/entity/CurriculumEntity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/entity/CurriculumEntity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/entity/LessonEntity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/entity/LessonEntity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/entity/ModuleEntity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/entity/ModuleEntity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/entity/SectionEntity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/entity/SectionEntity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/entity/SessionEntity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/local/entity/SessionEntity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/assistant/generator/StyleQuizGeneratorClientImpl.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/assistant/generator/StyleQuizGeneratorClientImpl.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/repository/component/BatchRepositoryComponent.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/repository/component/BatchRepositoryComponent.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/repository/component/CrudRepositoryComponent.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/repository/component/CrudRepositoryComponent.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/repository/component/QueryByCurriculumIdRepositoryComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/repository/component/QueryByDateRangeRepositoryComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/repository/component/QueryByScoreRepositoryComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/repository/component/QueryByStatusRepositoryComponent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/sync/handler/SyncHandlerDelegate.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/sync/handler/SyncHandlerDelegate.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Bundle.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Bundle.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Curriculum.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Curriculum.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Lesson.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Lesson.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Module.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Module.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Profile.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Profile.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Question.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Question.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Section.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Section.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Session.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/Session.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/interfaces/EndTimeQueryable.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/interfaces/ScoreQueryable.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/interfaces/ScorableRecord.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/interfaces/StatusQueryable.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/repository/CurriculumRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/repository/CurriculumRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/repository/LessonRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/repository/LessonRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/repository/ModuleRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/repository/ModuleRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/repository/SectionRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/repository/SectionRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/repository/SessionRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/repository/SessionRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/storage_operations/QueryByCurriculumIdOperation.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/storage_operations/QueryByDateRangeOperation.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/storage_operations/QueryByScoreOperation.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/storage_operations/QueryByStatusOperation.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/activity/FetchWeeklyActivityByUserUseCase.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/FetchCurriculumBundleUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/FetchCurriculumBundleUseCase.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/RetrieveCurriculaByStatusUseCase.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/CountLessonsByStatusUseCase.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/GenerateLessonQuizUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/FetchLessonQuizQuestionsUseCase.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/RetrieveLessonsByCurriculumUseCase.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/RetrieveLessonsByMinQuizScoreUseCase.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/UploadLessonsUseCase.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/CountModulesByStatusUseCase.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/GenerateModuleQuizUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/FetchModuleQuizQuestionsUseCase.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/RetrieveModulesByCurriculumUseCase.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/RetrieveModulesByMinQuizScoreUseCase.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/FetchStyleQuestionnaireUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/FetchStyleQuestionsUseCase.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/quiz/GenerateQuizUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/quiz/GenerateQuizUseCase.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/quiz/GradeQuizUseCase.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/CountSectionsByStatusUseCase.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/DeleteSectionsByLessonUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/DeleteSectionsByLessonUseCase.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/GenerateSectionQuizUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/FetchSectionQuizQuestionsUseCase.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/RetrieveSectionByMinQuizScoreUseCase.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/RetrieveSectionsByCurriculumUseCase.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/UploadSectionsUseCase.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/session/RetrieveSessionsByDateRangeUseCase.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/assistant/generator/ContentGeneratorClientImplTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/assistant/generator/ContentGeneratorClientImplTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/assistant/generator/StyleQuizGeneratorClientImplTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/assistant/generator/StyleQuizGeneratorClientImplTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/repository/component/CrudRepositoryComponentTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/repository/component/CrudRepositoryComponentTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/repository/component/QueryByCurriculumIdRepositoryComponentTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/repository/component/QueryByDateRangeRepositoryComponentTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/repository/component/QueryByStatusRepositoryComponentTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/repository/component/ScoreQueryByScoreRepositoryComponentTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/sync/handler/SyncHandlerDelegateTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/sync/handler/SyncHandlerDelegateTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/activity/GetWeeklyActivityUseCaseTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/GenerateCurriculumUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/GenerateCurriculumUseCaseTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/RetrieveCurriculaByStatusUseCaseTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/CountLessonsByStatusUseCaseTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/GenerateLessonQuizUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/GenerateLessonQuizUseCaseTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/GenerateLessonUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/GenerateLessonUseCaseTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/RetrieveLessonsByCurriculumIdUseCaseTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/RetrieveLessonsByMinQuizScoreUseCaseTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/UploadLessonsUseCaseTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/CountModulesByStatusUseCaseTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/GenerateModuleQuizUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/GenerateModuleQuizUseCaseTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/GenerateModuleUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/GenerateModuleUseCaseTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/RetrieveModulesByCurriculumUseCaseTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/RetrieveModulesByMinQuizScoreUseCaseTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/FetchProfileUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/FetchProfileUseCaseTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/FetchStyleQuestionnaireUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/FetchStyleQuestionnaireUseCaseTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/quiz/GenerateQuizUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/quiz/GenerateQuizUseCaseTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/quiz/GradeQuizUseCaseTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/CountSectionsByStatusUseCaseTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/GenerateSectionQuizUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/GenerateSectionQuizUseCaseTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/RetrieveSectionByMinQuizScoreUseCaseTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/RetrieveSectionsByCurriculumUseCaseTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/UploadSectionsUseCaseTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/session/RetrieveSessionsByDateRangeUseCaseTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/syllabus/SummarizeSyllabusUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/syllabus/SummarizeSyllabusUseCaseTest.kt" afterDir="false" />
     </list>
     <list id="543ef38b-89b9-492a-b137-13358d0234c3" name="Changes" comment="- Implemented `DashboardViewModel` with necessary dependencies and logic.&#10;- Created `DashboardScreen` to display the dashboard UI.&#10;- Added comprehensive unit tests for `DashboardViewModel` to ensure functionality." />
     <list id="27db182c-d411-4cde-a632-24cff2efd733" name="LEA-15 User Sign Up and Sign In (Firebase Auth)" comment="Remove unused configuration and obsolete import.&#10;&#10;Deleted unnecessary debug run configurations from IntelliJ's deploymentTargetSelector.xml. Also removed an unused Kotlin Android source set import from composeApp/build.gradle.kts to clean up the project setup." />
@@ -63,7 +216,6 @@
     </list>
     <list id="4dda34f5-96ab-4c27-ad2e-f9e5c6666e52" name="LEA-20 Learning Progress Visualization" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -141,9 +293,9 @@
         <option value="Kotlin Jupyter Notebook" />
         <option value="JavaScript File" />
         <option value="Kotlin Object" />
-        <option value="Kotlin Data Class" />
         <option value="Kotlin Enum" />
         <option value="Kotlin Interface" />
+        <option value="Kotlin Data Class" />
         <option value="Kotlin File" />
         <option value="Kotlin Class" />
       </list>
@@ -173,6 +325,8 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.compose.material3.adaptive/adaptive-layout-desktop/1.0.0/4a4d1d65c48074a692cf8c48156aaf03cb70df47/adaptive-layout-desktop-1.0.0-sources.jar!/commonMain/androidx/compose/material3/adaptive/layout/ListDetailPaneScaffold.kt" root0="SKIP_INSPECTION" />
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.compose.material3/material3-desktop/1.7.0/7bcb77d4291ab8cf77ff225e8108ad2a4998c423/material3-desktop-1.7.0.jar!/androidx/compose/material3/ColorScheme.class" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/CreateUserProfileViewModel.kt" root0="SKIP_INSPECTION" />
   </component>
   <component name="KotlinMultiplatform" KONAN_HOME="C:\Users\assak\.konan\kotlin-native-prebuilt-windows-x86_64-2.0.21" />
@@ -181,44 +335,6 @@
     <scriptDefinition className="org.jetbrains.kotlin.scripting.resolve.KotlinScriptDefinitionFromAnnotatedTemplate" definitionName="KotlinBuildScript">
       <order>2147483647</order>
     </scriptDefinition>
-  </component>
-  <component name="LineStatusTrackerManager">
-    <file path="$PROJECT_DIR$/.idea/workspace.xml">
-      <ranges>
-        <range start1="28" end1="33" start2="28" end2="33" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="34" end1="35" start2="34" end2="34" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="37" end1="37" start2="36" end2="37" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="39" end1="39" start2="39" end2="40" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="40" end1="40" start2="41" end2="42" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="43" end1="43" start2="45" end2="46" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="44" end1="47" start2="47" end2="47" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="49" end1="60" start2="49" end2="50" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="61" end1="64" start2="51" end2="52" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="68" end1="69" start2="56" end2="56" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="158" end1="158" start2="145" end2="146" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="160" end1="161" start2="148" end2="148" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="200" end1="241" start2="187" end2="219" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1246" end1="1247" start2="1224" end2="1225" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1331" end1="1332" start2="1309" end2="1310" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1344" end1="1345" start2="1322" end2="1323" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1355" end1="1356" start2="1333" end2="1334" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1366" end1="1369" start2="1344" end2="1347" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1379" end1="1380" start2="1357" end2="1358" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1392" end1="1393" start2="1370" end2="1371" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1428" end1="1430" start2="1406" end2="1406" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1432" end1="1432" start2="1408" end2="1410" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1436" end1="1436" start2="1414" end2="1416" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1439" end1="1441" start2="1419" end2="1419" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1513" end1="1521" start2="1491" end2="1491" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1925" end1="1926" start2="1895" end2="1896" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="1975" end1="1976" start2="1945" end2="1954" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="2033" end1="2034" start2="2011" end2="2011" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="2058" end1="2059" start2="2035" end2="2037" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="2070" end1="2075" start2="2048" end2="2048" changelist="281a55e8-b077-4663-8355-8f00356df64a" />
-        <range start1="2082" end1="2093" start2="2055" end2="2057" changelist="4dda34f5-96ab-4c27-ad2e-f9e5c6666e52" />
-        <range start1="2114" end1="2114" start2="2078" end2="2079" changelist="4dda34f5-96ab-4c27-ad2e-f9e5c6666e52" />
-      </ranges>
-    </file>
   </component>
   <component name="MaliciousPackageCheckinHandlerState">
     <option name="packageCheck" value="true" />
@@ -242,8 +358,9 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Android App.MainActivity (1).executor": "Debug",
     "Android App.MainActivity.executor": "Debug",
-    "Android App.composeApp.executor": "Run",
+    "Android App.composeApp.executor": "Debug",
     "Android Instrumented Tests.AuthScreenTest.executor": "Run",
     "Android Instrumented Tests.CreateProfileScreenTest.executor": "Run",
     "Android Instrumented Tests.DashboardScreenTest.executor": "Run",
@@ -410,6 +527,7 @@
     "Gradle.BuildModulePathUseCaseTest.executor": "Run",
     "Gradle.BuildSectionPathUseCaseTest.executor": "Run",
     "Gradle.Building Gradle Dependencies.executor": "Run",
+    "Gradle.ContentGeneratorClientImplTest.executor": "Debug",
     "Gradle.ContentGeneratorClientImplTest.generateContent handles failed run.executor": "Run",
     "Gradle.ContentGeneratorClientImplTest.generateContent handles required action flow.executor": "Run",
     "Gradle.ContentGeneratorClientImplTest.generateContent handles thread creation failure.executor": "Run",
@@ -499,6 +617,7 @@
     "Gradle.DashboardViewModelTest.countLessonsByStatus should update lessonsByStatus.executor": "Run",
     "Gradle.DashboardViewModelTest.countLessonsByStatusUseCase failure should handle error.executor": "Run",
     "Gradle.DashboardViewModelTest.countLessonsByStatusUseCase success should update lessonCountByStatus in state.executor": "Run",
+    "Gradle.DashboardViewModelTest.countModulesByStatus failure should handle error.executor": "Debug",
     "Gradle.DashboardViewModelTest.countModulesByStatus should update modulesByStatus.executor": "Run",
     "Gradle.DashboardViewModelTest.countModulesByStatusUseCase failure should handle error.executor": "Run",
     "Gradle.DashboardViewModelTest.countModulesByStatusUseCase success should update moduleCountByStatus in state.executor": "Run",
@@ -526,7 +645,14 @@
     "Gradle.DashboardViewModelTest.getWeeklyActivityUseCase failure should handle error.executor": "Run",
     "Gradle.DashboardViewModelTest.getWeeklyActivityUseCase success should update weeklyActivity (1).executor": "Run",
     "Gradle.DashboardViewModelTest.getWeeklyActivityUseCase success should update weeklyActivity.executor": "Run",
+    "Gradle.DashboardViewModelTest.handleAction(Refresh) should invoke learnFlexViewModel refresh.executor": "Run",
+    "Gradle.DashboardViewModelTest.refresh should update weekly activity in DashboardUIState (1).executor": "Run",
+    "Gradle.DashboardViewModelTest.refresh should update weekly activity in DashboardUIState.executor": "Run",
+    "Gradle.DashboardViewModelTest.refresh with active curriculum updates itemsCompletion (1).executor": "Run",
+    "Gradle.DashboardViewModelTest.refresh with active curriculum updates itemsCompletion.executor": "Run",
     "Gradle.DashboardViewModelTest.refreshActiveCurriculumDataUseCase failure should handle error.executor": "Run",
+    "Gradle.DashboardViewModelTest.should handle error from learnFlexViewModel state (1).executor": "Run",
+    "Gradle.DashboardViewModelTest.should handle error from learnFlexViewModel state.executor": "Run",
     "Gradle.DashboardViewModelTest.state should initialize with isLoading true and then update with profile and active curriculum on success (1).executor": "Run",
     "Gradle.DashboardViewModelTest.state should initialize with isLoading true and then update with profile and active curriculum on success.executor": "Run",
     "Gradle.DashboardViewModelTest.state should update with profile and active curriculum on success (1).executor": "Run",
@@ -710,6 +836,10 @@
     "Gradle.FirestorePathConstructorTest.cannotAddDocumentWithoutPrecedingCollection.executor": "Run",
     "Gradle.FirestorePathConstructorTest.cannotBuildEmptyPath.executor": "Run",
     "Gradle.FirestorePathConstructorTest.executor": "Run",
+    "Gradle.GenerateAndUploadLessonUseCaseTest (1).executor": "Run",
+    "Gradle.GenerateAndUploadLessonUseCaseTest.executor": "Run",
+    "Gradle.GenerateAndUploadSectionUseCaseTest (1).executor": "Run",
+    "Gradle.GenerateAndUploadSectionUseCaseTest.executor": "Run",
     "Gradle.GenerateCurriculumFromDescriptionUseCaseTest (1).executor": "Run",
     "Gradle.GenerateCurriculumFromDescriptionUseCaseTest.executor": "Run",
     "Gradle.GenerateCurriculumFromDescriptionUseCaseTest.invoke should call generateContent with correct context.executor": "Run",
@@ -737,9 +867,14 @@
     "Gradle.GenerateModuleUseCaseTest.invoke should call generateContent with correct context.executor": "Debug",
     "Gradle.GenerateModuleUseCaseTest.invoke should return failure result when generateContent fails.executor": "Run",
     "Gradle.GenerateModuleUseCaseTest.invoke should return success result when generateContent succeeds.executor": "Run",
-    "Gradle.GenerateQuizUseCaseTest.executor": "Run",
+    "Gradle.GenerateQuizUseCaseTest (1).executor": "Debug",
+    "Gradle.GenerateQuizUseCaseTest.executor": "Debug",
     "Gradle.GenerateQuizUseCaseTest.invoke should distribute questions and merge flows (1).executor": "Run",
-    "Gradle.GenerateQuizUseCaseTest.invoke should distribute questions and merge flows.executor": "Run",
+    "Gradle.GenerateQuizUseCaseTest.invoke should distribute questions and merge flows.executor": "Debug",
+    "Gradle.GenerateQuizUseCaseTest.invoke should emit failure if multipleChoice generator fails (1).executor": "Run",
+    "Gradle.GenerateQuizUseCaseTest.invoke should emit failure if multipleChoice generator fails.executor": "Run",
+    "Gradle.GenerateQuizUseCaseTest.invoke should emit failure if trueFalse generator fails (1).executor": "Run",
+    "Gradle.GenerateQuizUseCaseTest.invoke should emit failure if trueFalse generator fails.executor": "Debug",
     "Gradle.GenerateSectionQuizUseCaseTest.executor": "Run",
     "Gradle.GenerateSectionUseCaseTest.executor": "Debug",
     "Gradle.GetActiveCurriculumUseCaseTest.executor": "Run",
@@ -817,14 +952,14 @@
     "Gradle.LearningStyleRepositoryTest.get should return the learning style from the remote data source when local is null.executor": "Run",
     "Gradle.LearningStyleRepositoryTest.update should update the learning style and queue an update operation (1).executor": "Debug",
     "Gradle.LearningStyleRepositoryTest.update should update the learning style and queue an update operation.executor": "Run",
-    "Gradle.LibraryViewModelTest (1).executor": "Run",
+    "Gradle.LibraryViewModelTest (1).executor": "Debug",
     "Gradle.LibraryViewModelTest.executor": "Run",
     "Gradle.LibraryViewModelTest.handleAction ClearSearchQuery should reset search query and filtered curricula.executor": "Run",
     "Gradle.LibraryViewModelTest.handleAction DeleteSyllabusFile should clear syllabus file in state (1).executor": "Run",
     "Gradle.LibraryViewModelTest.handleAction DeleteSyllabusFile should clear syllabus file in state.executor": "Run",
     "Gradle.LibraryViewModelTest.handleAction DiscardContent should clear curriculum and modules from state.executor": "Run",
     "Gradle.LibraryViewModelTest.handleAction EditSearchQuery with empty query should reset filtered curricula.executor": "Debug",
-    "Gradle.LibraryViewModelTest.handleAction EditSearchQuery with non-empty query should update search query and filter curricula.executor": "Run",
+    "Gradle.LibraryViewModelTest.handleAction EditSearchQuery with non-empty query should update search query and filter curricula.executor": "Debug",
     "Gradle.LibraryViewModelTest.handleAction EditSyllabusDescription should update syllabus description in state (1).executor": "Run",
     "Gradle.LibraryViewModelTest.handleAction EditSyllabusDescription should update syllabus description in state.executor": "Run",
     "Gradle.LibraryViewModelTest.handleAction GenerateCurriculum should handle error when unsuccessful.executor": "Run",
@@ -900,6 +1035,8 @@
     "Gradle.OpenAIAssistantClientTest.uploadFile should return failure when status code is 401.executor": "Run",
     "Gradle.OpenAIAssistantClientTest.uploadFile should return success when status code is 200 (1).executor": "Debug",
     "Gradle.OpenAIAssistantClientTest.uploadFile should return success when status code is 200.executor": "Run",
+    "Gradle.Preview: org.example.composeApp.presentation.ui.component.PreviewKt.StudyScreenPreview.executor": "Run",
+    "Gradle.Preview: org.example.composeApp.presentation.ui.screen.StudyScreenKt.StudyScreenPreview.executor": "Run",
     "Gradle.QueryByCurriculumIdRepositoryComponentTest.getByCurriculumId should handle empty curriculum id.executor": "Run",
     "Gradle.QueryByCurriculumIdRepositoryComponentTest.getByCurriculumId should handle multiple emissions (1).executor": "Run",
     "Gradle.QueryByCurriculumIdRepositoryComponentTest.getByCurriculumId should handle multiple emissions.executor": "Run",
@@ -915,6 +1052,9 @@
     "Gradle.QuestionGeneratorClientImplTest.generateQuestion single success flow.executor": "Run",
     "Gradle.QuestionGeneratorClientImplTest.generateQuestion success flow (1).executor": "Run",
     "Gradle.QuestionGeneratorClientImplTest.generateQuestion success flow.executor": "Run",
+    "Gradle.RegenerateAndUpdateLessonUseCaseTest.executor": "Run",
+    "Gradle.RegenerateAndUpdateSectionUseCaseTest (1).executor": "Run",
+    "Gradle.RegenerateAndUpdateSectionUseCaseTest.executor": "Run",
     "Gradle.RemoteDataSourceImplTest.executor": "Run",
     "Gradle.RemoteDataSourceImplTest.fetch should successfully retrieve an item.executor": "Run",
     "Gradle.RemoteDataSourceImplTest.update should return failure when exception occurs.executor": "Run",
@@ -937,6 +1077,8 @@
     "Gradle.SaveCurriculumUseCaseTest.executor": "Run",
     "Gradle.ScoreQueryByScoreRepositoryComponentTest.executor": "Run",
     "Gradle.ScoreQueryRepositoryComponentTest.executor": "Run",
+    "Gradle.ScreenViewModelTest (1).executor": "Run",
+    "Gradle.ScreenViewModelTest.executor": "Run",
     "Gradle.SendPasswordResetEmailUseCaseTest.invoke should call sendPasswordResetEmail on authService.executor": "Run",
     "Gradle.SendPasswordResetEmailUseCaseTest.invoke should return Result#failure when sendPasswordResetEmail returns Result#failure.executor": "Run",
     "Gradle.SendPasswordResetEmailUseCaseTest.invoke should return Result#success when sendPasswordResetEmail returns Result#success.executor": "Run",
@@ -957,6 +1099,37 @@
     "Gradle.SignInUseCaseTest.executor": "Run",
     "Gradle.SignUpUseCaseTest.SignUpUseCase should call AuthService#signUp with the provided email and password.executor": "Run",
     "Gradle.SignUpUseCaseTest.executor": "Run",
+    "Gradle.StudyViewModelTest (1).executor": "Run",
+    "Gradle.StudyViewModelTest.executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction GenerateLesson should invoke generateAndUploadLessonUseCase and update UI state (1).executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction GenerateLesson should invoke generateAndUploadLessonUseCase and update UI state.executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction GenerateLesson with error shows UIEvent ShowSnackbar (1).executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction GenerateLesson with error shows UIEvent ShowSnackbar.executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction GenerateLessonQuiz should call fetchLessonQuizQuestionsUseCase and update UI state (1).executor": "Debug",
+    "Gradle.StudyViewModelTest.handleAction GenerateLessonQuiz should call fetchLessonQuizQuestionsUseCase and update UI state.executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction GenerateModuleQuiz should handle error from fetchModuleQuizQuestionsUseCase.executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction GenerateModuleQuiz should handle error from updateModuleUseCase.executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction GenerateSection should invoke generateAndUploadSectionUseCase and update UI state.executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction GenerateSection with error shows UIEvent ShowSnackbar.executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction GenerateSectionQuiz should call fetchSectionQuizQuestionsUseCase and update UI state (1).executor": "Debug",
+    "Gradle.StudyViewModelTest.handleAction GenerateSectionQuiz should call fetchSectionQuizQuestionsUseCase and update UI state.executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction Navigate should update state with navigation event (1).executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction Navigate should update state with navigation event.executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction RegenerateLesson should call regenerateAndUpdateLessonUseCase and update lesson selection.executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction RegenerateLesson with error shows UIEvent ShowSnackbar.executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction RegenerateSection should call regenerateAndUpdateSectionUseCase and refresh data.executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction RegenerateSection with error shows UIEvent ShowSnackbar.executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction SaveQuizResult with Collection Lessons should call updateLessonUseCase.executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction SaveQuizResult with Collection Modules should call updateModuleUseCase (1).executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction SaveQuizResult with Collection Modules should call updateModuleUseCase.executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction SaveQuizResult with Collection Sections should call updateSectionUseCase (1).executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction SaveQuizResult with Collection Sections should call updateSectionUseCase.executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction SubmitQuiz should update state with quiz grade (1).executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction SubmitQuiz should update state with quiz grade.executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction(GoBack) clears lesson (1).executor": "Run",
+    "Gradle.StudyViewModelTest.handleAction(GoBack) clears lesson.executor": "Run",
+    "Gradle.StudyViewModelTest.viewModel updates state when profile is provided (1).executor": "Run",
+    "Gradle.StudyViewModelTest.viewModel updates state when profile is provided.executor": "Run",
     "Gradle.StyleQuizClientImplTest.evaluateResponses calculates correct style breakdown.executor": "Run",
     "Gradle.StyleQuizClientImplTest.evaluateResponses handles empty responses.executor": "Run",
     "Gradle.StyleQuizClientImplTest.executor": "Run",
@@ -971,7 +1144,7 @@
     "Gradle.StyleQuizClientImplTest.streamQuestions success flow (1).executor": "Debug",
     "Gradle.StyleQuizClientImplTest.streamQuestions success flow.executor": "Run",
     "Gradle.StyleQuizGeneratorClientImplTest (1).executor": "Run",
-    "Gradle.StyleQuizGeneratorClientImplTest.executor": "Run",
+    "Gradle.StyleQuizGeneratorClientImplTest.executor": "Debug",
     "Gradle.StyleQuizGeneratorClientImplTest.streamQuestions success flow.executor": "Debug",
     "Gradle.StyleQuizServiceImplTest.evaluateResponses should return a failure when responses are empty.executor": "Run",
     "Gradle.StyleQuizServiceImplTest.evaluateResponses should return correct dominant style and breakdown when all styles are present.executor": "Run",
@@ -1033,6 +1206,9 @@
     "Gradle.Tests in 'LearnFlex.shared.commonTest' (4).executor": "Run",
     "Gradle.Tests in 'LearnFlex.shared.commonTest' (5).executor": "Run",
     "Gradle.Tests in 'LearnFlex.shared.commonTest'.executor": "Run",
+    "Gradle.Tests in 'org.example.composeApp.viewModel' (1).executor": "Run",
+    "Gradle.Tests in 'org.example.composeApp.viewModel' (2).executor": "Run",
+    "Gradle.Tests in 'org.example.composeApp.viewModel'.executor": "Run",
     "Gradle.Tests in 'org.example.shared' (1).executor": "Run",
     "Gradle.Tests in 'org.example.shared' (2).executor": "Run",
     "Gradle.Tests in 'org.example.shared'.executor": "Debug",
@@ -1045,6 +1221,7 @@
     "Gradle.Tests in 'org.example.shared.data.remote.assistant.generator' (4).executor": "Run",
     "Gradle.Tests in 'org.example.shared.data.remote.assistant.generator'.executor": "Run",
     "Gradle.Tests in 'org.example.shared.data.remote.assistant.summarizer'.executor": "Run",
+    "Gradle.Tests in 'org.example.shared.data.remote.firebase'.executor": "Run",
     "Gradle.Tests in 'org.example.shared.data.remote.firestore' (1).executor": "Run",
     "Gradle.Tests in 'org.example.shared.data.remote.firestore' (2).executor": "Run",
     "Gradle.Tests in 'org.example.shared.data.remote.firestore'.executor": "Run",
@@ -1065,8 +1242,11 @@
     "Gradle.Tests in 'org.example.shared.domain.use_case.path'.executor": "Run",
     "Gradle.Tests in 'org.example.shared.domain.use_case.profile' (1).executor": "Run",
     "Gradle.Tests in 'org.example.shared.domain.use_case.profile'.executor": "Run",
+    "Gradle.Tests in 'org.example.shared.domain.use_case.quiz'.executor": "Run",
     "Gradle.Tests in 'org.example.shared.domain.use_case.section'.executor": "Run",
     "Gradle.Tests in 'org.example.shared.domain.use_case.session'.executor": "Run",
+    "Gradle.Tests in 'org.example.shared.domain.use_case.syllabus' (1).executor": "Run",
+    "Gradle.Tests in 'org.example.shared.domain.use_case.syllabus'.executor": "Run",
     "Gradle.TimestampManagerTest (1).executor": "Run",
     "Gradle.TimestampManagerTest.executor": "Run",
     "Gradle.TimestampManagerTest.should handle invalid collection name gracefully.executor": "Run",
@@ -1075,6 +1255,7 @@
     "Gradle.UpdateModuleUseCaseTest.executor": "Run",
     "Gradle.UpdateUserProfileUseCaseTest.invoke should return failure when updateUserProfile fails.executor": "Run",
     "Gradle.UploadCurriculumUseCaseTest.executor": "Debug",
+    "Gradle.UploadLessonUseCaseTest (1).executor": "Run",
     "Gradle.UploadLessonUseCaseTest.executor": "Run",
     "Gradle.UploadModuleUseCaseTest.executor": "Run",
     "Gradle.UploadModulesUseCaseTest (1).executor": "Run",
@@ -1090,6 +1271,7 @@
     "Gradle.UploadProfilePictureUseCaseTest.invoke should throw exception when getUserData fails.executor": "Run",
     "Gradle.UploadProfilePictureUseCaseTest.invoke should throw exception when uploadFile fails.executor": "Run",
     "Gradle.UploadProfilePictureUseCaseTest.invoke should upload image and update user data successfully.executor": "Run",
+    "Gradle.UploadSectionUseCaseTest.executor": "Run",
     "Gradle.UploadSectionsUseCaseTest.executor": "Run",
     "Gradle.UserProfileRemoteDataSourceImplTest.executor": "Run",
     "Gradle.UserProfileRemoteDataSourceImplTest.getUserProfile should successfully get a user profile (1).executor": "Run",
@@ -1146,12 +1328,12 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Project",
+    "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.17",
     "project.structure.side.proportion": "0.31441718",
     "recommended.upgrade.do.not.ask.for.project": "true",
     "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "ml.llm.LLMConfigurable",
+    "settings.editor.selected.configurable": "preferences.sourceCode.Kotlin",
     "tasks.open.task.update.state.enabled": "true",
     "timeTracker.activityTracker": "null",
     "timeTracker.comment": "",
@@ -1197,13 +1379,14 @@
       <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonMain\composeResources\values" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonMain\composeResources\drawable" />
+      <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonMain\kotlin" />
+      <recent name="C:\Users\assak\IdeaProjects\LearnFlex\shared\src\commonMain" />
       <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonMain\kotlin\org\example\composeApp\presentation" />
       <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonTest\kotlin\org\example\composeApp" />
-      <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonTest\kotlin\org\example\composeApp\screen" />
-      <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonTest" />
-      <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\androidMain\kotlin\org\example\composeApp\ui" />
     </key>
     <key name="CreateKotlinClassDialog.RecentsKey">
+      <recent name="org.example.shared.domain.use_case.section" />
       <recent name="org.example.shared.data.local.entity" />
       <recent name="org.example.shared.data.util" />
     </key>
@@ -1215,14 +1398,14 @@
       <recent name="org.example.shared.domain.use_case.other" />
     </key>
     <key name="K2MoveDeclarationsDialog.RECENT_PACKAGE_KEY">
-      <recent name="org.example.shared.domain.use_case.library" />
-      <recent name="org.example.shared.domain.use_case.li" />
-      <recent name="org.example.shared.domain.use_case." />
-      <recent name="org.example.shared.domain.use_case.curriculu" />
-      <recent name="org.example.shared.domain.use_case.curriculum" />
+      <recent name="org.example.composeApp.presentation.ui.theme" />
+      <recent name="org.example.shared.domain.model.util" />
+      <recent name="org.example.composeApp.presentation.ui.util" />
+      <recent name="androidx.compose.desktop.ui.tooling.preview" />
+      <recent name="org.example.composeApp" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.DashboardViewModelTest (1)">
+  <component name="RunManager" selected="Gradle.StudyViewModelTest">
     <configuration name="MainActivity" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
       <module name="LearnFlex.composeApp" />
       <option name="ANDROID_RUN_CONFIGURATION_SCHEMA_VERSION" value="1" />
@@ -1307,31 +1490,7 @@
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="CreateProfileViewModelTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/composeApp" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":composeApp:cleanDesktopTest" />
-            <option value=":composeApp:desktopTest" />
-            <option value="--tests &quot;org.example.composeApp.viewModel.CreateProfileViewModelTest&quot;" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>true</RunAsTest>
-      <method v="2" />
-    </configuration>
-    <configuration name="CreateProfileViewModelTest.onCreateProfile should not call createProfileUseCase when username is invalid" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="StudyViewModelTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$/composeApp" />
@@ -1344,7 +1503,7 @@
           <list>
             <option value=":composeApp:cleanTestDebugUnitTest" />
             <option value=":composeApp:testDebugUnitTest" />
-            <option value="--tests &quot;org.example.composeApp.viewModel.CreateProfileViewModelTest.onCreateProfile should not call createProfileUseCase when username is invalid&quot;" />
+            <option value="--tests &quot;org.example.composeApp.presentation.viewModel.StudyViewModelTest&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -1355,7 +1514,7 @@
       <RunAsTest>true</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="DashboardViewModelTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="StudyViewModelTest.handleAction Navigate should update state with navigation event" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$/composeApp" />
@@ -1368,7 +1527,7 @@
           <list>
             <option value=":composeApp:cleanTestDebugUnitTest" />
             <option value=":composeApp:testDebugUnitTest" />
-            <option value="--tests &quot;org.example.composeApp.viewModel.DashboardViewModelTest&quot;" />
+            <option value="--tests &quot;org.example.composeApp.presentation.viewModel.StudyViewModelTest.handleAction Navigate should update state with navigation event&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -1379,18 +1538,20 @@
       <RunAsTest>true</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="Main [desktop]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="StudyViewModelTest.handleAction SubmitQuiz should update state with quiz grade" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$/composeApp" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="-DmainClass=org.example.composeApp.MainKt --quiet" />
+        <option name="scriptParameters" value="" />
         <option name="taskDescriptions">
           <list />
         </option>
         <option name="taskNames">
           <list>
-            <option value="desktopRun" />
+            <option value=":composeApp:cleanTestDebugUnitTest" />
+            <option value=":composeApp:testDebugUnitTest" />
+            <option value="--tests &quot;org.example.composeApp.presentation.viewModel.StudyViewModelTest.handleAction SubmitQuiz should update state with quiz grade&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -1398,25 +1559,25 @@
       <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
       <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>false</RunAsTest>
+      <RunAsTest>true</RunAsTest>
       <method v="2" />
     </configuration>
     <list>
       <item itemvalue="Android App.MainActivity" />
       <item itemvalue="Android App.composeApp" />
-      <item itemvalue="Gradle.CreateProfileViewModelTest (1)" />
-      <item itemvalue="Gradle.CreateProfileViewModelTest.onCreateProfile should not call createProfileUseCase when username is invalid" />
-      <item itemvalue="Gradle.DashboardViewModelTest" />
-      <item itemvalue="Gradle.DashboardViewModelTest (1)" />
-      <item itemvalue="Gradle.Main [desktop]" />
+      <item itemvalue="Gradle.StudyViewModelTest" />
+      <item itemvalue="Gradle.StudyViewModelTest.handleAction Navigate should update state with navigation event" />
+      <item itemvalue="Gradle.StudyViewModelTest.handleAction Navigate should update state with navigation event (1)" />
+      <item itemvalue="Gradle.StudyViewModelTest.handleAction SubmitQuiz should update state with quiz grade" />
+      <item itemvalue="Gradle.StudyViewModelTest.handleAction SubmitQuiz should update state with quiz grade (1)" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.DashboardViewModelTest (1)" />
-        <item itemvalue="Gradle.DashboardViewModelTest" />
-        <item itemvalue="Gradle.Main [desktop]" />
-        <item itemvalue="Gradle.CreateProfileViewModelTest.onCreateProfile should not call createProfileUseCase when username is invalid" />
-        <item itemvalue="Gradle.CreateProfileViewModelTest (1)" />
+        <item itemvalue="Gradle.StudyViewModelTest" />
+        <item itemvalue="Gradle.StudyViewModelTest.handleAction Navigate should update state with navigation event (1)" />
+        <item itemvalue="Gradle.StudyViewModelTest.handleAction Navigate should update state with navigation event (1)" />
+        <item itemvalue="Gradle.StudyViewModelTest.handleAction Navigate should update state with navigation event" />
+        <item itemvalue="Gradle.StudyViewModelTest.handleAction SubmitQuiz should update state with quiz grade (1)" />
       </list>
     </recent_temporary>
   </component>
@@ -1488,14 +1649,6 @@
       <workItem from="1731342591014" duration="3296000" />
       <workItem from="1731353381243" duration="21000" />
       <workItem from="1731702522679" duration="3504000" />
-    </task>
-    <task id="LOCAL-00037" summary="Add SetUserStyleUseCase to manage user learning styles&#10;&#10;Introduced SetUserStyleUseCase to facilitate setting user learning styles. Implemented unit tests to ensure correct behavior and integrated the use case into the dependency injection module.">
-      <option name="closed" value="true" />
-      <created>1731169839576</created>
-      <option name="number" value="00037" />
-      <option name="presentableId" value="LOCAL-00037" />
-      <option name="project" value="LOCAL" />
-      <updated>1731169839576</updated>
     </task>
     <task id="LOCAL-00038" summary="Add style questionnaire and learning style features&#10;&#10;Introduced classes and interfaces for the style questionnaire and learning style results in create profile flow. Enhanced CreateUserProfileViewModel with new methods to handle style-related functionalities and updated tests and state management.">
       <option name="closed" value="true" />
@@ -1893,7 +2046,16 @@
       <option name="project" value="LEA" />
       <updated>1736093833028</updated>
       <workItem from="1736093833439" duration="110194000" />
-      <workItem from="1736291913598" duration="54728000" />
+      <workItem from="1736291913598" duration="60502000" />
+      <workItem from="1736393503493" duration="149000" />
+      <workItem from="1736393669755" duration="1633000" />
+      <workItem from="1736395335676" duration="19725000" />
+      <workItem from="1736437140067" duration="24065000" />
+      <workItem from="1736462554494" duration="918000" />
+      <workItem from="1736463495555" duration="962000" />
+      <workItem from="1736464750020" duration="30091000" />
+      <workItem from="1736521563866" duration="102378000" />
+      <workItem from="1736670529496" duration="66598000" />
     </task>
     <task id="LOCAL-00075" summary="feat: add Path and PathBuilder classes for Firestore path management&#10;&#10;- Introduced `Path` class to represent immutable Firestore paths with validation.&#10;- Added `PathBuilder` class to construct paths with collection and document segments.&#10;- Implemented methods for path validation, segment addition, and path building.">
       <option name="closed" value="true" />
@@ -1951,7 +2113,15 @@
       <option name="project" value="LOCAL" />
       <updated>1736370762659</updated>
     </task>
-    <option name="localTasksCounter" value="82" />
+    <task id="LOCAL-00082" summary="Refactor: improve Study and Dashboard view logic&#10;&#10;Introduced `StudyAction` and `StudyUIState` and modified `StudyViewModel` and `StudyScreen` to enhance separation of concerns. Added `DashboardViewModel` and `DashboardScreen` implementations with corresponding unit tests to support dashboard functionality. Updated snackbar message handling to use external resource files for better localization and maintainability.">
+      <option name="closed" value="true" />
+      <created>1736385297626</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1736385297627</updated>
+    </task>
+    <option name="localTasksCounter" value="83" />
     <servers>
       <YouTrack url="https://gracia.youtrack.cloud">
         <option name="defaultSearch" value="Assignee: me sort by: created asc" />
@@ -1994,7 +2164,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="LEA-34" />
+                        <option value="LEA-35" />
                       </list>
                     </value>
                   </entry>
@@ -2009,7 +2179,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
     <confirmRemoveEmptyChangelist value="2" />
-    <MESSAGE value="Refactor data layer by replacing data source with DAO interfaces.&#10;&#10;Replaced the RemoteDataSource interface with a RemoteDao interface, focusing on CRUD operations. Removed RepositoryImpl and its associated test class, reorganizing responsibility to new DAO classes. Updated FirestorePathConstructor with detailed documentation and refactored related tests to align with the new data access architecture." />
     <MESSAGE value="Add Lesson-related use cases and repository integration&#10;&#10;Introduce various use cases for managing lesson entities, such as upload, update, delete, and retrieval based on different criteria. Additionally, integrate the LessonRepository with the necessary CRUD and query operations, update dependency injections, and include corresponding tests." />
     <MESSAGE value="Add use cases and tests for Module operations&#10;&#10;Introduce classes for Module operations including GetModule, UploadModule, UpdateModule, DeleteAllModules, and GetModuleIdsByMinQuizScore. Implement corresponding tests for each use case to verify success and failure scenarios. Additionally, configure ModuleRepository in dependency injection to support CRUD and query operations using new use cases." />
     <MESSAGE value="Add WindowWidthSizeClass to CustomScaffold and modular use cases&#10;&#10;Integrate `WindowWidthSizeClass` into the `CustomScaffold` function to adapt the UI layout based on device screen size. Additionally, introduce new module-related use cases for handling CRUD operations efficiently. This update also includes the addition of a small logo size in the `Dimension` class and version update for the database schema." />
@@ -2034,36 +2203,21 @@
     <MESSAGE value="Refactor: reorganize presentation layer directory structure&#10;&#10;Moved all presentation-related files in the composeApp module to a new &quot;presentation&quot; directory for improved organization. Updated file paths and adjusted imports across affected components, screens, themes, and view models accordingly." />
     <MESSAGE value="refactor: use resource folder for snackbar messages&#10;&#10;- Updated code to fetch snackbar messages from the resource folder instead of hardcoding them.&#10;- Improved maintainability and localization support." />
     <MESSAGE value="Refactor: use resource folder for snackbar messages&#10;&#10;Replaced hardcoded snackbar messages with resources to improve maintainability and localization support. Adjusted dependencies and logic in relevant ViewModels, UseCases, and tests accordingly." />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactor: use resource folder for snackbar messages&#10;&#10;Replaced hardcoded snackbar messages with resources to improve maintainability and localization support. Adjusted dependencies and logic in relevant ViewModels, UseCases, and tests accordingly." />
+    <MESSAGE value="Refactor: improve Study and Dashboard view logic&#10;&#10;Introduced `StudyAction` and `StudyUIState` and modified `StudyViewModel` and `StudyScreen` to enhance separation of concerns. Added `DashboardViewModel` and `DashboardScreen` implementations with corresponding unit tests to support dashboard functionality. Updated snackbar message handling to use external resource files for better localization and maintainability." />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor: improve Study and Dashboard view logic&#10;&#10;Introduced `StudyAction` and `StudyUIState` and modified `StudyViewModel` and `StudyScreen` to enhance separation of concerns. Added `DashboardViewModel` and `DashboardScreen` implementations with corresponding unit tests to support dashboard functionality. Updated snackbar message handling to use external resource files for better localization and maintainability." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/CreateProfileViewModelTest.kt</url>
-          <line>366</line>
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
-      </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
           <properties notifyOnTerminate="true" exception="BaseException">
             <option name="notifyOnTerminate" value="true" />
           </properties>
-          <option name="timeStamp" value="212" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/UploadProfilePictureUseCase.kt</url>
-          <line>47</line>
-          <properties>
-            <option name="lambda-ordinal" value="-1" />
-          </properties>
-          <option name="timeStamp" value="217" />
-        </line-breakpoint>
-      </breakpoints>
+        </breakpoint>
+      </default-breakpoints>
     </breakpoint-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
@@ -2085,6 +2239,7 @@
     <SUITE FILE_PATH="coverage/LearnFlex$AuthViewModelTest.ic" NAME="AuthViewModelTest Coverage Results" MODIFIED="1729536269082" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
     <SUITE FILE_PATH="coverage/LearnFlex$Tests_in__LearnFlex_shared_commonTest___2_.ic" NAME="Tests in 'LearnFlex.shared.commonTest' (2) Coverage Results" MODIFIED="1732295803093" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
     <SUITE FILE_PATH="coverage/LearnFlex$UserProfileRepositoryImplTest.ic" NAME="UserProfileRepositoryImplTest Coverage Results" MODIFIED="1731876020974" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
+    <SUITE FILE_PATH="coverage/LearnFlex$LibraryViewModelTest.ic" NAME="LibraryViewModelTest Coverage Results" MODIFIED="1735954112152" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
     <SUITE FILE_PATH="coverage/LearnFlex$CreateUserProfileViewModelTest.ic" NAME="CreateUserProfileViewModelTest Coverage Results" MODIFIED="1731296248778" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
     <SUITE FILE_PATH="coverage/LearnFlex$Tests_in__LearnFlex_shared_commonTest___1_.ic" NAME="Tests in 'LearnFlex.shared.commonTest' (1) Coverage Results" MODIFIED="1732295758444" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
   </component>

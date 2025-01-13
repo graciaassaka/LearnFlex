@@ -18,7 +18,6 @@ import kotlin.random.Random
 class GenerateQuizUseCase(
     private val multipleChoiceGeneratorClient: QuestionGeneratorClient<Question.MultipleChoice>,
     private val trueFalseGeneratorClient: QuestionGeneratorClient<Question.TrueFalse>,
-    private val orderingGeneratorClient: QuestionGeneratorClient<Question.Ordering>,
     private val random: Random
 ) {
     /**
@@ -30,7 +29,7 @@ class GenerateQuizUseCase(
      * @return A Flow emitting the generated questions wrapped in a Result.
      */
     operator fun invoke(topic: String, level: Level, number: Int): Flow<Result<Question>> {
-        val (multipleChoiceCount, trueFalseCount, orderingCount) = distributeQuestions(number)
+        val (multipleChoiceCount, trueFalseCount) = distributeQuestions(number)
         return merge(
             multipleChoiceGeneratorClient.generateQuestion(
                 QuestionGeneratorClient.Context(topic, level),
@@ -39,10 +38,6 @@ class GenerateQuizUseCase(
             trueFalseGeneratorClient.generateQuestion(
                 QuestionGeneratorClient.Context(topic, level),
                 trueFalseCount
-            ),
-            orderingGeneratorClient.generateQuestion(
-                QuestionGeneratorClient.Context(topic, level),
-                orderingCount
             )
         )
     }
@@ -53,10 +48,10 @@ class GenerateQuizUseCase(
      * @param total The total number of questions to distribute.
      * @return A Triple containing the counts of multiple choice, true/false, and ordering questions.
      */
-    private fun distributeQuestions(total: Int): Triple<Int, Int, Int> {
-        val multipleChoiceCount = random.nextInt(0, total + 1)
-        val trueFalseCount = random.nextInt(0, total - multipleChoiceCount + 1)
-        val orderingCount = total - multipleChoiceCount - trueFalseCount
-        return Triple(multipleChoiceCount, trueFalseCount, orderingCount)
+    private fun distributeQuestions(total: Int): Pair<Int, Int> {
+        val multipleChoiceCount = random.nextInt(0, total)
+        val trueFalseCount = total - multipleChoiceCount
+
+        return Pair(multipleChoiceCount, trueFalseCount)
     }
 }

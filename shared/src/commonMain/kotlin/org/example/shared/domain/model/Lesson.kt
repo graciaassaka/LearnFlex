@@ -3,7 +3,10 @@ package org.example.shared.domain.model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.example.shared.domain.model.interfaces.DatabaseRecord
-import org.example.shared.domain.model.interfaces.ScoreQueryable
+import org.example.shared.domain.model.interfaces.DescribableRecord
+import org.example.shared.domain.model.interfaces.ScorableRecord
+import org.example.shared.domain.model.util.CommonParcelable
+import org.example.shared.domain.model.util.CommonParcelize
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -20,16 +23,17 @@ import kotlin.uuid.Uuid
  * @property lastUpdated The timestamp when the lesson was last updated.
  */
 @OptIn(ExperimentalUuidApi::class)
+@CommonParcelize
 @Serializable
 data class Lesson(
     @SerialName("id")
     override val id: String = Uuid.random().toString(),
 
     @SerialName("title")
-    val title: String,
+    override val title: String,
 
     @SerialName("description")
-    val description: String,
+    override val description: String,
 
     @SerialName("content")
     val content: List<String>,
@@ -45,4 +49,20 @@ data class Lesson(
 
     @SerialName("last_updated")
     override val lastUpdated: Long = System.currentTimeMillis()
-) : DatabaseRecord, ScoreQueryable
+) : DatabaseRecord, ScorableRecord, CommonParcelable, DescribableRecord {
+    /**
+     * Determines if the quiz can be taken based on the completion status of the sections.
+     *
+     * @param sections The list of sections to check.
+     */
+    fun canQuiz(sections: List<Section>) = sections.isNotEmpty() && sections.all { it.isCompleted() }
+
+
+    /**
+     * Updates the quiz score if the new score is higher than the current score.
+     *
+     * @param score The new score to be considered.
+     * @return A copy of the Lesson with the updated quiz score.
+     */
+    fun updateQuizScore(score: Int) = copy(quizScore = maxOf(score, quizScore))
+}
