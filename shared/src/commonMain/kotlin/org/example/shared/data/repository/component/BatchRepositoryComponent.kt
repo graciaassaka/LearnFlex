@@ -119,7 +119,7 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
             emit(Result.failure(it))
         }.onCompletion {
             remote?.let {
-                config.syncManager.queueOperation(
+                if (it.isNotEmpty()) config.syncManager.queueOperation(
                     SyncOperation(SyncOperation.Type.SYNC, path, it)
                 )
             }

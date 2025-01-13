@@ -78,25 +78,24 @@ class CreateUserProfileViewModel(
      *
      * @param action The action to handle.
      */
-    fun handleAction(action: Action) {
-        when (action) {
-            is Action.CreateProfile                -> createProfile()
-            is Action.DeleteProfilePicture         -> DeleteProfilePicture()
-            is Action.DisplayProfileCreationForm   -> displayProfileCreationForm(action.form)
-            is Action.EditGoal                     -> editGoal(action.goal)
-            is Action.EditUsername                 -> editUsername(action.username)
-            is Action.HandleAnimationEnd           -> handleExitAnimationFinished()
-            is Action.HandleError                  -> handleError(action.error)
-            is Action.HandleQuestionAnswered       -> handleQuestionAnswered(action.style)
-            is Action.HandleQuestionnaireCompleted -> handleQuestionnaireCompleted()
-            is Action.SelectField                  -> selectField(action.field)
-            is Action.SelectLevel                  -> SelectLevel(action.level)
-            is Action.SetLearningStyle             -> setLearningStyle()
-            is Action.StartStyleQuestionnaire      -> startStyleQuestionnaire()
-            is Action.ToggleLevelDropdownVisibility -> toggleLevelDropdownVisibility()
-            is Action.UploadProfilePicture         -> uploadProfilePicture(action.imageData)
-        }
+    fun handleAction(action: Action) = when (action) {
+        is Action.CreateProfile                 -> createProfile()
+        is Action.DeleteProfilePicture          -> DeleteProfilePicture()
+        is Action.DisplayProfileCreationForm    -> displayProfileCreationForm(action.form)
+        is Action.EditGoal                      -> editGoal(action.goal)
+        is Action.EditUsername                  -> editUsername(action.username)
+        is Action.HandleAnimationEnd            -> handleExitAnimationFinished()
+        is Action.HandleError                   -> handleError(action.error)
+        is Action.HandleQuestionAnswered        -> handleQuestionAnswered(action.style)
+        is Action.HandleQuestionnaireCompleted  -> handleQuestionnaireCompleted()
+        is Action.SelectField                   -> selectField(action.field)
+        is Action.SelectLevel                   -> SelectLevel(action.level)
+        is Action.SetLearningStyle              -> setLearningStyle()
+        is Action.StartStyleQuestionnaire       -> startStyleQuestionnaire()
+        is Action.ToggleLevelDropdownVisibility -> toggleLevelDropdownVisibility()
+        is Action.UploadProfilePicture          -> uploadProfilePicture(action.imageData)
     }
+
 
     /**
      * Handles changes to the username input.

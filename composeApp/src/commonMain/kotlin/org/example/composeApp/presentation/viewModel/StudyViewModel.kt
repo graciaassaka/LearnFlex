@@ -144,26 +144,24 @@ class StudyViewModel(
      *               or task to execute, such as answering a quiz question,
      *               generating content, navigation, or other study-related activities.
      */
-    fun handleAction(action: StudyAction) {
-        when (action) {
-            is StudyAction.AnswerQuizQuestion  -> handleQuizQuestionAnswered(action.answer)
-            is StudyAction.CancelGeneration    -> cancelGeneration()
-            is StudyAction.GenerateLesson      -> generateJob = generateLesson(action.title)
-            is StudyAction.GenerateLessonQuiz  -> generateJob = generateLessonQuiz()
-            is StudyAction.GenerateModuleQuiz  -> generateJob = generateModuleQuiz()
-            is StudyAction.GenerateSection     -> generateJob = generateSection(action.title)
-            is StudyAction.GenerateSectionQuiz -> generateJob = generateSectionQuiz(action.id)
-            is StudyAction.GoBack              -> goBack()
-            is StudyAction.Navigate            -> navigate(action.route)
-            is StudyAction.Refresh             -> refresh()
-            is StudyAction.RegenerateLesson    -> regenerateAndUpdateLesson(action.id)
-            is StudyAction.RegenerateSection   -> regenerateAndUpdateSection(action.id)
-            is StudyAction.SaveQuizResult      -> saveQuizResult()
-            is StudyAction.SelectCurriculum    -> selectCurriculum(action.curriculumId)
-            is StudyAction.SelectLesson        -> selectLesson(action.lessonId)
-            is StudyAction.SelectModule        -> selectModule(action.moduleId)
-            is StudyAction.SubmitQuiz          -> submitQuiz()
-        }
+    fun handleAction(action: StudyAction) = when (action) {
+        is StudyAction.AnswerQuizQuestion  -> handleQuizQuestionAnswered(action.answer)
+        is StudyAction.CancelGeneration    -> cancelGeneration()
+        is StudyAction.GenerateLesson      -> generateJob = generateLesson(action.title)
+        is StudyAction.GenerateLessonQuiz  -> generateJob = generateLessonQuiz()
+        is StudyAction.GenerateModuleQuiz  -> generateJob = generateModuleQuiz()
+        is StudyAction.GenerateSection     -> generateJob = generateSection(action.title)
+        is StudyAction.GenerateSectionQuiz -> generateJob = generateSectionQuiz(action.id)
+        is StudyAction.GoBack              -> goBack()
+        is StudyAction.Navigate            -> navigate(action.route)
+        is StudyAction.Refresh             -> refresh()
+        is StudyAction.RegenerateLesson    -> regenerateAndUpdateLesson(action.id)
+        is StudyAction.RegenerateSection   -> regenerateAndUpdateSection(action.id)
+        is StudyAction.SaveQuizResult      -> saveQuizResult()
+        is StudyAction.SelectCurriculum    -> selectCurriculum(action.curriculumId)
+        is StudyAction.SelectLesson        -> selectLesson(action.lessonId)
+        is StudyAction.SelectModule        -> selectModule(action.moduleId)
+        is StudyAction.SubmitQuiz          -> submitQuiz()
     }
 
     /**

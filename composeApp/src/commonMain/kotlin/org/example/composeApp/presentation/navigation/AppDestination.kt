@@ -39,9 +39,9 @@ enum class AppDestination(
         icon = Icons.Default.LocalLibrary,
         contentDescription = "Study"
     ),
-    Profile(
+    ProfileManagement(
         label = "Profile",
-        route = Route.Profile,
+        route = Route.ProfileManagement,
         icon = Icons.Default.Person,
         contentDescription = "Profile"
     )

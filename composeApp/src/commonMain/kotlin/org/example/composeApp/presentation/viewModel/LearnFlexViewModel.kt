@@ -41,11 +41,10 @@ class LearnFlexViewModel(
      *
      * @param action The action to handle.
      */
-    fun handleAction(action: LearnFlexAction) {
-        when (action) {
-            is LearnFlexAction.Refresh -> refresh()
-        }
+    fun handleAction(action: LearnFlexAction) = when (action) {
+        is LearnFlexAction.Refresh -> refresh()
     }
+
 
     /**
      * Refreshes the state by fetching profile, sessions, curricula, and bundles.

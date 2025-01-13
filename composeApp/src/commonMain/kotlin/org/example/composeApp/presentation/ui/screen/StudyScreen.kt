@@ -232,21 +232,14 @@ private fun StudyLazyColumn(
     }
     item { Spacer(modifier = Modifier.height(Padding.LARGE.dp)) }
     if (uiState.module != null) item {
-        Button(
-            onClick = {
+        StartQuizButton(
+            onStartQuiz = {
                 handleAction(StudyAction.GenerateModuleQuiz)
                 navigator.navigateTo(ListDetailPaneScaffoldRole.Extra)
             },
-            modifier = Modifier.fillMaxWidth(),
             enabled = !uiState.isRefreshing && !uiState.isUploading && uiState.module.canQuiz(uiState.lessons),
-            contentPadding = PaddingValues(Padding.SMALL.dp),
-            shape = RoundedCornerShape(Dimension.CORNER_RADIUS_SMALL.dp)
-        ) {
-            Text(
-                text = stringResource(Res.string.start_quiz_button_label),
-                style = MaterialTheme.typography.labelSmall
-            )
-        }
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 
@@ -506,7 +499,10 @@ private fun LessonDetail(
     item { Spacer(modifier = Modifier.height(Padding.LARGE.dp)) }
     item {
         StartQuizButton(
-            onStartQuiz = { handleAction(StudyAction.GenerateLessonQuiz) },
+            onStartQuiz = {
+                handleAction(StudyAction.GenerateLessonQuiz)
+                navigator.navigateTo(ListDetailPaneScaffoldRole.Extra)
+            },
             enabled = enabled && lesson.canQuiz(sections),
             modifier = Modifier.fillMaxWidth()
         )

@@ -45,19 +45,11 @@ class DashboardViewModel(
      *
      * @param action The specific action to handle, represented as a sealed class of type [DashboardAction].
      */
-    fun handleAction(action: DashboardAction) {
-        when (action) {
-            is DashboardAction.Navigate -> navigate(action.destination)
-            is DashboardAction.OpenCurriculum -> navigate(Route.Study(curriculumId = state.value.curriculum?.id))
-            is DashboardAction.OpenModule -> navigate(
-                Route.Study(
-                    curriculumId = state.value.curriculum?.id,
-                    moduleId = action.moduleId
-                )
-            )
-
-            is DashboardAction.Refresh -> refresh()
-        }
+    fun handleAction(action: DashboardAction) = when (action) {
+        is DashboardAction.Navigate       -> navigate(action.destination)
+        is DashboardAction.OpenCurriculum -> navigate(Route.Study(curriculumId = state.value.curriculum?.id))
+        is DashboardAction.OpenModule     -> navigate(Route.Study(curriculumId = state.value.curriculum?.id, moduleId = action.moduleId))
+        is DashboardAction.Refresh        -> refresh()
     }
 
     /**

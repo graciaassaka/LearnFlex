@@ -52,26 +52,25 @@ class AuthViewModel(
      *
      * @param action The action to handle.
      */
-    fun handleAction(action: AuthAction) {
-        when (action) {
-            is AuthAction.DeleteUser                     -> deleteUser()
-            is AuthAction.DisplayAuthForm                -> displayAuthForm(action.form)
-            is AuthAction.EditPasswordResetEmail         -> editPasswordResetEmail(action.email)
-            is AuthAction.EditSignInEmail                -> editSignInEmail(action.email)
-            is AuthAction.EditSignInPassword             -> editSignInPassword(action.password)
-            is AuthAction.EditSignUpEmail                -> editSignUpEmail(action.email)
-            is AuthAction.EditSignUpPassword             -> editSignUpPassword(action.password)
-            is AuthAction.EditSignUpPasswordConfirmation -> editSignUpPasswordConfirmation(action.password)
-            is AuthAction.HandleAnimationEnd             -> handleExitAnimationFinished()
-            is AuthAction.ResendVerificationEmail        -> resendVerificationEmail()
-            is AuthAction.SendPasswordResetEmail         -> sendPasswordResetEmail()
-            is AuthAction.SignIn                         -> signIn()
-            is AuthAction.SignUp                         -> signUp()
-            is AuthAction.ToggleSignInPasswordVisibility -> toggleSignInPasswordVisibility()
-            is AuthAction.ToggleSignUpPasswordVisibility -> toggleSignUpPasswordVisibility()
-            is AuthAction.VerifyEmail                    -> verifyEmail()
-        }
+    fun handleAction(action: AuthAction) = when (action) {
+        is AuthAction.DeleteUser                     -> deleteUser()
+        is AuthAction.DisplayAuthForm                -> displayAuthForm(action.form)
+        is AuthAction.EditPasswordResetEmail         -> editPasswordResetEmail(action.email)
+        is AuthAction.EditSignInEmail                -> editSignInEmail(action.email)
+        is AuthAction.EditSignInPassword             -> editSignInPassword(action.password)
+        is AuthAction.EditSignUpEmail                -> editSignUpEmail(action.email)
+        is AuthAction.EditSignUpPassword             -> editSignUpPassword(action.password)
+        is AuthAction.EditSignUpPasswordConfirmation -> editSignUpPasswordConfirmation(action.password)
+        is AuthAction.HandleAnimationEnd             -> handleExitAnimationFinished()
+        is AuthAction.ResendVerificationEmail        -> resendVerificationEmail()
+        is AuthAction.SendPasswordResetEmail         -> sendPasswordResetEmail()
+        is AuthAction.SignIn                         -> signIn()
+        is AuthAction.SignUp                         -> signUp()
+        is AuthAction.ToggleSignInPasswordVisibility -> toggleSignInPasswordVisibility()
+        is AuthAction.ToggleSignUpPasswordVisibility -> toggleSignUpPasswordVisibility()
+        is AuthAction.VerifyEmail                    -> verifyEmail()
     }
+
 
     /**
      * Updates the sign-in email and its validation error state.
