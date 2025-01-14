@@ -26,56 +26,21 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="281a55e8-b077-4663-8355-8f00356df64a" name="LEA-35 Studying and Assessment" comment="Refactor navigation and streamline ViewModel actions&#10;&#10;Renamed `Profile` to `ProfileManagement` in `Route` for clarity. Updated `handleAction` methods in `ViewModels` to use concise lambda expressions, improving readability and reducing boilerplate. Simplified `StudyScreen` by introducing `StartQuizButton`.">
-      <change afterPath="$PROJECT_DIR$/confirmation.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/create_profile.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/learning_style_assessment_mobile.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/learning_style_assessment_result_mobile.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/library_desktop.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/library_file_chooser_desktop.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/library_generated_curriculum_desktop.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/library_generated_module_expanded_desktop.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/library_generated_module_lessons_desktop.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/library_supporting_pane_desktop.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/reset_password_confirmation_mobile.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/reset_password_email_mobile.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/reset_password_mobile.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sign_in_desktop.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sign_in_mobile.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sign_up_desktop.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sign_up_mobile.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/verification_email_mobile.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/verify_email_mobile.png" afterDir="false" />
+    <list default="true" id="281a55e8-b077-4663-8355-8f00356df64a" name="LEA-35 Studying and Assessment" comment="Refactor data access and improve UI navigation.&#10;&#10;Replaced Firestore streaming methods with direct calls for efficiency and clarity. Enhanced navigation in the LibraryScreen with a new `onNavigateToMainPane` action and streamlined `CurriculumListItem` structure. Introduced multiple new test cases and images to support updated functionality.">
+      <change afterPath="$PROJECT_DIR$/dashboard_desktop.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/multiple_choice_question_mobile_1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/multiple_choice_question_mobile_2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/project_structure.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/quiz_result_desktop.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/quiz_result_mobile.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/study_lessons_downloaded_mobile.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/study_lessons_mobile.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/study_sections_collapsed.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/study_sections_expanded.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/true_false_question_mobile.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/LibraryScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/LibraryScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/shared/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/androidUnitTest/kotlin/org/example/shared/data/local/DatabaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/androidUnitTest/kotlin/org/example/shared/data/local/DatabaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/firestore/FirestoreBaseDao.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/firestore/FirestoreBaseDao.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/firestore/FirestoreExtendedDao.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/firestore/FirestoreExtendedDao.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/repository/component/BatchRepositoryComponent.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/repository/component/BatchRepositoryComponent.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/repository/component/CrudRepositoryComponent.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/repository/component/CrudRepositoryComponent.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/sync/handler/SyncHandlerDelegate.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/sync/handler/SyncHandlerDelegate.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/storage_operations/BatchOperations.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/storage_operations/BatchOperations.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/storage_operations/CrudOperations.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/storage_operations/CrudOperations.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/FetchCurriculaByUserUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/FetchCurriculaByUserUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/FetchLessonsByModuleUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/FetchLessonsByModuleUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/FetchModulesByCurriculumUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/FetchModulesByCurriculumUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/FetchProfileUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/FetchProfileUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/FetchSectionsByLessonUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/FetchSectionsByLessonUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/session/FetchSessionsByUserUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/session/FetchSessionsByUserUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/firestore/FirestoreDaoTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/firestore/FirestoreDaoTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/firestore/FirestoreExtendedDaoTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/firestore/FirestoreExtendedDaoTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/repository/component/BatchRepositoryComponentTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/repository/component/BatchRepositoryComponentTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/repository/component/CrudRepositoryComponentTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/repository/component/CrudRepositoryComponentTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/sync/handler/SyncHandlerDelegateTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/sync/handler/SyncHandlerDelegateTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/FetchCurriculaByUserUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/FetchCurriculaByUserUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/FetchLessonsByModuleUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/FetchLessonsByModuleUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/FetchModulesByCurriculumUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/FetchModulesByCurriculumUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/FetchProfileUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/FetchProfileUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/FetchSectionsForLessonUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/FetchSectionsForLessonUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/session/FetchSessionsByUserUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/session/FetchSessionsByUserUseCaseTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/desktopMain/kotlin/org/example/shared/FirebaseInit.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/desktopMain/kotlin/org/example/shared/FirebaseInit.kt" afterDir="false" />
     </list>
     <list id="543ef38b-89b9-492a-b137-13358d0234c3" name="Changes" comment="- Implemented `DashboardViewModel` with necessary dependencies and logic.&#10;- Created `DashboardScreen` to display the dashboard UI.&#10;- Added comprehensive unit tests for `DashboardViewModel` to ensure functionality." />
     <list id="27db182c-d411-4cde-a632-24cff2efd733" name="LEA-15 User Sign Up and Sign In (Firebase Auth)" comment="Remove unused configuration and obsolete import.&#10;&#10;Deleted unnecessary debug run configurations from IntelliJ's deploymentTargetSelector.xml. Also removed an unused Kotlin Android source set import from composeApp/build.gradle.kts to clean up the project setup." />
@@ -377,6 +342,8 @@
     "Gradle.BatchRepositoryComponentTest.get operations fail with non-ExtendedRemoteDao.executor": "Run",
     "Gradle.BatchRepositoryComponentTest.getAll failure - local fetch error (1).executor": "Run",
     "Gradle.BatchRepositoryComponentTest.getAll failure - local fetch error.executor": "Run",
+    "Gradle.BatchRepositoryComponentTest.getAll failure - remote fetch error (1).executor": "Run",
+    "Gradle.BatchRepositoryComponentTest.getAll failure - remote fetch error.executor": "Debug",
     "Gradle.BatchRepositoryComponentTest.getAll should fail when RemoteDao is not ExtendedRemoteDao (1).executor": "Run",
     "Gradle.BatchRepositoryComponentTest.getAll should fail when RemoteDao is not ExtendedRemoteDao.executor": "Run",
     "Gradle.BatchRepositoryComponentTest.getAll success case - observe local and remote data (1).executor": "Run",
@@ -683,6 +650,8 @@
     "Gradle.FirestoreDaoTest (1).executor": "Run",
     "Gradle.FirestoreDaoTest.executor": "Run",
     "Gradle.FirestoreDaoTest.get should successfully observe document snapshots.executor": "Run",
+    "Gradle.FirestoreDaoTest.get should successfully retrieve document snapshot (1).executor": "Debug",
+    "Gradle.FirestoreDaoTest.get should successfully retrieve document snapshot.executor": "Debug",
     "Gradle.FirestoreExtendedDaoTest (1).executor": "Run",
     "Gradle.FirestoreExtendedDaoTest.deleteAll should update timestamps and batch delete documents (1).executor": "Debug",
     "Gradle.FirestoreExtendedDaoTest.deleteAll should update timestamps and batch delete documents.executor": "Debug",
@@ -1181,6 +1150,7 @@
     "Gradle.VerifyEmailUseCaseTest.VerifyEmailUseCase should throw an exception when the user's email is not verified.executor": "Run",
     "JUnit.CreateProfileScreenTest.executor": "Debug",
     "Kotlin.MainKt.executor": "Debug",
+    "PROJECT_TRUSTED_KEY": "true",
     "ResourceManagerPrefKey.ModuleName": "LearnFlex.composeApp.main",
     "ResourceManagerPrefKey.ResourceType": "DRAWABLE",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -1279,7 +1249,7 @@
       <recent name="org.example.composeApp" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.FirestoreDaoTest.get should successfully retrieve document snapshot (1)">
+  <component name="RunManager" selected="Android App.MainActivity">
     <configuration name="MainActivity" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
       <module name="LearnFlex.composeApp" />
       <option name="ANDROID_RUN_CONFIGURATION_SCHEMA_VERSION" value="1" />
@@ -1364,6 +1334,30 @@
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration name="BatchRepositoryComponentTest.getAll failure - remote fetch error" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/shared" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":shared:cleanTestDebugUnitTest" />
+            <option value=":shared:testDebugUnitTest" />
+            <option value="--tests &quot;org.example.shared.data.repository.component.BatchRepositoryComponentTest.getAll failure - remote fetch error&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
+      <method v="2" />
+    </configuration>
     <configuration name="FirestoreDaoTest.get should successfully retrieve document snapshot" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -1378,52 +1372,6 @@
             <option value=":shared:cleanTestDebugUnitTest" />
             <option value=":shared:testDebugUnitTest" />
             <option value="--tests &quot;org.example.shared.data.remote.firestore.FirestoreDaoTest.get should successfully retrieve document snapshot&quot;" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>true</RunAsTest>
-      <method v="2" />
-    </configuration>
-    <configuration name="Main [desktop]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/composeApp" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="-DmainClass=org.example.composeApp.MainKt --quiet" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="desktopRun" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>false</RunAsTest>
-      <method v="2" />
-    </configuration>
-    <configuration name="ProfileManagementViewModelTest.handleAction SignOut should call signOutUseCase" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/composeApp" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":composeApp:cleanTestDebugUnitTest" />
-            <option value=":composeApp:testDebugUnitTest" />
-            <option value="--tests &quot;org.example.composeApp.viewModel.ProfileManagementViewModelTest.handleAction SignOut should call signOutUseCase&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -1460,19 +1408,14 @@
     <list>
       <item itemvalue="Android App.MainActivity" />
       <item itemvalue="Android App.composeApp" />
+      <item itemvalue="Gradle.BatchRepositoryComponentTest.getAll failure - remote fetch error" />
       <item itemvalue="Gradle.FirestoreDaoTest.get should successfully retrieve document snapshot" />
-      <item itemvalue="Gradle.FirestoreDaoTest.get should successfully retrieve document snapshot (1)" />
       <item itemvalue="Gradle.Tests in 'LearnFlex.shared.commonTest'" />
-      <item itemvalue="Gradle.ProfileManagementViewModelTest.handleAction SignOut should call signOutUseCase" />
-      <item itemvalue="Gradle.Main [desktop]" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.FirestoreDaoTest.get should successfully retrieve document snapshot (1)" />
-        <item itemvalue="Gradle.FirestoreDaoTest.get should successfully retrieve document snapshot" />
         <item itemvalue="Gradle.Tests in 'LearnFlex.shared.commonTest'" />
-        <item itemvalue="Gradle.Main [desktop]" />
-        <item itemvalue="Gradle.ProfileManagementViewModelTest.handleAction SignOut should call signOutUseCase" />
+        <item itemvalue="Gradle.BatchRepositoryComponentTest.getAll failure - remote fetch error" />
       </list>
     </recent_temporary>
   </component>
@@ -1544,14 +1487,6 @@
       <workItem from="1731342591014" duration="3296000" />
       <workItem from="1731353381243" duration="21000" />
       <workItem from="1731702522679" duration="3504000" />
-    </task>
-    <task id="LOCAL-00040" summary="Add new layout and form components for profile creation&#10;&#10;Introduced AlignedLabeledBarsLayout and PersonalInfoForm composables for create profile flow. Updated CreateProfileUIState with new properties and enhanced viewModel with appropriate handling and state management.">
-      <option name="closed" value="true" />
-      <created>1731301113925</created>
-      <option name="number" value="00040" />
-      <option name="presentableId" value="LOCAL-00040" />
-      <option name="project" value="LOCAL" />
-      <updated>1731301113925</updated>
     </task>
     <task id="LOCAL-00041" summary="Remove outdated project enhancements section&#10;&#10;Removed the section listing old project enhancements from the README. This simplifies the documentation by focusing on relevant information and avoids redundancy.">
       <option name="closed" value="true" />
@@ -1936,7 +1871,7 @@
       <workItem from="1736464750020" duration="30091000" />
       <workItem from="1736521563866" duration="102378000" />
       <workItem from="1736670529496" duration="94390000" />
-      <workItem from="1736850775234" duration="11527000" />
+      <workItem from="1736850775234" duration="19656000" />
     </task>
     <task id="LOCAL-00075" summary="feat: add Path and PathBuilder classes for Firestore path management&#10;&#10;- Introduced `Path` class to represent immutable Firestore paths with validation.&#10;- Added `PathBuilder` class to construct paths with collection and document segments.&#10;- Implemented methods for path validation, segment addition, and path building.">
       <option name="closed" value="true" />
@@ -2018,7 +1953,15 @@
       <option name="project" value="LOCAL" />
       <updated>1736792958207</updated>
     </task>
-    <option name="localTasksCounter" value="85" />
+    <task id="LOCAL-00085" summary="Refactor data access and improve UI navigation.&#10;&#10;Replaced Firestore streaming methods with direct calls for efficiency and clarity. Enhanced navigation in the LibraryScreen with a new `onNavigateToMainPane` action and streamlined `CurriculumListItem` structure. Introduced multiple new test cases and images to support updated functionality.">
+      <option name="closed" value="true" />
+      <created>1736863720626</created>
+      <option name="number" value="00085" />
+      <option name="presentableId" value="LOCAL-00085" />
+      <option name="project" value="LOCAL" />
+      <updated>1736863720627</updated>
+    </task>
+    <option name="localTasksCounter" value="86" />
     <servers>
       <YouTrack url="https://gracia.youtrack.cloud">
         <option name="defaultSearch" value="Assignee: me sort by: created asc" />
@@ -2076,7 +2019,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
     <confirmRemoveEmptyChangelist value="2" />
-    <MESSAGE value="Add WindowWidthSizeClass to CustomScaffold and modular use cases&#10;&#10;Integrate `WindowWidthSizeClass` into the `CustomScaffold` function to adapt the UI layout based on device screen size. Additionally, introduce new module-related use cases for handling CRUD operations efficiently. This update also includes the addition of a small logo size in the `Dimension` class and version update for the database schema." />
     <MESSAGE value="Add support for Section and Session data management&#10;&#10;Introduce Section and Session use cases and repos with comprehensive tests for CRUD operations. Implement Firestore path building for related data structures and update Serializability for Section and Session models. Enhance data access objects and dependency injection to support new entities." />
     <MESSAGE value="Implement Firestore path builder and section session utilities&#10;&#10;The FirestorePathBuilder class has been expanded to include path-building functionality for multiple Firestore collections and documents like users, curriculums, modules, lessons, sections, and sessions, implementing the PathBuilder interface. New test cases for several use cases involving sections and sessions have been added, along with updates to data models, repository configurations, and sync managers to accommodate sections and sessions within the module's DI setup." />
     <MESSAGE value="Remove IDE-specific config files from repository&#10;&#10;This commit deletes several IntelliJ IDEA configuration files such as `.gitignore`, `androidTestResultsUserPreferences.xml`, and other related settings files. Their removal ensures that local development settings do not conflict across different environments and reduces repository clutter." />
@@ -2099,9 +2041,10 @@
     <MESSAGE value="Refactor: use resource folder for snackbar messages&#10;&#10;Replaced hardcoded snackbar messages with resources to improve maintainability and localization support. Adjusted dependencies and logic in relevant ViewModels, UseCases, and tests accordingly." />
     <MESSAGE value="Refactor: improve Study and Dashboard view logic&#10;&#10;Introduced `StudyAction` and `StudyUIState` and modified `StudyViewModel` and `StudyScreen` to enhance separation of concerns. Added `DashboardViewModel` and `DashboardScreen` implementations with corresponding unit tests to support dashboard functionality. Updated snackbar message handling to use external resource files for better localization and maintainability." />
     <MESSAGE value="Implemented StudyScreen with ability to download lessons and take quizzes" />
-    <MESSAGE value="Refactor navigation and streamline ViewModel actions&#10;&#10;Renamed `Profile` to `ProfileManagement` in `Route` for clarity. Updated `handleAction` methods in `ViewModels` to use concise lambda expressions, improving readability and reducing boilerplate. Simplified `StudyScreen` by introducing `StartQuizButton`." />
     <MESSAGE value="LEA-20 Learning Progress Visualization" />
-    <option name="LAST_COMMIT_MESSAGE" value="LEA-20 Learning Progress Visualization" />
+    <MESSAGE value="Refactor navigation and streamline ViewModel actions&#10;&#10;Renamed `Profile` to `ProfileManagement` in `Route` for clarity. Updated `handleAction` methods in `ViewModels` to use concise lambda expressions, improving readability and reducing boilerplate. Simplified `StudyScreen` by introducing `StartQuizButton`." />
+    <MESSAGE value="Refactor data access and improve UI navigation.&#10;&#10;Replaced Firestore streaming methods with direct calls for efficiency and clarity. Enhanced navigation in the LibraryScreen with a new `onNavigateToMainPane` action and streamlined `CurriculumListItem` structure. Introduced multiple new test cases and images to support updated functionality." />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor data access and improve UI navigation.&#10;&#10;Replaced Firestore streaming methods with direct calls for efficiency and clarity. Enhanced navigation in the LibraryScreen with a new `onNavigateToMainPane` action and streamlined `CurriculumListItem` structure. Introduced multiple new test cases and images to support updated functionality." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />

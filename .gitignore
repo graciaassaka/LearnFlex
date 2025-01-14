@@ -2,7 +2,6 @@
 .firebase-debug.log
 composeApp/src/commonMain/composeResources/files/firebase.properties
 local.properties
-.env
 .gradle
 gradle.properties
 build/
