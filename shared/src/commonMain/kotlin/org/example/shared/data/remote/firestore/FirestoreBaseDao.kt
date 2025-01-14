@@ -1,8 +1,8 @@
 package org.example.shared.data.remote.firestore
 
 import dev.gitlive.firebase.firestore.FirebaseFirestore
+import dev.gitlive.firebase.firestore.Source
 import dev.gitlive.firebase.firestore.WriteBatch
-import kotlinx.coroutines.flow.map
 import kotlinx.serialization.KSerializer
 import org.example.shared.domain.dao.Dao
 import org.example.shared.domain.model.interfaces.DatabaseRecord
@@ -34,14 +34,17 @@ open class FirestoreBaseDao<Model : DatabaseRecord>(
     }
 
     /**
-     * Fetches an item from the Firestore collection by its ID.
+     * Retrieves an item from the Firestore collection by its ID.
      *
-     * @param path The path to the document to fetch.
+     * @param id The ID of the item to retrieve.
      * @return A [Result] containing the fetched item or an error.
      */
-    override fun get(path: Path) = firestore.document(path.value)
-        .snapshots()
-        .map { it.runCatching { data(serializer) } }
+    override suspend fun get(path: Path) = runCatching {
+        firestore.document(path.value)
+            .get(source = Source.SERVER)
+            .data(serializer)
+    }
+
 
     /**
      * Updates an item in the Firestore collection.

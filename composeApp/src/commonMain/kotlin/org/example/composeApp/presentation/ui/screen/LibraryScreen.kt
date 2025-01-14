@@ -108,6 +108,7 @@ fun LibraryScreen(
                 SupportingPane(
                     screenConfig = screenConfig,
                     handleAction = viewModel::handleAction,
+                    onNavigateToMainPane = { navigator.navigateTo(SupportingPaneScaffoldRole.Main) },
                     modifier = Modifier.padding(paddingValues).testTag(TestTags.LIBRARY_SCREEN_SUPPORTING_PANEL.tag)
                 )
             }
@@ -295,15 +296,13 @@ private fun CurriculumDetailsSection(
     verticalArrangement = Arrangement.spacedBy(Padding.MEDIUM.dp),
     horizontalAlignment = Alignment.Start
 ) {
-    ToolTip(text = curriculum.description) {
-        CurriculumListItem(
-            displayMode = displayMode,
-            curriculum = curriculum,
-            enabled = enabled,
-            onNavigate = { handleAction(LibraryAction.Navigate(Route.Study(curriculum.id))) },
-            onDiscard = { handleAction(LibraryAction.DiscardContent) }
-        )
-    }
+    CurriculumListItem(
+        displayMode = displayMode,
+        curriculum = curriculum,
+        enabled = enabled,
+        onNavigate = { handleAction(LibraryAction.Navigate(Route.Study(curriculum.id))) },
+        onDiscard = { handleAction(LibraryAction.DiscardContent) }
+    )
     HorizontalDivider()
     Row(modifier = Modifier.fillMaxWidth().padding(start = Padding.MEDIUM.dp)) {
         Text(
@@ -359,7 +358,11 @@ private fun CurriculumListItem(
     onDiscard: () -> Unit,
     modifier: Modifier = Modifier
 ) = ListItem(
-    headlineContent = { Text(text = curriculum.title, style = MaterialTheme.typography.titleLarge) },
+    headlineContent = {
+        ToolTip(text = curriculum.description) {
+            Text(text = curriculum.title, style = MaterialTheme.typography.titleLarge)
+        }
+    },
     modifier = modifier.fillMaxWidth(),
     leadingContent = {
         when (displayMode) {
@@ -521,6 +524,7 @@ private fun DiscardWarningDialog(
 private fun ThreePaneScaffoldScope.SupportingPane(
     screenConfig: ScreenConfig<LibraryUIState>,
     handleAction: (LibraryAction) -> Unit,
+    onNavigateToMainPane: () -> Unit,
     modifier: Modifier = Modifier,
 ) = with(screenConfig) {
     val listState = rememberLazyListState()
@@ -550,7 +554,7 @@ private fun ThreePaneScaffoldScope.SupportingPane(
                         item {
                             CurriculumTooltipListItem(
                                 curriculum = curriculum,
-                                onOpenCurriculum = { handleAction(LibraryAction.OpenCurriculum(curriculum.id)) },
+                                onOpenCurriculum = { handleAction(LibraryAction.OpenCurriculum(curriculum.id)); onNavigateToMainPane() },
                                 onDeleteCurriculum = { handleAction(LibraryAction.DeleteCurriculum(curriculum.id)) },
                                 onNavigate = { handleAction(LibraryAction.Navigate(Route.Study(curriculum.id))) },
                             )

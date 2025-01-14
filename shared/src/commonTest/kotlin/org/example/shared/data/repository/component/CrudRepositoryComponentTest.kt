@@ -1,8 +1,6 @@
 package org.example.shared.data.repository.component
 
 import io.mockk.*
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
@@ -54,13 +52,7 @@ class CrudRepositoryComponentTest {
         queryStrategies = QueryStrategies()
 
         // Configure query strategies
-        queryStrategies.withGetById { id ->
-            flow {
-                emit(
-                    if (id == testModel.id) testEntity else null
-                )
-            }
-        }
+        queryStrategies.withGetById { id -> flowOf(if (id == testModel.id) testEntity else null) }
 
         config = RepositoryConfig(
             collection = Collection.TEST,
@@ -117,24 +109,23 @@ class CrudRepositoryComponentTest {
     @Test
     fun `get should fetch from remote and queue sync operation when local returns null`() = runTest {
         // Given
-        queryStrategies = QueryStrategies<TestEntity>().apply {
-            withGetById { flow { emit(null) } }
-        }
+        queryStrategies = QueryStrategies<TestEntity>().apply { withGetById { flowOf(null) } }
+
 
         config = config.copy(queryStrategies = queryStrategies)
         component = CrudRepositoryComponent(config)
 
         every { modelMapper.toEntity(any()) } returns testEntity
         every { modelMapper.toModel(any()) } returns testModel
-        every { remoteDao.get(any()) } returns flowOf(Result.success(testModel))
+        coEvery { remoteDao.get(any()) } returns Result.success(testModel)
 
         // When
-        val result = component.get(testPath).first()
+        val result = component.get(testPath)
 
         // Then
         assertTrue(result.isSuccess)
         assertEquals(testModel, result.getOrNull())
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             remoteDao.get(testPath)
         }
         coVerify(exactly = 1) {

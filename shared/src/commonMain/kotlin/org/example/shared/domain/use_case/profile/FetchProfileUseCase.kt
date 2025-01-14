@@ -1,6 +1,5 @@
 package org.example.shared.domain.use_case.profile
 
-import kotlinx.coroutines.flow.first
 import org.example.shared.domain.constant.Collection
 import org.example.shared.domain.repository.ProfileRepository
 import org.example.shared.domain.storage_operations.util.PathBuilder
@@ -27,7 +26,7 @@ class FetchProfileUseCase(
                 .collection(Collection.PROFILES)
                 .document(getUserDataUseCase().getOrThrow().localId)
                 .build()
-        ).first()
+        )
     } catch (e: Exception) {
         Result.failure(e)
     }

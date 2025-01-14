@@ -2,8 +2,6 @@ package org.example.shared.data.remote.firestore
 
 import dev.gitlive.firebase.firestore.*
 import io.mockk.*
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 import org.example.shared.domain.constant.Collection
@@ -125,38 +123,38 @@ class FirestoreExtendedDaoTest {
     fun `getAllFromSingleCollection should successfully retrieve all documents`() = runTest {
         // Arrange
         val querySnapshot = mockk<QuerySnapshot>()
-        val documentSnapshot = mockk<DocumentSnapshot>()
-        val snapshotsFlow = flow { emit(querySnapshot) }
-
-        every { collectionRef.snapshots() } returns snapshotsFlow
-        every { querySnapshot.documents } returns listOf(documentSnapshot)
-        every { documentSnapshot.data(TestModel.serializer()) } returns testModels[0]
+        val documentSnapshots = testModels.map { model ->
+            val docSnapshot = mockk<DocumentSnapshot>()
+            every { docSnapshot.data(TestModel.serializer()) } returns model
+            docSnapshot
+        }
+        coEvery { firestore.collection(testCollectionPath.value).get(source = Source.SERVER) } returns querySnapshot
+        every { querySnapshot.documents } returns documentSnapshots
 
         // Act
-        val result = dao.getAll(testCollectionPath).first()
+        val result = dao.getAll(testCollectionPath)
 
         // Assert
-        verify(exactly = 1) { collectionRef.snapshots() }
         assertTrue(result.isSuccess)
+        coVerify(exactly = 1) { firestore.collection(testCollectionPath.value).get(source = Source.SERVER) }
     }
 
     @Test
     fun `getAllFromSingleCollection should return failure when an exception occurs`() = runTest {
         // Arrange
         val querySnapshot = mockk<QuerySnapshot>()
-        val documentSnapshot = mockk<DocumentSnapshot>()
-        val snapshotsFlow = flow { emit(querySnapshot) }
+        val documentSnapshots = listOf(mockk<DocumentSnapshot>())
         val exception = Exception("Test exception")
 
-        every { collectionRef.snapshots() } returns snapshotsFlow
-        every { querySnapshot.documents } returns listOf(documentSnapshot)
-        every { documentSnapshot.data(TestModel.serializer()) } throws exception
+        coEvery { firestore.collection(testCollectionPath.value).get(source = Source.SERVER) } returns querySnapshot
+        every { querySnapshot.documents } returns documentSnapshots
+        every { documentSnapshots[0].data(TestModel.serializer()) } throws exception
 
         // Act
-        val result = dao.getAll(testCollectionPath).first()
+        val result = dao.getAll(testCollectionPath)
 
         // Assert
-        verify(exactly = 1) { collectionRef.snapshots() }
         assertTrue(result.isFailure)
+        coVerify(exactly = 1) { firestore.collection(testCollectionPath.value).get(source = Source.SERVER) }
     }
 }

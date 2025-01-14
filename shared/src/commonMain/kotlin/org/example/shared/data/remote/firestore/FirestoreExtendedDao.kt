@@ -1,7 +1,7 @@
 package org.example.shared.data.remote.firestore
 
 import dev.gitlive.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.flow.map
+import dev.gitlive.firebase.firestore.Source
 import kotlinx.serialization.KSerializer
 import org.example.shared.domain.dao.ExtendedDao
 import org.example.shared.domain.model.interfaces.DatabaseRecord
@@ -73,9 +73,11 @@ open class FirestoreExtendedDao<Model : DatabaseRecord>(
      * Retrieves all documents from a specified Firestore collection path.
      *
      * @param path The Firestore collection path from which documents are to be retrieved.
-     * @return A flow that emits a list of mapped documents for each snapshot of the collection.
+     * @return A list of all documents in the specified collection.
      */
-    override fun getAll(path: Path) = firestore.collection(path.value)
-        .snapshots()
-        .map { it.runCatching { documents.map { it.data(serializer) } } }
+    override suspend fun getAll(path: Path) = runCatching {
+        firestore.collection(path.value)
+            .get(source = Source.SERVER)
+            .documents.map { it.data(serializer) }
+    }
 }

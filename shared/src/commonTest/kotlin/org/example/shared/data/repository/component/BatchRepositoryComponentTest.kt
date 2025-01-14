@@ -1,10 +1,7 @@
 package org.example.shared.data.repository.component
 
 import io.mockk.*
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 import org.example.shared.data.local.dao.ExtendedLocalDao
@@ -173,9 +170,9 @@ class BatchRepositoryComponentTest {
     fun `getAll success case - observe local and remote data`() = runTest {
         every { modelMapper.toModel(any()) } returns testModel
         every { modelMapper.toEntity(any(), any()) } returns testEntity
-        every { remoteDao.getAll(any()) } returns flowOf(Result.success(listOf(testModel)))
+        coEvery { remoteDao.getAll(any()) } returns Result.success(listOf(testModel))
 
-        val result = component.getAll(testPath).first()
+        val result = component.getAll(testPath)
 
         assertTrue(result.isSuccess)
         assertEquals(listOf(testModel), result.getOrNull())
@@ -190,9 +187,9 @@ class BatchRepositoryComponentTest {
     @Test
     fun `getAll failure - remote fetch error`() = runTest {
         val exception = RuntimeException("Remote fetch error")
-        every { remoteDao.getAll(any()) } throws exception
+        coEvery { remoteDao.getAll(any()) } throws exception
 
-        val result = component.getAll(testPath).first { it.isFailure }
+        val result = component.getAll(testPath)
 
         assertTrue(result.isFailure)
         assertEquals(exception.message, result.exceptionOrNull()?.message)
@@ -202,16 +199,12 @@ class BatchRepositoryComponentTest {
     fun `getAll prevents duplicate emissions`() = runTest {
         every { modelMapper.toModel(any()) } returns testModel
         every { modelMapper.toEntity(any(), any()) } returns testEntity
-        every { remoteDao.getAll(any()) } returns flowOf(Result.success(listOf(testModel)))
-        coEvery {
-            localDao.insertAll(any())
-        } just runs
+        coEvery { remoteDao.getAll(any()) } returns Result.success(listOf(testModel))
+        coEvery { localDao.insertAll(any()) } just runs
 
         val results = component.getAll(testPath)
-            .take(2)
-            .toList()
 
-        assertEquals(1, results.size)
+        assertEquals(1, results.getOrNull()?.size)
     }
 
     @Test
@@ -231,7 +224,7 @@ class BatchRepositoryComponentTest {
         config = config.copy(remoteDao = basicRemoteDao)
         component = BatchRepositoryComponent(config)
 
-        val result = component.getAll(testPath).first { it.isFailure }
+        val result = component.getAll(testPath)
 
         assertTrue(result.isFailure)
     }

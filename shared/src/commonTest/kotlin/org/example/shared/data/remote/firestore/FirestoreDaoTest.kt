@@ -2,8 +2,6 @@ package org.example.shared.data.remote.firestore
 
 import dev.gitlive.firebase.firestore.*
 import io.mockk.*
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 import org.example.shared.domain.constant.Collection
@@ -159,20 +157,18 @@ class FirestoreDaoTest {
     }
 
     @Test
-    fun `get should successfully observe document snapshots`() = runTest {
+    fun `get should successfully retrieve document snapshot`() = runTest {
         // Arrange
         val documentSnapshot = mockk<DocumentSnapshot>()
-        val snapshotsFlow = flow { emit(documentSnapshot) }
-
         every { documentSnapshot.exists } returns true
-        every { documentRef.snapshots() } returns snapshotsFlow
-        coEvery { documentSnapshot.data(TestModel.serializer()) } returns testModel
+        coEvery { documentRef.get(source = Source.SERVER) } returns documentSnapshot
+        every { documentSnapshot.data(TestModel.serializer()) } returns testModel
 
         // Act
-        val result = remoteDataSource.get(testCollectionPath).first()
+        val result = remoteDataSource.get(testCollectionPath)
 
         // Assert
         assertTrue(result.isSuccess)
-        verify(exactly = 1) { documentRef.snapshots() }
+        coVerify(exactly = 1) { documentRef.get(source = Source.SERVER) }
     }
 }

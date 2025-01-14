@@ -1,6 +1,5 @@
 package org.example.shared.domain.storage_operations
 
-import kotlinx.coroutines.flow.Flow
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.storage_operations.util.Path
 
@@ -58,7 +57,7 @@ interface BatchOperations<Model : DatabaseRecord> {
      * Retrieves all items from the database at the specified path.
      *
      * @param path The path from where the items should be retrieved.
-     * @return A [Flow] emitting a [Result] containing the list of items.
+     * @return A [Result] containing the list of items or an error.
      */
-    fun getAll(path: Path): Flow<Result<List<Model>>>
+    suspend fun getAll(path: Path): Result<List<Model>>
 }

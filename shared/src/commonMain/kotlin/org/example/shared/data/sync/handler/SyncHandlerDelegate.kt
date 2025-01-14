@@ -74,7 +74,7 @@ class SyncHandlerDelegate<Model : DatabaseRecord, Entity : RoomEntity>(
      */
     private suspend fun sync(path: Path, id: String) {
         val documentPath = if (path.isDocumentPath()) path else PathBuilder(path).document(id).build()
-        val remote = remoteDao.get(documentPath).first().getOrNull()
+        val remote = remoteDao.get(documentPath).getOrNull()
         val local = getStrategy.setId(id).execute().first()
 
         if (remote != null && local != null) {

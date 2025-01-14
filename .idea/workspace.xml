@@ -27,54 +27,55 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="281a55e8-b077-4663-8355-8f00356df64a" name="LEA-35 Studying and Assessment" comment="Refactor navigation and streamline ViewModel actions&#10;&#10;Renamed `Profile` to `ProfileManagement` in `Route` for clarity. Updated `handleAction` methods in `ViewModels` to use concise lambda expressions, improving readability and reducing boilerplate. Simplified `StudyScreen` by introducing `StartQuizButton`.">
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/EditUserProfileAction.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/state/EditUserProfileUIState.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/ProfileForm.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/EditUserProfileScreen.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/EditUserProfileViewModel.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/EditUserProfileViewModelTest.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/auth/SignOutUseCase.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/DeleteProfileUseCase.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/FetchProfilePhotoDownloadUrl.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/session/DeleteSessionsByUserUseCase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/confirmation.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/create_profile.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/learning_style_assessment_mobile.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/learning_style_assessment_result_mobile.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/library_desktop.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/library_file_chooser_desktop.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/library_generated_curriculum_desktop.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/library_generated_module_expanded_desktop.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/library_generated_module_lessons_desktop.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/library_supporting_pane_desktop.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/reset_password_confirmation_mobile.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/reset_password_email_mobile.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/reset_password_mobile.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sign_in_desktop.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sign_in_mobile.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sign_up_desktop.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sign_up_mobile.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/verification_email_mobile.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/verify_email_mobile.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/AuthScreenTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/AuthScreenTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/CreateProfileScreenTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidInstrumentedTest/kotlin/org/example/composeApp/screen/CreateProfileScreenTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/presentation/ui/component/ImageUpload.android.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/example/composeApp/presentation/ui/component/ImageUpload.android.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/composeResources/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/composeResources/values/strings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/injection/Module.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/injection/Module.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/AuthAction.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/AuthAction.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/CreateUserProfileAction.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/action/CreateUserProfileAction.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/navigation/AppDestination.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/navigation/AppDestination.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/navigation/Navigator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/navigation/Navigator.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/navigation/Route.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/navigation/Route.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/state/AuthUIState.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/state/AuthUIState.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/state/CreateProfileUIState.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/state/CreateProfileUIState.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/FileUploadBox.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/FileUploadBox.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/ImageUpload.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/component/ImageUpload.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/AuthScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/AuthScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/CreateProfileScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/CreateProfileScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/DashboardScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/DashboardScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/AuthViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/AuthViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/CreateUserProfileViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/CreateUserProfileViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/LearnFlexViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/LearnFlexViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/LibraryViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/LibraryViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/StudyViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/viewModel/StudyViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/AuthViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/AuthViewModelTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/CreateProfileViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/CreateProfileViewModelTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/DashboardViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/DashboardViewModelTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/LibraryViewModelTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonTest/kotlin/org/example/composeApp/viewModel/LibraryViewModelTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/presentation/ui/component/ImageUpload.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/example/composeApp/presentation/ui/component/ImageUpload.desktop.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/LibraryScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/example/composeApp/presentation/ui/screen/LibraryScreen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shared/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/shared/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/androidMain/kotlin/org/example/shared/LearnFlex.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/androidMain/kotlin/org/example/shared/LearnFlex.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/User.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/model/User.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/library/UploadCurriculumAndModulesUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/library/UploadCurriculumAndModulesUseCase.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/androidUnitTest/kotlin/org/example/shared/data/local/DatabaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/androidUnitTest/kotlin/org/example/shared/data/local/DatabaseTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/firestore/FirestoreBaseDao.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/firestore/FirestoreBaseDao.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/firestore/FirestoreExtendedDao.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/remote/firestore/FirestoreExtendedDao.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/repository/component/BatchRepositoryComponent.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/repository/component/BatchRepositoryComponent.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/repository/component/CrudRepositoryComponent.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/repository/component/CrudRepositoryComponent.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/sync/handler/SyncHandlerDelegate.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/data/sync/handler/SyncHandlerDelegate.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/storage_operations/BatchOperations.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/storage_operations/BatchOperations.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/storage_operations/CrudOperations.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/storage_operations/CrudOperations.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/FetchCurriculaByUserUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/curriculum/FetchCurriculaByUserUseCase.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/FetchLessonsByModuleUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/lesson/FetchLessonsByModuleUseCase.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/FetchModulesByCurriculumUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/module/FetchModulesByCurriculumUseCase.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/FetchProfileUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/profile/FetchProfileUseCase.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/FetchSectionsByLessonUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/section/FetchSectionsByLessonUseCase.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/session/FetchSessionsByUserUseCase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonMain/kotlin/org/example/shared/domain/use_case/session/FetchSessionsByUserUseCase.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/firestore/FirestoreDaoTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/firestore/FirestoreDaoTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/firestore/FirestoreExtendedDaoTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/remote/firestore/FirestoreExtendedDaoTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/repository/component/BatchRepositoryComponentTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/repository/component/BatchRepositoryComponentTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/repository/component/CrudRepositoryComponentTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/repository/component/CrudRepositoryComponentTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/sync/handler/SyncHandlerDelegateTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/data/sync/handler/SyncHandlerDelegateTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/FetchCurriculaByUserUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/curriculum/FetchCurriculaByUserUseCaseTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/FetchLessonsByModuleUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/lesson/FetchLessonsByModuleUseCaseTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/FetchModulesByCurriculumUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/module/FetchModulesByCurriculumUseCaseTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/FetchProfileUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/profile/FetchProfileUseCaseTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/FetchSectionsForLessonUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/section/FetchSectionsForLessonUseCaseTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/session/FetchSessionsByUserUseCaseTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/commonTest/kotlin/org/example/shared/domain/use_case/session/FetchSessionsByUserUseCaseTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shared/src/desktopMain/kotlin/org/example/shared/FirebaseInit.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/desktopMain/kotlin/org/example/shared/FirebaseInit.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/desktopMain/kotlin/org/example/shared/data/remote/firebase/FirebaseConfig.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/desktopMain/kotlin/org/example/shared/data/remote/firebase/FirebaseConfig.desktop.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/desktopMain/kotlin/org/example/shared/data/remote/firebase/FirebaseResponse.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/desktopMain/kotlin/org/example/shared/data/remote/firebase/FirebaseResponse.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/desktopMain/kotlin/org/example/shared/data/remote/firebase/FirebaseStorageClient.desktop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/desktopMain/kotlin/org/example/shared/data/remote/firebase/FirebaseStorageClient.desktop.kt" afterDir="false" />
     </list>
     <list id="543ef38b-89b9-492a-b137-13358d0234c3" name="Changes" comment="- Implemented `DashboardViewModel` with necessary dependencies and logic.&#10;- Created `DashboardScreen` to display the dashboard UI.&#10;- Added comprehensive unit tests for `DashboardViewModel` to ensure functionality." />
     <list id="27db182c-d411-4cde-a632-24cff2efd733" name="LEA-15 User Sign Up and Sign In (Firebase Auth)" comment="Remove unused configuration and obsolete import.&#10;&#10;Deleted unnecessary debug run configurations from IntelliJ's deploymentTargetSelector.xml. Also removed an unused Kotlin Android source set import from composeApp/build.gradle.kts to clean up the project setup." />
@@ -82,7 +83,7 @@
     <list id="6f62487c-157d-46a7-955e-ec8688dae7d6" name="LEA-17 Profile Creation" comment="Remove outdated project enhancements section&#10;&#10;Removed the section listing old project enhancements from the README. This simplifies the documentation by focusing on relevant information and avoids redundancy.">
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
     </list>
-    <list id="4dda34f5-96ab-4c27-ad2e-f9e5c6666e52" name="LEA-20 Learning Progress Visualization" comment="">
+    <list id="4dda34f5-96ab-4c27-ad2e-f9e5c6666e52" name="LEA-20 Learning Progress Visualization" comment="LEA-20 Learning Progress Visualization">
       <change beforePath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -228,7 +229,7 @@
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Android App.MainActivity (1).executor": "Debug",
     "Android App.MainActivity.executor": "Debug",
-    "Android App.composeApp.executor": "Debug",
+    "Android App.composeApp.executor": "Run",
     "Android Instrumented Tests.AuthScreenTest.executor": "Run",
     "Android Instrumented Tests.CreateProfileScreenTest.executor": "Run",
     "Android Instrumented Tests.DashboardScreenTest.executor": "Run",
@@ -879,7 +880,7 @@
     "Gradle.LibraryViewModelTest.should upload curriculum, modules, lessons, and sections (1).executor": "Run",
     "Gradle.LibraryViewModelTest.should upload curriculum, modules, lessons, and sections.executor": "Run",
     "Gradle.Load Gradle Dependencies.executor": "Run",
-    "Gradle.Main [desktop].executor": "Debug",
+    "Gradle.Main [desktop].executor": "Run",
     "Gradle.ModulesProgressUseCaseTest (1).executor": "Run",
     "Gradle.ModulesProgressUseCaseTest.executor": "Run",
     "Gradle.OpenAIAssistantClientTest (1).executor": "Run",
@@ -1187,14 +1188,15 @@
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.readMode.enableVisualFormatting": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "ScreenshotViewer.SavePath": "C:/Users/assak/IdeaProjects/LearnFlex",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "com.google.services.firebase.aqiPopupShown": "true",
     "external.system.has.shared.sources": "true",
-    "git-widget-placeholder": "LEA-35",
+    "git-widget-placeholder": "master",
     "kotlin-language-version-configured": "true",
     "last_directory_selection": "C:/Users/assak/IdeaProjects/LearnFlex/shared/src/commonMain/kotlin/org/example/shared/data/repository",
-    "last_opened_file_path": "C:/Users/assak/IdeaProjects/LearnFlex/composeApp/src/androidMain/res/drawable",
+    "last_opened_file_path": "C:/Users/assak/IdeaProjects/LearnFlex",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -1244,11 +1246,11 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\assak\IdeaProjects\LearnFlex" />
       <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\androidMain\res\drawable" />
       <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonMain\composeResources\drawable" />
       <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\androidMain\assets" />
       <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonMain\composeResources\animator" />
-      <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonMain\composeResources\values" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\assak\IdeaProjects\LearnFlex\composeApp\src\commonMain\composeResources\drawable" />
@@ -1277,7 +1279,7 @@
       <recent name="org.example.composeApp" />
     </key>
   </component>
-  <component name="RunManager" selected="Android App.composeApp">
+  <component name="RunManager" selected="Gradle.FirestoreDaoTest.get should successfully retrieve document snapshot (1)">
     <configuration name="MainActivity" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
       <module name="LearnFlex.composeApp" />
       <option name="ANDROID_RUN_CONFIGURATION_SCHEMA_VERSION" value="1" />
@@ -1362,6 +1364,30 @@
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration name="FirestoreDaoTest.get should successfully retrieve document snapshot" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/shared" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":shared:cleanTestDebugUnitTest" />
+            <option value=":shared:testDebugUnitTest" />
+            <option value="--tests &quot;org.example.shared.data.remote.firestore.FirestoreDaoTest.get should successfully retrieve document snapshot&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
+      <method v="2" />
+    </configuration>
     <configuration name="Main [desktop]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -1382,30 +1408,6 @@
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
       <DebugAllEnabled>false</DebugAllEnabled>
       <RunAsTest>false</RunAsTest>
-      <method v="2" />
-    </configuration>
-    <configuration name="ProfileManagementViewModelTest.handleAction Refresh should call learnFlexViewModel handleAction Refresh" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/composeApp" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":composeApp:cleanTestDebugUnitTest" />
-            <option value=":composeApp:testDebugUnitTest" />
-            <option value="--tests &quot;org.example.composeApp.viewModel.ProfileManagementViewModelTest.handleAction Refresh should call learnFlexViewModel handleAction Refresh&quot;" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>true</RunAsTest>
       <method v="2" />
     </configuration>
     <configuration name="ProfileManagementViewModelTest.handleAction SignOut should call signOutUseCase" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
@@ -1432,10 +1434,10 @@
       <RunAsTest>true</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="ProfileManagementViewModelTest.init update the state with the profile and isDownloading" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="Tests in 'LearnFlex.shared.commonTest'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/composeApp" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" value="" />
         <option name="taskDescriptions">
@@ -1443,33 +1445,8 @@
         </option>
         <option name="taskNames">
           <list>
-            <option value=":composeApp:cleanTestDebugUnitTest" />
-            <option value=":composeApp:testDebugUnitTest" />
-            <option value="--tests &quot;org.example.composeApp.viewModel.ProfileManagementViewModelTest.init update the state with the profile and isDownloading&quot;" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>true</RunAsTest>
-      <method v="2" />
-    </configuration>
-    <configuration name="ProfileManagementViewModelTest.init update the state with the profile" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/composeApp" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":composeApp:cleanTestDebugUnitTest" />
-            <option value=":composeApp:testDebugUnitTest" />
-            <option value="--tests &quot;org.example.composeApp.viewModel.ProfileManagementViewModelTest.init update the state with the profile&quot;" />
+            <option value=":shared:cleanTestDebugUnitTest" />
+            <option value=":shared:testDebugUnitTest" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -1483,19 +1460,19 @@
     <list>
       <item itemvalue="Android App.MainActivity" />
       <item itemvalue="Android App.composeApp" />
-      <item itemvalue="Gradle.ProfileManagementViewModelTest.handleAction Refresh should call learnFlexViewModel handleAction Refresh" />
+      <item itemvalue="Gradle.FirestoreDaoTest.get should successfully retrieve document snapshot" />
+      <item itemvalue="Gradle.FirestoreDaoTest.get should successfully retrieve document snapshot (1)" />
+      <item itemvalue="Gradle.Tests in 'LearnFlex.shared.commonTest'" />
       <item itemvalue="Gradle.ProfileManagementViewModelTest.handleAction SignOut should call signOutUseCase" />
-      <item itemvalue="Gradle.ProfileManagementViewModelTest.init update the state with the profile" />
-      <item itemvalue="Gradle.ProfileManagementViewModelTest.init update the state with the profile and isDownloading" />
       <item itemvalue="Gradle.Main [desktop]" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.FirestoreDaoTest.get should successfully retrieve document snapshot (1)" />
+        <item itemvalue="Gradle.FirestoreDaoTest.get should successfully retrieve document snapshot" />
+        <item itemvalue="Gradle.Tests in 'LearnFlex.shared.commonTest'" />
         <item itemvalue="Gradle.Main [desktop]" />
         <item itemvalue="Gradle.ProfileManagementViewModelTest.handleAction SignOut should call signOutUseCase" />
-        <item itemvalue="Gradle.ProfileManagementViewModelTest.handleAction Refresh should call learnFlexViewModel handleAction Refresh" />
-        <item itemvalue="Gradle.ProfileManagementViewModelTest.init update the state with the profile" />
-        <item itemvalue="Gradle.ProfileManagementViewModelTest.init update the state with the profile and isDownloading" />
       </list>
     </recent_temporary>
   </component>
@@ -1940,13 +1917,14 @@
       <branch name="master" repository="C:\Users\assak\IdeaProjects\LearnFlex" original="true" />
       <branch name="LEA-35" repository="C:\Users\assak\IdeaProjects\LearnFlex" />
       <changelist id="281a55e8-b077-4663-8355-8f00356df64a" name="LEA-35 Studying and Assessment" comment="" />
+      <option name="closed" value="true" />
       <created>1736093132384</created>
       <option name="issue" value="true" />
       <url>https://gracia.youtrack.cloud/issue/LEA-35</url>
       <option name="number" value="35" />
       <option name="presentableId" value="LEA-35" />
       <option name="project" value="LEA" />
-      <updated>1736093833028</updated>
+      <updated>1736819513455</updated>
       <workItem from="1736093833439" duration="110194000" />
       <workItem from="1736291913598" duration="60502000" />
       <workItem from="1736393503493" duration="149000" />
@@ -1958,6 +1936,7 @@
       <workItem from="1736464750020" duration="30091000" />
       <workItem from="1736521563866" duration="102378000" />
       <workItem from="1736670529496" duration="94390000" />
+      <workItem from="1736850775234" duration="11527000" />
     </task>
     <task id="LOCAL-00075" summary="feat: add Path and PathBuilder classes for Firestore path management&#10;&#10;- Introduced `Path` class to represent immutable Firestore paths with validation.&#10;- Added `PathBuilder` class to construct paths with collection and document segments.&#10;- Implemented methods for path validation, segment addition, and path building.">
       <option name="closed" value="true" />
@@ -2102,7 +2081,6 @@
     <MESSAGE value="Implement Firestore path builder and section session utilities&#10;&#10;The FirestorePathBuilder class has been expanded to include path-building functionality for multiple Firestore collections and documents like users, curriculums, modules, lessons, sections, and sessions, implementing the PathBuilder interface. New test cases for several use cases involving sections and sessions have been added, along with updates to data models, repository configurations, and sync managers to accommodate sections and sessions within the module's DI setup." />
     <MESSAGE value="Remove IDE-specific config files from repository&#10;&#10;This commit deletes several IntelliJ IDEA configuration files such as `.gitignore`, `androidTestResultsUserPreferences.xml`, and other related settings files. Their removal ensures that local development settings do not conflict across different environments and reduces repository clutter." />
     <MESSAGE value="- Implemented `DashboardViewModel` with necessary dependencies and logic.&#10;- Created `DashboardScreen` to display the dashboard UI.&#10;- Added comprehensive unit tests for `DashboardViewModel` to ensure functionality." />
-    <MESSAGE value="LEA-20 Learning Progress Visualization" />
     <MESSAGE value="LEA-34 Automated Content Creation Workflow" />
     <MESSAGE value="Remove unused domain models and constants.&#10;&#10;Deleted obsolete classes such as `LearningPreferences`, `LearningStyle`, and `StyleQuestionnaire` from the domain model. Replaced their functionality with `Profile` and `StyleQuizGenerator` to streamline the design. Updated related use cases and UI components to align with these changes." />
     <MESSAGE value="Refactor assistant generator architecture and dependencies&#10;&#10;Added and updated assistant generator clients with enhanced modularity and renamed key classes (e.g., StyleQuizGeneratorClient). Removed redundant `IncompleteDetails` and refactored message handling. Updated dependency injection and constants for new clients like `ContentGeneratorClient`." />
@@ -2122,7 +2100,8 @@
     <MESSAGE value="Refactor: improve Study and Dashboard view logic&#10;&#10;Introduced `StudyAction` and `StudyUIState` and modified `StudyViewModel` and `StudyScreen` to enhance separation of concerns. Added `DashboardViewModel` and `DashboardScreen` implementations with corresponding unit tests to support dashboard functionality. Updated snackbar message handling to use external resource files for better localization and maintainability." />
     <MESSAGE value="Implemented StudyScreen with ability to download lessons and take quizzes" />
     <MESSAGE value="Refactor navigation and streamline ViewModel actions&#10;&#10;Renamed `Profile` to `ProfileManagement` in `Route` for clarity. Updated `handleAction` methods in `ViewModels` to use concise lambda expressions, improving readability and reducing boilerplate. Simplified `StudyScreen` by introducing `StartQuizButton`." />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactor navigation and streamline ViewModel actions&#10;&#10;Renamed `Profile` to `ProfileManagement` in `Route` for clarity. Updated `handleAction` methods in `ViewModels` to use concise lambda expressions, improving readability and reducing boilerplate. Simplified `StudyScreen` by introducing `StartQuizButton`." />
+    <MESSAGE value="LEA-20 Learning Progress Visualization" />
+    <option name="LAST_COMMIT_MESSAGE" value="LEA-20 Learning Progress Visualization" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />

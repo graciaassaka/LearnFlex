@@ -1,9 +1,6 @@
 package org.example.shared.domain.use_case.lesson
 
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withTimeout
 import org.example.shared.domain.constant.Collection
 import org.example.shared.domain.repository.LessonRepository
 import org.example.shared.domain.storage_operations.util.PathBuilder
@@ -27,18 +24,17 @@ class FetchLessonsByModuleUseCase(private val repository: LessonRepository) {
         curriculumId: String,
         moduleId: String
     ) = try {
-        val path = PathBuilder()
-            .collection(Collection.PROFILES)
-            .document(userId)
-            .collection(Collection.CURRICULA)
-            .document(curriculumId)
-            .collection(Collection.MODULES)
-            .document(moduleId)
-            .collection(Collection.LESSONS)
-            .build()
-        withTimeout(2500L) {
-            repository.getAll(path).filter { it.getOrThrow().isNotEmpty() }.first()
-        }
+        repository.getAll(
+            PathBuilder()
+                .collection(Collection.PROFILES)
+                .document(userId)
+                .collection(Collection.CURRICULA)
+                .document(curriculumId)
+                .collection(Collection.MODULES)
+                .document(moduleId)
+                .collection(Collection.LESSONS)
+                .build()
+        )
     } catch (_: TimeoutCancellationException) {
         Result.success(emptyList())
     } catch (e: Exception) {

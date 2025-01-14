@@ -1,9 +1,8 @@
 package org.example.shared.domain.use_case.curriculum
 
-import io.mockk.every
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
-import io.mockk.verify
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.constant.Collection
 import org.example.shared.domain.model.Curriculum
@@ -28,14 +27,14 @@ class FetchCurriculaByUserUseCaseTest {
     fun `invoke should return curricula flow when getAll succeeds`() = runTest {
         // Arrange
         val curricula = listOf(mockk<Curriculum>())
-        val curriculaFlow = flowOf(Result.success(curricula))
-        every { repository.getAll(path) } returns curriculaFlow
+        val curriculaResult = Result.success(curricula)
+        coEvery { repository.getAll(path) } returns curriculaResult
 
         // Act
         val result = useCase(USER_ID)
 
         // Assert
-        verify(exactly = 1) { repository.getAll(path) }
+        coVerify(exactly = 1) { repository.getAll(path) }
         assertEquals(1, result.getOrNull()?.size)
         assertEquals(curricula, result.getOrNull())
     }
@@ -44,14 +43,14 @@ class FetchCurriculaByUserUseCaseTest {
     fun `invoke should return error flow when getAll fails`() = runTest {
         // Arrange
         val exception = RuntimeException("GetAll failed")
-        val errorFlow = flowOf(Result.failure<List<Curriculum>>(exception))
-        every { repository.getAll(path) } returns errorFlow
+        val errorResult = Result.failure<List<Curriculum>>(exception)
+        coEvery { repository.getAll(path) } returns errorResult
 
         // Act
         val result = useCase(USER_ID)
 
         // Assert
-        verify(exactly = 1) { repository.getAll(path) }
+        coVerify(exactly = 1) { repository.getAll(path) }
         assertTrue(result.isFailure)
         assertEquals(exception.message, result.exceptionOrNull()?.message)
     }

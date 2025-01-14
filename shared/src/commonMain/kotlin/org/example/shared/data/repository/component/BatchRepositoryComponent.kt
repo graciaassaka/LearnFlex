@@ -1,7 +1,8 @@
 package org.example.shared.data.repository.component
 
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.supervisorScope
 import org.example.shared.data.local.dao.ExtendedLocalDao
 import org.example.shared.data.local.entity.interfaces.RoomEntity
 import org.example.shared.data.repository.util.RepositoryConfig
@@ -86,13 +87,10 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      * Retrieves all items as a Flow from the local database and syncs with remote data.
      *
      * @param path The path for the operation.
-     * @return A Flow emitting the result of the operation.
+     * @return A [Result] containing the list of items or an error.
      */
-    override fun getAll(path: Path): Flow<Result<List<Model>>> {
-        var remote: List<Model>? = null
-        var local: List<Model>? = null
-
-        return channelFlow {
+    override suspend fun getAll(path: Path) = supervisorScope {
+        runCatching {
             require(path.isCollectionPath())
             require(config.remoteDao is ExtendedDao)
             require(config.localDao is ExtendedLocalDao)
@@ -100,29 +98,23 @@ class BatchRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
             val remoteJob = async {
                 config.remoteDao
                     .getAll(path)
-                    .firstOrNull()
-                    ?.getOrThrow()
+                    .getOrThrow()
             }
             val localJob = async {
                 config.queryStrategies
                     .byParentStrategy!!
                     .setParentId(path.getParentId()!!)
                     .execute()
-                    .firstOrNull { it.isNotEmpty() }
+                    .firstOrNull()
                     ?.map(config.modelMapper::toModel)
             }
 
-            local = localJob.await()
-            remote = remoteJob.await()
-            send(Result.success(remote ?: local ?: emptyList()))
-        }.catch {
-            emit(Result.failure(it))
-        }.onCompletion {
-            remote?.let {
-                if (it.isNotEmpty()) config.syncManager.queueOperation(
-                    SyncOperation(SyncOperation.Type.SYNC, path, it)
-                )
-            }
+            val remote = remoteJob.await()
+            val local = localJob.await()
+
+            if (remote.isNotEmpty()) config.syncManager.queueOperation(SyncOperation(SyncOperation.Type.SYNC, path, remote))
+
+            local ?: remote
         }
     }
 }

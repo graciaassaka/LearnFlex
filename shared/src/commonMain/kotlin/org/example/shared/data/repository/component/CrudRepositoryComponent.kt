@@ -1,7 +1,8 @@
 package org.example.shared.data.repository.component
 
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.supervisorScope
 import org.example.shared.data.local.entity.interfaces.RoomEntity
 import org.example.shared.data.repository.util.RepositoryConfig
 import org.example.shared.domain.model.interfaces.DatabaseRecord
@@ -51,39 +52,31 @@ class CrudRepositoryComponent<Model : DatabaseRecord, Entity : RoomEntity>(
      * Retrieves an item by its ID.
      *
      * @param path The path in the repository where the item should be retrieved from.
-     * @return A [Flow] emitting the [Result] containing the model or an error.
+     * @return A [Result] containing the model if it exists, or an error if it does not.
      */
-    override fun get(path: Path): Flow<Result<Model>> {
-        var remote: Model? = null
-        var local: Model? = null
-
-        return channelFlow {
+    override suspend fun get(path: Path): Result<Model> = supervisorScope {
+        runCatching {
+            var remote: Model? = null
+            var local: Model? = null
             require(path.isDocumentPath())
             val remoteJob = async {
                 config.remoteDao
                     .get(path)
-                    .first()
                     .getOrThrow()
             }
             val localJob = async {
                 config.queryStrategies.byIdStrategy
                     ?.setId(path.getId())
                     ?.execute()
-                    ?.first()
+                    ?.firstOrNull()
                     ?.let(config.modelMapper::toModel)
             }
 
             local = localJob.await()
             remote = remoteJob.await()
-            send(Result.success(local ?: remote))
-        }.catch {
-            emit(Result.failure(it))
-        }.onCompletion {
-            remote?.let {
-                config.syncManager.queueOperation(
-                    SyncOperation(SyncOperation.Type.SYNC, path, listOf(it))
-                )
-            }
+
+            config.syncManager.queueOperation(SyncOperation(SyncOperation.Type.SYNC, path, listOf(remote)))
+            local ?: remote
         }
     }
 

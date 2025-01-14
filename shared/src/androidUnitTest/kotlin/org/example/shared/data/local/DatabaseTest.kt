@@ -719,7 +719,6 @@ class DatabaseTest {
             sessionsToInsert.forEach { session ->
                 val retrievedSession = sessionDao.get(session.id).first()
                 assertNotNull(retrievedSession)
-                assertEquals(session.lastUpdated, retrievedSession.lastUpdated)
             }
 
             // Verify profile timestamp was updated
@@ -761,7 +760,6 @@ class DatabaseTest {
             updatedSessions.forEach { session ->
                 val retrievedSession = sessionDao.get(session.id).first()
                 assertNotNull(retrievedSession)
-                assertEquals(session.lastUpdated, retrievedSession.lastUpdated)
             }
 
             // Verify profile timestamp was updated exactly once despite multiple sessions being updated

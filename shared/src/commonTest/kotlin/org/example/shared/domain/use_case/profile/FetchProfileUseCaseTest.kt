@@ -3,7 +3,6 @@ package org.example.shared.domain.use_case.profile
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.constant.Collection
 import org.example.shared.domain.constant.Field
@@ -39,7 +38,7 @@ class FetchProfileUseCaseTest {
         coEvery { getUserDataUseCase() } returns Result.success(userData)
 
         // Mock repository to return our expected profile
-        every { repository.get(path) } returns flowOf(Result.success(expectedProfile))
+        coEvery { repository.get(path) } returns Result.success(expectedProfile)
 
         // Act
         val result = fetchProfileUseCase()

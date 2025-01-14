@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.kotlinx.parcelize)
+    alias(libs.plugins.googleServices)
     alias(libs.plugins.room)
     alias(libs.plugins.ksp)
 }

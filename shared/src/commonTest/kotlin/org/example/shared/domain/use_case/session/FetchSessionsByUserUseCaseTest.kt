@@ -1,9 +1,8 @@
 package org.example.shared.domain.use_case.session
 
-import io.mockk.every
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
-import io.mockk.verify
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.example.shared.domain.constant.Collection
 import org.example.shared.domain.model.Session
@@ -27,14 +26,14 @@ class FetchSessionsByUserUseCaseTest {
     fun `invoke should return sessions flow when getAll succeeds`() = runTest {
         // Arrange
         val sessions = listOf(mockk<Session>())
-        val sessionsFlow = flowOf(Result.success(sessions))
-        every { repository.getAll(path) } returns sessionsFlow
+        val sessionsResult = Result.success(sessions)
+        coEvery { repository.getAll(path) } returns sessionsResult
 
         // Act
         val result = useCase(USER_ID)
 
         // Assert
-        verify(exactly = 1) { repository.getAll(path) }
+        coVerify(exactly = 1) { repository.getAll(path) }
         assertEquals(Result.success(sessions), result)
     }
 
@@ -42,14 +41,14 @@ class FetchSessionsByUserUseCaseTest {
     fun `invoke should return error flow when getAll fails`() = runTest {
         // Arrange
         val exception = RuntimeException("Get failed")
-        val errorFlow = flowOf(Result.failure<List<Session>>(exception))
-        every { repository.getAll(path) } returns errorFlow
+        val errorResult = Result.failure<List<Session>>(exception)
+        coEvery { repository.getAll(path) } returns errorResult
 
         // Act
         val result = useCase(USER_ID)
 
         // Assert
-        verify(exactly = 1) { repository.getAll(path) }
+        coVerify(exactly = 1) { repository.getAll(path) }
         assertEquals(exception.message, result.exceptionOrNull()?.message)
     }
 

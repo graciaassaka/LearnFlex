@@ -107,7 +107,7 @@ class SyncHandlerDelegateTest {
         )
         val operation = SyncOperation(SyncOperation.Type.SYNC, testPath, testModels, TIMESTAMP)
 
-        coEvery { remoteDao.get(any()) } returns flowOf(Result.success(remoteModel))
+        coEvery { remoteDao.get(any()) } returns Result.success(remoteModel)
         coEvery { localDao.update(any(), any(), any()) } returns Unit
 
         // When
@@ -133,7 +133,7 @@ class SyncHandlerDelegateTest {
         )
         val operation = SyncOperation(SyncOperation.Type.SYNC, testPath, testModels, TIMESTAMP)
 
-        coEvery { remoteDao.get(any()) } returns flowOf(Result.success(remoteModel))
+        coEvery { remoteDao.get(any()) } returns Result.success(remoteModel)
         coEvery { remoteDao.insert(any(), any(), any()) } returns Result.success(Unit)
         coEvery { remoteDao.update(any(), any(), any()) } returns Result.success(Unit)
         coEvery { localDao.update(any(), any(), any()) } just Runs
@@ -158,7 +158,7 @@ class SyncHandlerDelegateTest {
         )
         val operation = SyncOperation(SyncOperation.Type.SYNC, testPath, testModels, TIMESTAMP)
 
-        coEvery { remoteDao.get(any()) } returns flowOf(Result.success(remoteModel))
+        coEvery { remoteDao.get(any()) } returns Result.success(remoteModel)
         coEvery { localDao.update(any(), any(), any()) } returns Unit
 
         // When
@@ -180,7 +180,7 @@ class SyncHandlerDelegateTest {
         // Given
         val operation = SyncOperation(SyncOperation.Type.SYNC, testPath, testModels, TIMESTAMP)
 
-        coEvery { remoteDao.get(any()) } returns flowOf(Result.success(testModels.first()))
+        coEvery { remoteDao.get(any()) } returns Result.success(testModels.first())
         every { getStrategy.execute() } returns flowOf(null)
         coEvery { localDao.insert(any(), any(), any()) } returns Unit
 

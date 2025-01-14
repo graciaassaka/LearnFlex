@@ -1,6 +1,5 @@
 package org.example.shared.domain.storage_operations
 
-import kotlinx.coroutines.flow.Flow
 import org.example.shared.domain.model.interfaces.DatabaseRecord
 import org.example.shared.domain.storage_operations.util.Path
 
@@ -43,9 +42,9 @@ interface CrudOperations<Model : DatabaseRecord> {
      * Retrieves an item from the repository by its ID.
      *
      * @param path The path in the repository where the item should be retrieved from.
-     * @return A [Flow] emitting a [Result] containing the item if found, or an error if not.
+     * @return A [Result] containing the fetched item or an error.
      */
-    fun get(path: Path): Flow<Result<Model>>
+    suspend fun get(path: Path): Result<Model>
 
     /**
      * Deletes an item from the repository.
