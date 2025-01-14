@@ -767,7 +767,7 @@ class LibraryViewModelTest {
     @Test
     fun `handleAction Navigate with null curriculum should handle navigation`() = runTest {
         // Given
-        val destination = Route.ProfileManagement
+        val destination = Route.EditProfile
         val uiEvents = mutableListOf<UIEvent>()
         val job = launch {
             viewModel.uiEvent.toList(uiEvents)
@@ -812,7 +812,7 @@ class LibraryViewModelTest {
         advanceUntilIdle()
 
         // When
-        viewModel.handleAction(LibraryAction.Navigate(Route.ProfileManagement))
+        viewModel.handleAction(LibraryAction.Navigate(Route.EditProfile))
         advanceUntilIdle()
 
         // Then
@@ -847,7 +847,7 @@ class LibraryViewModelTest {
         viewModel.handleAction(LibraryAction.GenerateCurriculum)
         advanceUntilIdle()
 
-        viewModel.handleAction(LibraryAction.Navigate(Route.ProfileManagement))
+        viewModel.handleAction(LibraryAction.Navigate(Route.EditProfile))
         advanceUntilIdle()
 
         assertTrue(viewModel.state.value.showDiscardWarningDialog)

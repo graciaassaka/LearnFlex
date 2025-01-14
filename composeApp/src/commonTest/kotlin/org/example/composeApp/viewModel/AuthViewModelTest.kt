@@ -15,7 +15,7 @@ import kotlinx.coroutines.test.*
 import org.example.composeApp.injection.DatabaseSyncManagers
 import org.example.composeApp.presentation.action.AuthAction
 import org.example.composeApp.presentation.navigation.Route
-import org.example.composeApp.presentation.ui.screen.AuthForm
+import org.example.composeApp.presentation.state.AuthUIState.AuthForm
 import org.example.composeApp.presentation.ui.util.UIEvent
 import org.example.composeApp.presentation.viewModel.AuthViewModel
 import org.example.composeApp.presentation.viewModel.LearnFlexViewModel

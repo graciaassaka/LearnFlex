@@ -21,8 +21,8 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.update
 import org.example.composeApp.presentation.action.AuthAction
 import org.example.composeApp.presentation.state.AuthUIState
+import org.example.composeApp.presentation.state.AuthUIState.AuthForm
 import org.example.composeApp.presentation.ui.constant.TestTags
-import org.example.composeApp.presentation.ui.screen.AuthForm
 import org.example.composeApp.presentation.ui.screen.AuthScreen
 import org.example.composeApp.presentation.ui.theme.LearnFlexTheme
 import org.example.composeApp.presentation.ui.util.UIEvent

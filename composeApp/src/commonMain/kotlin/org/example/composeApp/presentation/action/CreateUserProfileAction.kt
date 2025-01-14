@@ -1,6 +1,6 @@
 package org.example.composeApp.presentation.action
 
-import org.example.composeApp.presentation.ui.screen.ProfileCreationForm
+import org.example.composeApp.presentation.state.CreateProfileUIState.ProfileCreationForm
 import org.example.shared.domain.constant.Field
 import org.example.shared.domain.constant.Level
 import org.example.shared.domain.constant.Style

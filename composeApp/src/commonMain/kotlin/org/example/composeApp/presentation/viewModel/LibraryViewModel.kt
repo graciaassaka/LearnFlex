@@ -267,7 +267,8 @@ class LibraryViewModel(
     /**
      * Discards the generated content.
      */
-    private fun discardContent() = with(_state) { update { it.copy(curriculum = null, modules = emptyList()) } }
+    private fun discardContent() =
+        with(_state) { update { it.copy(curriculum = null, modules = emptyList(), displayMode = LibraryUIState.DisplayMode.View) } }
 
     /**
      * Updates the state to display the discard warning dialog.

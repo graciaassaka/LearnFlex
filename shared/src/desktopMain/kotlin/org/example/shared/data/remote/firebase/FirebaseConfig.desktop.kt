@@ -9,7 +9,7 @@ actual object FirebaseConfig {
     /**
      * Indicates whether to use the Firebase emulator.
      */
-    var useEmulator: Boolean = true
+    var useEmulator: Boolean = false
 
     /**
      * The host address for the Firebase emulator.

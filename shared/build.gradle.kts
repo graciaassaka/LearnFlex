@@ -29,6 +29,8 @@ tasks.register("generateConstants") {
                 const val APP_ID = "${getLocalProperty("FIREBASE_APP_ID")}"
                 const val API_KEY = "${getLocalProperty("FIREBASE_API_KEY")}"
                 const val PROJECT_ID = "${getLocalProperty("FIREBASE_PROJECT_ID")}"
+                const val STORAGE_BUCKET = "${getLocalProperty("FIREBASE_STORAGE_BUCKET")}"
+                const val AUTH_DOMAIN = "${getLocalProperty("FIREBASE_AUTH_DOMAIN")}"
             }
             
             object OpenAIConstants {

@@ -10,7 +10,7 @@ import learnflex.composeapp.generated.resources.*
 import org.example.composeApp.presentation.action.AuthAction
 import org.example.composeApp.presentation.navigation.Route
 import org.example.composeApp.presentation.state.AuthUIState
-import org.example.composeApp.presentation.ui.screen.AuthForm
+import org.example.composeApp.presentation.state.AuthUIState.AuthForm
 import org.example.composeApp.presentation.ui.util.SnackbarType
 import org.example.shared.domain.use_case.auth.*
 import org.example.shared.domain.use_case.validation.ValidateEmailUseCase

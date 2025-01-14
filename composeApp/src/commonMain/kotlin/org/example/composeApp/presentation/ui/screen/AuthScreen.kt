@@ -31,6 +31,7 @@ import learnflex.composeapp.generated.resources.*
 import org.example.composeApp.presentation.action.AuthAction
 import org.example.composeApp.presentation.navigation.Route
 import org.example.composeApp.presentation.state.AuthUIState
+import org.example.composeApp.presentation.state.AuthUIState.AuthForm
 import org.example.composeApp.presentation.ui.component.AnimatedOutlinedTextField
 import org.example.composeApp.presentation.ui.component.CustomVerticalScrollbar
 import org.example.composeApp.presentation.ui.constant.TestTags
@@ -45,16 +46,6 @@ import org.example.composeApp.presentation.viewModel.AuthViewModel
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-
-/**
- * Enum class representing the authentication form.
- */
-enum class AuthForm {
-    SignIn,
-    SignUp,
-    ResetPassword,
-    VerifyEmail
-}
 
 /**
  * Represents the different phases of the authentication UI.

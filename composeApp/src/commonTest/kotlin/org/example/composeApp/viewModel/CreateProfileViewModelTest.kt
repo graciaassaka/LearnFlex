@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
 import org.example.composeApp.injection.DatabaseSyncManagers
-import org.example.composeApp.presentation.ui.screen.ProfileCreationForm
+import org.example.composeApp.presentation.state.CreateProfileUIState.ProfileCreationForm
 import org.example.composeApp.presentation.ui.util.UIEvent
 import org.example.composeApp.presentation.viewModel.CreateUserProfileViewModel
 import org.example.composeApp.presentation.viewModel.LearnFlexViewModel

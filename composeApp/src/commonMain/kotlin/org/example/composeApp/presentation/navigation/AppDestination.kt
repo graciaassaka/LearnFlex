@@ -41,7 +41,7 @@ enum class AppDestination(
     ),
     ProfileManagement(
         label = "Profile",
-        route = Route.ProfileManagement,
+        route = Route.EditProfile,
         icon = Icons.Default.Person,
         contentDescription = "Profile"
     )

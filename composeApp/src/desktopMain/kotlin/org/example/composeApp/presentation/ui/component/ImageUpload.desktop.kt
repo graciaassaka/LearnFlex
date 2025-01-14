@@ -30,7 +30,8 @@ actual fun ImageUpload(
     onImageDeleted: () -> Unit,
     handleError: (Throwable) -> Unit,
     modifier: Modifier,
-    isUploaded: Boolean
+    isUploaded: Boolean,
+    currentImageUrl: String?
 ) {
     var showFileDialog by remember { mutableStateOf(false) }
 
@@ -41,29 +42,31 @@ actual fun ImageUpload(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        FileUploadBox(
+        if (currentImageUrl.isNullOrBlank()) FileUploadBox(
             uploadText = "Upload Photo",
             onClick = { showFileDialog = true },
             enabled = enabled,
-            onFileDeleted = onImageDeleted,
+            onDelete = onImageDeleted,
             isUploaded = isUploaded
         )
+    }
 
-        if (showFileDialog) {
-            LaunchedEffect(Unit) {
-                showFileDialog = false
 
-                val fileChooser = JFileChooser().apply {
-                    fileFilter = FileNameExtensionFilter("Image files", "jpg", "jpeg", "png", "gif", "bmp")
-                    isMultiSelectionEnabled = false
-                }
+    if (showFileDialog) {
+        LaunchedEffect(Unit) {
+            showFileDialog = false
 
-                val result = fileChooser.showOpenDialog(null)
-                if (result == JFileChooser.APPROVE_OPTION) fileChooser.selectedFile.run {
-                    if (length() > FileType.IMAGE.value) handleError(Exception(fileTooLargeErr))
-                    else inputStream().buffered().use { onImageSelected(it.readBytes()) }
-                }
+            val fileChooser = JFileChooser().apply {
+                fileFilter = FileNameExtensionFilter("Image files", "jpg", "jpeg", "png", "gif", "bmp")
+                isMultiSelectionEnabled = false
+            }
+
+            val result = fileChooser.showOpenDialog(null)
+            if (result == JFileChooser.APPROVE_OPTION) fileChooser.selectedFile.run {
+                if (length() > FileType.IMAGE.value) handleError(Exception(fileTooLargeErr))
+                else inputStream().buffered().use { onImageSelected(it.readBytes()) }
             }
         }
     }
 }
+

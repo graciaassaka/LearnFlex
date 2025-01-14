@@ -22,9 +22,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.update
 import org.example.composeApp.presentation.state.CreateProfileUIState
+import org.example.composeApp.presentation.state.CreateProfileUIState.ProfileCreationForm
 import org.example.composeApp.presentation.ui.constant.TestTags
 import org.example.composeApp.presentation.ui.screen.CreateProfileScreen
-import org.example.composeApp.presentation.ui.screen.ProfileCreationForm
 import org.example.composeApp.presentation.ui.theme.LearnFlexTheme
 import org.example.composeApp.presentation.ui.util.UIEvent
 import org.example.composeApp.presentation.viewModel.CreateUserProfileViewModel

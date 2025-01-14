@@ -17,7 +17,7 @@ class LearnFlex : Application() {
         super.onCreate()
 
         Firebase.initialize(this)
-        setupFirebaseEmulators()
+//        setupFirebaseEmulators()
     }
 
     private fun setupFirebaseEmulators() {

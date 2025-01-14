@@ -17,5 +17,5 @@ data class User(
     val email: String = "",
     val photoUrl: String = "",
     val emailVerified: Boolean = false,
-    val localId: String
+    val localId: String = ""
 )

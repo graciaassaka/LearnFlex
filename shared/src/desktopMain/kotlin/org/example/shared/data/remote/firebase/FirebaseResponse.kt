@@ -14,11 +14,13 @@ import org.example.shared.domain.model.User
  */
 @Serializable
 data class AuthResponse(
-    val idToken: String,
-    val email: String,
-    val refreshToken: String,
-    val expiresIn: String,
-    val localId: String
+    val idToken: String = "",
+    val email: String = "",
+    val displayName: String = "",
+    val refreshToken: String = "",
+    val expiresIn: String = "",
+    val localId: String = "",
+    val registered: Boolean = true
 )
 
 /**

@@ -77,5 +77,16 @@ fun Navigator(
                 viewModel = viewModel
             )
         }
+        composable<Route.EditProfile>(
+            enterTransition = { fadeIn(animationSpec = tween(TRANSITION_DURATION)) },
+            exitTransition = { fadeOut(animationSpec = tween(TRANSITION_DURATION)) }
+        ) {
+            val viewModel = koinViewModel<EditUserProfileViewModel>()
+            EditUserProfileScreen(
+                windowSizeClass = windowSizeClass,
+                navController = navController,
+                viewModel = viewModel
+            )
+        }
     }
 }

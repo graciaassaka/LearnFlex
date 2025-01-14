@@ -29,5 +29,5 @@ sealed class Route {
     ) : Route()
 
     @Serializable
-    data object ProfileManagement : Route()
+    data object EditProfile : Route()
 }

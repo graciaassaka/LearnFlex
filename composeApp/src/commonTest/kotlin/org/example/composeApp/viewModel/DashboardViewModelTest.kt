@@ -183,14 +183,14 @@ class DashboardViewModelTest {
         val job = launch { viewModel.uiEvent.collect { uiEvents.add(it) } }
 
         // When
-        viewModel.handleAction(DashboardAction.Navigate(Route.ProfileManagement))
+        viewModel.handleAction(DashboardAction.Navigate(Route.EditProfile))
         advanceUntilIdle()
 
         // Then
         assertEquals(1, uiEvents.size)
         val event = uiEvents.first()
         assertTrue(event is UIEvent.Navigate)
-        assertEquals(Route.ProfileManagement, (event as UIEvent.Navigate).destination)
+        assertEquals(Route.EditProfile, (event as UIEvent.Navigate).destination)
 
         job.cancel()
     }

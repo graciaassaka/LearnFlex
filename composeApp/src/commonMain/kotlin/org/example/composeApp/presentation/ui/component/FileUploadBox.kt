@@ -27,7 +27,7 @@ import java.util.*
  * @param uploadText The text to display when no file is uploaded.
  * @param onClick A callback function invoked when the user clicks to upload a file.
  * @param enabled A boolean flag indicating whether the file upload button is enabled.
- * @param onFileDeleted A callback function invoked when the user deletes an uploaded file.
+ * @param onDelete A callback function invoked when the user deletes an uploaded file.
  * @param modifier A Modifier for styling this composable.
  * @param isUploaded A boolean flag indicating whether a file has been successfully uploaded.
  */
@@ -36,7 +36,7 @@ fun FileUploadBox(
     uploadText: String,
     onClick: () -> Unit,
     enabled: Boolean,
-    onFileDeleted: () -> Unit,
+    onDelete: () -> Unit,
     modifier: Modifier = Modifier,
     isUploaded: Boolean = false,
 ) {
@@ -70,12 +70,12 @@ fun FileUploadBox(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(Padding.SMALL.dp)
-                    .clickable(enabled = enabled) { if (isUploaded) onFileDeleted() else onClick() },
+                    .clickable(enabled = enabled) { if (isUploaded) onDelete() else onClick() },
                 horizontalArrangement = Arrangement.spacedBy(Padding.SMALL.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    onClick = if (isUploaded) onFileDeleted else onClick,
+                    onClick = if (isUploaded) onDelete else onClick,
                     enabled = enabled,
                 ) {
                     Icon(

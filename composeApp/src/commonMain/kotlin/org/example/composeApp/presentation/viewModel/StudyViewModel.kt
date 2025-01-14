@@ -77,7 +77,6 @@ class StudyViewModel(
     private var generateJob: Job? = null
 
     init {
-        _state.update { it.copy(session = Session()) }
         val curriculumId = savedState.get<String>("curriculumId").orEmpty()
         val moduleId = savedState.get<String>("moduleId").orEmpty()
         val lessonId = savedState.get<String>("lessonId").orEmpty()
@@ -120,6 +119,8 @@ class StudyViewModel(
         savedState["curriculumId"] = curriculum?.id
         savedState["moduleId"] = module?.id
         savedState["lessonId"] = lesson?.id
+
+        if (curriculum != null) _state.update { it.copy(session = Session()) }
 
         _state.update {
             it.copy(
@@ -646,15 +647,17 @@ class StudyViewModel(
      */
     override fun navigate(destination: Route, waitForAnimation: Boolean) {
         viewModelScope.launch(dispatcher) {
-            try {
-                val profile = checkNotNull(_state.value.profile)
-                val session = checkNotNull(_state.value.session).copy(lastUpdated = System.currentTimeMillis())
-                uploadSessionUseCase(session, profile.id).getOrThrow()
-            } catch (e: Exception) {
-                handleError(e)
-            } finally {
-                super.navigate(destination, waitForAnimation)
+            _state.value.session?.let {
+                try {
+                    val profile = checkNotNull(_state.value.profile)
+                    val session = it.copy(lastUpdated = System.currentTimeMillis())
+                    uploadSessionUseCase(session, profile.id).getOrThrow()
+                } catch (e: Exception) {
+                    handleError(e)
+                }
             }
+
+            super.navigate(destination, waitForAnimation)
         }
     }
 }

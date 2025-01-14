@@ -23,7 +23,6 @@ class FirebaseInit(skipInit: Boolean = false) {
                     override fun clear(key: String) {
                         storage.remove(key)
                     }
-
                     override fun log(msg: String) = println(msg)
                 },
             )
@@ -31,8 +30,10 @@ class FirebaseInit(skipInit: Boolean = false) {
                 Application(),
                 options = FirebaseOptions(
                     applicationId = FirebaseConstants.APP_ID,
+                    authDomain = FirebaseConstants.AUTH_DOMAIN,
                     apiKey = FirebaseConstants.API_KEY,
-                    projectId = FirebaseConstants.PROJECT_ID
+                    projectId = FirebaseConstants.PROJECT_ID,
+                    storageBucket = FirebaseConstants.STORAGE_BUCKET,
                 )
             )
 

@@ -2,13 +2,9 @@ package org.example.composeApp.presentation.ui.screen
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.SportsFootball
 import androidx.compose.material3.*
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.*
@@ -17,44 +13,31 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.input.ImeAction
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import learnflex.composeapp.generated.resources.*
 import org.example.composeApp.presentation.navigation.Route
 import org.example.composeApp.presentation.state.CreateProfileUIState
+import org.example.composeApp.presentation.state.CreateProfileUIState.ProfileCreationForm
 import org.example.composeApp.presentation.ui.component.CustomVerticalScrollbar
-import org.example.composeApp.presentation.ui.component.EnumDropdown
-import org.example.composeApp.presentation.ui.component.ImageUpload
+import org.example.composeApp.presentation.ui.component.ProfileForm
 import org.example.composeApp.presentation.ui.component.SelectableCardGroup
 import org.example.composeApp.presentation.ui.component.create_profile.PersonalInfoForm
 import org.example.composeApp.presentation.ui.component.create_profile.StyleQuestionnaireForm
 import org.example.composeApp.presentation.ui.constant.TestTags
-import org.example.composeApp.presentation.ui.dimension.Dimension
 import org.example.composeApp.presentation.ui.dimension.Padding
-import org.example.composeApp.presentation.ui.dimension.Spacing
 import org.example.composeApp.presentation.ui.layout.AlignedLabeledBarsLayout
-import org.example.composeApp.presentation.ui.layout.EnumScrollablePickerLayout
 import org.example.composeApp.presentation.ui.util.HandleUIEvents
 import org.example.composeApp.presentation.ui.util.ScreenConfig
 import org.example.composeApp.presentation.ui.util.SnackbarType
 import org.example.composeApp.presentation.viewModel.CreateUserProfileViewModel
 import org.example.shared.domain.client.StyleQuizGeneratorClient
-import org.example.shared.domain.constant.Field
-import org.example.shared.domain.constant.Level
 import org.example.shared.domain.constant.Style
 import org.example.shared.domain.model.Profile
 import org.example.shared.domain.use_case.profile.FetchStyleQuestionsUseCase
 import org.jetbrains.compose.resources.stringResource
 import org.example.composeApp.presentation.action.CreateUserProfileAction as Action
 
-/**
- * Represents a form for creating a user profile.
- */
-enum class ProfileCreationForm {
-    PersonalInfo,
-    StyleQuestionnaire,
-}
 
 /**
  * A composable function that displays the CreateProfileScreen with a form for user input.
@@ -108,10 +91,8 @@ private fun PersonalInfoScreen(
 ) = with(screenConfig) {
     var isFormVisible by remember { mutableStateOf(true) }
     var currentDestination by remember { mutableStateOf<ProfileCreationForm?>(null) }
-    var goalCharCount by remember { mutableIntStateOf(0) }
-    val scrollState = rememberScrollState()
 
-    val maxGoalLen = 80
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(uiState.value.isProfileCreated) {
         if (uiState.value.isProfileCreated) {
@@ -136,88 +117,30 @@ private fun PersonalInfoScreen(
         modifier = modifier
     ) {
         Box(modifier = modifier.fillMaxSize()) {
-            Column(
+            ProfileForm(
+                isLoading = uiState.value.isLoading,
+                photoUrl = uiState.value.photoUrl,
+                username = uiState.value.username,
+                usernameError = uiState.value.usernameError,
+                goal = uiState.value.goal,
+                level = uiState.value.level,
+                isLevelDropdownVisible = uiState.value.isLevelDropdownVisible,
+                onImageSelected = { handleAction(Action.UploadProfilePicture(it)) },
+                onImageDeleted = { handleAction(Action.DeleteProfilePicture) },
+                onHandleError = { handleAction(Action.HandleError(it)) },
+                onUsernameChange = { handleAction(Action.EditUsername(it)) },
+                onGoalChange = { handleAction(Action.EditGoal(it)) },
+                onToggleLevelDropdownVisibility = { handleAction(Action.ToggleLevelDropdownVisibility) },
+                onSelectLevel = { handleAction(Action.SelectLevel(it)) },
+                onSelectField = { handleAction(Action.SelectField(it)) },
+                onSubmit = { handleAction(Action.CreateProfile) },
+                submitText = stringResource(Res.string.create_profile_button_label),
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = Padding.MEDIUM.dp)
-                    .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(Padding.MEDIUM.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Spacer(modifier = Modifier.Companion.height(Spacing.LARGE.dp))
-                ImageUpload(
-                    enabled = !uiState.value.isLoading,
-                    onImageSelected = { imageData -> handleAction(Action.UploadProfilePicture(imageData)) },
-                    onImageDeleted = { handleAction(Action.DeleteProfilePicture) },
-                    handleError = { error: Throwable -> handleAction(Action.HandleError(error)) },
-                    modifier = Modifier.testTag(TestTags.PERSONAL_INFO_IMAGE_UPLOAD.tag),
-                    isUploaded = uiState.value.photoUrl.isBlank().not()
-                )
-                TextField(
-                    value = uiState.value.username,
-                    onValueChange = { handleAction(Action.EditUsername(it)) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag(TestTags.PERSONAL_INFO_USERNAME_TEXT_FIELD.tag),
-                    enabled = !uiState.value.isLoading,
-                    label = { Text(stringResource(Res.string.username_label)) },
-                    leadingIcon = { Icon(Icons.Default.AccountCircle, null) },
-                    supportingText = { Text(uiState.value.usernameError ?: "") },
-                    isError = uiState.value.usernameError != null,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                )
-                TextField(
-                    value = uiState.value.goal,
-                    onValueChange = {
-                        if (it.length < maxGoalLen) handleAction(Action.EditGoal(it))
-                        goalCharCount = it.length
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag(TestTags.PERSONAL_INFO_GOAL_TEXT_FIELD.tag),
-                    enabled = !uiState.value.isLoading,
-                    label = { Text(stringResource(Res.string.goals_label)) },
-                    leadingIcon = { Icon(Icons.Default.SportsFootball, null) },
-                    supportingText = {
-                        Text(
-                            text = "$goalCharCount/$maxGoalLen",
-                            modifier = Modifier.testTag(TestTags.PERSONAL_INFO_GOAL_CHAR_COUNTER.tag)
-                        )
-                    },
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    singleLine = false
-                )
-                EnumDropdown<Level>(
-                    label = stringResource(Res.string.level_label),
-                    selected = uiState.value.level,
-                    isDropDownVisible = uiState.value.isLevelDropdownVisible,
-                    onDropDownVisibilityChanged = { handleAction(Action.ToggleLevelDropdownVisibility) },
-                    onSelected = { handleAction(Action.SelectLevel(it)) },
-                    enabled = !uiState.value.isLoading,
-                    modifier = Modifier.testTag(TestTags.PERSONAL_INFO_LEVEL_DROPDOWN.tag)
-                )
-                EnumScrollablePickerLayout<Field>(
-                    label = stringResource(Res.string.field_label),
-                    onChange = { handleAction(Action.SelectField(it)) },
-                    enabled = !uiState.value.isLoading,
-                    modifier = Modifier.testTag(TestTags.PERSONAL_INFO_FIELD_PICKER.tag)
-                )
-                Button(
-                    onClick = { handleAction(Action.CreateProfile) },
-                    enabled = !uiState.value.isLoading && uiState.value.usernameError.isNullOrBlank(),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(Dimension.AUTH_BUTTON_HEIGHT.dp)
-                        .testTag(TestTags.PERSONAL_INFO_CREATE_PROFILE_BUTTON.tag),
-                    shape = RoundedCornerShape(Dimension.CORNER_RADIUS_LARGE.dp),
-                    content = { Text(stringResource(Res.string.create_profile_button_label)) }
-                )
-                Spacer(modifier = Modifier.Companion.height(Spacing.LARGE.dp))
-            }
-            CustomVerticalScrollbar(
-                scrollState = scrollState,
-                modifier = Modifier.align(Alignment.CenterEnd)
+                    .padding(Padding.MEDIUM.dp)
+                    .verticalScroll(scrollState)
             )
+            CustomVerticalScrollbar(scrollState)
         }
     }
 }

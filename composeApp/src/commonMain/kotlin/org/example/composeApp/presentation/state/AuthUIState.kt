@@ -1,7 +1,5 @@
 package org.example.composeApp.presentation.state
 
-import org.example.composeApp.presentation.ui.screen.AuthForm
-
 /**
  * Data class representing the state of the authentication UI.
  *
@@ -47,4 +45,11 @@ data class AuthUIState(
     val isEmailVerified: Boolean = false,
     val isPasswordResetEmailSent: Boolean = false,
     val isLoading: Boolean = false
-)
+) {
+    enum class AuthForm {
+        SignIn,
+        SignUp,
+        ResetPassword,
+        VerifyEmail
+    }
+}

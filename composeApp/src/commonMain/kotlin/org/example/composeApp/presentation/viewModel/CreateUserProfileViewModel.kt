@@ -7,7 +7,7 @@ import kotlinx.coroutines.launch
 import learnflex.composeapp.generated.resources.*
 import org.example.composeApp.presentation.navigation.Route
 import org.example.composeApp.presentation.state.CreateProfileUIState
-import org.example.composeApp.presentation.ui.screen.ProfileCreationForm
+import org.example.composeApp.presentation.state.CreateProfileUIState.ProfileCreationForm
 import org.example.composeApp.presentation.ui.util.SnackbarType
 import org.example.shared.domain.constant.Field
 import org.example.shared.domain.constant.Level
@@ -80,7 +80,7 @@ class CreateUserProfileViewModel(
      */
     fun handleAction(action: Action) = when (action) {
         is Action.CreateProfile                 -> createProfile()
-        is Action.DeleteProfilePicture          -> DeleteProfilePicture()
+        is Action.DeleteProfilePicture -> deleteProfilePicture()
         is Action.DisplayProfileCreationForm    -> displayProfileCreationForm(action.form)
         is Action.EditGoal                      -> editGoal(action.goal)
         is Action.EditUsername                  -> editUsername(action.username)
@@ -89,7 +89,7 @@ class CreateUserProfileViewModel(
         is Action.HandleQuestionAnswered        -> handleQuestionAnswered(action.style)
         is Action.HandleQuestionnaireCompleted  -> handleQuestionnaireCompleted()
         is Action.SelectField                   -> selectField(action.field)
-        is Action.SelectLevel                   -> SelectLevel(action.level)
+        is Action.SelectLevel          -> selectLevel(action.level)
         is Action.SetLearningStyle              -> setLearningStyle()
         is Action.StartStyleQuestionnaire       -> startStyleQuestionnaire()
         is Action.ToggleLevelDropdownVisibility -> toggleLevelDropdownVisibility()
@@ -123,7 +123,7 @@ class CreateUserProfileViewModel(
      *
      * @param level The selected learning level.
      */
-    private fun SelectLevel(level: Level) = _state.update { it.copy(level = level) }
+    private fun selectLevel(level: Level) = _state.update { it.copy(level = level) }
 
     /**
      * Handles changes to the learning level dropdown visibility.
@@ -163,7 +163,7 @@ class CreateUserProfileViewModel(
      * Handles the deletion of a profile picture.
      *
      */
-    private fun DeleteProfilePicture() = with(_state) {
+    private fun deleteProfilePicture() = with(_state) {
         update { it.copy(isLoading = true) }
 
         viewModelScope.launch(dispatcher) {

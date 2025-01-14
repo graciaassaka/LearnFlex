@@ -1,6 +1,6 @@
 package org.example.composeApp.presentation.action
 
-import org.example.composeApp.presentation.ui.screen.AuthForm
+import org.example.composeApp.presentation.state.AuthUIState.AuthForm
 
 /**
  * Sealed class representing the actions that can be performed on the authentication UI.

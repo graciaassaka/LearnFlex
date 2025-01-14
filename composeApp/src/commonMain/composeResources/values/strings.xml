@@ -16,6 +16,7 @@
 
     <!-- Button Labels -->
     <string name="sign_in_button_label">Sign In</string>
+    <string name="sign_out_button_label">Sign Out</string>
     <string name="sign_up_button_label">Sign Up</string>
     <string name="already_have_account_button_label">Already have an account? Sign In</string>
     <string name="forgot_password_button_label">Forgot Password?</string>
@@ -53,6 +54,7 @@
     <string name="start_quiz_button_label">Start Quiz</string>
     <string name="submit_question_button_label">Submit Question</string>
     <string name="dismiss_button_label">Dismiss</string>
+    <string name="delete_profile_button_label">Delete Profile</string>
 
     <!-- Form Labels -->
     <string name="email_label">Email</string>
@@ -88,6 +90,7 @@
     <string name="generate_lesson_success">Lesson generated</string>
     <string name="generate_section_success">Section generated</string>
     <string name="save_quiz_result_success">Quiz result saved</string>
+    <string name="delete_profile_success">Profile deleted</string>
 
     <!-- Error Messages -->
     <string name="file_too_large_error">File too large</string>
@@ -153,7 +156,7 @@
     <string name="uploading_document">Uploading Document</string>
     <string name="upload_document">Upload Document</string>
 
-    <!-- Other -->
+    <!-- Profile Photo -->
     <string name="upload_photo_text">Upload Profile Photo</string>
-
+    <string name="profile_photo">Profile Photo</string>
 </resources>

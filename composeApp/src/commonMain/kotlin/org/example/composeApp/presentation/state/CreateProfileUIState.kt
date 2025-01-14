@@ -1,6 +1,5 @@
 package org.example.composeApp.presentation.state
 
-import org.example.composeApp.presentation.ui.screen.ProfileCreationForm
 import org.example.shared.domain.client.StyleQuizGeneratorClient
 import org.example.shared.domain.constant.Field
 import org.example.shared.domain.constant.Level
@@ -44,4 +43,10 @@ data class CreateProfileUIState(
     val learningStyle: Profile.LearningStyle? = null,
     val showStyleResultDialog: Boolean = false,
     val isLoading: Boolean = false
-)
+) {
+    enum class ProfileCreationForm {
+        PersonalInfo,
+        StyleQuestionnaire,
+    }
+
+}

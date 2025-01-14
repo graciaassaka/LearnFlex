@@ -9,6 +9,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.example.shared.FirebaseInit
 import org.example.shared.data.remote.util.StorageException
+import org.example.shared.data.util.FirebaseConstants
 import org.example.shared.domain.client.StorageClient
 import org.example.shared.domain.constant.FileType
 import java.net.URLEncoder
@@ -33,8 +34,7 @@ actual class FirebaseStorageClient(
      * @return The result of the upload operation, containing the path if successful.
      */
     override suspend fun uploadFile(fileData: ByteArray, path: String, fileType: FileType) = runCatching {
-        val mimeType = when (fileType)
-        {
+        val mimeType = when (fileType) {
             FileType.IMAGE    -> "image/jpeg"
             FileType.DOCUMENT -> "application/pdf"
         }
@@ -45,13 +45,12 @@ actual class FirebaseStorageClient(
         val response = client.post {
             setUpStorageRequest()
             url {
-                path("upload", "storage", "v1", "b", FirebaseConfig.storageBucket, "o")
+                path("v0", "b", FirebaseConstants.STORAGE_BUCKET, "o")
                 parameters.append("uploadType", "multipart")
                 parameters.append("name", path)
             }
             headers {
-                if (!FirebaseConfig.useEmulator)
-                    append(HttpHeaders.Authorization, "Bearer ${firebaseInit.idToken}")
+                if (!FirebaseConfig.useEmulator) append(HttpHeaders.Authorization, "Bearer ${firebaseInit.idToken}")
                 append(HttpHeaders.ContentType, "multipart/related; boundary=$boundary")
                 append(HttpHeaders.ContentLength, multipartBody.size.toString())
             }
@@ -113,6 +112,7 @@ actual class FirebaseStorageClient(
         onFailure = { Result.failure(it) }
     )
 
+
     /**
      * Downloads a file from Firebase Storage.
      *
@@ -147,7 +147,7 @@ actual class FirebaseStorageClient(
     override suspend fun getFileUrl(path: String) = runCatching {
         if (path.isBlank()) throw IllegalArgumentException()
 
-        val bucket = FirebaseConfig.storageBucket
+        val bucket = FirebaseConstants.STORAGE_BUCKET
 
         val (protocol, host, port) = with(FirebaseConfig) {
             if (useEmulator) Triple(URLProtocol.HTTP, emulatorHost, storageEmulatorPort)
@@ -178,7 +178,7 @@ actual class FirebaseStorageClient(
             } else
             {
                 protocol = URLProtocol.HTTPS
-                host = "storage.googleapis.com"
+                host = "firebasestorage.googleapis.com"
             }
         }
         timeout {

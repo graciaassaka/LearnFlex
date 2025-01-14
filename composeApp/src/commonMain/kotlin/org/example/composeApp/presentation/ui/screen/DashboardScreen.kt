@@ -91,8 +91,7 @@ private val lottieFiles = listOf(
     "files/meditation.json",
     "files/reading.json",
     "files/teaching.json",
-    "files/studying.json",
-    "files/online_test.json",
+    "files/studying.json"
 )
 
 /**

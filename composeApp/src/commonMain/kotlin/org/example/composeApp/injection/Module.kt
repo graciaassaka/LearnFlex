@@ -644,6 +644,7 @@ val commonModule = module {
     // Use Cases - Auth
     singleOf(::SignUpUseCase)
     singleOf(::SignInUseCase)
+    singleOf(::SignOutUseCase)
     singleOf(::GetUserDataUseCase)
     singleOf(::SendVerificationEmailUseCase)
     singleOf(::VerifyEmailUseCase)
@@ -654,10 +655,12 @@ val commonModule = module {
     single { CreateProfileUseCase(get(named(USER_PROFILE_SCOPE)), get()) }
     single { UpdateProfileUseCase(get(named(USER_PROFILE_SCOPE)), get()) }
     single { FetchProfileUseCase(get(), get(named(USER_PROFILE_SCOPE))) }
-    singleOf(::UploadProfilePictureUseCase)
+    single { DeleteProfileUseCase(get(named(USER_PROFILE_SCOPE)), get()) }
     singleOf(::DeleteProfilePictureUseCase)
+    singleOf(::UploadProfilePictureUseCase)
     singleOf(::FetchStyleQuestionsUseCase)
     singleOf(::GetStyleResultUseCase)
+    singleOf(::FetchProfilePhotoDownloadUrl)
 
     // Use Cases - Curriculum
     single { UploadCurriculumUseCase(get(named(CURRICULUM_SCOPE))) }
@@ -733,4 +736,5 @@ val commonModule = module {
     viewModelOf(::DashboardViewModel)
     viewModelOf(::LibraryViewModel)
     viewModelOf(::StudyViewModel)
+    viewModelOf(::EditUserProfileViewModel)
 }

@@ -19,6 +19,7 @@ expect fun ImageUpload(
     onImageSelected: (ByteArray) -> Unit,
     onImageDeleted: () -> Unit,
     handleError: (Throwable) -> Unit,
-    modifier: Modifier,
-    isUploaded: Boolean
+    modifier: Modifier = Modifier,
+    isUploaded: Boolean = false,
+    currentImageUrl: String? = null
 )
