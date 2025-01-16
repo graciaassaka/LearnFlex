@@ -1,8 +1,8 @@
 # LearnFlex
 
 LearnFlex is a cross-platform application designed to provide an interactive learning experience. It leverages artificial intelligence to
-personalize learning paths and integrates various APIs to enrich content. This platform specifically targets Android and Desktop JVM
-environments.
+personalize learning paths and integrates various APIs to enrich content. This platform specifically targets `Android` and `Desktop JVM`
+(preferably Windows 64-bit) environments.
 
 ## 1. **Installation Guide**
 1. Clone the Repository
