@@ -151,7 +151,7 @@ class EditUserProfileViewModel(
                 updateProfileUseCase(
                     profile.copy(
                         username = username,
-                        preferences = Profile.LearningPreferences(level.name, field.name, goal),
+                        preferences = Profile.LearningPreferences(field, level, goal),
                         lastUpdated = System.currentTimeMillis()
                     )
                 ).onFailure { throw it }
