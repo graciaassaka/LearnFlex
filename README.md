@@ -5,34 +5,34 @@ personalize learning paths and integrates various APIs to enrich content. This p
 environments.
 
 ## 1. **Installation Guide**
-
 1. Clone the Repository
     - Download or clone the project’s repository from GitHub. Use either the command line (git clone <REPO_URL>) or GitHub Desktop.
-2. Create local.properties
-    - In the root directory of the project, create a file named local.properties.
+2. Open the Project
+    - Use `IntelliJ IDEA` to open the LearnFlex project.
+    - Let the IDE sync Gradle dependencies. (This might take a moment.)
+3. Create local.properties
+    - In the root directory of the project, create a file named `local.properties`.
     - Open the file and paste the API keys provided in the confidential document you received. This ensures that any required services (
       e.g.,
       OpenAI, Firebase) have the correct credentials.
    <div style="text-align: center;">
         <img alt="Project Structure" src="project_structure_2.png" style="width:200px;"/>
     </div>
-3. Add google-services.json
+4. Add google-services.json
     - Navigate to the composeApp folder in your project, which you can find at composeApp/.
-    - Create a file called google-services.json in that folder.
+   - Create a file called `google-services.json` in that folder.
     - Copy and paste the entire JSON content from the same confidential document you received into this file.
     - If you have misplaced the document or need it resent, email assakagracia@gmail.com for assistance.
     <div style="text-align: center;">
         <img alt="Project Structure" src="project_structure.png" style="width:200px;"/>
     </div>
-4. Open the Project
-    - Use Android Studio, IntelliJ IDEA, or another Kotlin-compatible IDE to open the LearnFlex project.
-    - Let the IDE sync Gradle dependencies. (This might take a moment.)
 5. Build and Run
-
-- Once synced, you can choose to build the project for Desktop or Android:
-    * For Android, connect an emulator or device and run the “composeApp” module.
-    * For Desktop, run the desktop module (e.g., MainKt in an IntelliJ run configuration).
-- Gradle will download all necessary libraries (e.g., Jetpack Compose, Ktor, Firebase). Ensure you have a stable internet connection.
+    - sync the project with Gradle by clicking the Sync Project with Gradle Files button in the IDE.
+    - clean the project and rebuild it.
+    - Once synced, you can choose to build the project for Desktop or Android:
+        * For Android, connect an emulator or device and run the “composeApp” module.
+        * For Desktop, run the desktop module (e.g., MainKt in an IntelliJ run configuration).
+    - Gradle will download all necessary libraries (e.g., Jetpack Compose, Ktor, Firebase). Ensure you have a stable internet connection.
 
 ## 2. **Project Goals**
 

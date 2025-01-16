@@ -26,19 +26,11 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="281a55e8-b077-4663-8355-8f00356df64a" name="LEA-35 Studying and Assessment" comment="Refactor data access and improve UI navigation.&#10;&#10;Replaced Firestore streaming methods with direct calls for efficiency and clarity. Enhanced navigation in the LibraryScreen with a new `onNavigateToMainPane` action and streamlined `CurriculumListItem` structure. Introduced multiple new test cases and images to support updated functionality.">
-      <change afterPath="$PROJECT_DIR$/dashboard_desktop.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/multiple_choice_question_mobile_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/multiple_choice_question_mobile_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/project_structure.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/quiz_result_desktop.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/quiz_result_mobile.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/study_lessons_downloaded_mobile.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/study_lessons_mobile.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/study_sections_collapsed.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/study_sections_expanded.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/true_false_question_mobile.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="281a55e8-b077-4663-8355-8f00356df64a" name="LEA-35 Studying and Assessment" comment="Add edit_profile.mobile.png asset&#10;&#10;This commit introduces a new image asset named edit_profile.mobile.png. This asset is likely intended for use in mobile environments within the profile editing section.">
+      <change afterPath="$PROJECT_DIR$/.idea/appInsightsSettings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/7f70a554-792c-492f-8ad1-ee900c667087.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/7f70a554-792c-492f-8ad1-ee900c667087/storage_v2/_src_/schema/main.uQUzAA.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
@@ -59,7 +51,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=PhysicalDevice, isTemplate=false, identifier=serial=34211JEHN10537)]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=LocalEmulator, isTemplate=false, identifier=path=C:\Users\assak\.android\avd\Pixel_8_Pro_API_33.avd)]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -1177,7 +1169,7 @@
     "project.structure.side.proportion": "0.31441718",
     "recommended.upgrade.do.not.ask.for.project": "true",
     "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "preferences.sourceCode.Kotlin",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "tasks.open.task.update.state.enabled": "true",
     "timeTracker.activityTracker": "null",
     "timeTracker.comment": "",
@@ -1214,6 +1206,23 @@
     ]
   }
 }]]></component>
+  <component name="QodanaHighlightedReportService">
+    <option name="localRunNotPublishedPersistedInfo">
+      <LocalReportPersistedInfo>
+        <option name="path" value="C:\Users\assak\AppData\Local\Temp\qodana_output\qodana.sarif.json" />
+        <option name="reportGuid" value="e3a4af34-4e59-4d41-81e7-dc17ee77dfe8" />
+        <option name="reportName" value="LearnFlex/qodana/2025-01-15" />
+      </LocalReportPersistedInfo>
+    </option>
+  </component>
+  <component name="QodanaIsSelectedPersistenceService">
+    <option name="selectedOrLoading" value="true" />
+  </component>
+  <component name="QodanaReportsService">
+    <option name="descriptions">
+      <ReportDescription localRun="true" path="C:\Users\assak\AppData\Local\Temp\qodana_output\qodana.sarif.json" reportGuid="e3a4af34-4e59-4d41-81e7-dc17ee77dfe8" reportId="LearnFlex/qodana/2025-01-15" />
+    </option>
+  </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\assak\IdeaProjects\LearnFlex" />
@@ -1448,53 +1457,6 @@
       <workItem from="1728303758924" duration="7904000" />
       <workItem from="1728343082510" duration="1637000" />
       <workItem from="1728489037486" duration="9267000" />
-    </task>
-    <task id="LEA-17" summary="Profile Creation">
-      <branch name="master" repository="C:\Users\assak\IdeaProjects\LearnFlex" original="true" />
-      <branch name="LEA-17" repository="C:\Users\assak\IdeaProjects\LearnFlex" />
-      <changelist id="6f62487c-157d-46a7-955e-ec8688dae7d6" name="LEA-17 Profile Creation" comment="" />
-      <option name="closed" value="true" />
-      <created>1728669424642</created>
-      <option name="issue" value="true" />
-      <url>https://gracia.youtrack.cloud/issue/LEA-17</url>
-      <option name="number" value="17" />
-      <option name="presentableId" value="LEA-17" />
-      <option name="project" value="LEA" />
-      <updated>1731774318704</updated>
-      <workItem from="1729757355573" duration="1806000" />
-      <workItem from="1729783308174" duration="148000" />
-      <workItem from="1729783559975" duration="11470000" />
-      <workItem from="1729800150069" duration="1406000" />
-      <workItem from="1729812873833" duration="1407000" />
-      <workItem from="1729822355156" duration="376000" />
-      <workItem from="1729822746346" duration="30280000" />
-      <workItem from="1729910543081" duration="11098000" />
-      <workItem from="1729922236161" duration="39607000" />
-      <workItem from="1730006510852" duration="1250000" />
-      <workItem from="1730010773345" duration="7863000" />
-      <workItem from="1730080646305" duration="57912000" />
-      <workItem from="1730387350859" duration="13012000" />
-      <workItem from="1730430899907" duration="59000" />
-      <workItem from="1730430969988" duration="163000" />
-      <workItem from="1730431181598" duration="381000" />
-      <workItem from="1730431576806" duration="86456000" />
-      <workItem from="1730828735127" duration="575000" />
-      <workItem from="1730829335003" duration="10119000" />
-      <workItem from="1730839591315" duration="9919000" />
-      <workItem from="1730851760111" duration="9765000" />
-      <workItem from="1731085319193" duration="57055000" />
-      <workItem from="1731257757277" duration="29265000" />
-      <workItem from="1731342591014" duration="3296000" />
-      <workItem from="1731353381243" duration="21000" />
-      <workItem from="1731702522679" duration="3504000" />
-    </task>
-    <task id="LOCAL-00041" summary="Remove outdated project enhancements section&#10;&#10;Removed the section listing old project enhancements from the README. This simplifies the documentation by focusing on relevant information and avoids redundancy.">
-      <option name="closed" value="true" />
-      <created>1731702867329</created>
-      <option name="number" value="00041" />
-      <option name="presentableId" value="LOCAL-00041" />
-      <option name="project" value="LOCAL" />
-      <updated>1731702867330</updated>
     </task>
     <task id="LEA-20" summary="Learning Progress Visualization">
       <branch name="master" repository="C:\Users\assak\IdeaProjects\LearnFlex" original="true" />
@@ -1871,7 +1833,8 @@
       <workItem from="1736464750020" duration="30091000" />
       <workItem from="1736521563866" duration="102378000" />
       <workItem from="1736670529496" duration="94390000" />
-      <workItem from="1736850775234" duration="19656000" />
+      <workItem from="1736850775234" duration="22233000" />
+      <workItem from="1736966880573" duration="5366000" />
     </task>
     <task id="LOCAL-00075" summary="feat: add Path and PathBuilder classes for Firestore path management&#10;&#10;- Introduced `Path` class to represent immutable Firestore paths with validation.&#10;- Added `PathBuilder` class to construct paths with collection and document segments.&#10;- Implemented methods for path validation, segment addition, and path building.">
       <option name="closed" value="true" />
@@ -1961,7 +1924,23 @@
       <option name="project" value="LOCAL" />
       <updated>1736863720627</updated>
     </task>
-    <option name="localTasksCounter" value="86" />
+    <task id="LOCAL-00086" summary="Add UI assets and update project documentation.&#10;&#10;Added new image assets for various screens, including dashboards and quizzes for both mobile and desktop platforms. Updated the README with detailed setup instructions, improving clarity on installation, authentication, and project goals.">
+      <option name="closed" value="true" />
+      <created>1736881821853</created>
+      <option name="number" value="00086" />
+      <option name="presentableId" value="LOCAL-00086" />
+      <option name="project" value="LOCAL" />
+      <updated>1736881821853</updated>
+    </task>
+    <task id="LOCAL-00087" summary="Add edit_profile.mobile.png asset&#10;&#10;This commit introduces a new image asset named edit_profile.mobile.png. This asset is likely intended for use in mobile environments within the profile editing section.">
+      <option name="closed" value="true" />
+      <created>1736882648346</created>
+      <option name="number" value="00087" />
+      <option name="presentableId" value="LOCAL-00087" />
+      <option name="project" value="LOCAL" />
+      <updated>1736882648346</updated>
+    </task>
+    <option name="localTasksCounter" value="88" />
     <servers>
       <YouTrack url="https://gracia.youtrack.cloud">
         <option name="defaultSearch" value="Assignee: me sort by: created asc" />
@@ -2019,8 +1998,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
     <confirmRemoveEmptyChangelist value="2" />
-    <MESSAGE value="Add support for Section and Session data management&#10;&#10;Introduce Section and Session use cases and repos with comprehensive tests for CRUD operations. Implement Firestore path building for related data structures and update Serializability for Section and Session models. Enhance data access objects and dependency injection to support new entities." />
-    <MESSAGE value="Implement Firestore path builder and section session utilities&#10;&#10;The FirestorePathBuilder class has been expanded to include path-building functionality for multiple Firestore collections and documents like users, curriculums, modules, lessons, sections, and sessions, implementing the PathBuilder interface. New test cases for several use cases involving sections and sessions have been added, along with updates to data models, repository configurations, and sync managers to accommodate sections and sessions within the module's DI setup." />
     <MESSAGE value="Remove IDE-specific config files from repository&#10;&#10;This commit deletes several IntelliJ IDEA configuration files such as `.gitignore`, `androidTestResultsUserPreferences.xml`, and other related settings files. Their removal ensures that local development settings do not conflict across different environments and reduces repository clutter." />
     <MESSAGE value="- Implemented `DashboardViewModel` with necessary dependencies and logic.&#10;- Created `DashboardScreen` to display the dashboard UI.&#10;- Added comprehensive unit tests for `DashboardViewModel` to ensure functionality." />
     <MESSAGE value="LEA-34 Automated Content Creation Workflow" />
@@ -2044,7 +2021,9 @@
     <MESSAGE value="LEA-20 Learning Progress Visualization" />
     <MESSAGE value="Refactor navigation and streamline ViewModel actions&#10;&#10;Renamed `Profile` to `ProfileManagement` in `Route` for clarity. Updated `handleAction` methods in `ViewModels` to use concise lambda expressions, improving readability and reducing boilerplate. Simplified `StudyScreen` by introducing `StartQuizButton`." />
     <MESSAGE value="Refactor data access and improve UI navigation.&#10;&#10;Replaced Firestore streaming methods with direct calls for efficiency and clarity. Enhanced navigation in the LibraryScreen with a new `onNavigateToMainPane` action and streamlined `CurriculumListItem` structure. Introduced multiple new test cases and images to support updated functionality." />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactor data access and improve UI navigation.&#10;&#10;Replaced Firestore streaming methods with direct calls for efficiency and clarity. Enhanced navigation in the LibraryScreen with a new `onNavigateToMainPane` action and streamlined `CurriculumListItem` structure. Introduced multiple new test cases and images to support updated functionality." />
+    <MESSAGE value="Add UI assets and update project documentation.&#10;&#10;Added new image assets for various screens, including dashboards and quizzes for both mobile and desktop platforms. Updated the README with detailed setup instructions, improving clarity on installation, authentication, and project goals." />
+    <MESSAGE value="Add edit_profile.mobile.png asset&#10;&#10;This commit introduces a new image asset named edit_profile.mobile.png. This asset is likely intended for use in mobile environments within the profile editing section." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add edit_profile.mobile.png asset&#10;&#10;This commit introduces a new image asset named edit_profile.mobile.png. This asset is likely intended for use in mobile environments within the profile editing section." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
