@@ -109,6 +109,10 @@ kotlin {
             resources.srcDirs(commonMain.resources.srcDirs)
             dependencies {
                 implementation(compose.desktop.currentOs)
+                implementation(compose.desktop.windows_x64)
+                implementation(compose.desktop.macos_arm64)
+                implementation(compose.desktop.linux_x64)
+                implementation(libs.skiko.win.runtime)
             }
         }
 
@@ -137,10 +141,6 @@ kotlin {
         val desktopTest by getting {
             dependencies {
                 implementation(compose.desktop.currentOs)
-                implementation(compose.desktop.windows_x64)
-                implementation(compose.desktop.macos_arm64)
-                implementation(compose.desktop.linux_x64)
-                implementation(libs.skiko.win.runtime)
             }
         }
     }
