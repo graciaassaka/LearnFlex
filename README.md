@@ -13,8 +13,7 @@ personalize learning paths and integrates various APIs to enrich content. This p
 3. Create local.properties
     - In the root directory of the project, create a file named `local.properties`.
     - Open the file and paste the API keys provided in the confidential document you received. This ensures that any required services (
-      e.g.,
-      OpenAI, Firebase) have the correct credentials.
+      e.g., OpenAI, Firebase) have the correct credentials.
    <div style="text-align: center;">
         <img alt="Project Structure" src="project_structure_2.png" style="width:200px;"/>
     </div>
